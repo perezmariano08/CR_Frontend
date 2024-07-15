@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionOptionContainer, ActionTitle, ActionsContainer, IconClose } from './ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
-
-import { setActionPlayer, setNavigationSource, setPlayerSelectedAction, toggleHiddenAction } from '../../../redux/Planillero/planilleroSlice';
-import { toggleHiddenTime, toggleHiddenAsist } from '../../../redux/Planillero/planilleroSlice';
+import { setActionPlayer, setActionToEdit, setNavigationSource, toggleHiddenAction, toggleHiddenTime, toggleHiddenAsist } from '../../../redux/Planillero/planilleroSlice';
 
 const ActionConfirmed = () => {
-    //Toggle
     const dispatch = useDispatch();
     const hiddenActions = useSelector((state) => state.planillero.planilla.hidden);
+    const actionToEdit = useSelector((state) => state.planillero.actionEdit);
+    const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
+    // console.log('sin actualizar', actionToEdit);
 
     //Cerrar componente clickeando en el overlay
     const handleOverlayClick = (event) => {
@@ -19,36 +19,48 @@ const ActionConfirmed = () => {
         }
     };
 
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState(actionToEdit?.Accion || null);
 
     const handleOptionChange = (option) => {
         setSelectedOption(option);
     };
 
-    //Avisar que selecciono el planillero
+    const setEditAccion = (option) => {
+        const updatedAction = { ...actionToEdit, Accion: option };
+
+        if (option !== 'Gol') {
+            delete updatedAction.Detail;
+        }
+        // console.log('actualizado', updatedAction);
+        dispatch(setActionToEdit(updatedAction));
+    }
+
     const handleNext = () => {
         switch (selectedOption) {
             case "Gol":
                 dispatch(setNavigationSource('Assisted'));
                 dispatch(toggleHiddenAsist());
-                dispatch(setActionPlayer("Gol"))
+                dispatch(setActionPlayer("Gol"));
                 break;
             case "Amarilla":
                 dispatch(setNavigationSource('Amarilla'));
                 dispatch(toggleHiddenTime());
-                dispatch(setActionPlayer("Amarilla"))
+                dispatch(setActionPlayer("Amarilla"));
                 break;
             case "Roja":
                 dispatch(setNavigationSource('Roja'));
                 dispatch(toggleHiddenTime());
-                dispatch(setActionPlayer("Roja"))
+                dispatch(setActionPlayer("Roja"));
                 break;
             default:
                 break;
         }
+        if(enabledEdit){
+            setEditAccion(selectedOption)
+        }
         dispatch(toggleHiddenAction());
     };
-    
+
     return (
         <>
         {!hiddenActions && (
@@ -58,11 +70,10 @@ const ActionConfirmed = () => {
                         <ActionBack>
                             <HiArrowLeft onClick={() => dispatch(toggleHiddenAction())}/>
                             <p>Volver</p>
-                    </ActionBack>
-                    <IconClose>
-                        <HiMiniXMark 
-                        onClick={() => dispatch(toggleHiddenAction())}/>
-                    </IconClose>
+                        </ActionBack>
+                        <IconClose>
+                            <HiMiniXMark onClick={() => dispatch(toggleHiddenAction())}/>
+                        </IconClose>
                     </ActionBackContainer>
 
                     <ActionTitle>
@@ -72,14 +83,14 @@ const ActionConfirmed = () => {
 
                     <ActionsContainer>
                         <ActionOptionContainer>
-                        <input 
-                            type="radio" 
-                            name="actionOption"
-                            id="golOption"
-                            value="Gol"
-                            onChange={() => handleOptionChange("Gol")}
-                            checked={selectedOption === "Gol"}
-                        />
+                            <input 
+                                type="radio" 
+                                name="actionOption"
+                                id="golOption"
+                                value="Gol"
+                                onChange={() => handleOptionChange("Gol")}
+                                checked={selectedOption === "Gol"}
+                            />
                             <p>Gol</p>
                         </ActionOptionContainer>
                         <ActionOptionContainer>

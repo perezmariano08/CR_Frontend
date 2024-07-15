@@ -7,6 +7,7 @@ export const ButtonContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 20px;
 `
 export const ButtonMatch = styled.button`
     display: flex;

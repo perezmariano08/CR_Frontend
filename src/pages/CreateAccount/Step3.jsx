@@ -22,7 +22,6 @@ const Step3 = () => {
         try {
             const response = await axios.post(`${URL}/auth/crear-cuenta`, {apellido, clave, dni, email, equipoFav, fechaNacimiento, nombre, telefono});
             if (response.status === 200) {
-                console.log('Cuenta creada exitosamente');
                 window.location.href = '/login';
             }
         } catch (error) {
@@ -46,7 +45,6 @@ const Step3 = () => {
                 equipoFav: teamSelected
             }
             createAccount(usuario)
-            console.log(usuario);
         }
     }
 

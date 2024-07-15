@@ -91,8 +91,11 @@ export const ActionNext = styled.button`
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    background: var(--green);
     
+    &.cancel {
+        background-color: var(--red);
+    }
+
     &.disabled {
     opacity: 0.5;
     pointer-events: none;

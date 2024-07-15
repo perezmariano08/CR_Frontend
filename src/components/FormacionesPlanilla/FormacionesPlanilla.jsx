@@ -2,92 +2,128 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormacionesPlanillaTitle, FormacionesPlanillaWrapper, PlanillaButtons, PlayerEventContainer, TablePlanillaWrapper } from './FormacionesPlanillaStyles';
 import { AlignmentDivider } from '../Stats/Alignment/AlignmentStyles';
-import EscudoCelta from '/Escudos/celta-de-vino.png';
-import EscudoPuraQuimica from '/Escudos/pura-quimica.png';
 import { HiMiniPencil, HiOutlineXCircle } from "react-icons/hi2";
-
-import { setNamePlayer, setPlayerSelected, setPlayerSelectedAction, setdorsalPlayer, toggleHiddenAction, toggleHiddenDorsal, setIsLocalTeam, setNamePlayerSelected, toggleHiddenModal, setCurrentStateModal, setCurrentDorsalDelete, setCurrentIdDorsalDelete, setCurrentCurrentTeamPlayerDelete, handleTeamPlayer, toggleHiddenPlayerEvent } from '../../redux/Planillero/planilleroSlice';
+import {
+    setNamePlayer, setPlayerSelected, setPlayerSelectedAction, setdorsalPlayer,
+    toggleHiddenAction, toggleHiddenDorsal, setIsLocalTeam, setNamePlayerSelected,
+    toggleHiddenModal, setCurrentStateModal, setCurrentDorsalDelete, setCurrentIdDorsalDelete,
+    setCurrentCurrentTeamPlayerDelete, handleTeamPlayer, toggleHiddenPlayerEvent,
+    setEnabledActionEdit,
+    setInfoDelete,
+    setInfoPlayerEvent,
+    setEnabledStateInfoPlayerEvent
+} from '../../redux/Planillero/planilleroSlice';
 import { Toaster, toast } from 'react-hot-toast';
 
-const FormacionesPlanilla = () => {
+const FormacionesPlanilla = ({ idPartido }) => {
     const dispatch = useDispatch();
     const [activeButton, setActiveButton] = useState('local');
     const initialState = useSelector((state) => state.match) || [];
     const [initialized, setInitialized] = useState(false);
 
-    //Logica para cargar por defecto el id del equipo local
+    // Consumo del slice que a su vez consume la base de datos
+    const partidos = useSelector((state) => state.partidos.data);
+    const partido = partidos.find((partido) => partido.id_partido === idPartido);
+
+    const equipos = useSelector((state) => state.equipos.data);
+    const escudosEquipos = (idEquipo) => {
+        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
+        return equipo ? equipo.img : null;
+    };
+    
+    const nombreEquipos = (idEquipo) => {
+        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
+        return equipo ? equipo.nombre : null;
+    };
+
+    const matchState = useSelector((state) => state.match);
+    const matchCorrecto = matchState.find((match) => match.ID === idPartido);
+    const currentTeam = activeButton === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
+
     useEffect(() => {
-        // Verificar si initialState tiene algún equipo local
-        const selectedTeam = initialState.find(team => team.Local === true);
+        const selectedTeam = matchCorrecto.Local;
         if (!initialized && selectedTeam) {
-            // Establecer el equipo local solo en la primera renderización
             setActiveButton('local');
-            dispatch(handleTeamPlayer(selectedTeam.ID));
+            dispatch(handleTeamPlayer(selectedTeam.id_equipo));
             setInitialized(true);
         }
     }, [initialState, initialized, dispatch]);
 
-    //Mandar id del jugador donde se quiere agregar
     const handleButtonClick = (buttonType) => {
         setActiveButton(buttonType);
-        const selectedTeam = initialState.find(team => team.Local === (buttonType === 'local'));
+        const selectedTeam = buttonType === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
         if (selectedTeam) {
-        dispatch(handleTeamPlayer(selectedTeam.ID))
+            dispatch(handleTeamPlayer(selectedTeam.id_equipo));
         }
     };
-
-    //Logica toggle local-visita
-    const matchState = useSelector((state) => state.match);
-    const currentTeam = activeButton === 'local' ? matchState.find(team => team.Local === true) : matchState.find(team => team.Local === false);
-
-    // Enviar ID del jugador seleccionado , Dorsal, Nombre y definir localia
+    
     const [selectedPlayerIdAction, setSelectedPlayerIdAction] = useState(''); 
-    const [playerDorsal, setPlayerDorsal] = useState('')
-    const [playerName, setPlayerName] = useState('')
+    const [playerDorsal, setPlayerDorsal] = useState('');
+    const [playerName, setPlayerName] = useState('');
 
-    const handleNext = (playerID, playerDorsal, namePlayer) => {
-        setSelectedPlayerIdAction(playerID)
-        dispatch(setPlayerSelectedAction(playerID))
+    const handleNext = (playerID, playerDorsal, namePlayer, idEquipo) => {
+        if (matchCorrecto.matchState === null || matchCorrecto.matchState === 'matchPush') {
+            if (matchCorrecto.matchState === 'matchPush') {
+                toast.error('El partido ya ha sido cargado en la base de datos');
+            } else {
+                toast.error('Debe comenzar el partido para realizar acciones');
+            }
+            return;
+        }
+        setSelectedPlayerIdAction(playerID);
+        dispatch(setPlayerSelectedAction(playerID));
 
-        setPlayerDorsal(playerDorsal)
-        dispatch(setdorsalPlayer(playerDorsal))
+        setPlayerDorsal(playerDorsal);
+        dispatch(setdorsalPlayer(playerDorsal));
 
-        setPlayerName(namePlayer)
-        dispatch(setNamePlayer(namePlayer))
+        setPlayerName(namePlayer);
+        dispatch(setNamePlayer(namePlayer));
 
-        // Definir si el equipo es local o visitante
-        dispatch(setIsLocalTeam(activeButton === 'local'));
-
+        dispatch(setIsLocalTeam(idEquipo));
         dispatch(toggleHiddenAction());
-    }
-
-    //Seleccionar jugador mediante click en edit
-    const [selectedPlayerId, setSelectedPlayerId] = useState(''); 
-
-    // Función para manejar el clic en el lápiz y abrir el componente EditDorsal
-    const handleEditDorsal = (playerId, playerName) => {
-        setSelectedPlayerId(playerId);
-        dispatch(setPlayerSelected(playerId))
-        dispatch(setNamePlayerSelected(playerName))
-        dispatch(toggleHiddenDorsal());
     };
 
-    //Verificar que el estado del partido sea el correcto para hacer accion
-    const stateMatch = useSelector((state) => state.planillero.timeMatch.matchState)
-    
-    //Eliminar dorsal del jugador seleccionado
-    const DeleteDorsalPlayer = (dorsal, id, team) => {
-        dispatch(toggleHiddenModal())
-        dispatch(setCurrentStateModal('dorsal'))
-        dispatch(setCurrentDorsalDelete(dorsal))
-        dispatch(setCurrentIdDorsalDelete(id))
-        dispatch(setCurrentCurrentTeamPlayerDelete(team))
-    }
+    const [selectedPlayerId, setSelectedPlayerId] = useState(''); 
 
-    //Toggle modal de player eventual
+    const handleEditDorsal = (player) => {
+        if (matchCorrecto.matchState !== 'matchPush') {
+            if (player.eventual) {
+                const {DNI, Dorsal, Nombre} = player;
+                const [apellido, nombre] = Nombre.split(', ').map(part => part.trim());
+                dispatch(setInfoPlayerEvent({DNI, Dorsal, nombre, apellido}));
+                dispatch(setEnabledStateInfoPlayerEvent());
+                handleModalPlayerEventual();
+                return;
+            }
+    
+            setSelectedPlayerId(player.ID);
+            dispatch(setPlayerSelected(player.ID));
+            dispatch(setNamePlayerSelected(player.Nombre));
+            dispatch(toggleHiddenDorsal());
+        } else {
+            toast.error('El partido ya ha sido cargado en la base de datos');
+        }
+    };
+    
+    const DeleteDorsalPlayer = (idPartido, idEquipo, idJugador, dorsal) => {
+        if (matchCorrecto.matchState !== 'matchPush') {
+            dispatch(setInfoDelete({ idPartido, idEquipo, idJugador }));
+            dispatch(toggleHiddenModal());
+            dispatch(setCurrentStateModal('dorsal'));
+            dispatch(setCurrentDorsalDelete(dorsal));
+        } else {
+            toast.error('El partido ya ha sido cargado en la base de datos');
+        }
+
+    };
+
     const handleModalPlayerEventual = () => {
-        dispatch(toggleHiddenPlayerEvent())
-    }
+        if (matchCorrecto.matchState !== 'matchPush') {
+            dispatch(toggleHiddenPlayerEvent());
+        } else {
+            toast.error('El partido ya ha sido cargado en la base de datos');
+        }
+    };
 
     return (
         <FormacionesPlanillaWrapper>
@@ -98,9 +134,9 @@ const FormacionesPlanilla = () => {
                 >
                     Local
                 </PlanillaButtons>
-                <img src={EscudoCelta} alt="" />
+                <img src={`/Escudos/${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
                 <h3>Formaciones</h3>
-                <img src={EscudoPuraQuimica} alt="" />
+                <img src={`/Escudos/${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
                 <PlanillaButtons
                     className={`visitante ${activeButton === 'visitante' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('visitante')}
@@ -120,43 +156,37 @@ const FormacionesPlanilla = () => {
                 </thead>
                 <tbody>
                     {currentTeam && currentTeam.Player.map(player => (
-                            <tr key={player.ID} className={player.eventual ? 'playerEventual' : ''}>
-                                <td
-                                    className={`dorsal ${!player.Dorsal && 'disabled'}`}
-                                    onClick={ () => {
-                                            if (stateMatch !== 'isStarted') {
-                                            toast.error('Debe comenzar el partido para realizar acciones')
-                                            return;
-                                        }
-                                            if (player.Dorsal) {
-                                            handleNext(player.ID, player.Dorsal, player.Nombre)
-                                        }}
+                        <tr key={player.ID} className={player.eventual ? 'playerEventual' : ''}>
+                            <td
+                                className={`dorsal ${(!player.Dorsal || player.sancionado) && 'disabled'}`}
+                                onClick={() => {
+                                    if (player.Dorsal && !player.sancionado) {
+                                        handleNext(player.ID, player.Dorsal, player.Nombre, currentTeam.id_equipo);
                                     }
-                                >
-                                    {player.Dorsal}
-                                </td>
-                                <td className='text'>{player.DNI}</td>
-                                <td className='text'>{player.Nombre}</td>
-                                <td className='tdActions'>
-                                    <HiMiniPencil
-                                        className='edit'
-                                        onClick={() => handleEditDorsal(player.ID, player.Nombre)}
-                                    />
-                                    <HiOutlineXCircle
-                                        className={`delete ${!player.Dorsal ? 'disabled' : ''}`}
-                                        onClick={() => DeleteDorsalPlayer(player.Dorsal, player.ID, currentTeam.Local)}
-                                    />
-                                </td>
-                            </tr>
+                                }}
+                            >
+                                {player.Dorsal}
+                            </td>
+                            <td className='text'>{player.DNI}</td>
+                            <td className='text'>{player.Nombre}</td>
+                            <td className='tdActions'>
+                                <HiMiniPencil
+                                    className='edit'
+                                    onClick={() => handleEditDorsal(player)}
+                                />
+                                <HiOutlineXCircle
+                                    className={`delete ${(!player.Dorsal) ? 'disabled' : ''}`}
+                                    onClick={() => DeleteDorsalPlayer(idPartido, currentTeam.id_equipo, player.ID, player.Dorsal)}
+                                />
+                            </td>
+                        </tr>
                     ))}
                 </tbody>
             </TablePlanillaWrapper>
             <PlayerEventContainer>
-                        <p
-                        onClick={handleModalPlayerEventual}
-                        >Añadir jugadores eventuales</p>
-                    </PlayerEventContainer>
-            <Toaster/>
+                <p onClick={handleModalPlayerEventual}>Añadir jugadores eventuales</p>
+            </PlayerEventContainer>
+            <Toaster />
         </FormacionesPlanillaWrapper>
     );
 };

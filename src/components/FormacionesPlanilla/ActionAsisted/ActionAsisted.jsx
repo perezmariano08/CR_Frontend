@@ -1,83 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, AssistOptContainer, IconClose, OptionGolContainer, OptionGolWrapper } from '../ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Select2 from '../../UI/Select/Select2';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setNewAssist, toggleHiddenAction, toggleHiddenAsist, toggleHiddenTime } from '../../../redux/Planillero/planilleroSlice';
+import { setActionToEdit, setNewAssist, toggleHiddenAction, toggleHiddenAsist, toggleHiddenTime } from '../../../redux/Planillero/planilleroSlice';
 
 const ActionAsisted = () => {
     const dispatch = useDispatch();
     const hiddenAsist = useSelector((state) => state.planillero.asist.hidden);
-
-    //Cerrar componente clickeando en el overlay
-    const handleOverlayClick = (event) => {
-        if (event.target === event.currentTarget) {
-            dispatch(toggleHiddenAsist());
-        }
-    };
-
-    //Boton siguiente
-    const handleNext = () => {
-
-        //Envio de objeto al slice con la data del gol
-        const dataGol = {
-            penal: penalSeleccionado,
-            enContra: enContraSeleccionado,
-            withAssist: asistenciaSeleccionada === "si" ? true : false,
-            idAssist: asistenciaSeleccionada === "si" ? selectedPlayer : null,
-        }
-        dispatch(setNewAssist(dataGol))
-
-        //Cerrar y abrir ventanas
-        dispatch(toggleHiddenAsist());
-        dispatch(toggleHiddenTime());
-
-        //Reiniciar estados
-        setPenalSeleccionado(null);
-        setEnContraSeleccionado(null);
-        setAsistenciaSeleccionada(null);
-        setSelectedPlayer('');
-    };
-
-    //Logica volver atras
-    const handleBack = () => {
-        dispatch(toggleHiddenAsist());
-        dispatch(toggleHiddenAction());
-    };
-
-    //Logica enabled
-    const [penalSeleccionado, setPenalSeleccionado] = useState(null);
-    const [enContraSeleccionado, setEnContraSeleccionado] = useState(null);
-    const [asistenciaSeleccionada, setAsistenciaSeleccionada] = useState(null);
-
-    const handlePenalChange = (event) => {
-        setPenalSeleccionado(event.target.value);
-        setEnContraSeleccionado(null);
-        setAsistenciaSeleccionada(null);
-    };
-
-    const handleEnContraChange = (event) => {
-        setEnContraSeleccionado(event.target.value);
-        setPenalSeleccionado(null);
-        setAsistenciaSeleccionada(null);
-    };
-
-    const handleAsistenciaChange = (event) => {
-        setAsistenciaSeleccionada(event.target.value);
-        setPenalSeleccionado(null);
-        setEnContraSeleccionado(null);
-    };
+    const actionToEdit = useSelector((state) => state.planillero.actionEdit);
+    const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
 
     //Enviar local team true o false al select para la filtracion
     const planillaData = useSelector((state) => state.planillero.planilla.localTeam)
-    const playerActionId = useSelector((state) => state.planillero.planilla.playerSelected)
-
-    // Estado para almacenar el jugador seleccionado
+    const playerActionId = useSelector((state) => state.planillero.planilla.playerSelected);
+    
+    const [penalSeleccionado, setPenalSeleccionado] = useState(null);
+    const [enContraSeleccionado, setEnContraSeleccionado] = useState(null);
+    const [asistenciaSeleccionada, setAsistenciaSeleccionada] = useState(null);
     const [selectedPlayer, setSelectedPlayer] = useState('');
 
-    //Logica para validar enabled del boton
+    const handlePenalChange = (event) => {
+        if (event.target.checked) {
+            setPenalSeleccionado('si');
+            setEnContraSeleccionado(null);
+            setAsistenciaSeleccionada(null);
+            setSelectedPlayer('');
+        }
+    };
+    
+    const handleEnContraChange = (event) => {
+        if (event.target.checked) {
+            setEnContraSeleccionado('si');
+            setPenalSeleccionado(null);
+            setAsistenciaSeleccionada(null);
+            setSelectedPlayer('');
+        }
+    };
+    
+    const handleAsistenciaChange = (event) => {
+        if (event.target.checked) {
+            setAsistenciaSeleccionada(event.target.value);
+            setPenalSeleccionado(null);
+            setEnContraSeleccionado(null);
+        }
+    };
+    
     const isButtonEnabled = () => {
         if (asistenciaSeleccionada === "si" && selectedPlayer !== '') {
             return true;
@@ -88,6 +58,67 @@ const ActionAsisted = () => {
         return false;
     };
     
+    useEffect(() => {
+        if (enabledEdit) {
+            if (actionToEdit.Detail?.penal) {
+                setPenalSeleccionado('si');
+                setEnContraSeleccionado(null);
+                setAsistenciaSeleccionada(null);
+                setSelectedPlayer('');
+            } else if (actionToEdit.Detail?.enContra) {
+                setPenalSeleccionado(null);
+                setEnContraSeleccionado('si');
+                setAsistenciaSeleccionada(null);
+                setSelectedPlayer('');
+            } else if (actionToEdit.Detail?.withAssist !== undefined) {
+                setPenalSeleccionado(null);
+                setEnContraSeleccionado(null);
+                setAsistenciaSeleccionada(actionToEdit.Detail.withAssist ? 'si' : 'no');
+                setSelectedPlayer(actionToEdit.Detail.withAssist ? actionToEdit.Detail.idAssist : '');
+            } else {
+                setPenalSeleccionado(null);
+                setEnContraSeleccionado(null);
+                setAsistenciaSeleccionada(null);
+                setSelectedPlayer('');
+            }
+        }
+    }, [actionToEdit]);
+
+    const handleNext = () => {
+        const updatedDetail = {
+            penal: penalSeleccionado,
+            enContra: enContraSeleccionado,
+            withAssist: asistenciaSeleccionada === "si",
+            idAssist: asistenciaSeleccionada === "si" ? selectedPlayer : null,
+        };
+
+        if (enabledEdit) {
+            const updatedAction = { ...actionToEdit, Detail: updatedDetail };
+            dispatch(setActionToEdit(updatedAction));
+        }
+
+        dispatch(setNewAssist(updatedDetail));
+
+        dispatch(toggleHiddenAsist());
+        dispatch(toggleHiddenTime());
+
+        setPenalSeleccionado(null);
+        setEnContraSeleccionado(null);
+        setAsistenciaSeleccionada(null);
+        setSelectedPlayer('');
+    };
+
+    const handleBack = () => {
+        dispatch(toggleHiddenAsist());
+        dispatch(toggleHiddenAction());
+    };
+
+    const handleOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            dispatch(toggleHiddenAsist());
+        }
+    };
+
     return (
         <>
         {!hiddenAsist && (
@@ -162,7 +193,7 @@ const ActionAsisted = () => {
                         </AssistOptContainer>
                         {asistenciaSeleccionada === "si" && (
                             <Select2 
-                                localTeam={planillaData}
+                                idTeam={planillaData}
                                 currentActionPlayerId={playerActionId}
                                 onSelect={(playerId) => setSelectedPlayer(playerId)}
                             />
