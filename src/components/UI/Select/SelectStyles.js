@@ -3,7 +3,6 @@ import styled from "styled-components";
 export const SelectContainerStyled = styled.div`
     display: flex;
     align-items: center;
-    padding: 0 12px;
     background-color: var(--gray-300);
     color: var(--gray-200);
     border: none;

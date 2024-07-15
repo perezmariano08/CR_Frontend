@@ -4,19 +4,21 @@ import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfir
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-
-import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, handleConfirm, deleteAction } from '../../../redux/Planillero/planilleroSlice';
+import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, setActionToEdit, setEnabledActionEdit, setDisabledActionEdit } from '../../../redux/Planillero/planilleroSlice';
+import { addActionToPlayer, editActionToPlayer } from '../../../redux/Matches/matchesSlice';
 
 const ActionConfirmed = () => {
-
-    const reviewDataGol = useSelector((state) => state.planillero.asist.dataGol)
-
-    // Logica de navegacion
+    const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
     const dispatch = useDispatch();
     const hiddenTime = useSelector((state) => state.planillero.planillaTime.hidden);
     const navigationSource = useSelector((state) => state.planillero.planilla.navigationSource);
+    const { newTime } = useSelector((state) => state.planillero.planillaTime);
+    const accionDetail = useSelector((state) => state.planillero.asist.dataGol);
+    const actionToDelete = useSelector((state) => state.planillero.actionToDelete);
+    const { localTeam, playerSelected, playerName, dorsalPlayer, actionPlayer } = useSelector((state) => state.planillero.planilla);
+    const actionToEdit = useSelector((state) => state.planillero.actionEdit);
+    const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
 
-    //Logica para navegar en caso de que si es gol se abra la ventana assited
     const handleBack = () => {
         if (navigationSource === 'Assisted') {
             dispatch(toggleHiddenAsist());
@@ -27,47 +29,56 @@ const ActionConfirmed = () => {
         }
     };
 
-    // Logica enabled
     const [inputValue, setInputValue] = useState("");
 
     const handleInputChange = (value) => {
-        // Verificar si el valor ingresado contiene solo dos números
         if (/^\d{0,2}$/.test(value) || value === '') {
             setInputValue(value);
         }
     };
     
-    // Logica payload
-    const { localTeam, playerSelected, playerName ,dorsalPlayer, actionPlayer } = useSelector((state) => state.planillero.planilla)
-    const { newTime } = useSelector((state) => state.planillero.planillaTime)
-    const actions = useSelector((state) => state.planillero.planilla.actions)
-
-    const actionToDelete = useSelector((state) => state.planillero.actionToDelete)
+    const handleOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            dispatch(toggleHiddenTime());
+        }
+    };
 
     const handleTimeConfirm = () => {
-        dispatch(setNewTime(inputValue))
-        const actionData = {
-            isLocalTeam: localTeam,
-            idJugador: playerSelected,
-            nombreJugador: playerName,
-            dorsal: dorsalPlayer,
-            accion: actionPlayer,
-            minuto: newTime
-        }
-
-        actionData.minuto = inputValue;
-        dispatch(handleConfirm(actionData));
-        // dispatch(deleteAction({ editedAction: actionData, isEdit: true }));
-        dispatch(toggleHiddenTime())
-        setInputValue('')
-    }
-
-        //Cerrar componente clickeando en el overlay
-        const handleOverlayClick = (event) => {
-            if (event.target === event.currentTarget) {
-                dispatch(toggleHiddenTime());
+        const actionData = enabledEdit
+            ? {
+                id: actionToEdit.ID,
+                idPartido: actionToEdit.idPartido,
+                isLocalTeam: actionToEdit.idEquipo,
+                idJugador: actionToEdit.idJugador,
+                nombreJugador: actionToEdit.Nombre,
+                dorsal: actionToEdit.dorsal,
+                accion: actionToEdit.Accion,
+                minuto: parseInt(inputValue),
+                detail: accionDetail
             }
-        };
+            : {
+                id: Date.now(),
+                idPartido: partidoId,
+                isLocalTeam: localTeam,
+                idJugador: playerSelected,
+                nombreJugador: playerName,
+                dorsal: dorsalPlayer,
+                accion: actionPlayer,
+                minuto: inputValue,
+                detail: accionDetail
+            };
+    
+        if (enabledEdit) {
+            dispatch(editActionToPlayer({ partidoId, actionData }));
+        } else {
+            dispatch(addActionToPlayer({ partidoId, actionData }));
+        }
+        dispatch(setNewTime(inputValue));
+        dispatch(toggleHiddenTime());
+        dispatch(setDisabledActionEdit());
+        setInputValue('');
+    };
+    
 
     return (
         <>
@@ -78,15 +89,14 @@ const ActionConfirmed = () => {
                             <ActionBack onClick={handleBack}>
                                 <HiArrowLeft />
                                 <p>Volver</p>
-                        </ActionBack>
-                        <IconClose>
-                            <HiMiniXMark onClick={() => dispatch(toggleHiddenTime())}/>
-                        </IconClose>
+                            </ActionBack>
+                            <IconClose>
+                                <HiMiniXMark onClick={() => dispatch(toggleHiddenTime())} />
+                            </IconClose>
                         </ActionBackContainer>
-
                         <ActionTitle>
-                            <h3>Indique el minuto de la acción</h3> 
-                            <AlignmentDivider/>
+                            <h3>Indique el minuto de la acción</h3>
+                            <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer>
                             <Input2 

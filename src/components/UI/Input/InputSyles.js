@@ -127,8 +127,6 @@ export const InputContainerStyled2 = styled.div`
     width: 100%;
 `
 
-
-
 export const InputWrapper2 = styled.input`
     background-color: transparent;
     border-radius: 5px;

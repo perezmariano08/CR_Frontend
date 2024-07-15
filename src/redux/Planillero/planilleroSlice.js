@@ -32,18 +32,29 @@ const initialState = {
     currentTeam: null,
   },
   actionToDelete: null,
-  accionEdit: {
-    accion: null,
-    dataGol: {},
-    time: null,
+  actionEdit: null,
+  actionEditEnabled: false,
+  infoDelete: {
+    idPartido: null,
+    idEquipo: null,
+    idJugador: null
   },
   playerEvent: {
     hidden: true,
     idPlayerTeam: null,
   },
+  playerEventData: {
+    state: null,
+    dorsal: null,
+    dni: null,
+    nombre: null,
+    apellido: null
+  },
   timeMatch: {
     matchState: null,
+    idMatch: null
   },
+  
 };
 
 const planilleroSlice = createSlice({
@@ -87,52 +98,44 @@ const planilleroSlice = createSlice({
       state.planilla.localTeam = action.payload;
     },
     handleConfirm: (state, action) => {
-      const { isLocalTeam, idJugador, nombreJugador, dorsal, accion, minuto } = action.payload;
-    
+      const { partidoId, isLocalTeam, idJugador, nombreJugador, dorsal, accion, minuto } = action.payload;
+
       // Agregar la nueva acción
-      let nuevaAccion = { isLocalTeam, idJugador, nombreJugador, dorsal, accion, minuto };
-      
+      let nuevaAccion = { partidoId, isLocalTeam, idJugador, nombreJugador, dorsal, accion, minuto };
+
       const isGolEnContra = state.asist.dataGol.enContra;
 
       if (isGolEnContra) {
-        nuevaAccion.isLocalTeam = !isLocalTeam;
+          nuevaAccion.isLocalTeam = !isLocalTeam;
       }
 
-      // Si la acción es un gol, agregamos información adicional
       if (accion === 'Gol') {
-        nuevaAccion.golDetails = state.asist.dataGol;
+          nuevaAccion.golDetails = state.asist.dataGol;
       }
-    
+
       state.planilla.actions.push(nuevaAccion);
-      
+
       state.planilla.actions.sort((a, b) => {
-        const minuteA = parseInt(a.minuto);
-        const minuteB = parseInt(b.minuto);
-        
-        if (minuteA < minuteB) {
-          return -1;
-        }
-        if (minuteA > minuteB) {
-          return 1;
-        }
-        return 0;
+          const minuteA = parseInt(a.minuto);
+          const minuteB = parseInt(b.minuto);
+
+          if (minuteA < minuteB) {
+              return -1;
+          }
+          if (minuteA > minuteB) {
+              return 1;
+          }
+          return 0;
       });
-      
-    },         
+  },         
     setNamePlayerSelected: (state, action) => {
       state.dorsal.playerSelectedName = action.payload;
     },
     setNewAssist: (state, action) => {
       state.asist.dataGol = action.payload;
     },
-    toggleStateMatch: (state) => {
-      if (state.timeMatch.matchState === null) {
-        state.timeMatch.matchState = 'isStarted';
-      } else if (state.timeMatch.matchState === 'isStarted') {
-        state.timeMatch.matchState = 'isFinish';
-      } else {
-        state.timeMatch.matchState = 'finish';
-      }
+    toggleIdMatch: (state, action) => {
+      state.timeMatch.idMatch = action.payload
     },
     toggleHiddenModal: (state) => {
       state.modal.hidden = !state.modal.hidden;
@@ -141,7 +144,6 @@ const planilleroSlice = createSlice({
       state.actionToDelete = action.payload;
     },
     deleteAction: (state, action) => {
-
       const { editedAction, isEdit } = action.payload;
 
       if (isEdit) {
@@ -164,6 +166,15 @@ const planilleroSlice = createSlice({
         }
 
       }
+    },
+    setActionToEdit: (state, action) => {
+      state.actionEdit = action.payload;
+    },
+    setEnabledActionEdit: (state) => {
+      state.actionEditEnabled = true;
+    },
+    setDisabledActionEdit: (state) => {
+      state.actionEditEnabled = false;
     },
     setCurrentStateModal: (state, action) => {
       state.modal.modalState = action.payload;
@@ -188,7 +199,26 @@ const planilleroSlice = createSlice({
     },
     handleTeamPlayer: (state, action) => {
       state.playerEvent.idPlayerTeam = action.payload
-    }
+    },
+    setInfoDelete: (state, action) => {
+      const {idPartido, idEquipo, idJugador} = action.payload;
+      state.infoDelete.idPartido = idPartido;
+      state.infoDelete.idEquipo = idEquipo;
+      state.infoDelete.idJugador = idJugador;
+    },
+    setInfoPlayerEvent: (state, action) => {
+      const {DNI, Dorsal, nombre, apellido} = action.payload;
+      state.playerEventData.dni = DNI;
+      state.playerEventData.dorsal = Dorsal;
+      state.playerEventData.nombre = nombre;
+      state.playerEventData.apellido = apellido;
+    },
+    setEnabledStateInfoPlayerEvent: (state) => {
+      state.playerEventData.state = true;
+    },
+    setDisabledStateInfoPlayerEvent: (state) => {
+      state.playerEventData.state = false;
+    },
   }
 });
 
@@ -210,7 +240,7 @@ export const {
   handleConfirm,
   setNamePlayerSelected,
   setNewAssist,
-  toggleStateMatch,
+  // toggleStateMatch,
   toggleHiddenModal,
   setActionToDelete,
   deleteAction,
@@ -221,6 +251,14 @@ export const {
   setCurrentCurrentTeamPlayerDelete,
   toggleHiddenPlayerEvent,
   handleTeamPlayer,
+  toggleIdMatch,
+  setActionToEdit,
+  setEnabledActionEdit,
+  setDisabledActionEdit,
+  setInfoDelete,
+  setInfoPlayerEvent,
+  setEnabledStateInfoPlayerEvent,
+  setDisabledStateInfoPlayerEvent
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;

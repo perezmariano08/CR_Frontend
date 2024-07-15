@@ -1,72 +1,66 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Toaster, toast } from 'react-hot-toast';
-
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, ErrorTextContainer, TextContainer } from '../ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi2";
 import { HiMiniExclamationTriangle } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-
-import { toggleHiddenDorsal } from '../../../redux/Planillero/planilleroSlice'
-import { manageDorsal} from '../../../redux/Matches/matchesSlice';
+import { toggleHiddenDorsal } from '../../../redux/Planillero/planilleroSlice';
+import { manageDorsal } from '../../../redux/Matches/matchesSlice';
 
 const EditDorsal = () => {
-
-    //Open Close
     const dispatch = useDispatch();
-    const hiddenDorsal = useSelector((state) => state.planillero.dorsal.hidden);
     
-    const toggleEditDorsal = () => {
-        dispatch(toggleHiddenDorsal())
-        setDorsalValue('')
-    }
-    
-    //Estado para manejar numero
-    const playerSelected = useSelector((state) => state.planillero.dorsal.playerSelected);
-    const [dorsalValue, setDorsalValue] = useState('');
+    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
+    const idEquipoSeleccionado = useSelector((state) => state.planillero.playerEvent.idPlayerTeam);
+    const matchState = useSelector((state) => state.match);
+    const matchCorrecto = matchState.find((match) => match.ID === idPartido);
+    const equipoCorrecto = matchCorrecto ? (matchCorrecto.Local.id_equipo === idEquipoSeleccionado ? matchCorrecto.Local : matchCorrecto.Visitante) : null;
 
-    //Nombre del jugador seleccionado
+    const hiddenDorsal = useSelector((state) => state.planillero.dorsal.hidden);
+    const playerSelected = useSelector((state) => state.planillero.dorsal.playerSelected);
     const playerNameSelected = useSelector((state) => state.planillero.dorsal.playerSelectedName);
-    
-    //Logica validar solo numeros
+
+    const [dorsalValue, setDorsalValue] = useState('');
+    const [error, setError] = useState(null);
+
+    const toggleEditDorsal = () => {
+        dispatch(toggleHiddenDorsal());
+        setDorsalValue('');
+    };
+
     const handleInputChange = (value) => {
         if (/^\d{0,3}$/.test(value) || value === '') {
             setDorsalValue(value);
         }
     };
 
-    //Repeticion de dorsal
-    const [error, setError] = useState(null);
-    const initialState = useSelector((state) => state.match)
     const isDorsalInUse = (playerId, dorsal) => {
-        const team = initialState.find(team => team.Player.some(player => player.ID === playerId));
-        return team.Player.some(player => player.Dorsal === dorsal);
+        if (!equipoCorrecto) return false;
+        return equipoCorrecto.Player.some(otherPlayer => otherPlayer.Dorsal === dorsal && otherPlayer.ID !== playerId);
     };
 
-    //Mandar al store del partido el numero y el id del jugador seleccionado
     const handleConfirm = () => {
         if (playerSelected !== null) {
-                if (isDorsalInUse(playerSelected, dorsalValue)) {
-                    setError(true)
-                    toast.error('Dorsal existente, ingrese otro')
-                    setDorsalValue('');
-                } else {
-                    dispatch(manageDorsal({ playerId: playerSelected, dorsal: dorsalValue, assign: true  }))
-                    dispatch(toggleHiddenDorsal());
-                    setDorsalValue('');
-                }
+            if (isDorsalInUse(playerSelected, dorsalValue)) {
+                setError(true);
+                toast.error('Dorsal existente, ingrese otro');
+                setDorsalValue('');
+            } else {
+                dispatch(manageDorsal({ playerId: playerSelected, dorsal: dorsalValue, assign: true }));
+                dispatch(toggleHiddenDorsal());
+                setDorsalValue('');
+            }
         }
     };
 
-    //Cerrar componente clickeando en el overlay
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
             toggleEditDorsal();
         }
     };
 
-    //Mostrar error textual cuando se repite dorsal
     useEffect(() => {
         if (hiddenDorsal) {
             setError(null);
@@ -79,24 +73,22 @@ const EditDorsal = () => {
                 <ActionConfirmedContainer onClick={handleOverlayClick}>
                     <ActionConfirmedWrapper>
                         <ActionBack>
-                            <HiArrowLeft onClick={toggleEditDorsal}/>
+                            <HiArrowLeft onClick={toggleEditDorsal} />
                             <p>Volver</p>
                         </ActionBack>
                         <ActionTitle>
                             <h3>Asignar dorsal al jugador {playerNameSelected}</h3>
-                            <AlignmentDivider/>
+                            <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer>
                             <TextContainer>
                                 <h4>Dorsal</h4>
-                                {
-                                    error && (
+                                {error && (
                                     <ErrorTextContainer>
-                                    <HiMiniExclamationTriangle/>
+                                        <HiMiniExclamationTriangle />
                                         <p>Dorsal existente. Por favor, ingrese otro.</p>
                                     </ErrorTextContainer>
-                                    )
-                                }
+                                )}
                             </TextContainer>
                             <Input2
                                 placeholder={"ej: 10"}
@@ -112,9 +104,9 @@ const EditDorsal = () => {
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>
             )}
-            <Toaster/>
+            <Toaster />
         </>
     );
-}
+};
 
 export default EditDorsal;

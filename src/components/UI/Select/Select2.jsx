@@ -1,19 +1,19 @@
-// Select2.js
 import React from 'react';
 import { SelectContainerStyled, SelectWrapper } from './SelectStyles';
 import { useSelector } from 'react-redux';
 
-const Select2 = ({ localTeam, currentActionPlayerId, onSelect }) => {
-    const listPlayers = useSelector((state) => state.match);
+const Select2 = ({ idTeam, currentActionPlayerId, onSelect }) => {
+    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
+    const matches = useSelector((state) => state.match);
+    const match = matches.find(p => p.ID === idPartido);
+    
+    const team = match.Local.id_equipo === idTeam ? match.Local : match.Visitante;
 
-    const filteredPlayers = listPlayers
-        .find(team => team.Local === localTeam)
-        .Player
-        .filter(player => player.status && player.ID !== currentActionPlayerId); // Excluir al jugador de la acción
+    const filteredPlayers = team.Player.filter(player => player.status && player.ID !== currentActionPlayerId);
 
     const handlePlayerSelect = (event) => {
         const playerId = event.target.value;
-        onSelect(playerId); // Llama a la función onSelect con el ID del jugador seleccionado
+        onSelect(playerId);
     };
 
     return (
