@@ -7,7 +7,7 @@ export const AsideContainerStyled = styled.aside`
     position: fixed;
     top: 0;
     left: 0;
-    width: 18rem;
+    width: 16rem;
     background-color: var(--gray-500);
     font-size: 14px;
 

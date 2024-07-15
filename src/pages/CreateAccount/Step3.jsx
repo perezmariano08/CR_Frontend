@@ -11,7 +11,7 @@ import { URL } from '../../utils/utils';
 import { Toaster, toast } from 'react-hot-toast';
 
 const Step3 = () => {
-
+    const equiposList = useSelector((state) => state.equipos.data)
     const [teamSelected, setTeamSelected] = useState(0);
     const [handleError, setHandleError] = useState(false)
     const dispatch = useDispatch()
@@ -59,7 +59,8 @@ const Step3 = () => {
                         <InputContainer>
                             <Select
                             onChange={handleSetTeamSelected} 
-                            data={dataEquipos} 
+                            data={equiposList}
+                            id_={"id_equipo"}
                             placeholder={'Seleccionar equipo'} 
                             icon={<IoShieldHalf className='icon-select' />}>
                             </Select>

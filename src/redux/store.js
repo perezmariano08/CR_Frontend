@@ -19,6 +19,7 @@ import jugadoresReducer from "./ServicesApi/jugadoresSlice"
 import usuariosReducer from "./ServicesApi/usuariosSlice"
 import partidosReducer from "./ServicesApi/partidosSlice"
 import equiposReducer from "./ServicesApi/equiposSlice"
+import rolesReducer from "./ServicesApi/rolesSlice"
 
 const reducers = combineReducers({
     notis: notisReducer,
@@ -35,7 +36,8 @@ const reducers = combineReducers({
     jugadores: jugadoresReducer,
     usuarios: usuariosReducer,
     partidos: partidosReducer,
-    equipos: equiposReducer
+    equipos: equiposReducer,
+    roles: rolesReducer
 });
 
 const persistConfig = {
@@ -55,7 +57,8 @@ const persistConfig = {
         "divisiones",
         "usuarios",
         "partidos",
-        "equipos"
+        "equipos",
+        "roles"
     ]
 }
 

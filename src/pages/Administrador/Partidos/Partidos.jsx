@@ -35,9 +35,9 @@ const Partidos = () => {
     // Constantes del modulo
     const articuloSingular = "la"
     const articuloPlural = "las"
-    const id = "id_usuario"
-    const plural = "sedes"
-    const singular = "sede"
+    const id = "id_partido"
+    const plural = "partidos"
+    const singular = "partido"
     const get = "get-sedes"
     const create = "crear-sede"
     const importar = "importar-sedes"
@@ -283,7 +283,7 @@ const Partidos = () => {
                     
                 
             </ActionsCrud>
-            <Table data={partidosList} dataColumns={dataPartidosColumns} arrayName={singular.charAt(0).toUpperCase() + singular.slice(1)} id_={id} />
+            <Table data={partidosList} dataColumns={dataPartidosColumns} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}

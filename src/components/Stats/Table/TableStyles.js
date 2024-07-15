@@ -8,6 +8,7 @@ export const TableContainerStyled = styled.div`
     overflow: hidden;
     padding: 20px 0;
     gap: 20px;
+    
 `
 
 export const TableTitle = styled.div`

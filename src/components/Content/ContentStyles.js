@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 export const ContentContainerStyled = styled.div`
-    margin-left: 18rem;
-    width: 100%;
+    margin-left: 16rem;
+    width: calc(100% - 16rem);
     @media (max-width: 968px) {
         width: 100%;
         margin-left: 0px;
@@ -13,6 +13,7 @@ export const ContentContainerStyled = styled.div`
 export const ContentWrapper = styled.div`
     padding: 30px;
     display: flex;
+    width: 100%;
     flex-direction: column;
     gap: 35px;
     @media (max-width: 968px) {

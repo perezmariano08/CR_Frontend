@@ -45,36 +45,7 @@ export const GlobalStyles = createGlobalStyle`
         font-style: normal;
     }
 
-    // Estilo de la barra de desplazamiento para Chrome
-    ::-webkit-scrollbar {
-        width: 10px; /* Ancho de la barra de desplazamiento */
-        height: 100%;
-    }
-
-    /* Estilo del botón de flecha (flecha de desplazamiento) en Chrome */
-    ::-webkit-scrollbar-button {
-        display: none;
-    }
-
-    /* Estilo de la pista (fondo) de la barra de desplazamiento en Chrome */
-    ::-webkit-scrollbar-track {
-        background-color: transparent; /* Color de fondo de la pista */
-    }
-
-    /* Estilo del pulgar (el indicador que se arrastra) de la barra de desplazamiento en Chrome */
-    ::-webkit-scrollbar-thumb {
-        background-color: var(--gray-300); /* Color del pulgar */
-        height: 20px;
-        border-radius: 20px;
-        transition: all .3s ease-in-out;
-        cursor: pointer;
-    }
-
-    /* Estilo del pulgar cuando se pasa el mouse por encima en Chrome */
-    ::-webkit-scrollbar-thumb:hover {
-        background-color: var(--gray-200); /* Color del pulgar al pasar el mouse por encima */
-        
-    }
+    
 
     .no-scroll {
         overflow: hidden;

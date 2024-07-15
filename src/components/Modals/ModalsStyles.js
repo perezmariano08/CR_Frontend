@@ -15,7 +15,7 @@ export const ModalContainerStyled = styled(motion.div)`
     border-radius: 10px;
     z-index: 2;
     max-height: 80vh;
-    overflow: scroll;
+    overflow-y: auto;
     @media (max-width: 968px) {
         width: 90%;
     }
