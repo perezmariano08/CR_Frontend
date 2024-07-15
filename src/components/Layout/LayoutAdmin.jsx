@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import Aside from '../Aside/Aside'
 import { LayoutAdminContainerStyled } from './LayoutStyles'
 import { useLocation } from 'react-router-dom';
+import { DataTable } from 'primereact/datatable';
 
 const Layout = ({children, className}) => {
     const { pathname } = useLocation();

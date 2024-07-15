@@ -4,12 +4,10 @@ import styled from "styled-components";
 export const TableContainerStyled = styled(DataTable)`
     background-color: var(--gray-300) !important;
     border-radius: 10px;
-    overflow: hidden;
     border-collapse: collapse;
-    width: 100%;
-    height: fit-content;
     font-size: 14px;
-
+    width: 100%;
+    overflow: hidden;
     td, th {
         text-align: left;
         overflow: hidden; /* Oculta el contenido que desborda */
@@ -17,7 +15,7 @@ export const TableContainerStyled = styled(DataTable)`
         padding: 15px 20px; /* Espaciado interno de las celdas */
         min-width: fit-content;
         background-color: var(--gray-300) !important;
-        
+        /* user-select: none; */
     }
     th {
         color: var(--gray-200);
@@ -92,6 +90,14 @@ export const TableContainerStyled = styled(DataTable)`
     .td-team {
         display: flex;
         gap: 5px;
+    }
+
+    .td-user {
+        display: flex;
+        gap: 5px;
+        img {
+            border-radius: 50%;
+        }
     }
 
     .td-player {
@@ -175,7 +181,7 @@ export const TableContainerStyled = styled(DataTable)`
     }
 
     tr.p-highlight {
-        background-color: yellow;
+        background-color: rgba(42, 209, 116, 0.3) !important;
     }
 
     tr.p-selectable-row[data-p-highlight="true"] td {

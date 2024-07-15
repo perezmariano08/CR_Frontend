@@ -4,7 +4,7 @@ import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
 import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
-import { IoTrashOutline } from 'react-icons/io5';
+import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
@@ -25,8 +25,11 @@ import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchAños } from '../../../redux/ServicesApi/añosSlice';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
+import { fetchDivisiones } from '../../../redux/ServicesApi/divisionesSlice';
+import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { dataJugadoresColumns } from '../../../Data/Jugadores/Jugadores';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
+import Select from '../../../components/Select/Select';
 
 const Equipos = () => {
     const dispatch = useDispatch();
@@ -34,13 +37,13 @@ const Equipos = () => {
     // Constantes del modulo
     const articuloSingular = "el"
     const articuloPlural = "los"
-    const id = "id_jugador"
+    const id = "id_equipo"
     const plural = "equipos"
-    const singular = "jugador"
-    const get = "get-jugadores"
-    const create = "crear-jugador"
-    const importar = "importar-jugadores"
-    const eliminar = "delete-jugador"
+    const singular = "equipo"
+    const get = "get-equipos"
+    const create = "crear-equipo"
+    const importar = "importar-equipo"
+    const eliminar = "delete-equipo"
 
     // Estados para manejar la apertura y cierre de los modales
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -58,12 +61,16 @@ const Equipos = () => {
     const fileInputRef = useRef(null);
 
     // Estados para guardar los valores de los inputs
-    const [año, setAño] = useState("");
+    const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
+    const [categoria, setCategoria] = useState("");
+    const [division, setDivision] = useState("");
+    const [img, setImg] = useState("");
 
     // Estado del el/los Listado/s que se necesitan en el modulo
-    const jugadoresList = useSelector((state) => state.jugadores.data);
     const equiposList = useSelector((state) => state.equipos.data);
+    const divisionesList = useSelector((state) => state.divisiones.data);
+    const categoriasList = useSelector((state) => state.categorias.data);
 
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
@@ -152,30 +159,43 @@ const Equipos = () => {
     useEffect(() => {
         dispatch(fetchJugadores());
         dispatch(fetchEquipos());
+        dispatch(fetchDivisiones())
+        dispatch(fetchCategorias())
         return () => {
             dispatch(clearSelectedRows());
         };
     }, []);
 
     const agregarDato = async () => {
-        if (año !== "") {
+        if (
+            nombre != "" &&
+            categoria != "" &&
+            img != "" &&
+            division != ""
+        ) {
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
+                const response = await Axios.get(`${URL}/user/${get}`);
                 const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.año === año);
+                const datoExiste = datosExistentes.some(a => a.nombre === nombre);
                 if (datoExiste) {
                     toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
                 } else {
                     Axios.post(`${URL}/admin/${create}`, {
-                        año,
+                        nombre,
+                        categoria,
+                        division,
+                        img,
                         descripcion
                     }).then(() => {
                         toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
-                        dispatch(fetchAños());
+                        dispatch(fetchEquipos());
                         closeCreateModal();
                         setAño("");
                         setDescripcion("");
+                        setImg("");
+                        setCategoria("");
+                        setDivision("");
                         setIsSaving(false)
                     });
                 }
@@ -229,6 +249,11 @@ const Equipos = () => {
     
         return csv;
     };
+
+    const editRow = () => {
+        setNombre(selectedRows[0].nombre);
+        openCreateModal()
+    };
     
     const handleExport = () => {
         const csv = convertToCSV(añosList);
@@ -256,6 +281,10 @@ const Equipos = () => {
                         <p>Nuevo</p>
                     </Button>
                     <Button bg="danger" color="white" onClick={openDeleteModal} disabled={selectedRows.length === 0}>
+                        <IoTrashOutline />
+                        <p>Eliminar</p>
+                    </Button>
+                    <Button bg="import" color="white" onClick={editRow} disabled={selectedRows.length > 1 || selectedRows.length === 0}>
                         <IoTrashOutline />
                         <p>Eliminar</p>
                     </Button>
@@ -310,30 +339,46 @@ const Equipos = () => {
                                 </Button>
                             </>
                         }
-                        form={
-                            <>
-                                <ModalFormInputContainer>
-                                    DNI
-                                    <Input type='text' placeholder="Escriba el DNI..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Nombre
-                                    <Input type='text' placeholder="Escriba el DNI..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Posición
-                                    <Input type='text' placeholder="Escriba el DNI..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Equipo
-                                    <Select 
-                                        data={equiposList}
-                                        placeholder="Seleccionar equipo"
-                                    >
-                                    </Select>
-                                </ModalFormInputContainer>
-                            </>
-                        }
+                        form={ <>
+                            <ModalFormInputContainer>
+                                Nombre
+                                <Input type='text' placeholder="Escriba el nombre..." 
+                                onChange={(event) => { setNombre(event.target.value)}}/>
+                            </ModalFormInputContainer>
+                            <ModalFormInputContainer>
+                                Imagen
+                                <Input type='text' placeholder="example.png"
+                                onChange={(event) => { setImg(event.target.value)}} />
+                            </ModalFormInputContainer>
+                            <ModalFormInputContainer>
+                                Categoría
+                                <Select
+                                    data={categoriasList}
+                                    placeholder="Seleccionar categoría"
+                                    icon={<IoShieldHalf className='icon-select'/>}
+                                    id_={"id_categoria"}
+                                    onChange={(event) => { setCategoria(event.target.value)}}
+                                >
+                                </Select>
+                            </ModalFormInputContainer>
+                            <ModalFormInputContainer>
+                                División
+                                <Select
+                                    data={divisionesList}
+                                    placeholder="Seleccionar divisin"
+                                    icon={<IoShieldHalf className='icon-select'/>}
+                                    id_={"id_division"}
+                                    onChange={(event) => { setDivision(event.target.value)}}
+                                >
+                                </Select>
+                            </ModalFormInputContainer>
+                            <ModalFormInputContainer>
+                                Añadir descripción (Opcional)
+                                <Input type='text' placeholder="Escriba aqui..."
+                                onChange={(event) => { setDescripcion(event.target.value)}} />
+                            </ModalFormInputContainer>
+                        </>
+                    }
                     />
                     <Overlay onClick={closeCreateModal} />
                 </>

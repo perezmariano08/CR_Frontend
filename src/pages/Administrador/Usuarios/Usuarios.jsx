@@ -4,7 +4,7 @@ import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
 import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
-import { IoTrashOutline } from 'react-icons/io5';
+import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
@@ -22,29 +22,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
 import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchAños } from '../../../redux/ServicesApi/añosSlice';
-import { dataSedesColumns } from '../../../Data/Sedes/Sedes';
-import { fetchSedes } from '../../../redux/ServicesApi/sedesSlice';
+import { fetchRoles } from '../../../redux/ServicesApi/rolesSlice';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
+import Select from '../../../components/Select/Select';
 
 const Usuarios = () => {
     const dispatch = useDispatch();
 
     // Constantes del modulo
-    const articuloSingular = "la"
-    const articuloPlural = "las"
+    const articuloSingular = "el"
+    const articuloPlural = "los"
     const id = "id_usuario"
-    const plural = "sedes"
-    const singular = "sede"
-    const get = "get-sedes"
-    const create = "crear-sede"
-    const importar = "importar-sedes"
-    const eliminar = "delete-sede"
+    const plural = "usuarios"
+    const singular = "usuario"
+    const get = "get-usuarios"
+    const create = "crear-cuenta"
+    const importar = "importar-usuarios"
+    const eliminar = "delete-usuario"
+    const update = "update-usuario"
 
     // Estados para manejar la apertura y cierre de los modales
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Estado de los botones que realizan una accion en la base de datos
     const [isSaving, setIsSaving] = useState(false);
@@ -57,11 +59,25 @@ const Usuarios = () => {
     const fileInputRef = useRef(null);
 
     // Estados para guardar los valores de los inputs
+    const [dni, setDni] = useState("");
     const [nombre, setNombre] = useState("");
-    const [descripcion, setDescripcion] = useState("");
+    const [apellido, setApellido] = useState("");
+    const [nacimiento, setNacimiento] = useState("");
+    const [telefono, setTelefono] = useState("");
+    const [rol, setRol] = useState("");
+    const [email, setEmail] = useState("");
+    const [equipo, setEquipo] = useState("");
+    const [estado, setEstado] = useState("");
+    const [img, setImg] = useState("");
+    const [id_usuario, setIdUsuario] = useState("");
+
+    // Estado para guardar los valores originales al abrir el modal de edición
+    const [originalValues, setOriginalValues] = useState({});
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const usuariosList = useSelector((state) => state.usuarios.data);
+    const rolesList = useSelector((state) => state.roles.data);
+    const equiposList = useSelector((state) => state.equipos.data);
 
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
@@ -121,13 +137,13 @@ const Usuarios = () => {
         if (selectedRows.length > 0) {
             setIsSaving(true);
             const deletePromises = selectedRows.map(row => 
-                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_sede })
+                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_usuario })
             );
     
             toast.promise(
                 Promise.all(deletePromises)
                     .then(async () => {
-                        dispatch(fetchSedes());
+                        dispatch(fetchUsuarios());
                         closeDeleteModal();
                         dispatch(clearSelectedRows());
                         setFileKey(prevKey => prevKey + 1);
@@ -147,27 +163,41 @@ const Usuarios = () => {
         }
     };
 
-
     useEffect(() => {
         dispatch(fetchUsuarios());
+        dispatch(fetchRoles());
         return () => {
             dispatch(clearSelectedRows());
         };
     }, []);
 
     const agregarDato = async () => {
-        if (nombre !== "") {
+        if (
+            dni != "" &&
+            nombre != "" &&
+            apellido != "" &&
+            nacimiento != "" &&
+            email != "" &&
+            estado != "" &&
+            equipo != "" 
+        ){
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
+                // Despacha fetchUsuarios para obtener los datos existentes
+                const response = await dispatch(fetchUsuarios()).unwrap();
                 const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.nombre === nombre);
+                const datoExiste = datosExistentes.some(a => a.dni === dni);
                 if (datoExiste) {
                     toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
                 } else {
-                    Axios.post(`${URL}/admin/${create}`, {
+                    Axios.post(`${URL}/auth/${create}`, {
+                        dni,
                         nombre,
-                        descripcion
+                        apellido,
+                        nacimiento,
+                        email,
+                        estado,
+                        nombre,
                     }).then(() => {
                         toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente.`);
                         dispatch(fetchUsuarios());
@@ -187,6 +217,49 @@ const Usuarios = () => {
         }
     };
 
+    const editarDato = async () => {
+        setIsSaving(true);
+        try {
+            const response = await Axios.put(`${URL}/admin/${update}`,
+                {
+                    dni,
+                    nombre,
+                    apellido,
+                    email,
+                    telefono,
+                    id_rol: rol,
+                    id_equipo: equipo,
+                    id_usuario // Asegúrate de pasar el id_usuario para la cláusula WHERE
+                }
+            );
+            if (response.status === 200) {
+                setIsSaving(false)
+                toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} actualizado correctamente.`);
+                dispatch(fetchUsuarios())
+                dispatch(clearSelectedRows());
+                closeEditModal()
+            }
+        } catch (error) {
+            setIsSaving(false)
+            console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
+            toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
+        }
+    };
+
+    const editRow = () => {
+        setDni(selectedRows[0].dni)
+        setNombre(selectedRows[0].nombre)
+        setApellido(selectedRows[0].apellido)
+        setEmail(selectedRows[0].email)
+        setTelefono(selectedRows[0].telefono)
+        setNacimiento(selectedRows[0].nacimiento)
+        setRol(selectedRows[0].id_rol)
+        setEquipo(selectedRows[0].id_equipo)
+        setIdUsuario(selectedRows[0].id_usuario)
+        console.log(selectedRows[0])
+        openEditModal()
+    };
+
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
     const closeCreateModal = () => setIsCreateModalOpen(false);
@@ -198,6 +271,20 @@ const Usuarios = () => {
         setFileData(null); // Restablece los datos del archivo cuando se cierra el modal
         setIsImportModalOpen(false);
     };
+    const openEditModal = () => setIsEditModalOpen(true);
+    const closeEditModal = () => {
+        // setDni("")
+        // setNombre("")
+        // setApellido("")
+        // setEmail("")
+        // setTelefono("")
+        // setNacimiento("")
+        // setRol("")
+        // setEquipo("")
+        // setIdUsuario("")
+        setIsEditModalOpen(false);
+    }
+
 
     const cancelFileSelection = () => {
         setFileName(""); // Restablece el nombre del archivo
@@ -229,7 +316,7 @@ const Usuarios = () => {
     };
     
     const handleExport = () => {
-        const csv = convertToCSV(añosList);
+        const csv = convertToCSV(usuariosList);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -257,6 +344,10 @@ const Usuarios = () => {
                         <IoTrashOutline />
                         <p>Eliminar</p>
                     </Button>
+                    <Button bg="import" color="white" onClick={editRow} disabled={selectedRows.length > 1 || selectedRows.length === 0}>
+                        <IoTrashOutline />
+                        <p>Editar</p>
+                    </Button>
                 </ActionsCrudButtons>
                 <ActionsCrudButtons>
                     <label htmlFor="importInput" style={{ display: 'none' }}>
@@ -281,7 +372,7 @@ const Usuarios = () => {
                     
                 
             </ActionsCrud>
-            <Table data={usuariosList} dataColumns={dataUsuariosColumns} arrayName={singular.charAt(0).toUpperCase() + singular.slice(1)} id_={id} />
+            <Table data={usuariosList} dataColumns={dataUsuariosColumns} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
@@ -313,14 +404,50 @@ const Usuarios = () => {
                         form={
                             <>
                                 <ModalFormInputContainer>
-                                    Nombre
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setNombre(event.target.value)}}/>
+                                    DNI
+                                    <Input type='text' placeholder="Escriba el DNI..." />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
-                                    Añadir descripción (Opcional)
-                                    <Input type='text' placeholder="Escriba aqui..." 
-                                    onChange={(event) => { setDescripcion(event.target.value)}}/>
+                                    Nombre
+                                    <Input type='text' placeholder="Escriba el nombre..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Fecha de Nacimiento
+                                    <Input type='text' placeholder="Escriba aqui..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Email
+                                    <Input type='text' placeholder="Escriba aqui..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Contraseña
+                                    <Input type='text' placeholder="Escriba aqui..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Confirmar contraseña
+                                    <Input type='text' placeholder="Escriba aqui..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Estado
+                                    <Select 
+                                        data={
+                                            [
+                                                {estado: "Activo"},
+                                                {estado: "No Activo"}
+                                            ]
+                                        }
+                                        placeholder={"Seleccionar estado"}
+                                        column='estado'
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo favorito
+                                    <Select 
+                                        data={equiposList}
+                                        placeholder="Seleccionar equipo"
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
                             </>
                         }
@@ -399,6 +526,114 @@ const Usuarios = () => {
                         }
                     />
                     <Overlay onClick={closeImportModal} />
+                </>
+            }
+            {
+                isEditModalOpen && <>
+                    <ModalCreate initial={{ opacity: 0 }}
+                        animate={{ opacity: isEditModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Editar ${singular}`}
+                        onClickClose={closeEditModal}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeEditModal}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} onClick={editarDato} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Actualizar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                            <>
+                                <ModalFormInputContainer>
+                                    DNI
+                                    <Input type='text' placeholder="Escriba el DNI..." value={dni}
+                                    onChange={(event) => { setDni(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Nombre
+                                    <Input type='text' placeholder="Escriba el bombre..." value={nombre}
+                                    onChange={(event) => { setNombre(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Apellido
+                                    <Input 
+                                        type='text' 
+                                        placeholder="Escriba el apellido..." 
+                                        value={apellido}
+                                        onChange={(event) => { setApellido(event.target.value)}}  />
+                                </ModalFormInputContainer>
+                                {/* <ModalFormInputContainer>
+                                    Fecha de Nacimiento
+                                    <Input type='text' placeholder="Escriba aqui..." value={nacimiento} />
+                                </ModalFormInputContainer> */}
+                                <ModalFormInputContainer>
+                                    Email
+                                    <Input type='text' placeholder="Escriba aqui..." value={email}
+                                    onChange={(event) => { setEmail(event.target.value)}}  />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Telefono
+                                    <Input type='text' placeholder="Escriba aqui..." value={telefono}
+                                    onChange={(event) => { setTelefono(event.target.value)}}  />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Rol
+                                    <Select 
+                                        data={rolesList}
+                                        placeholder="Seleccionar rol"
+                                        value={rol}
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        onChange={(event) => { setRol(event.target.value)}}
+                                        id_={"id_rol"}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo
+                                    <Select 
+                                        data={equiposList}
+                                        placeholder="Seleccionar equipo"
+                                        value={equipo}
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        onChange={(event) => { setEquipo(event.target.value)}}
+                                        id_={"id_equipo"}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                {/* <ModalFormInputContainer>
+                                    Estado
+                                    <Select 
+                                        data={
+                                            [
+                                                {estado: "Activo"},
+                                                {estado: "No Activo"}
+                                            ]
+                                        }
+                                        placeholder={"Seleccionar estado"}
+                                        column='estado'
+                                        value={estado}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                */}
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeEditModal} />
                 </>
             }
         </Content>

@@ -46,10 +46,13 @@ const Jugadores = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Estado de los botones que realizan una accion en la base de datos
     const [isSaving, setIsSaving] = useState(false);
 
+    const [isEditing, setIsEditing] = useState(false);
+    
     // Estados para guardar los datos del archivo
     const [fileKey, setFileKey] = useState(0);
     const [fileName, setFileName] = useState(false);
@@ -58,8 +61,15 @@ const Jugadores = () => {
     const fileInputRef = useRef(null);
 
     // Estados para guardar los valores de los inputs
-    const [año, setAño] = useState("");
-    const [descripcion, setDescripcion] = useState("");
+    const [dni, setDni] = useState("");
+    const [nombre, setNombre] = useState("");
+    const [apellido, setApellido] = useState("");
+    const [posicion, setPosicion] = useState("");
+    const [id_equipo, setIdEquipo] = useState("");
+    const [img, setImg] = useState("");
+    const [eventual, setEventual] = useState("");
+    const [sancionado, setSancionado] = useState("");
+    
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const jugadoresList = useSelector((state) => state.jugadores.data);
@@ -71,7 +81,7 @@ const Jugadores = () => {
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
         setFileName(file.name); // Guarda el nombre del archivo seleccionado
-
+    
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
@@ -85,39 +95,30 @@ const Jugadores = () => {
             }
         });
     };
-
+    
     const handleFileImport = async () => {
         if (fileData) {
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
-                const datosExistentes = response.data.map(a => a.año);
-                const nuevosDatos = fileData.filter(row => !datosExistentes.includes(row.año));
-                if (nuevosDatos.length > 0) {
-                    Axios.post(`${URL}/admin/${importar}`, nuevosDatos)
-                        .then(() => {
-                            toast.success(`Se importaron ${nuevosDatos.length} registros correctamente.`);
-                            closeImportModal()
-                            dispatch(fetchAños());
-                            setFileKey(prevKey => prevKey + 1);
-                            setFileName(""); // Restablece el nombre del archivo después de la importación
-                            setFileData(null); // Restablece los datos del archivo después de la importación
-                            setIsSaving(false);
-                        });
-                } else {
-                    setIsSaving(false);
-                    toast.error(`Todos ${articuloPlural} ${plural} del archivo ya existen.`);
-                }
+                const response = await Axios.post(`${URL}/admin/importar-jugadores`, fileData);
+                toast.success(`Se importaron los registros correctamente.`);
+                closeImportModal();
+                dispatch(fetchJugadores());
+                setFileKey(prevKey => prevKey + 1);
+                setFileName(""); // Restablece el nombre del archivo después de la importación
+                setFileData(null); // Restablece los datos del archivo después de la importación
+                setIsSaving(false);
             } catch (error) {
                 setIsSaving(false);
-                toast.error("Error al verificar los datos.");
-                console.error("Error al verificar los datos:", error);
+                toast.error("Error al importar los datos.");
+                console.error("Error al importar los datos:", error);
             }
         } else {
             setIsSaving(false);
             toast.error("No hay datos para importar.");
         }
     };
+    
 
     const eliminarAños = async () => {
         if (selectedRows.length > 0) {
@@ -157,6 +158,52 @@ const Jugadores = () => {
     }, []);
 
     const agregarDato = async () => {
+        if (
+            dni != "" &&
+            nombre != "" &&
+            apellido != "" &&
+            posicion != "" &&
+            id_equipo != ""
+        ) {
+            console.log(id_equipo);
+            setIsSaving(true);
+            try {
+                // Despacha fetchUsuarios para obtener los datos existentes
+                const response = await Axios.get(`${URL}/user/${get}`);
+                const datosExistentes = response.data;
+                const datoExiste = datosExistentes.some(a => a.dni === dni);
+                if (datoExiste) {
+                    setIsSaving(false)
+                    toast.error(`DNI ya registrado en la base de datos`);
+                } else {
+                    Axios.post(`${URL}/admin/${create}`, {
+                        dni,
+                        nombre,
+                        apellido,
+                        posicion,
+                        id_equipo
+                    }).then(() => {
+                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
+                        closeCreateModal();
+                        setDni("");
+                        setNombre("");
+                        setApellido("");
+                        setPosicion("");
+                        setIdEquipo("");
+                        setIsSaving(false)
+                    });
+                }
+            } catch (error) {
+                setIsSaving(false)
+                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
+                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
+            }
+        } else {
+            toast.error("Completá los campos.");
+        }
+    };
+
+    const editarDato = async () => {
         if (año !== "") {
             setIsSaving(true);
             try {
@@ -188,9 +235,16 @@ const Jugadores = () => {
         }
     };
 
+    const editRow = () => {
+        setNombre(selectedRows[0].jugador)
+        console.log(selectedRows[0].jugador)
+        openEditModal()
+    };
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
+    const openEditModal = () => setIsEditModalOpen(true);
     const closeCreateModal = () => setIsCreateModalOpen(false);
+    const closeEditModal = () => setIsEditModalOpen(false);
     const openDeleteModal = () => setIsDeleteModalOpen(true);
     const closeDeleteModal = () => setIsDeleteModalOpen(false);
     const openImportModal = () => setIsImportModalOpen(true);
@@ -228,9 +282,11 @@ const Jugadores = () => {
     
         return csv;
     };
+
+    
     
     const handleExport = () => {
-        const csv = convertToCSV(añosList);
+        const csv = convertToCSV(jugadoresList);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -258,6 +314,10 @@ const Jugadores = () => {
                         <IoTrashOutline />
                         <p>Eliminar</p>
                     </Button>
+                    <Button bg="import" color="white" onClick={editRow} disabled={selectedRows.length > 1 || selectedRows.length === 0}>
+                        <IoTrashOutline />
+                        <p>Editar</p>
+                    </Button>
                 </ActionsCrudButtons>
                 <ActionsCrudButtons>
                     <label htmlFor="importInput" style={{ display: 'none' }}>
@@ -278,6 +338,7 @@ const Jugadores = () => {
                         <LuDownload />
                         <p>Descargar</p>
                     </Button>
+                    
                 </ActionsCrudButtons>
                     
                 
@@ -315,15 +376,27 @@ const Jugadores = () => {
                             <>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                    <Input type='text' placeholder="Escriba el DNI..."
+                                    onChange={(event) => { setDni(event.target.value)}}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                    <Input type='text' placeholder="Escriba el nombre..." 
+                                    onChange={(event) => { setNombre(event.target.value)}}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Apellido
+                                    <Input type='text' placeholder="Escriba el apellido..."
+                                    onChange={(event) => { setApellido(event.target.value)}}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Posición
-                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                    <Input type='text' placeholder="Escriba la posicion..." 
+                                    onChange={(event) => { setPosicion(event.target.value)}}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Equipo
@@ -331,6 +404,8 @@ const Jugadores = () => {
                                         data={equiposList}
                                         placeholder="Seleccionar equipo"
                                         icon={<IoShieldHalf className='icon-select' />}
+                                        id_={"id_equipo"}
+                                        onChange={(event) => { setIdEquipo(event.target.value)}}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
@@ -411,6 +486,63 @@ const Jugadores = () => {
                         }
                     />
                     <Overlay onClick={closeImportModal} />
+                </>
+            }
+            {
+                isEditModalOpen && <>
+                    <ModalCreate initial={{ opacity: 0 }}
+                        animate={{ opacity: isEditModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Crear ${singular}`}
+                        onClickClose={closeEditModal}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeEditModal}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} onClick={editarDato} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Editar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                            <>
+                                <ModalFormInputContainer>
+                                    DNI
+                                    <Input type='text' placeholder="Escriba el DNI..." value={nombre}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Nombre
+                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Posición
+                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo
+                                    <Select 
+                                        data={equiposList}
+                                        placeholder="Seleccionar equipo"
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeCreateModal} />
                 </>
             }
         </Content>
