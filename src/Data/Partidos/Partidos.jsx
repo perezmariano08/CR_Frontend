@@ -11,6 +11,7 @@ export const dataPartidosColumns = [
     { field: 'cancha', header: 'Cancha', sortable: true },
     { field: 'arbitro', header: 'Árbitro', sortable: true },
     { field: 'id_planillero', header: 'Planillero', sortable: true },
+    { field: 'descripcion', header: 'Descripcion', sortable: true },
 ];
 
 export const dataPartidos = []

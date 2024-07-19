@@ -120,7 +120,7 @@ const Jugadores = () => {
     };
     
 
-    const eliminarAños = async () => {
+    const eliminarDato = async () => {
         if (selectedRows.length > 0) {
             setIsSaving(true);
             const deletePromises = selectedRows.map(row => 
@@ -184,6 +184,7 @@ const Jugadores = () => {
                         id_equipo
                     }).then(() => {
                         toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
+                        dispatch(fetchJugadores())
                         closeCreateModal();
                         setDni("");
                         setNombre("");
@@ -243,10 +244,16 @@ const Jugadores = () => {
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
     const openEditModal = () => setIsEditModalOpen(true);
-    const closeCreateModal = () => setIsCreateModalOpen(false);
+    const closeCreateModal = () => {
+        setIsCreateModalOpen(false)
+        setIsSaving(false);
+    }
     const closeEditModal = () => setIsEditModalOpen(false);
     const openDeleteModal = () => setIsDeleteModalOpen(true);
-    const closeDeleteModal = () => setIsDeleteModalOpen(false);
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setIsSaving(false);
+    }
     const openImportModal = () => setIsImportModalOpen(true);
     const closeImportModal = () => {
         setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
@@ -429,7 +436,7 @@ const Jugadores = () => {
                                     <IoClose />
                                     No
                                 </Button>
-                                <Button color={"success"} onClick={eliminarAños} disabled={isSaving}>
+                                <Button color={"success"} onClick={eliminarDato} disabled={isSaving}>
                                     {isSaving ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
