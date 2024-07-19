@@ -101,6 +101,12 @@ const CardPartido = ({ finished, observer, partido }) => {
                                 <h4>{goalLocal}-{goalVisit}</h4>
                                 <span>En curso</span>
                             </>
+                        ) : partido.estado === 'F' ? (
+                            <>
+                                <h4>{partido.goles_local}-{partido.goles_visita}</h4>
+                                <span>Final</span>
+                            </>
+                        
                         ) : match.matchState === 'isFinish' || match.matchState === 'matchPush' ? (
                             <>
                                 <h4>{goalLocal}-{goalVisit}</h4>

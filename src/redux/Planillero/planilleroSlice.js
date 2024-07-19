@@ -52,7 +52,9 @@ const initialState = {
   },
   timeMatch: {
     matchState: null,
-    idMatch: null
+    idMatch: null,
+    desc: null,
+    jugador_destacado: null
   },
   
 };
@@ -61,6 +63,9 @@ const planilleroSlice = createSlice({
   name: 'planillero',
   initialState,
   reducers: {
+    handleBestPlayerOfTheMatch: (state, action) => {
+      state.timeMatch.jugador_destacado = action.payload;
+    },
     toggleHiddenDorsal: (state) => {
       state.dorsal.hidden = !state.dorsal.hidden;
     },
@@ -219,6 +224,9 @@ const planilleroSlice = createSlice({
     setDisabledStateInfoPlayerEvent: (state) => {
       state.playerEventData.state = false;
     },
+    setDescOfTheMatch: (state, action) => {
+      state.timeMatch.desc = action.payload;
+    }
   }
 });
 
@@ -258,7 +266,9 @@ export const {
   setInfoDelete,
   setInfoPlayerEvent,
   setEnabledStateInfoPlayerEvent,
-  setDisabledStateInfoPlayerEvent
+  setDisabledStateInfoPlayerEvent,
+  setDescOfTheMatch,
+  handleBestPlayerOfTheMatch
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;

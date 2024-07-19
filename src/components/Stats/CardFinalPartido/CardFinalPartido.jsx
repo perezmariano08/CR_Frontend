@@ -4,15 +4,12 @@ import { HiLifebuoy } from "react-icons/hi2";
 import { useSelector } from 'react-redux';
 
 const CardFinalPartido = ({ idPartido }) => {
-    // Lógica manejo estado partido
     const matches = useSelector((state) => state.match);
     const match = matches.find(p => p.ID === idPartido);
 
-    // Traer partidos
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find((partido) => partido.id_partido === idPartido);
     
-    // Traer equipos
     const equipos = useSelector((state) => state.equipos.data);
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
@@ -24,7 +21,6 @@ const CardFinalPartido = ({ idPartido }) => {
         return equipo ? equipo.nombre : null;
     };
 
-    // Lógica conteo goles
     const [goalLocal, setGoalLocal] = useState(0);
     const [goalVisit, setGoalVisit] = useState(0);
 
@@ -94,8 +90,15 @@ const CardFinalPartido = ({ idPartido }) => {
                 <CardPartidoGoalsColumn>
                     {golesLocal.map((player, index) => (
                         player.Actions.map((action, idx) => (
-                            action.Type === 'Gol' && (
-                                <h5 key={idx}>{player.Nombre} {action.Detail.penal === 'si' ? '(p)' : null} {action.Detail.enContra === 'si' ? '(ec)' : null}</h5>
+                            action.Type === 'Gol' && action.Detail.enContra !== 'si' && (
+                                <h5 key={idx}>{player.Nombre} {action.Detail.penal === 'si' ? '(p)' : null}</h5>
+                            )
+                        ))
+                    ))}
+                    {golesVisita.map((player, index) => (
+                        player.Actions.map((action, idx) => (
+                            action.Type === 'Gol' && action.Detail.enContra === 'si' && (
+                                <h5 key={idx}>{player.Nombre} (ec)</h5>
                             )
                         ))
                     ))}
@@ -106,8 +109,15 @@ const CardFinalPartido = ({ idPartido }) => {
                 <CardPartidoGoalsColumn>
                     {golesVisita.map((player, index) => (
                         player.Actions.map((action, idx) => (
-                            action.Type === 'Gol' && (
-                                <h5 key={idx}>{player.Nombre} {action.Detail.penal === 'si' ? '(p)' : null} {action.Detail.enContra === 'si' ? '(ec)' : null}</h5>
+                            action.Type === 'Gol' && action.Detail.enContra !== 'si' && (
+                                <h5 key={idx}>{player.Nombre} {action.Detail.penal === 'si' ? '(p)' : null}</h5>
+                            )
+                        ))
+                    ))}
+                    {golesLocal.map((player, index) => (
+                        player.Actions.map((action, idx) => (
+                            action.Type === 'Gol' && action.Detail.enContra === 'si' && (
+                                <h5 key={idx}>{player.Nombre} (ec)</h5>
                             )
                         ))
                     ))}

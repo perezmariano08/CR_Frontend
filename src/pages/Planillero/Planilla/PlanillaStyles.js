@@ -44,14 +44,4 @@ export const InputDescContainer = styled.div`
     background-color: var(--gray-300);
     padding: 20px;
     border-radius: 15px;
-
-    button {
-        width: 20%;
-    }
-
-    input {
-        height: 150px;
-        background-color: var(--gray-400);
-        border-radius: 15px;
-    }
 `

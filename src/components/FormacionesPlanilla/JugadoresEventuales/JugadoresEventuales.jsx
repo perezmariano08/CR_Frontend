@@ -25,15 +25,6 @@ const JugadoresEventuales = () => {
     const [surNameValue, setSurNameValue] = useState('');
     const [maxQuantityPlayers, setMaxQuantityPlayers] = useState(true);
 
-    useEffect(() => {
-        if (dataJugadorEventual && isEnabledEdit) {
-            setDorsalValue(dataJugadorEventual.dorsal);
-            setDniValue(dataJugadorEventual.dni);
-            setNameValue(dataJugadorEventual.nombre);
-            setSurNameValue(dataJugadorEventual.apellido);
-        }
-    }, [dataJugadorEventual]);
-
     const handleInputChange = (value) => {
         if (/^\d{0,3}$/.test(value) || value === '') {
             setDorsalValue(value);
@@ -46,15 +37,20 @@ const JugadoresEventuales = () => {
         }
     };
 
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    };
+
     const handleInputName = (value) => {
         if (/^[a-zA-Z]*$/.test(value) || value === '') {
-            setNameValue(value);
+            setNameValue(capitalizeFirstLetter(value));
         }
     };
 
     const handleInputSurName = (value) => {
         if (/^[a-zA-Z]*$/.test(value) || value === '') {
-            setSurNameValue(value);
+            setSurNameValue(capitalizeFirstLetter(value));
         }
     };
 
@@ -62,6 +58,20 @@ const JugadoresEventuales = () => {
         return !dorsalValue?.trim() || !dniValue?.trim() || !nameValue?.trim() || !surNameValue?.trim();
     };
     
+    useEffect(() => {
+        if (dataJugadorEventual && isEnabledEdit) {
+            setDorsalValue(dataJugadorEventual.dorsal);
+            setDniValue(dataJugadorEventual.dni);
+            setNameValue(dataJugadorEventual.nombre);
+            setSurNameValue(dataJugadorEventual.apellido);
+        } else {
+            setDorsalValue('');
+            setDniValue('');
+            setNameValue('');
+            setSurNameValue('');
+        }
+    }, [dataJugadorEventual]);
+
     const searchDorsal = (dorsal, dni, eventual) => {
         if (!equipoCorrecto) return false;
     
@@ -87,18 +97,16 @@ const JugadoresEventuales = () => {
     
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
-            const eventualPlayersCounts = equipoCorrecto.Player.filter(player => player.eventual).length;
+            const eventualPlayersCounts = equipoCorrecto.Player.filter(player => player.eventual === 'S').length;
             setMaxQuantityPlayers(eventualPlayersCounts < 3);
         }
     };
 
     const handleNext = () => {
-
         if (isAnyValueEmpty()) {
             toast.error('Todos los campos son obligatorios');
             return;
         }
-
         const repeatType = searchDorsal(dorsalValue, dniValue, dataJugadorEventual);
 
         if (maxQuantityPlayers) {
@@ -106,18 +114,17 @@ const JugadoresEventuales = () => {
                 case false:
                     const newPlayer = {
                         ID: parseInt((Math.random() * 10000).toFixed(0)),
-                        Nombre: `${nameValue}, ${surNameValue}`,
+                        Nombre: `${nameValue} ${surNameValue}`,
                         DNI: dniValue,
                         Dorsal: dorsalValue,
                         status: true,
-                        eventual: true,
+                        eventual: 'S',
                     };
 
                     dispatch(addEventualPlayer({ teamId: idCurrentTeam, player: newPlayer }));
                     dispatch(setDisabledStateInfoPlayerEvent());
                     dispatch(toggleHiddenPlayerEvent());
                     toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
-
                     //Limpiamos inputs
                     setDorsalValue('');
                     setDniValue('');

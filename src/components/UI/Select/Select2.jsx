@@ -8,9 +8,7 @@ const Select2 = ({ idTeam, currentActionPlayerId, onSelect }) => {
     const match = matches.find(p => p.ID === idPartido);
     
     const team = match.Local.id_equipo === idTeam ? match.Local : match.Visitante;
-
-    const filteredPlayers = team.Player.filter(player => player.status && player.ID !== currentActionPlayerId);
-
+    const filteredPlayers = team.Player.filter(player => player.status && player.ID !== currentActionPlayerId && player.sancionado !== 'S');
     const handlePlayerSelect = (event) => {
         const playerId = event.target.value;
         onSelect(playerId);
