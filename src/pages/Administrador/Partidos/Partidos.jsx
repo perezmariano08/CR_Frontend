@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
 import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
-import { IoTrashOutline } from 'react-icons/io5';
+import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
@@ -28,6 +28,7 @@ import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { dataPartidosColumns } from '../../../Data/Partidos/Partidos';
+import Select from '../../../components/Select/Select';
 
 const Partidos = () => {
     const dispatch = useDispatch();
@@ -38,8 +39,8 @@ const Partidos = () => {
     const id = "id_partido"
     const plural = "partidos"
     const singular = "partido"
-    const get = "get-sedes"
-    const create = "crear-sede"
+    const get = "get-partidos"
+    const create = "crear-partido"
     const importar = "importar-sedes"
     const eliminar = "delete-sede"
 
@@ -59,13 +60,31 @@ const Partidos = () => {
     const fileInputRef = useRef(null);
 
     // Estados para guardar los valores de los inputs
-    const [nombre, setNombre] = useState("");
-    const [descripcion, setDescripcion] = useState("");
+    const [id_temporada, setIdTemporada] = useState("");
+    const [id_equipoLocal, setIdEquipoLocal] = useState("");
+    const [id_equipoVisita, setIdEquipoVisita] = useState("");
+    const [jornada, setJornada] = useState("");
+    const [susp, setSusp] = useState("");
+    const [dia, setDia] = useState("");
+    const [hora, setHora] = useState("");
+    const [goles_local, setGolesLocal] = useState("");
+    const [goles_visita, setGolesVisita] = useState("");
+    const [pen_local, setPenLocal] = useState("");
+    const [pen_visita, setPenVisita] = useState("");
+    const [cancha, setCancha] = useState("");
+    const [arbitro, setArbitro] = useState("");
+    const [destacado, setDescripcion] = useState("");
+    const [id_planillero, setIdPlanillero] = useState("");
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const partidosList = useSelector((state) => state.partidos.data);
-
-    // Estado de las filas seleccionadas para eliminar
+    const usuariosList = useSelector((state) => state.usuarios.data);
+    const equiposList = useSelector((state) => state.equipos.data);
+    const temporadasList = useSelector((state) => state.temporadas.data);
+    const planillerosList = useMemo(() => {
+        return usuariosList.filter(usuario => usuario.id_rol === 2);
+    }, [usuariosList]);
+    console.log(planillerosList);    // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
 
     const handleFileChange = async (event) => {
@@ -158,35 +177,57 @@ const Partidos = () => {
     }, []);
 
     const agregarDato = async () => {
-        if (nombre !== "") {
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
-                const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.nombre === nombre);
-                if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
-                } else {
-                    Axios.post(`${URL}/admin/${create}`, {
-                        nombre,
-                        descripcion
-                    }).then(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente.`);
-                        dispatch(fetchUsuarios());
-                        closeCreateModal();
-                        setNombre("");
-                        setDescripcion("");
-                        setIsSaving(false)
-                    });
-                }
-            } catch (error) {
-                setIsSaving(false)
-                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
-            }
+        console.log(id_temporada, id_equipoLocal, id_equipoVisita, jornada, dia, hora, cancha, arbitro, id_planillero);
+        if (id_equipoLocal === id_equipoVisita) {
+            toast.error(`No se pueden rgistrar los mismos equipos.`);
         } else {
-            toast.error("Completá los campos.");
+            if (
+                id_temporada != "" &&
+                id_equipoLocal != "" &&
+                id_equipoVisita != "" &&
+                jornada != "" &&
+                dia != "" &&
+                hora != "" &&
+                cancha != "" &&
+                arbitro != "" &&
+                id_planillero != ""
+            ) {
+                setIsSaving(true);
+                try {
+                        Axios.post(`${URL}/admin/${create}`, {
+                            id_temporada,
+                            id_equipoLocal,
+                            id_equipoVisita,
+                            jornada,
+                            dia,
+                            hora,
+                            cancha,
+                            arbitro,
+                            id_planillero
+                        }).then(() => {
+                            toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente.`);
+                            dispatch(fetchPartidos());
+                            closeCreateModal();
+                            setIdTemporada("");
+                            setIdEquipoLocal("");
+                            setIdEquipoVisita("");
+                            setJornada("");
+                            setDia("");
+                            setHora("");
+                            setCancha("");
+                            setArbitro("");
+                            setIdPlanillero("")
+                        });
+                } catch (error) {
+                    setIsSaving(false)
+                    console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
+                    toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
+                }
+            } else {
+                toast.error("Completá los campos.");
+            }
         }
+       
     };
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
@@ -315,15 +356,76 @@ const Partidos = () => {
                         form={
                             <>
                                 <ModalFormInputContainer>
-                                    Nombre
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setNombre(event.target.value)}}/>
+                                    Temporadas
+                                    <Select 
+                                        data={temporadasList}
+                                        placeholder="Seleccionar temporada"
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        id_={"id_temporada"}
+                                        onChange={(event) => { setIdTemporada(event.target.value)}}
+                                        column={"nombre_temporada"}
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
-                                    Añadir descripción (Opcional)
-                                    <Input type='text' placeholder="Escriba aqui..." 
-                                    onChange={(event) => { setDescripcion(event.target.value)}}/>
+                                    Equipo Local
+                                    <Select 
+                                        data={equiposList}
+                                        placeholder="Seleccionar equipo"
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        id_={"id_equipo"}
+                                        onChange={(event) => { setIdEquipoLocal(event.target.value)}}
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo Visitante
+                                    <Select 
+                                        data={equiposList}
+                                        placeholder="Seleccionar equipo"
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        id_={"id_equipo"}
+                                        onChange={(event) => { setIdEquipoVisita(event.target.value)}}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Jornada
+                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
+                                    onChange={(event) => { setJornada(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Dia
+                                    <Input type='text' placeholder="2024-07-10" 
+                                    onChange={(event) => { setDia(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Hora
+                                    <Input type='text' placeholder="20:00:00" 
+                                    onChange={(event) => { setHora(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Cancha
+                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
+                                    onChange={(event) => { setCancha(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Arbitro
+                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
+                                    onChange={(event) => { setArbitro(event.target.value)}}/>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Planillero
+                                    <Select 
+                                        data={planillerosList}
+                                        placeholder="Seleccionar planillero"
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        id_={"id_usuario"}
+                                        onChange={(event) => { setIdPlanillero(event.target.value)}}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                
                             </>
                         }
                     />

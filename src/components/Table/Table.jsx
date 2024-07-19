@@ -75,6 +75,14 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
         return nombreRol(rowData.id_rol)
     }
 
+    const golNuloTemplate = (rowData, field) => {
+        if (rowData[field] === null) {
+            return "-"
+        } else {
+            return rowData[field]
+        }
+    }
+
     const booleanoBodyTemplate = (rowData, field) => {
         if (rowData[field] === "N") {
             return "No"
@@ -156,10 +164,16 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                                 ? rowData => fechaBodyTemplate(rowData, 'fecha_creacion')
                                 : arrayName === 'Usuarios' && col.field === 'fecha_actualizacion'
                                 ? rowData => fechaBodyTemplate(rowData, 'fecha_actualizacion')
+                                : arrayName === 'Partidos' && col.field === 'dia'
+                                ? rowData => fechaBodyTemplate(rowData, 'dia')
                                 : arrayName === 'Jugadores' && col.field === 'sancionado'
                                 ? rowData => booleanoBodyTemplate(rowData, 'sancionado')
                                 : arrayName === 'Jugadores' && col.field === 'eventual'
                                 ? rowData => booleanoBodyTemplate(rowData, 'eventual')
+                                : arrayName === 'Partidos' && col.field === 'goles_local'
+                                ? rowData => golNuloTemplate(rowData, 'goles_local')
+                                : arrayName === 'Partidos' && col.field === 'goles_visita'
+                                ? rowData => golNuloTemplate(rowData, 'goles_visita')
                                 : null
                         }
                     />
