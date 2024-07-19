@@ -12,12 +12,12 @@ import Cronometro from '../../../components/FormacionesPlanilla/Cronometro/Crono
 import { ButtonContainer, ButtonMatch, InputDescContainer, PlanillaContainerStyled } from './PlanillaStyles.js';
 import EditDorsal from '../../../components/FormacionesPlanilla/EditDorsal/EditDorsal.jsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentStateModal, toggleHiddenModal, toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
+import { setCurrentStateModal, setDescOfTheMatch, toggleHiddenModal, toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 import ModalConfirmation from '../../../components/Stats/Incidents/ModalConfirmation.jsx';
 import InputLong from '../../../components/UI/Input/InputLong.jsx';
 import JugadoresEventuales from '../../../components/FormacionesPlanilla/JugadoresEventuales/JugadoresEventuales.jsx';
 import { useLocation } from 'react-router-dom';
-import { addActionToPlayer, toggleStateMatch } from '../../../redux/Matches/matchesSlice.js';
+import { addActionToPlayer, addDescToMatch, toggleStateMatch } from '../../../redux/Matches/matchesSlice.js';
 
 const Planilla = () => {
     const dispatch = useDispatch();
@@ -26,11 +26,15 @@ const Planilla = () => {
     // Obtenemos el id del partido enviado por URL en el Home Planillero
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
-    // console.log(matches[0]);
     
     const partidos = useSelector((state) => state.match);
     const partido = partidos.find(p => p.ID === partidoId);
     const [canStartMatch, setCanStartMatch] = useState(false);
+    const [descripcion, setDescripcion] = useState('');
+
+    const handleChange = (event) => {
+        setDescripcion(event.target.value)
+    }
 
     useEffect(() => {
         dispatch(toggleIdMatch(partidoId));
@@ -60,6 +64,7 @@ const Planilla = () => {
 
     const pushInfoMatch = () => {
         dispatch(toggleHiddenModal());
+        dispatch(setDescOfTheMatch(descripcion))
         dispatch(setCurrentStateModal('matchPush'));
     }
 
@@ -88,10 +93,7 @@ const Planilla = () => {
 
                 <InputDescContainer>
                     <p>Descripcion del partido</p>
-                    <InputLong id="description" name="description" placeholder="Escriba su descripcion aqui..." type="textarea" />
-                    <ButtonMatch>
-                        Enviar
-                    </ButtonMatch>
+                    <InputLong id="description" name="description" placeholder="Escriba su descripcion aqui..." type="textarea" value={descripcion} onChange={handleChange} />
                 </InputDescContainer>
 
                 <ButtonContainer>
@@ -127,7 +129,7 @@ const Planilla = () => {
                             <ButtonMatch 
                             className='finish'
                             onClick={handleStartMatch}>
-                            Partido enviado
+                            Partido cargado
                         </ButtonMatch>
                     )}
                 </ButtonContainer>

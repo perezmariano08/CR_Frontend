@@ -8,21 +8,17 @@ const matchesSlice = createSlice({
     reducers: {
         manageDorsal: (state, action) => {
             const { playerId, dorsal, assign } = action.payload;
-            let player;
 
-            const match = state.find(match => {
-                return match.Local.Player.some(p => p.ID === playerId) || match.Visitante.Player.some(p => p.ID === playerId);
-            });
+            for (const match of state) {
+                let playerFound = false;
 
-            if (match) {
-                const isLocal = match.Local.Player.some(p => p.ID === playerId);
-                const playerTeam = isLocal ? match.Local.Player : match.Visitante.Player;
-
-                player = playerTeam.find(p => p.ID === playerId);
-
+                // Buscar en el equipo Local
+                let player = match.Local.Player.find(p => p.ID === playerId);
                 if (player) {
+                    playerFound = true;
                     if (assign) {
-                        if (!playerTeam.some(p => p.Dorsal === dorsal)) {
+                        // Asegurarse de que no haya otro jugador con el mismo dorsal
+                        if (!match.Local.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
                             player.Dorsal = dorsal;
                             player.status = true;
                         }
@@ -30,6 +26,25 @@ const matchesSlice = createSlice({
                         if (player.Dorsal === dorsal) {
                             player.Dorsal = '';
                             player.status = false;
+                        }
+                    }
+                }
+
+                // Buscar en el equipo Visitante si no se encontró en el equipo Local
+                if (!playerFound) {
+                    player = match.Visitante.Player.find(p => p.ID === playerId);
+                    if (player) {
+                        if (assign) {
+                            // Asegurarse de que no haya otro jugador con el mismo dorsal
+                            if (!match.Visitante.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
+                                player.Dorsal = dorsal;
+                                player.status = true;
+                            }
+                        } else {
+                            if (player.Dorsal === dorsal) {
+                                player.Dorsal = '';
+                                player.status = false;
+                            }
                         }
                     }
                 }
@@ -45,7 +60,7 @@ const matchesSlice = createSlice({
                 const isLocal = match.Local.id_equipo === teamId;
                 const team = isLocal ? match.Local : match.Visitante;
         
-                const eventualPlayersCounts = team.Player.filter((p) => p.eventual).length;
+                const eventualPlayersCounts = team.Player.filter((p) => p.eventual === 'S').length;
         
                 if (eventualPlayersCounts < 3) {
                     const existingPlayerIndex = team.Player.findIndex((p) => p.DNI === player.DNI || p.Dorsal === player.Dorsal);
@@ -139,7 +154,7 @@ const matchesSlice = createSlice({
                     const yellowCards = player.Actions.filter(action => action.Type === 'Amarilla').length;
                     const redCards = player.Actions.filter(action => action.Type === 'Roja').length;
                     if (yellowCards >= 2 || redCards >= 1) {
-                        player.sancionado = true;
+                        player.sancionado = 'S';
                     }
                 } else {
                     console.warn('Jugador no encontrado en el equipo');
@@ -158,19 +173,16 @@ const matchesSlice = createSlice({
                 const player = team.Player.find(p => p.ID === idJugador);
         
                 if (player) {
-                    if (player.eventual) {
-                        // Eliminar el jugador completamente si es eventual
+                    if (player.eventual === 'S') {
                         team.Player = team.Player.filter(p => p.ID !== idJugador);
                         return;
                     }
         
                     if (playerIndex !== -1) {
-                        // Eliminar acciones del jugador
                         team.Player[playerIndex].Actions = [];
-                        
-                        // Limpiar el dorsal y estado del jugador
                         team.Player[playerIndex].Dorsal = '';
                         team.Player[playerIndex].status = false;
+                        team.Player[playerIndex].sancionado = 'N';
                     } else {
                         console.error('Jugador no encontrado');
                     }
@@ -191,13 +203,11 @@ const matchesSlice = createSlice({
         
                 if (player) {
                     const sancionesActuales = player.Actions ? player.Actions.filter(accion => accion.ID !== actionToDelete.ID) : [];
-        
                     player.Actions = sancionesActuales.length > 0 ? sancionesActuales : [];
         
-                    // Recalcular sanciones
                     const yellowCards = player.Actions.filter(action => action.Type === 'Amarilla').length;
                     const redCards = player.Actions.filter(action => action.Type === 'Roja').length;
-                    player.sancionado = yellowCards >= 2 || redCards >= 1;
+                    player.sancionado = (yellowCards >= 2 || redCards >= 1) ? 'S' : 'N';
                 }
             }
         },
@@ -227,10 +237,9 @@ const matchesSlice = createSlice({
                         console.warn('Acción no encontrada en las acciones del jugador');
                     }
         
-                    // Recalcular sanciones
                     const yellowCards = player.Actions.filter(action => action.Type === 'Amarilla').length;
                     const redCards = player.Actions.filter(action => action.Type === 'Roja').length;
-                    player.sancionado = yellowCards >= 2 || redCards >= 1;
+                    player.sancionado = (yellowCards >= 2 || redCards >= 1) ? 'S' : 'N';
                 } else {
                     console.warn('Jugador no encontrado en el equipo');
                 }
@@ -251,6 +260,28 @@ const matchesSlice = createSlice({
                 }
             }
         },
+        addDescToMatch: (state, action) => {
+            const { descToMatch, idPartido } = action.payload;
+            const match = state.find(match => match.ID === idPartido)
+            if (match) {
+                match.descripcion = descToMatch;
+            } else {
+                console.error('Partido inexistente');
+            }
+        },
+        addBestPlayerOfTheMatch: (state, action) => {
+            const {idPartido, player} = action.payload;
+            const match = state.find(match => match.ID === idPartido)
+            if (match) {
+                if (player) {
+                    match.jugador_destacado = player.ID
+                } else {
+                    console.error('Jugador inexistente');
+                }
+            } else {
+                console.error('Partido inexistente');
+            }
+        }
     }
 });
 
@@ -262,7 +293,9 @@ export const {
     toggleStateMatch,
     deleteActionToPlayer,
     editActionToPlayer,
-    deleteTotalActionsToPlayer
+    deleteTotalActionsToPlayer,
+    addDescToMatch,
+    addBestPlayerOfTheMatch
 } = matchesSlice.actions;
 
 export default matchesSlice.reducer;

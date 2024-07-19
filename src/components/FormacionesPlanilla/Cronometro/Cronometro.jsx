@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ButtonsContainer, CronometroContainer, CronometroH1, CronometroWrapper } from "./CronometroStyles";
 import { HiArrowPath, HiMiniPauseCircle, HiMiniPlayCircle } from "react-icons/hi2";
 import { useSelector } from "react-redux";
@@ -8,7 +8,19 @@ function Cronometro() {
   const [initial, setInitial] = useState(null);
   const [paused, setPaused] = useState(true);
 
-  const matchState = useSelector((state) => state.planillero.timeMatch.matchState);
+  const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
+  const match = useSelector((state) => state.match);
+  const matchCorrecto = match.find((m) => m.ID === partidoId);
+  const matchState = matchCorrecto?.matchState;
+
+  useEffect(() => {
+    const savedData = JSON.parse(localStorage.getItem(`cronometroData_${partidoId}`));
+    if (savedData) {
+      setInitial(savedData.initial);
+      setDiff(savedData.diff);
+      setPaused(savedData.paused);
+    }
+  }, [partidoId]);
 
   const tick = () => {
     if (!paused) {
@@ -19,6 +31,8 @@ function Cronometro() {
   const start = () => {
     if (!initial) {
       setInitial(+new Date());
+    } else {
+      setInitial(+new Date() - diff);
     }
     setPaused(false);
   };
@@ -31,14 +45,8 @@ function Cronometro() {
     setInitial(null);
     setDiff(null);
     setPaused(true);
+    localStorage.removeItem(`cronometroData_${partidoId}`);
   };
-
-  useEffect(() => {
-    localStorage.setItem(
-      "cronometroData",
-      JSON.stringify({ initial, diff, paused })
-    );
-  }, [initial, diff, paused]);
 
   useEffect(() => {
     if (initial && !paused) {
@@ -48,19 +56,19 @@ function Cronometro() {
   }, [initial, paused]);
 
   useEffect(() => {
+    localStorage.setItem(
+      `cronometroData_${partidoId}`,
+      JSON.stringify({ initial, diff, paused })
+    );
+  }, [initial, diff, paused, partidoId]);
+
+  useEffect(() => {
     if (matchState === "isStarted" && !initial) {
       start();
     } else if (matchState === "isFinish") {
       pause();
     }
   }, [matchState]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "cronometroData",
-      JSON.stringify({ storedInitial: initial, storedDiff: diff, storedPaused: paused })
-    );
-  }, [initial, diff, paused]);
 
   return (
     <CronometroContainer>
@@ -88,11 +96,11 @@ function Cronometro() {
 }
 
 const timeFormat = (date) => {
-  if (!date) return "00:00:00";
+  if (!date || !(date instanceof Date)) return "00:00:00";
 
   let hh = date.getUTCHours();
   let mm = date.getUTCMinutes();
-  let ss = date.getSeconds();
+  let ss = date.getUTCSeconds();
 
   hh = hh < 10 ? "0" + hh : hh;
   mm = mm < 10 ? "0" + mm : mm;

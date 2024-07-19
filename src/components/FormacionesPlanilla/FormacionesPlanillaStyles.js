@@ -48,6 +48,7 @@ export const TablePlanillaWrapper = styled.table`
         &.playerEventual {
             color: var(--yellow);  
         }
+        margin-bottom: 10px;
     }
 
     td, th {
@@ -71,9 +72,7 @@ export const TablePlanillaWrapper = styled.table`
     }
 
     td {
-        text-align: end;
-
-        &.disabled{
+        &.disabled {
             opacity: 0.5;
             pointer-events: none;
         }
@@ -90,6 +89,11 @@ export const TablePlanillaWrapper = styled.table`
 
         .delete {
             color: var(--red);
+            cursor: pointer;
+        }
+
+        .star {
+            color: var(--yellow);
             cursor: pointer;
         }
 
@@ -111,8 +115,7 @@ export const TablePlanillaWrapper = styled.table`
     }
 
     .text {
-        text-align: center;
-        min-width: 100px;
+        text-align: end;
         font-weight: 600;
     }
 `;

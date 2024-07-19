@@ -1,11 +1,18 @@
 import React from 'react';
-import { InputContainerStyled, InputWrapper } from './InputSyles';
+import { InputAreaWrapper, InputContainerStyled, InputWrapper } from './InputSyles';
 
-const InputLong = ({ id, name, placeholder, children, type = "text" }) => {
+const InputLong = ({ id, name, placeholder, children, type = "text", value, onChange }) => {
     return (
         <InputContainerStyled>
             {children}
-            <InputWrapper id={id} name={name} type={type} placeholder={placeholder} />
+            <InputAreaWrapper 
+                id={id} 
+                name={name} 
+                type={type} 
+                placeholder={placeholder}  
+                value={value} 
+                onChange={onChange} 
+            />
         </InputContainerStyled>
     );
 };

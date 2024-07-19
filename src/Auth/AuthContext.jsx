@@ -41,6 +41,8 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
+    console.log(userRole);
+
     if (loading) {
         return (
             <SpinerContainer>

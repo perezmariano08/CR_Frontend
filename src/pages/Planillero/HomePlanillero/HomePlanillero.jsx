@@ -36,18 +36,6 @@ const HomePlanillero = () => {
         }
     }, [userName, showWelcomeToast, setShowWelcomeToast]);
 
-    // useEffect(() => {
-    //     if (!partidos.length) {
-    //         dispatch(fetchPartidos());
-    //     }
-    //     if (!equipos.length) {
-    //         dispatch(fetchEquipos());
-    //     }
-    //     if (!jugadoresData.length) {
-    //         dispatch(fetchJugadores());
-    //     }
-    // }, [dispatch, partidos.length, equipos.length, jugadoresData.length]);
-
     useEffect(() => {
             dispatch(fetchPartidos());
             dispatch(fetchEquipos());
@@ -65,21 +53,23 @@ const HomePlanillero = () => {
 
                 const localJugadores = jugadoresData.filter(jugador => jugador.id_equipo === localEquipo.id_equipo);
                 const visitanteJugadores = jugadoresData.filter(jugador => jugador.id_equipo === visitanteEquipo.id_equipo);
-                
+
                 return {
                     ID: partido.id_partido,
                     matchState: null,
+                    descripcion: null,
+                    jugador_destacado: null,
                     Local: {
                         id_equipo: localEquipo.id_equipo,
                         Nombre: localEquipo.nombre,
                         Player: localJugadores.map(jugador => ({
                             ID: jugador.id_jugador,
-                            Nombre: jugador.jugador,
+                            Nombre: `${jugador.nombre} ${jugador.apellido}`,
                             DNI: jugador.dni,
                             Dorsal: '',
                             status: false,
-                            sancionado: false,
-                            eventual: false
+                            sancionado: jugador.sancionado,
+                            eventual: jugador.eventual
                         }))
                     },
                     Visitante: {
@@ -87,11 +77,12 @@ const HomePlanillero = () => {
                         Nombre: visitanteEquipo.nombre,
                         Player: visitanteJugadores.map(jugador => ({
                             ID: jugador.id_jugador,
-                            Nombre: jugador.jugador,
+                            Nombre: `${jugador.nombre} ${jugador.apellido}`,
                             DNI: jugador.dni,
                             Dorsal: '',
                             status: false,
-                            eventual: false
+                            sancionado: jugador.sancionado,
+                            eventual: jugador.eventual
                         }))
                     }
                 };
@@ -106,7 +97,12 @@ const HomePlanillero = () => {
         <HomePlanilleroContainer>
             <HomeWrapper>
                 <Section>
-                    <h2>Mis Partidos</h2>
+                    {
+                        partidosFiltrados && partidosFiltrados.length > 0 ?(
+                            <h2>Mis Partidos</h2>
+                        ) : (
+                            <h2>No tienes partidos cargados</h2>
+                    )}
                     {loadingPartidos ? (
                         <p>Cargando partidos...</p>
                     ) : (
