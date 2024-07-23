@@ -1,15 +1,16 @@
 import React from 'react'
 import { TableContainerStyled, TableWrapper, TableTitle, TableTitleDivider } from '../Table/TableStyles'
-
 import UserDefault from '/user-default.png'
 import { TbRectangleVerticalFilled } from "react-icons/tb";
 
-const TableTeam = () => {
-  return (
+const TableTeam = ({jugadores, equipo}) => {
+
+    return (
     <TableContainerStyled>
         <TableTitle>
+            {/* Falta renderizado automatico del nombre del torneo */}
             <h3>Torneo Apertura 2024</h3>
-            <p>Serie A</p>
+            <p>{equipo.categoria} {equipo.division}</p>
         </TableTitle>
         <TableTitleDivider/>
         <TableWrapper>
@@ -24,65 +25,23 @@ const TableTeam = () => {
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td className='team'>
-                    <img src={UserDefault} alt="" />
-                    Celta de Vino
-                </td>
-                <td>20</td>
-                <td>10</td>
-                <td>+6</td>
-                <td>1</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td className='team'>
-                    <img src={UserDefault} alt="" />
-                    Pura Quimica
-                </td>
-                <td>20</td>
-                <td>10</td>
-                <td>+8</td>
-                <td>1</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td className='team'>
-                    <img src={UserDefault} alt="" />
-                    Celta de Vino
-                </td>
-                <td>20</td>
-                <td>10</td>
-                <td>+6</td>
-                <td>1</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td className='team'>
-                    <img src={UserDefault} alt="" />
-                    Celta de Vino
-                </td>
-                <td>20</td>
-                <td>10</td>
-                <td>+6</td>
-                <td>1</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td className='team'>
-                    <img src={UserDefault} alt="" />
-                    Celta de Vino
-                </td>
-                <td>20</td>
-                <td>10</td>
-                <td>+6</td>
-                <td>1</td>
-                <td>0</td>
-            </tr>
+            {jugadores.map((jugador) => (
+                <tr key={jugador.id_jugador}>
+                    <td className='team'>
+                        <img src={UserDefault} alt="" />
+                        {jugador.nombre} {jugador.apellido}
+                    </td>
+                    <td>10</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+            ))}
         </tbody>
         </TableWrapper>
     </TableContainerStyled>
-  )
+)
 }
 
 export default TableTeam

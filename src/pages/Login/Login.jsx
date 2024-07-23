@@ -33,7 +33,8 @@ const Login = () => {
         return dniUser.trim() !== '' && passUser.trim() !== '';
     }
 
-    const handleLoginNext = async () => {
+    const handleLoginNext = async (event) => {
+        event.preventDefault();
         try {
             const response = await axios.post(`${URL}/auth/check-login`, { dni: dniUser, password: passUser });
             if (response.status === 200) {
@@ -84,6 +85,7 @@ const Login = () => {
                     <ButtonLogin 
                         disabled={!areInputsFilled()}
                         onClick={handleLoginNext}
+                        type="submit"
                     >
                         Iniciar sesión
                     </ButtonLogin>

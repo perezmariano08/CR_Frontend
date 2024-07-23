@@ -42,7 +42,7 @@ const ModalConfirmation = () => {
                 goles_local: bd_partido.goles_local,
                 goles_visita: bd_partido.goles_visita,
                 descripcion: bd_partido.descripcion,
-                jugador_destacado: jugador_destacado,
+                // jugador_destacado: jugador_destacado,
                 estado: 'F'
             });
             toast.success('Se actualizaron los datos correctamente');
@@ -81,6 +81,7 @@ const ModalConfirmation = () => {
                     });
                 } else {
                     toast.error('Se debe seleccionar el MVP antes de finalizar')
+                    dispatch(toggleHiddenModal());
                     return
                 }
                 break;

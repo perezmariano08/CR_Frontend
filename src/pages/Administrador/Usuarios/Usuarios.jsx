@@ -196,8 +196,7 @@ const Usuarios = () => {
                         apellido,
                         nacimiento,
                         email,
-                        estado,
-                        nombre,
+                        estado
                     }).then(() => {
                         toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente.`);
                         dispatch(fetchUsuarios());

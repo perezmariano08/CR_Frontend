@@ -9,6 +9,7 @@ const CardFinalPartido = ({ idPartido }) => {
 
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find((partido) => partido.id_partido === idPartido);
+    console.log(partido);
     
     const equipos = useSelector((state) => state.equipos.data);
     const escudosEquipos = (idEquipo) => {
@@ -21,6 +22,7 @@ const CardFinalPartido = ({ idPartido }) => {
         return equipo ? equipo.nombre : null;
     };
 
+    //Manejo local de goles
     const [goalLocal, setGoalLocal] = useState(0);
     const [goalVisit, setGoalVisit] = useState(0);
 
@@ -71,12 +73,19 @@ const CardFinalPartido = ({ idPartido }) => {
                     <h4>{`${nombreEquipos(partido.id_equipoLocal)}`}</h4>
                 </CardPartidoTeam>
                 <CardPartidoInfo>
-                    <h4>{goalLocal}-{goalVisit}</h4>
-                    {match.matchState === null ? (
+                    {
+                        //manejo sobre el estado del partido de la base de datos, falta la info de los goles
+                        partido.estado === 'F' ? (
+                            <h4>{partido.goles_local}-{partido.goles_visita}</h4>
+                        ) : (   
+                            <h4>{goalLocal}-{goalVisit}</h4>
+                        )
+                    }
+                    {match.matchState === null && partido.estado === 'P' ? (
                         <span>Por comenzar</span>
                     ) : match.matchState === 'isStarted' ? (
                         <span>En curso</span>
-                    ) : (
+                    ) : partido.estado === 'F' &&(
                         <span>Final</span>
                     )}
                 </CardPartidoInfo>
