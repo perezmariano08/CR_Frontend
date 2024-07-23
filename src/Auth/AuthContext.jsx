@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [userName, setUserName] = useState(null);
+    const [user, setUser] = useState(null);
     const [showWelcomeToast, setShowWelcomeToast] = useState(false);
 
     useEffect(() => {
@@ -27,12 +28,14 @@ export const AuthProvider = ({ children }) => {
                     setUserRole(response.data.usuario.id_rol);
                     setUserName(response.data.usuario.nombre);
                     setUserId(response.data.usuario.id_usuario)
+                    setUser(response.data.usuario)
                     setShowWelcomeToast(true);
                 }
             } catch (error) {
                 setIsAuthenticated(false);
                 setUserRole(null);
                 setUserName(null);
+                setUser(null)
                 setShowWelcomeToast(false);
             } finally {
                 setLoading(false);
@@ -40,8 +43,6 @@ export const AuthProvider = ({ children }) => {
         };
         checkAuth();
     }, []);
-
-    console.log(userRole);
 
     if (loading) {
         return (
@@ -52,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, userId, userRole, userName, showWelcomeToast, setShowWelcomeToast, setIsAuthenticated }}>
+        <AuthContext.Provider value={{ isAuthenticated, userId, userRole, userName, user, showWelcomeToast, setShowWelcomeToast, setIsAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

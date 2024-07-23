@@ -372,11 +372,11 @@ const Partidos = () => {
                                     <Select 
                                         data={equiposList}
                                         placeholder="Seleccionar equipo"
+                                        column="nombre"
                                         icon={<IoShieldHalf className='icon-select' />}
-                                        id_={"id_equipo"}
-                                        onChange={(event) => { setIdEquipoLocal(event.target.value)}}
-                                    >
-                                    </Select>
+                                        id="id_equipo"
+                                        onChange={(event) => setIdEquipoLocal(event.target.value)}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Equipo Visitante
@@ -385,6 +385,7 @@ const Partidos = () => {
                                         placeholder="Seleccionar equipo"
                                         icon={<IoShieldHalf className='icon-select' />}
                                         id_={"id_equipo"}
+                                        column={"nombre"}
                                         onChange={(event) => { setIdEquipoVisita(event.target.value)}}
                                     >
                                     </Select>
@@ -420,10 +421,10 @@ const Partidos = () => {
                                         data={planillerosList}
                                         placeholder="Seleccionar planillero"
                                         icon={<IoShieldHalf className='icon-select' />}
-                                        id_={"id_usuario"}
-                                        onChange={(event) => { setIdPlanillero(event.target.value)}}
-                                    >
-                                    </Select>
+                                        id="id_usuario"
+                                        column="nombre"
+                                        onChange={(event) => setIdPlanillero(event.target.value)}
+                                    />
                                 </ModalFormInputContainer>
                                 
                             </>

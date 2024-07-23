@@ -4,7 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 
-const CardPartido = ({ finished, observer, partido }) => {
+const CardPartido = ({ finished, partido, rol }) => {
     const equipos = useSelector((state) => state.equipos.data);
     const matches = useSelector((state) => state.match);
     const dispatch = useDispatch();
@@ -27,6 +27,11 @@ const CardPartido = ({ finished, observer, partido }) => {
         dispatch(toggleIdMatch(partido.id_partido));
         navigate(`/planillero/planilla?id=${partido.id_partido}`);
     };
+
+    const viewStatsOfTheMatch = (e) => {
+        e.preventDefault();
+        navigate(`/stats-match?id=${partido.id_partido}`)
+    }
 
     const [goalLocal, setGoalLocal] = useState(0);
     const [goalVisit, setGoalVisit] = useState(0);
@@ -69,16 +74,28 @@ const CardPartido = ({ finished, observer, partido }) => {
     }, [match]);
 
     const formatTime = (time) => {
+        if (!time) return '00:00';
         const [hours, minutes] = time.split(':');
         return `${hours}:${minutes}`;
     };
+
+    const formatDate = (dateTime) => {
+        const date = new Date(dateTime);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
+    const formattedDate = formatDate(partido.dia);
+    const formattedTime = formatTime(partido.hora);
 
     return (
         <CardPartidoWrapper> 
             <CardPartidoTitles>
                 <h3>{`${partido.division} - ${partido.torneo} ${partido.año}`}</h3>
                 {finished ? (
-                    <p>{partido.dia} | Fecha {partido.jornada} - Cancha {partido.cancha}</p>
+                    <p>{formattedDate} {formattedTime} | Fecha {partido.jornada} - {partido.cancha}</p>
                 ) : (
                     <p>Fecha {partido.jornada} - {partido.cancha}</p>
                 )}
@@ -90,38 +107,32 @@ const CardPartido = ({ finished, observer, partido }) => {
                 </CardPartidoTeam>
 
                 <CardPartidoInfo>
-                    {finished ? (
+                    {match ? (match.matchState === 'isStarted' ? (
                         <>
                             <h4>{goalLocal}-{goalVisit}</h4>
+                            <span>En curso</span>
+                        </>
+                    ) : (partido.estado === 'F' || match.matchState === 'isFinish' || match.matchState === 'matchPush') ? (
+                        <>
+                        {
+                            partido.estado === 'F' ? (
+                                <h4>{partido.goles_local}-{partido.goles_visita}</h4>
+                            ) : (
+                                <h4>{goalLocal}-{goalVisit}</h4>
+                            )
+                        }
                             <span>Final</span>
                         </>
-                    ) : match ? (
-                        match.matchState === 'isStarted' ? (
-                            <>
-                                <h4>{goalLocal}-{goalVisit}</h4>
-                                <span>En curso</span>
-                            </>
-                        ) : partido.estado === 'F' ? (
-                            <>
-                                <h4>{partido.goles_local}-{partido.goles_visita}</h4>
-                                <span>Final</span>
-                            </>
-                        
-                        ) : match.matchState === 'isFinish' || match.matchState === 'matchPush' ? (
-                            <>
-                                <h4>{goalLocal}-{goalVisit}</h4>
-                                <span>Final</span>
-                            </>
-                        ) : (
-                            <>
-                                <h5>{formatTime(partido.hora)}</h5>
-                                <p>{`${partido.dia_nombre} ${partido.dia_numero}/${partido.mes}`}</p>
-                            </>
-                        )
+                    ) : partido.estado === 'P' ? (
+                        <>
+                            <h5>{formattedTime}</h5>
+                            <p>{formattedDate}</p>
+                        </>
+                    ) : null
                     ) : (
                         <>
-                            <h5>{formatTime(partido.hora)}</h5>
-                            <p>{`${partido.dia_nombre} ${partido.dia_numero}/${partido.mes}`}</p>
+                            <h5>{formattedTime}</h5>
+                            <p>{formattedDate}</p>
                         </>
                     )}
                 </CardPartidoInfo>
@@ -131,7 +142,8 @@ const CardPartido = ({ finished, observer, partido }) => {
                     <h4>{`${nombreEquipos(partido.id_equipoVisita)}`}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>
-            {finished || (match && match.matchState === 'matchPush') ? (
+            {rol === 2 ? (
+                match ? (
                 <>
                     <CardPartidoDivider/>
                     <CardPartidoStats>
@@ -143,19 +155,22 @@ const CardPartido = ({ finished, observer, partido }) => {
                         </NavLink>
                     </CardPartidoStats>
                 </>
-            ) : observer && (
+                ) : null
+            ) : rol === 3 ? (
+                match ? (
                 <>
                     <CardPartidoDivider/>
                     <CardPartidoStats>
                         <NavLink 
                             to={`/planillero/planilla?id=${partido.id_partido}`}
-                            onClick={handlePlanillarClick}
+                            onClick={viewStatsOfTheMatch}
                         >
-                            Ir a planillar partido
+                            Ver planilla del partido
                         </NavLink>
                     </CardPartidoStats>
                 </>
-            )}
+                ) : null
+            ) : null}
         </CardPartidoWrapper>
     );
 }

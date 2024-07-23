@@ -1,22 +1,77 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { MyTeamTitleContainer, MyTeamInfo, MyTeamName, MyTeamContainerStyled, MyTeamWrapper, MyTeamMatches, MyTeamMatchesItem, MyTeamMatchesDivisor } from './MyTeamStyles'
 import Celta from '/Escudos/celta-de-vino.png'
 import Section from '../../components/Section/Section'
 import Table from '../../components/Stats/Table/Table'
 import TableTeam from '../../components/Stats/TableTeam/TableTeam'
 import CardOldMatches from '../../components/Stats/CardOldMatches/CardOldMatches'
+import { useAuth } from '../../Auth/AuthContext'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice'
+import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice'
+import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice'
+
 const MyTeam = () => {
+    const { user } = useAuth();
+    const dispatch = useDispatch();
+    const equipos = useSelector((state) => state.equipos.data);
+    const partidos = useSelector((state) => state.partidos.data);
+    const jugadoresData = useSelector((state) => state.jugadores.data);
+    
+    const miEquipo = equipos.find((equipo) => equipo.id_equipo === user.id_equipo);
+    const jugadores = jugadoresData.filter((jugador) => jugador.id_equipo === miEquipo.id_equipo);
+
+    const partidosMiEquipo = partidos.filter((p) => {
+        const esMiEquipo = p.id_equipoLocal === miEquipo.id_equipo || p.id_equipoVisita === miEquipo.id_equipo;
+        const estadoValido = p.estado.trim() === 'F';
+        return esMiEquipo && estadoValido;
+    });
+
+    const [cantVictorias, setCantVictorias] = useState(0);
+    const [cantEmpates, setCantEmpates] = useState(0);
+    const [cantDerrotas, setCantDerrotas] = useState(0);
+
+    useEffect(() => {
+        let victorias = 0;
+        let empates = 0;
+        let derrotas = 0;
+
+        partidosMiEquipo.forEach(partido => {
+            const esLocal = partido.id_equipoLocal === miEquipo.id_equipo;
+            const golesLocal = esLocal ? partido.goles_local : partido.goles_visita;
+            const golesVisitante = esLocal ? partido.goles_visita : partido.goles_local;
+
+            if (golesLocal > golesVisitante) {
+                victorias++;
+            } else if (golesLocal < golesVisitante) {
+                derrotas++;
+            } else {
+                empates++;
+            }
+        });
+
+        setCantVictorias(victorias);
+        setCantEmpates(empates);
+        setCantDerrotas(derrotas);
+
+    }, [partidosMiEquipo, miEquipo]);
+
+    useEffect(() => {
+        dispatch(fetchEquipos());
+        dispatch(fetchPartidos());
+        dispatch(fetchJugadores());
+    }, [dispatch]);
+
     return (
         <>
         <MyTeamTitleContainer>
             <MyTeamInfo>
-                <img src={Celta} alt="" srcset="" />
+                <img src={`/Escudos/${miEquipo.img}`} alt="" />
                 <MyTeamName>
-                    <h2>Celta de Vino</h2>
-                    <h3>Serie A</h3>
+                    <h2>{miEquipo.nombre}</h2>
+                    <h3>{miEquipo.division}</h3>
                 </MyTeamName>
             </MyTeamInfo>
-            
         </MyTeamTitleContainer>
         <MyTeamContainerStyled className='container'>
             <MyTeamWrapper className='wrapper'>
@@ -24,22 +79,22 @@ const MyTeam = () => {
                     <h2>Partidos</h2>
                     <MyTeamMatches>
                         <MyTeamMatchesItem className='pj'>
-                            <h4>10</h4>
+                            <h4>{partidosMiEquipo.length}</h4>
                             <MyTeamMatchesDivisor/>
                             <h5>PJ</h5>
                         </MyTeamMatchesItem>
                         <MyTeamMatchesItem className='pg'>
-                            <h4>10</h4>
+                            <h4>{cantVictorias}</h4>
                             <MyTeamMatchesDivisor/>
                             <h5>PG</h5>
                         </MyTeamMatchesItem>
                         <MyTeamMatchesItem className='pp'>
-                            <h4>10</h4>
+                            <h4>{cantDerrotas}</h4>
                             <MyTeamMatchesDivisor/>
                             <h5>PP</h5>
                         </MyTeamMatchesItem>
                         <MyTeamMatchesItem className='pe'>
-                            <h4>10</h4>
+                            <h4>{cantEmpates}</h4>
                             <MyTeamMatchesDivisor/>
                             <h5>PE</h5>
                         </MyTeamMatchesItem>
@@ -48,7 +103,7 @@ const MyTeam = () => {
 
                 <Section>
                     <h2>Plantel</h2>
-                    <TableTeam/>
+                    <TableTeam jugadores={jugadores} equipo={miEquipo}/>
                 </Section>
                     
                 <Section>
@@ -57,13 +112,13 @@ const MyTeam = () => {
                 </Section>
 
                 <Section>
-                    <CardOldMatches/>
+                    <CardOldMatches partidos={partidosMiEquipo} equipo={miEquipo}/>
                 </Section>
 
             </MyTeamWrapper>
         </MyTeamContainerStyled>
         </>
-)
+    );
 }
 
 export default MyTeam

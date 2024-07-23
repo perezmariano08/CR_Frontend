@@ -13,7 +13,7 @@ import { setMatches } from '../../../redux/Matches/matchesSlice';
 
 const HomePlanillero = () => {
     const dispatch = useDispatch();
-    const { userId, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
+    const { user, userId, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
     const partidos = useSelector((state) => state.partidos.data);
     const equipos = useSelector((state) => state.equipos.data);
     const jugadoresData = useSelector((state) => state.jugadores.data);
@@ -107,7 +107,7 @@ const HomePlanillero = () => {
                         <p>Cargando partidos...</p>
                     ) : (
                         partidosFiltrados.map((partido) => (
-                            <CardPartido key={partido.id_partido} observer partido={partido}/>
+                            <CardPartido key={partido.id_partido} rol={user.id_rol} partido={partido}/>
                         ))
                     )}
                 </Section>

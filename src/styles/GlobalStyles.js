@@ -2,7 +2,7 @@ import { createGlobalStyle } from "styled-components"
 
 export const GlobalStyles = createGlobalStyle`
     :root {
-        --red: #E30000;
+        --red: #B31312;
         --green: #2AD174;
         --green-opacity: rgba(42, 209, 116, 0.2);;
         /* Gray Scale */
@@ -262,5 +262,26 @@ export const GlobalStyles = createGlobalStyle`
             border: 1px solid var(--green);
         }
     }
+        
+    /* Estilos de barra de desplazamiento */
+    ::-webkit-scrollbar {
+        height: 8px; /* Altura de la barra de desplazamiento */
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--gray-300); /* Color de fondo de la pista */
+        border-radius: 10px; /* Bordes redondeados de la pista */
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--gray-200); /* Color del pulgar */
+        border-radius: 10px; /* Bordes redondeados del pulgar */
+        transition: all 0.3s ease; /* Transición suave para todas las propiedades */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-500); /* Color del pulgar al pasar el ratón por encima */
+    }
 
 `
+

@@ -47,7 +47,7 @@ export const LoginWrapperDown = styled.div`
     padding: 30px;
     border-radius: 30px 30px 0 0;
 `
-export const LoginDataContainer = styled.div`
+export const LoginDataContainer = styled.form`
     display: flex;
     flex-direction: column;
     width: 100%;

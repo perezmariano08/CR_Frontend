@@ -55,19 +55,17 @@ const Step3 = () => {
                     <h2>Selecciona tu equipo favorito</h2>
                     <CreateAccountInputs>
                         <InputContainer>
-                            <Select
-                            onChange={handleSetTeamSelected} 
-                            data={equiposList}
-                            id_={"id_equipo"}
-                            placeholder={'Seleccionar equipo'} 
-                            icon={<IoShieldHalf className='icon-select' />}>
-                            </Select>
-                            {
-                                handleError && teamSelected === 0 && (
-                                    <p>Debe seleccionar un equipo para completar el registro</p>
-                                )
-                            }
-
+                        <Select
+                                onChange={handleSetTeamSelected} 
+                                data={equiposList}
+                                id_="id_equipo"
+                                placeholder='Seleccionar equipo' 
+                                icon={<IoShieldHalf className='icon-select' />}
+                                value={teamSelected}
+                            />
+                            {handleError && teamSelected === '' && (
+                                <p>Debe seleccionar un equipo para completar el registro</p>
+                        )}
                         </InputContainer>
                     </CreateAccountInputs>
                     <ButtonSubmit

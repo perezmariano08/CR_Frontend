@@ -20,4 +20,5 @@ export const CardsMatchesWrapper = styled.div`
     height: 100%;
     overflow-x: auto;
     padding: 0px 0 15px 0;
+    width: 100%;
 `

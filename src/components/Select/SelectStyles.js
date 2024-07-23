@@ -23,7 +23,7 @@ export const SelectContainerStyled = styled.div`
     }
 `
 export const SelectWrapper = styled.select`
-    min-width: 200px;
+    min-width: 300px;
     width: 100%;
     background-color: transparent;
     color: var(--gray-200);
