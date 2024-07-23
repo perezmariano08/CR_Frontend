@@ -4,7 +4,7 @@ export const LoginContainerStyled = styled.div`
     height: 100vh;
     position: relative;
     width: 100%;
-
+    
 `
 export const LoginWrapperUp = styled.div`
     display: flex;
