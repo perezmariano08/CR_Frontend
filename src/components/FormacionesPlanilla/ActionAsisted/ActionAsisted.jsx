@@ -91,7 +91,7 @@ const ActionAsisted = () => {
             withAssist: asistenciaSeleccionada === "si",
             idAssist: asistenciaSeleccionada === "si" ? selectedPlayer : null,
         };
-
+        
         if (enabledEdit) {
             const updatedAction = { ...actionToEdit, Detail: updatedDetail };
             dispatch(setActionToEdit(updatedAction));

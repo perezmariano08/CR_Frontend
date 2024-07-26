@@ -32,6 +32,11 @@ const Planilla = () => {
     const [canStartMatch, setCanStartMatch] = useState(false);
     const [descripcion, setDescripcion] = useState('');
 
+
+    const matchCorrecto = matches.find((p) => p.ID === partidoId)
+
+    // console.log(matchCorrecto);
+
     const handleChange = (event) => {
         setDescripcion(event.target.value)
     }
@@ -141,7 +146,6 @@ const Planilla = () => {
                 <EditDorsal />
                 <JugadoresEventuales />
                 <ModalConfirmation />
-
             </MatchStatsWrapper>
             <Toaster />
         </PlanillaContainerStyled>

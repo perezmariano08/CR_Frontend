@@ -51,8 +51,8 @@ const HomePlanillero = () => {
                 const localEquipo = equipos.find(equipo => equipo.id_equipo === partido.id_equipoLocal);
                 const visitanteEquipo = equipos.find(equipo => equipo.id_equipo === partido.id_equipoVisita);
 
-                const localJugadores = jugadoresData.filter(jugador => jugador.id_equipo === localEquipo.id_equipo);
-                const visitanteJugadores = jugadoresData.filter(jugador => jugador.id_equipo === visitanteEquipo.id_equipo);
+                const localJugadores = jugadoresData.filter(jugador => jugador.id_equipo === localEquipo.id_equipo && jugador.eventual === 'N');
+                const visitanteJugadores = jugadoresData.filter(jugador => jugador.id_equipo === visitanteEquipo.id_equipo && jugador.eventual === 'N');
 
                 return {
                     ID: partido.id_partido,

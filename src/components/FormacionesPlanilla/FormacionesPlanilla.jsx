@@ -174,7 +174,7 @@ const FormacionesPlanilla = ({ idPartido }) => {
                     {currentTeam && currentTeam.Player.map(player => (
                         <tr key={player.ID} className={player.eventual === 'S' ? 'playerEventual' : ''}>
                             <td
-                                className={`dorsal ${(!player.Dorsal || player.sancionado === 'S') && 'disabled'}`}
+                                className={`dorsal ${(!player.Dorsal || player.sancionado === 'S' ) && 'disabled'}`}
                                 onClick={() => {
                                         if (player.Dorsal && player.sancionado !== 'S') {
                                             handleNext(player.ID, player.Dorsal, player.Nombre, currentTeam.id_equipo);

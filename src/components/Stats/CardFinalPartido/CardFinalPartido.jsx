@@ -9,7 +9,7 @@ const CardFinalPartido = ({ idPartido }) => {
 
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find((partido) => partido.id_partido === idPartido);
-    console.log(partido);
+    // console.log(partido);
     
     const equipos = useSelector((state) => state.equipos.data);
     const escudosEquipos = (idEquipo) => {

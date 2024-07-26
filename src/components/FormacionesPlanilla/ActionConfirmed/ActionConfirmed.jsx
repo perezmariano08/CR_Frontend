@@ -3,16 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionOptionContainer, ActionTitle, ActionsContainer, IconClose } from './ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
-import { setActionPlayer, setActionToEdit, setNavigationSource, toggleHiddenAction, toggleHiddenTime, toggleHiddenAsist } from '../../../redux/Planillero/planilleroSlice';
+import Select2 from '../../UI/Select/Select2';
+import { setActionPlayer, setActionToEdit, setNavigationSource, toggleHiddenAction, toggleHiddenTime, toggleHiddenAsist, setTipoExpulsion } from '../../../redux/Planillero/planilleroSlice';
 
 const ActionConfirmed = () => {
     const dispatch = useDispatch();
     const hiddenActions = useSelector((state) => state.planillero.planilla.hidden);
     const actionToEdit = useSelector((state) => state.planillero.actionEdit);
     const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
-    // console.log('sin actualizar', actionToEdit);
 
-    //Cerrar componente clickeando en el overlay
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
             dispatch(toggleHiddenAction());
@@ -27,11 +26,12 @@ const ActionConfirmed = () => {
 
     const setEditAccion = (option) => {
         const updatedAction = { ...actionToEdit, Accion: option };
-
-        if (option !== 'Gol') {
+        if (option === 'Roja') {
+            dispatch(setActionToEdit(updatedAction));
+            return
+        } else if (option !== 'Gol') {
             delete updatedAction.Detail;
         }
-        // console.log('actualizado', updatedAction);
         dispatch(setActionToEdit(updatedAction));
     }
 
@@ -51,6 +51,7 @@ const ActionConfirmed = () => {
                 dispatch(setNavigationSource('Roja'));
                 dispatch(toggleHiddenTime());
                 dispatch(setActionPlayer("Roja"));
+                dispatch(setTipoExpulsion(tipoSancion));
                 break;
             default:
                 break;
@@ -59,6 +60,16 @@ const ActionConfirmed = () => {
             setEditAccion(selectedOption)
         }
         dispatch(toggleHiddenAction());
+    };
+
+    const [tipoSancion, setTipoSancion] = useState(null)
+    
+    const handleSelect = (value) => {
+        if (selectedOption === "Roja") {
+            setTipoSancion(value);
+        } else {
+            setTipoSancion(null)
+        }
     };
 
     return (
@@ -115,11 +126,20 @@ const ActionConfirmed = () => {
                             />
                             <p>Roja</p>
                         </ActionOptionContainer>
+                        {selectedOption === "Roja" && (
+                            <>
+                                Indique el tipo
+                                <Select2 
+                                onSelect={handleSelect}
+                                action={selectedOption}/>
+                            </>
+
+                        )}
                     </ActionsContainer>
-                    <ActionNext 
+                    <ActionNext
                         onClick={handleNext}
-                        disabled={!selectedOption}
-                        className={selectedOption ? '' : 'disabled'}
+                        disabled={!selectedOption || (selectedOption === 'Roja' && !tipoSancion)}
+                        className={!selectedOption || (selectedOption === 'Roja' && !tipoSancion) ? 'disabled' : ''}
                     >
                         Siguiente
                     </ActionNext>

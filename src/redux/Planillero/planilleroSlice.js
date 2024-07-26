@@ -56,13 +56,28 @@ const initialState = {
     desc: null,
     jugador_destacado: null
   },
-  
+  expulsadoData: {
+    idJugador: null,
+    tipo: null,
+    descripcion: null,
+  }
 };
 
 const planilleroSlice = createSlice({
   name: 'planillero',
   initialState,
   reducers: {
+    setTipoExpulsion: (state , action) => {
+      state.expulsadoData.tipo = action.payload
+    },
+    resetAssist: (state) => {
+      state.asist.dataGol = {
+          penal: null,
+          enContra: null,
+          withAssist: null,
+          idAssist: null
+      };
+    },
     handleBestPlayerOfTheMatch: (state, action) => {
       state.timeMatch.jugador_destacado = action.payload;
     },
@@ -268,7 +283,9 @@ export const {
   setEnabledStateInfoPlayerEvent,
   setDisabledStateInfoPlayerEvent,
   setDescOfTheMatch,
-  handleBestPlayerOfTheMatch
+  handleBestPlayerOfTheMatch,
+  setTipoExpulsion,
+  resetAssist
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;

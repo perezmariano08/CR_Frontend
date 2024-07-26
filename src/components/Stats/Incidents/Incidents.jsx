@@ -41,6 +41,7 @@ const Incidents = () => {
         idPartido: idPartido,
         idEquipo: match.Local.id_equipo,
         idJugador: player.ID,
+        dorsal: player.Dorsal,
         Nombre: player.Nombre + detalleGol,
         Accion: action.Type,
         Minuto: parseInt(action.Time, 10),
@@ -63,6 +64,7 @@ const Incidents = () => {
         idPartido: idPartido,
         idEquipo: match.Visitante.id_equipo,
         idJugador: player.ID,
+        dorsal: player.Dorsal,
         Nombre: player.Nombre + detalleGol,
         Accion: action.Type,
         Minuto: parseInt(action.Time, 10),
@@ -105,6 +107,7 @@ const Incidents = () => {
   }
 
   const handleEditAccion = (action) => {
+    console.log(action);
     if (match.matchState !== 'matchPush') {
       dispatch(setActionToEdit(action));
       dispatch(setEnabledActionEdit())
