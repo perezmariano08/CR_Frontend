@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CreateAccountContainerStyled, CreateAccountData, CreateAccountInputs, CreateAccountWrapper, InputContainer } from './CreateAccountStyles'
 import Select from '../../components/Select/Select'
 import { dataEquipos } from '../../Data/Equipos/DataEquipos'
@@ -9,6 +9,7 @@ import { setNewUserTeamFavorite } from '../../redux/user/userSlice';
 import axios from 'axios';
 import { URL } from '../../utils/utils';
 import { Toaster, toast } from 'react-hot-toast';
+import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice';
 
 const Step3 = () => {
     const equiposList = useSelector((state) => state.equipos.data)
@@ -47,6 +48,10 @@ const Step3 = () => {
             createAccount(usuario)
         }
     }
+
+    useEffect(() => {
+        dispatch(fetchEquipos());
+    }, []);
 
     return (
         <CreateAccountContainerStyled>

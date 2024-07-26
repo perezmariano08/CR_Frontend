@@ -7,7 +7,7 @@ import { TbCalendarEvent } from "react-icons/tb";
 import { PiUsers } from "react-icons/pi";
 import { MdOutlineDashboard } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
-import { AsideContainerStyled, AsideHeader, AsideMenu, AsideUser, MenuItem, NavLinkAngleDown, NavLinkItem, SubMenu, SubMenuItem } from './AsideStyles';
+import { AsideContainerStyled, AsideHeader, AsideMenu, AsideMenuWrapper, AsideUser, MenuItem, NavLinkAngleDown, NavLinkItem, SubMenu, SubMenuItem } from './AsideStyles';
 import Divider from '../Divider/Divider';
 import LogoCR from '../../assets/Logos/logoCopaRelampago.png'
 import UserImg from '../../assets/user-default.png'
@@ -20,20 +20,28 @@ import axios from 'axios';
 import { URL } from '../../utils/utils';
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchUsuarios } from '../../redux/ServicesApi/usuariosSlice';
+import { BiBlock } from "react-icons/bi";
 
 
 const Aside = ({className}) => {
     const dispatch = useDispatch()
     const location = useLocation();
     
-    const [showSubMenu, setShowSubMenu] = useState(false);
+    const [showSubMenuTemporadas, setShowSubMenuTemporadas] = useState(false);
+    const [showSubMenuSanciones, setShowSubMenuSanciones] = useState(false);
     const isActiveTemporadas = location.pathname.includes("/admin/temporadas");
+    const isActiveSanciones = location.pathname.includes("/admin/sanciones");
 
     const usuarios = useSelector((state) => state.usuarios.data)
     
 
-    const toggleSubMenu = () => {
-        setShowSubMenu(!showSubMenu);
+
+    const toggleSubMenuTemporadas = () => {
+        setShowSubMenuTemporadas(!showSubMenuTemporadas);
+    };
+
+    const toggleSubMenuSanciones = () => {
+        setShowSubMenuSanciones(!showSubMenuSanciones);
     };
 
     //Cerrar Sesion 
@@ -81,81 +89,118 @@ const Aside = ({className}) => {
             });
             setShowWelcomeToast(false);
         }
-        setShowSubMenu(isActiveTemporadas);
+        setShowSubMenuTemporadas(isActiveTemporadas);
+        setShowSubMenuSanciones(isActiveSanciones);
     }, [userName, showWelcomeToast, setShowWelcomeToast, isActiveTemporadas]);
+
+    const isOpen = useSelector((state) => state.aside.isOpen);
+
     
     return (
         <>
-        <AsideContainerStyled className={className}>
-            <AsideHeader>
-                <img src={LogoCR} alt="" />
-            </AsideHeader>
-            <Divider color="gray-300" />
-            <AsideUser>
-                <img src={`/Usuarios/${imgUsuarios(userId)}`} />
-                <p>{userName}</p>
-                <IoIosLogOut onClick={closeSesion}/>
-            </AsideUser>
-            <Divider color="gray-300" />
-            <AsideMenu>
-                <NavLinkItem to={"/admin/dashboard"}>
-                    <MdOutlineDashboard />
-                    <p>Dashboard</p>
-                </NavLinkItem>
-                <NavLinkItem to={"/admin/equipos"}>
-                    <IoShieldHalf />
-                    <p>Equipos</p>
-                </NavLinkItem>
-                <NavLinkItem to={"/admin/usuarios"}>
-                    <LiaFutbol />
-                    <p>Usuarios</p>
-                </NavLinkItem>
-                <NavLinkItem to={"/admin/jugadores"}>
-                    <TbShirtSport />
-                    <p>Jugadores</p>
-                </NavLinkItem>
-                <NavLinkItem to={"/admin/partidos"}>
-                    <TbCalendarEvent />
-                    <p>Partidos</p>
-                </NavLinkItem>
-                <MenuItem>
-                    <motion.div style={{ display: 'flex', alignItems: 'center' }}>
-                        <NavLinkItem onClick={toggleSubMenu} className="custom-navlink">
-                            <PiUsers />
-                            <p>Temporadas</p>
-                            <NavLinkAngleDown
-                                animate={{ rotate: showSubMenu ? 180 : 0 }}
-                                transition={{ duration: 0.3 }}
-                                style={{ marginLeft: 'auto' }}
-                            >
-                                <FaAngleDown className='angle-down' />
-                            </NavLinkAngleDown>
-                        </NavLinkItem>
-                    </motion.div>
-                    <AnimatePresence>
-                        {showSubMenu && (
-                            <motion.div
-                                initial={{ opacity: 0, maxHeight: 0}}
-                                animate={{ opacity: 1, maxHeight: 1000}}
-                                exit={{ opacity: 0, maxHeight: 0 }}
-                                transition={{ duration: 0.45 }}
-                                style={{ overflow: "hidden" }}
-                                className='submenu'
-                            >
-                                <SubMenu>
-                                    <SubMenuItem to={"/admin/temporadas/temporada"} isActive={isActiveTemporadas} >Crear temporada</SubMenuItem>
-                                    <SubMenuItem to={"/admin/temporadas/categorias"} isActive={isActiveTemporadas}>Categorías</SubMenuItem>
-                                    <SubMenuItem to={"/admin/temporadas/torneos"} isActive={isActiveTemporadas}>Torneos</SubMenuItem>
-                                    <SubMenuItem to={"/admin/temporadas/sedes"} isActive={isActiveTemporadas}>Sedes</SubMenuItem>
-                                    <SubMenuItem to={"/admin/temporadas/años"} isActive={isActiveTemporadas}>Años</SubMenuItem>
-                                    <SubMenuItem to={"/admin/temporadas/divisiones"} isActive={isActiveTemporadas}>Divisiones</SubMenuItem>
-                                </SubMenu>
-                            </motion.div> 
-                        )}
-                    </AnimatePresence>
-                </MenuItem>
-            </AsideMenu>
-        </AsideContainerStyled>
+            <AsideContainerStyled className={className}
+            initial={{ x: '0%' }}
+            animate={{ x: isOpen ? 0 : '-100%' }}
+            transition={{ duration: 0.3 }}>
+                <AsideHeader>
+                    <img src={LogoCR} alt="" />
+                </AsideHeader>    
+                <Divider color="gray-300" />
+                <AsideMenuWrapper>
+                    <AsideMenu>
+                    <NavLinkItem to={"/admin/dashboard"}>
+                        <MdOutlineDashboard />
+                        <p>Dashboard</p>
+                    </NavLinkItem>
+                    <NavLinkItem to={"/admin/equipos"}>
+                        <IoShieldHalf />
+                        <p>Equipos</p>
+                    </NavLinkItem>
+                    <NavLinkItem to={"/admin/usuarios"}>
+                        <LiaFutbol />
+                        <p>Usuarios</p>
+                    </NavLinkItem>
+                    <NavLinkItem to={"/admin/jugadores"}>
+                        <TbShirtSport />
+                        <p>Jugadores</p>
+                    </NavLinkItem>
+                    <NavLinkItem to={"/admin/partidos"}>
+                        <TbCalendarEvent />
+                        <p>Partidos</p>
+                    </NavLinkItem>
+                    <MenuItem>
+                        <motion.div style={{ display: 'flex', alignItems: 'center' }}>
+                            <NavLinkItem onClick={toggleSubMenuTemporadas} className="custom-navlink">
+                                <PiUsers />
+                                <p>Temporadas</p>
+                                <NavLinkAngleDown
+                                    animate={{ rotate: showSubMenuTemporadas ? 180 : 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    style={{ marginLeft: 'auto' }}
+                                >
+                                    <FaAngleDown className='angle-down' />
+                                </NavLinkAngleDown>
+                            </NavLinkItem>
+                        </motion.div>
+                        <AnimatePresence>
+                            {showSubMenuTemporadas && (
+                                <motion.div
+                                    initial={{ opacity: 0, maxHeight: 0}}
+                                    animate={{ opacity: 1, maxHeight: 1000}}
+                                    exit={{ opacity: 0, maxHeight: 0 }}
+                                    transition={{ duration: 0.45 }}
+                                    style={{ overflow: "hidden" }}
+                                    className='submenu'
+                                >
+                                    <SubMenu>
+                                        <SubMenuItem to={"/admin/temporadas/temporada"} isActive={isActiveTemporadas} >Crear temporada</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/categorias"} isActive={isActiveTemporadas}>Categorías</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/torneos"} isActive={isActiveTemporadas}>Torneos</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/sedes"} isActive={isActiveTemporadas}>Sedes</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/años"} isActive={isActiveTemporadas}>Años</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/divisiones"} isActive={isActiveTemporadas}>Divisiones</SubMenuItem>
+                                    </SubMenu>
+                                </motion.div> 
+                            )}
+                        </AnimatePresence>
+                    </MenuItem>
+                    <MenuItem>
+                        <motion.div style={{ display: 'flex', alignItems: 'center' }}>
+                            <NavLinkItem onClick={toggleSubMenuSanciones} className="custom-navlink">
+                                <BiBlock />
+                                <p>Sanciones</p>
+                                <NavLinkAngleDown
+                                    animate={{ rotate: showSubMenuSanciones ? 180 : 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    style={{ marginLeft: 'auto' }}
+                                >
+                                    <FaAngleDown className='angle-down' />
+                                </NavLinkAngleDown>
+                            </NavLinkItem>
+                        </motion.div>
+                        <AnimatePresence>
+                            {showSubMenuSanciones && (
+                                <motion.div
+                                    initial={{ opacity: 0, maxHeight: 0}}
+                                    animate={{ opacity: 1, maxHeight: 1000}}
+                                    exit={{ opacity: 0, maxHeight: 0 }}
+                                    transition={{ duration: 0.45 }}
+                                    style={{ overflow: "hidden" }}
+                                    className='submenu'
+                                >
+                                    <SubMenu>
+                                        <SubMenuItem to={"/admin/sanciones/expulsados"} isActive={isActiveSanciones}>Expulsados</SubMenuItem>
+                                        <SubMenuItem to={"/admin/sanciones/amonestados"} isActive={isActiveSanciones}>Amonestados</SubMenuItem>
+                                    </SubMenu>
+                                </motion.div> 
+                            )}
+                        </AnimatePresence>
+                    </MenuItem>
+                </AsideMenu>
+                </AsideMenuWrapper>
+                
+            </AsideContainerStyled>
+        
         <Toaster/>
         </>
     );

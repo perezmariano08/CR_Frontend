@@ -90,6 +90,7 @@ export const TableContainerStyled = styled(DataTable)`
     .td-team {
         display: flex;
         gap: 5px;
+        align-items: center;
     }
 
     .td-user {
@@ -103,6 +104,38 @@ export const TableContainerStyled = styled(DataTable)`
     .td-player {
         display: flex;
         gap: 5px;
+        align-items: center;
+        .circulo {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            &.verde {
+                background-color: var(--green);
+            }
+            &.rojo {
+                background-color: red;
+            }
+        }
+    }
+
+    .td-estado {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        width: fit-content;
+        font-size: 13px;
+        padding: 2px 10px;
+        border-radius: 10px;
+        color: var(--white);
+        &.activo {
+            background-color: var(--green);
+        }
+        &.inactivo {
+            background-color: var(--red);
+        }
+        &.proceso {
+            background-color: orange;
+        }
     }
 
     .p-paginator {

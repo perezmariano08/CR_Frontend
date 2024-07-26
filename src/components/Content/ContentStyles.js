@@ -1,14 +1,16 @@
+import { motion } from "framer-motion";
 import styled from "styled-components";
 
-export const ContentContainerStyled = styled.div`
-    margin-left: 16rem;
-    width: calc(100% - 16rem);
+export const ContentContainerStyled = styled(motion.div)`
+    margin-left: ${({ isOpen }) => (isOpen ? '16rem' : '0')};
+    width: ${({ isOpen }) => (isOpen ? 'calc(100% - 16rem)' : '100%')};
+    transition: margin-left 0.3s ease, width 0.3s ease;
     @media (max-width: 968px) {
         width: 100%;
-        margin-left: 0px;
+        margin-left: 0;
     }
     height: fit-content;
-`
+`;
 
 export const ContentWrapper = styled.div`
     padding: 30px;
@@ -25,3 +27,4 @@ export const ContentTitle = styled.h1`
     font-size: 20px;
     font-weight: 600;
 `
+

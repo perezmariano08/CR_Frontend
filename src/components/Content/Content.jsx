@@ -1,12 +1,15 @@
 import React from 'react'
 import Header from '../Header/Header'
 import { ContentContainerStyled, ContentWrapper } from './ContentStyles'
+import { useSelector } from 'react-redux';
 
 const Content = ({children}) => {
+  const isOpen = useSelector((state) => state.aside.isOpen);
+
   return (
     <>
         
-        <ContentContainerStyled>
+        <ContentContainerStyled isOpen={isOpen}>
             <Header/>
             <ContentWrapper>
                 {children}
