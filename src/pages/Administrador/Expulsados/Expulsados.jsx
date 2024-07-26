@@ -26,16 +26,18 @@ import { fetchRoles } from '../../../redux/ServicesApi/rolesSlice';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import Select from '../../../components/Select/Select';
+import { fetchExpulsados } from '../../../redux/ServicesApi/expulsadosSlice';
+import { dataExpulsadosColumn } from '../../../Data/Expulsados/DataExpulsados';
 
-const Usuarios = () => {
+const Expulsados = () => {
     const dispatch = useDispatch();
 
     // Constantes del modulo
     const articuloSingular = "el"
     const articuloPlural = "los"
-    const id = "id_usuario"
-    const plural = "usuarios"
-    const singular = "usuario"
+    const id = "id_expulsion"
+    const plural = "expulsados"
+    const singular = "expulsado"
     const get = "get-usuarios"
     const create = "crear-cuenta"
     const importar = "importar-usuarios"
@@ -78,6 +80,7 @@ const Usuarios = () => {
     const usuariosList = useSelector((state) => state.usuarios.data);
     const rolesList = useSelector((state) => state.roles.data);
     const equiposList = useSelector((state) => state.equipos.data);
+    const expulsadosList = useSelector((state) => state.expulsados.data);
 
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
@@ -164,8 +167,7 @@ const Usuarios = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchUsuarios());
-        dispatch(fetchRoles());
+        dispatch(fetchExpulsados());
         return () => {
             dispatch(clearSelectedRows());
         };
@@ -357,7 +359,7 @@ const Usuarios = () => {
                     
                 
             </ActionsCrud>
-            <Table data={usuariosList} dataColumns={dataUsuariosColumns} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
+            <Table data={expulsadosList} dataColumns={dataExpulsadosColumn} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
@@ -625,4 +627,4 @@ const Usuarios = () => {
     );
 };
 
-export default Usuarios;
+export default Expulsados;

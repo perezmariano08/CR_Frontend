@@ -7,6 +7,7 @@ import { VscKebabVertical } from "react-icons/vsc";
 import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { DataTable } from 'primereact/datatable';
 import { Fieldset } from 'primereact/fieldset';
+import { RiLoader4Fill } from "react-icons/ri";
 
 const Table = ({ data, dataColumns, arrayName, id_ }) => {
     const dispatch = useDispatch();
@@ -39,20 +40,17 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
     const equipos = useSelector((state) => state.equipos.data)
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        console.log(idEquipo);
         return equipo ? equipo.img : 'team-default.png';
     };
 
     const nombresEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        console.log(idEquipo);
         return equipo ? equipo.nombre : 'Nombre';
     };
 
     const usuarios = useSelector((state) => state.usuarios.data)
     const imagenUsuarios = (idUsuario) => {
         const usuario = usuarios.find((usuario) => usuario.id_usuario === idUsuario);
-        console.log(idUsuario);
         return usuario ? usuario.img : null;
     };
 
@@ -91,21 +89,60 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
         }
     }
 
+    const estadoBodyTemplate = (rowData, field) => {
+        if (rowData[field] === "N") {
+            return <div className="td-estado activo">
+                Activo
+            </div>
+        } else {
+            return <div className="td-estado inactivo">
+                Inactivo
+            </div>
+        }
+    }
+
+    const estadoAIBodyTemplate = (rowData, field) => {
+        if (rowData[field] === "I") {
+            return <div className="td-estado activo">
+                Finalizada
+            </div>
+        } else {
+            return <div className="td-estado proceso">
+                <RiLoader4Fill/>
+                En proceso
+            </div>
+        }
+    }
+
     const fechaBodyTemplate = (rowData, field) => {
         return <div style={{minWidth: '140px'}}>
             {formatDateTime(rowData[field])}
         </div>
     }
 
-    const jugadorBodyTemplate = rowData => (
-        <div className="td-player">
-            <img 
-                src={`/Jugadores/${rowData.img}`} 
-                alt={rowData.jugador} 
-            />
-            <span>{rowData.apellido.toUpperCase()}, {rowData.nombre}</span>
-        </div>
-    );
+    const jugadorBodyTemplate = rowData => {
+        if (rowData.sancionado === "S"){
+            return <div className="td-player">
+                <span className='circulo rojo'></span>
+                <img 
+                    src={`/Jugadores/${rowData.img}`} 
+                    alt={rowData.jugador} 
+                />
+                <span>{rowData.apellido.toUpperCase()}, {rowData.nombre}</span>
+                
+            </div>
+        } else {
+            return <div className="td-player">
+                <span className='circulo verde'></span>
+                <img 
+                    src={`/Jugadores/${rowData.img}`} 
+                    alt={rowData.jugador} 
+                />
+                <span>{rowData.apellido.toUpperCase()}, {rowData.nombre}</span>
+            </div>
+        }
+        
+    };
     
 
     const onSelectionChange = (e) => {
@@ -149,6 +186,7 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                             arrayName === 'Equipos' && col.field === 'nombre'
                             || arrayName === 'Usuarios' && col.field === 'equipo'
                             || arrayName === 'Jugadores' && col.field === 'id_equipo'
+                            || arrayName === 'Expulsados' && col.field === 'id_equipo'
                                 ? rowData => equipoBodyTemplate(rowData, 'id_equipo')
                                 : arrayName === 'Jugadores' && col.field === 'jugador' 
                                 ? jugadorBodyTemplate
@@ -174,6 +212,10 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                                 ? rowData => golNuloTemplate(rowData, 'goles_local')
                                 : arrayName === 'Partidos' && col.field === 'goles_visita'
                                 ? rowData => golNuloTemplate(rowData, 'goles_visita')
+                                : arrayName === 'Expulsados' && col.field === 'sancionado'
+                                ? rowData => estadoBodyTemplate(rowData, 'sancionado')
+                                : arrayName === 'Expulsados' && col.field === 'estado'
+                                ? rowData => estadoAIBodyTemplate(rowData, 'estado')
                                 : null
                         }
                     />

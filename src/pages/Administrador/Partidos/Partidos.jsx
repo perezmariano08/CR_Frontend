@@ -84,7 +84,11 @@ const Partidos = () => {
     const planillerosList = useMemo(() => {
         return usuariosList.filter(usuario => usuario.id_rol === 2);
     }, [usuariosList]);
-    console.log(planillerosList);    // Estado de las filas seleccionadas para eliminar
+
+    const equiposFilterList = useMemo(() => {
+        return equiposList.filter(equipo => equipo.id_temporada == id_temporada);
+    }, [equiposList, id_temporada]);
+
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
 
     const handleFileChange = async (event) => {
@@ -217,6 +221,7 @@ const Partidos = () => {
                             setCancha("");
                             setArbitro("");
                             setIdPlanillero("")
+                            setIsSaving(false);
                         });
                 } catch (error) {
                     setIsSaving(false)
@@ -370,23 +375,24 @@ const Partidos = () => {
                                 <ModalFormInputContainer>
                                     Equipo Local
                                     <Select 
-                                        data={equiposList}
+                                        data={equiposFilterList}
                                         placeholder="Seleccionar equipo"
-                                        column="nombre"
                                         icon={<IoShieldHalf className='icon-select' />}
-                                        id="id_equipo"
-                                        onChange={(event) => setIdEquipoLocal(event.target.value)}
-                                    />
+                                        id_={"id_equipo"}
+                                        onChange={(event) => { setIdEquipoLocal(event.target.value)}}
+                                        disabled={id_temporada === '' || id_temporada == 0}
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Equipo Visitante
                                     <Select 
-                                        data={equiposList}
+                                        data={equiposFilterList}
                                         placeholder="Seleccionar equipo"
                                         icon={<IoShieldHalf className='icon-select' />}
                                         id_={"id_equipo"}
-                                        column={"nombre"}
                                         onChange={(event) => { setIdEquipoVisita(event.target.value)}}
+                                        disabled={id_temporada === '' || id_temporada == 0}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
@@ -421,12 +427,11 @@ const Partidos = () => {
                                         data={planillerosList}
                                         placeholder="Seleccionar planillero"
                                         icon={<IoShieldHalf className='icon-select' />}
-                                        id="id_usuario"
-                                        column="nombre"
-                                        onChange={(event) => setIdPlanillero(event.target.value)}
-                                    />
+                                        id_={"id_usuario"}
+                                        onChange={(event) => { setIdPlanillero(event.target.value)}}
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
-                                
                             </>
                         }
                     />

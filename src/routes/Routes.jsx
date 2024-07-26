@@ -32,6 +32,7 @@ import { AuthProvider } from '../Auth/AuthContext';
 import PrivateLayoutPlanillero from '../components/Layout/LayoutPlanillero';
 import MorePlanillero from '../pages/More/MorePlanillero';
 import Divisiones from '../pages/Administrador/Divisiones/Divisiones';
+import Expulsados from '../pages/Administrador/Expulsados/Expulsados';
 
 const Routes = () => {
     return (
@@ -61,7 +62,7 @@ const Routes = () => {
                             <Route path='/admin/equipos' element={<LayoutAdmin> <Equipos/> </LayoutAdmin>} />
                             <Route path='/admin/partidos' element={<LayoutAdmin> <Partidos/> </LayoutAdmin>} />
                             <Route path='/admin/dashboard' element={<LayoutAdmin> <Admin/> </LayoutAdmin>} />
-                            
+                            <Route path='/admin/sanciones/expulsados' element={<LayoutAdmin> <Expulsados/> </LayoutAdmin>} />
                         </Route>
 
                         {/* Planillero */}

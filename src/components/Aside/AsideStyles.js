@@ -2,27 +2,25 @@ import { motion } from "framer-motion";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-export const AsideContainerStyled = styled.aside`
-    height: 100%;
+export const AsideContainerStyled = styled(motion.aside)`
+     height: 100%;
     position: fixed;
     top: 0;
     left: 0;
     width: 16rem;
     background-color: var(--gray-500);
     font-size: 14px;
+    z-index: 1000; // para asegurarse de que esté encima del contenido
 
     @media (max-width: 968px) {
-        position: fixed;
-        top: 0;
         width: 60%;
-        display: none;
     }
 
-    &.page-temporadas .submenu{
+    &.page-temporadas .submenu {
         height: auto;
         background-color: transparent;
     }
-`
+`;
 
 export const AsideHeader = styled.div`
     display: flex;
@@ -52,6 +50,29 @@ export const AsideUser = styled.div`
         font-size: 20px;
         cursor: pointer;
     }
+`
+
+export const AsideMenuWrapper = styled.ul`
+    overflow-y: auto;
+    max-height: calc(100vh - 51px);
+
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
 `
 
 export const AsideMenu = styled.ul`
