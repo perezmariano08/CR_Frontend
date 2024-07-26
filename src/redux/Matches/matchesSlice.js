@@ -51,34 +51,42 @@ const matchesSlice = createSlice({
             }
         },
         addEventualPlayer: (state, action) => {
-            const { teamId, player } = action.payload;
-            const match = state.find(
-                (match) => match.Local.id_equipo === teamId || match.Visitante.id_equipo === teamId
-            );
+            const { idPartido, teamId, player } = action.payload;
+        
+            // Find the match with the given idPartido
+            const match = state.find((match) => match.ID === idPartido);
         
             if (match) {
+                // Determine if the team is local or visitante
                 const isLocal = match.Local.id_equipo === teamId;
                 const team = isLocal ? match.Local : match.Visitante;
         
+                // Count eventual players in the team
                 const eventualPlayersCounts = team.Player.filter((p) => p.eventual === 'S').length;
         
                 if (eventualPlayersCounts < 3) {
+                    // Check if the player already exists by DNI or Dorsal
                     const existingPlayerIndex = team.Player.findIndex((p) => p.DNI === player.DNI || p.Dorsal === player.Dorsal);
         
                     if (existingPlayerIndex !== -1) {
+                        // Update existing player information
                         team.Player[existingPlayerIndex] = { ...team.Player[existingPlayerIndex], ...player };
                     } else {
+                        // Add new player
                         team.Player.push(player);
                     }
         
+                    // Update the team in the match
                     if (isLocal) {
                         match.Local = { ...match.Local, Player: [...team.Player] };
                     } else {
                         match.Visitante = { ...match.Visitante, Player: [...team.Player] };
                     }
                 } else {
-                    console.log('Limite de 3 jugadores eventuales');
+                    console.log('Limite de 3 jugadores eventuales alcanzado');
                 }
+            } else {
+                console.log('Partido no encontrado');
             }
         },
         setMatches: (state, action) => {
@@ -147,7 +155,8 @@ const matchesSlice = createSlice({
                         ID: actionData.id,
                         Type: actionData.accion,
                         Time: actionData.minuto,
-                        Detail: actionData.detail || null
+                        Detail: actionData.detail || null,
+                        Sancion: actionData.tipoExpulsion
                     });
         
                     // Lógica para sanciones
@@ -230,7 +239,11 @@ const matchesSlice = createSlice({
                             ...player.Actions[actionIndex],
                             Type: actionData.accion,
                             Time: actionData.minuto,
-                            Detail: actionData.detail
+                            Detail: {
+                                ...player.Actions[actionIndex].Detail,
+                                ...actionData.detail
+                            },
+                            Sancion: actionData.tipoExpulsion
                         };
                         player.Actions[actionIndex] = updatedAction;
                     } else {

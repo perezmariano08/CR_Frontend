@@ -4,7 +4,7 @@ import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfir
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, setActionToEdit, setEnabledActionEdit, setDisabledActionEdit } from '../../../redux/Planillero/planilleroSlice';
+import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, setActionToEdit, setEnabledActionEdit, setDisabledActionEdit, resetAssist } from '../../../redux/Planillero/planilleroSlice';
 import { addActionToPlayer, editActionToPlayer } from '../../../redux/Matches/matchesSlice';
 
 const ActionConfirmed = () => {
@@ -18,6 +18,7 @@ const ActionConfirmed = () => {
     const { localTeam, playerSelected, playerName, dorsalPlayer, actionPlayer } = useSelector((state) => state.planillero.planilla);
     const actionToEdit = useSelector((state) => state.planillero.actionEdit);
     const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
+    const sanctionType = useSelector((state) => state.planillero.expulsadoData.tipo)
 
     const handleBack = () => {
         if (navigationSource === 'Assisted') {
@@ -54,7 +55,8 @@ const ActionConfirmed = () => {
                 dorsal: actionToEdit.dorsal,
                 accion: actionToEdit.Accion,
                 minuto: parseInt(inputValue),
-                detail: accionDetail
+                detail: accionDetail,
+                tipoExpulsion: actionToEdit.Accion === 'Roja' ? sanctionType : null
             }
             : {
                 id: Date.now(),
@@ -65,9 +67,9 @@ const ActionConfirmed = () => {
                 dorsal: dorsalPlayer,
                 accion: actionPlayer,
                 minuto: inputValue,
-                detail: accionDetail
+                detail: accionDetail,
+                tipoExpulsion: actionPlayer === 'Roja' ? sanctionType : null
             };
-    
         if (enabledEdit) {
             dispatch(editActionToPlayer({ partidoId, actionData }));
         } else {
@@ -76,6 +78,7 @@ const ActionConfirmed = () => {
         dispatch(setNewTime(inputValue));
         dispatch(toggleHiddenTime());
         dispatch(setDisabledActionEdit());
+        dispatch(resetAssist());
         setInputValue('');
     };
     
