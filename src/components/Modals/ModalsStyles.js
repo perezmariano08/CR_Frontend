@@ -13,7 +13,7 @@ export const ModalContainerStyled = styled(motion.div)`
     left: 50%;
     transform: translate(-50%, -50%);
     border-radius: 10px;
-    z-index: 2;
+    z-index: 3;
     max-height: 80vh;
     overflow-y: auto;
     @media (max-width: 968px) {
@@ -49,6 +49,12 @@ export const ModalFormInputContainer = styled.div`
     flex-direction: column;
     gap: 10px;
     font-size: 14px;
+`
+
+export const ModalFormInputImg = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 20px;
 `
 
 export const ModalButtons = styled.div`

@@ -9,22 +9,23 @@ const Input = forwardRef(({ placeholder, type = "text", icon, className, isError
         setShowPassword(!showPassword);
     };
 
+    const inputType = type === 'password' && showPassword ? 'text' : type;
+
     return (
-        <InputContainerStyled>
+        <InputContainerStyled className={className}>
             <InputWrapper
                 ref={ref}
-                type={showPassword ? "text" : type}
+                type={inputType}
                 placeholder={placeholder}
-                className={className}
                 {...props} // Pasar todos los props al campo de entrada
             />
-            {icon}
+            {icon && <div className='icon-container'>{icon}</div>}
             {type === 'password' && (
-                <div className='hi-eye' onMouseDown={togglePasswordVisibility}>
-                    {showPassword ? <AiOutlineEye /> : <AiFillEyeInvisible className='eye-off'/>}
+                <div className='hi-eye' onMouseDown={togglePasswordVisibility} role="button" aria-label="Toggle Password Visibility">
+                    {showPassword ? <AiOutlineEye /> : <AiFillEyeInvisible className='eye-off' />}
                 </div>
             )}
-            {isError && <span>Este campo es obligatorio</span>}
+            {isError && <span className='error-message'>Este campo es obligatorio</span>}
         </InputContainerStyled>
     );
 });

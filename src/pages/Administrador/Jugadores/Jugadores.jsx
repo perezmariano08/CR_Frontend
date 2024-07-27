@@ -10,7 +10,7 @@ import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
+import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
@@ -27,6 +27,9 @@ import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataJugadoresColumns } from '../../../Data/Jugadores/Jugadores';
 import Select from '../../../components/Select/Select';
+import { PiIdentificationCardLight, PiUser } from 'react-icons/pi';
+
+import { TbPlayFootball } from "react-icons/tb";
 
 const Jugadores = () => {
     const dispatch = useDispatch();
@@ -383,25 +386,35 @@ const Jugadores = () => {
                             <>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input type='text' placeholder="Escriba el DNI..."
-                                    onChange={(event) => { setDni(event.target.value)}}
+                                    <Input 
+                                        type='text' 
+                                        placeholder="Escriba el DNI..."
+                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                        onChange={(event) => { setDni(event.target.value)}}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input type='text' placeholder="Escriba el nombre..." 
-                                    onChange={(event) => { setNombre(event.target.value)}}
+                                    <Input 
+                                        type='text' 
+                                        placeholder="Escriba el nombre..." 
+                                        icon={<PiUser className='icon-input'/>} 
+                                        onChange={(event) => { setNombre(event.target.value)}}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Apellido
-                                    <Input type='text' placeholder="Escriba el apellido..."
-                                    onChange={(event) => { setApellido(event.target.value)}}
+                                    <Input 
+                                        type='text' 
+                                        placeholder="Escriba el apellido..."
+                                        icon={<PiUser className='icon-input'/>} 
+                                        onChange={(event) => { setApellido(event.target.value)}}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Posición
                                     <Input type='text' placeholder="Escriba la posicion..." 
+                                    icon={<TbPlayFootball className='icon-input'/>} 
                                     onChange={(event) => { setPosicion(event.target.value)}}
                                     />
                                 </ModalFormInputContainer>
@@ -410,7 +423,7 @@ const Jugadores = () => {
                                     <Select 
                                         data={equiposList}
                                         placeholder="Seleccionar equipo"
-                                        icon={<IoShieldHalf className='icon-select' />}
+                                        icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
                                         onChange={(event) => { setIdEquipo(event.target.value)}}
                                     >

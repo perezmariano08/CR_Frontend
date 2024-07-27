@@ -21,7 +21,8 @@ export const InputContainerStyled = styled.div`
         color: var(--green);
         top: 10px;
         font-size: 18px;
-
+        cursor: pointer;
+        
         i {
             transition: all 0.2s;
         }
@@ -35,6 +36,7 @@ export const InputContainerStyled = styled.div`
         left: 10px;
         top: 12px;
         transition: all 0.2s;
+        color: var(--gray-200);
     }
 
     .p-calendar {
@@ -60,14 +62,14 @@ export const InputContainerStyled = styled.div`
                 box-shadow: 0 0 0 1px var(--green);
                 border-color: var(--green);
                 
-                :focus-within .icon-input {
-                    /* Estilos del icono cuando el contenedor principal tiene el foco */
-                    color: var(--green);
-                }
+                
             }
-
-            
         }
+    }
+
+    &:focus-within .icon-input {
+        /* Estilos del icono cuando el contenedor principal tiene el foco */
+        color: var(--green);
     }
 
     span {
@@ -115,7 +117,12 @@ export const InputWrapper = styled.input`
             color: var(--red);
         }
     }
+
+    &::placeholder {
+        color: var(--gray-200); /* Cambia 'red' por el color que prefieras */
+    }
 `;
+
 export const InputContainerStyled2 = styled.div`
     background-color: var(--gray-300);
     border: none;

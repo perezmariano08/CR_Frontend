@@ -7,6 +7,8 @@ import { toggleAside } from '../../redux/Aside/asideSlice';
 import { useAuth } from '../../Auth/AuthContext';
 import axios from 'axios';
 import { IoIosLogOut } from "react-icons/io";
+import { URL } from '../../utils/utils';
+import { setLogCurrentUser } from '../../redux/user/userSlice';
 
 const Header = () => {
   const dispatch = useDispatch(); // Obtener el dispatcher
@@ -21,7 +23,9 @@ const Header = () => {
 //Cerrar Sesion 
 axios.defaults.withCredentials = true;
 const closeSesion = async () => {
+  
     try {
+      
         const response = await axios.post(`${URL}/auth/logout`, {
             method: 'POST',
             credentials: 'include'
@@ -47,7 +51,7 @@ const closeSesion = async () => {
             <HiOutlineBars3  /> 
           </HeaderMenuBars>
           <HeaderUser>
-              <img src={`/Usuarios/${imgUsuarios(userId)}`} />
+              <img src={`${URL}${imgUsuarios(userId)}`} />
               <p>¡Bienvenido/a, {userName}!</p>
               <IoIosLogOut onClick={closeSesion}/>
           </HeaderUser>

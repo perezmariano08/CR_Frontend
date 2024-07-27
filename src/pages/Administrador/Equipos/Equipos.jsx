@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
 import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
@@ -9,12 +9,13 @@ import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
+import { ModalFormInputContainer, ModalFormInputImg } from '../../../components/Modals/ModalsStyles';
+import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
 import { dataAñosColumns } from '../../../Data/Años/DataAños';
+import { debounce } from 'lodash';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
@@ -30,6 +31,9 @@ import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { dataJugadoresColumns } from '../../../Data/Jugadores/Jugadores';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import Select from '../../../components/Select/Select';
+import { PiUser } from 'react-icons/pi';
+import { MdMessage, MdOutlineImage } from "react-icons/md";
+import { BiMessageDetail } from 'react-icons/bi';
 
 const Equipos = () => {
     const dispatch = useDispatch();
@@ -168,39 +172,57 @@ const Equipos = () => {
 
     const agregarDato = async () => {
         if (
-            nombre != "" &&
-            categoria != "" &&
-            img != "" &&
-            division != ""
-        ) {
+            nombre !== "" && 
+            categoria !== "" && 
+            img !== "" && 
+            division !== "") {
             setIsSaving(true);
             try {
                 const response = await Axios.get(`${URL}/user/${get}`);
                 const datosExistentes = response.data;
                 const datoExiste = datosExistentes.some(a => a.nombre === nombre);
                 if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
+                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)} ${singular} ya existe.`);
+                    setIsSaving(false);
                 } else {
+                    let imageUrl = img; // Usa la URL de la imagen actual si no se ha seleccionado una nueva
+    
+                    if (imageFile) {
+                        // Crear un FormData para enviar el archivo al servidor
+                        const formData = new FormData();
+                        formData.append('image', imageFile);
+    
+                        // Subir la imagen al servidor
+                        const uploadResponse = await Axios.post(`${URL}/upload-image/equipo`, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        });
+                        imageUrl = uploadResponse.data.imageUrl;
+                        setImg(imageUrl) // Usa la URL de la imagen subida
+                    }
+    
                     Axios.post(`${URL}/admin/${create}`, {
                         nombre,
                         categoria,
                         division,
-                        img,
+                        img: imageUrl,
                         descripcion
                     }).then(() => {
                         toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
+                        setIsSaving(false);
                         dispatch(fetchEquipos());
                         closeCreateModal();
-                        setAño("");
+                        setNombre("");
                         setDescripcion("");
                         setImg("");
                         setCategoria("");
                         setDivision("");
-                        setIsSaving(false)
+                        setImageFile(null); // Restablece el archivo de imagen
                     });
                 }
             } catch (error) {
-                setIsSaving(false)
+                setIsSaving(false);
                 console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
                 toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
             }
@@ -211,7 +233,10 @@ const Equipos = () => {
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
-    const closeCreateModal = () => setIsCreateModalOpen(false);
+    const closeCreateModal = () => {
+        setPreviewImage(false);
+        setIsCreateModalOpen(false)
+    };
     const openDeleteModal = () => setIsDeleteModalOpen(true);
     const closeDeleteModal = () => setIsDeleteModalOpen(false);
     const openImportModal = () => setIsImportModalOpen(true);
@@ -269,6 +294,29 @@ const Equipos = () => {
         link.click();
         document.body.removeChild(link);
     };
+
+    const [imageFile, setImageFile] = useState(null); // Estado para almacenar el archivo de imagen
+    const [previewImage, setPreviewImage] = useState("");
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImg(file)
+            // Crear una URL de vista previa para la imagen seleccionada
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+        }
+    };
+
+    // Debounce the onChange handler
+    const handleInputChange = useCallback(debounce((event) => {
+        setNombre(event.target.value);
+    }, 300), []);
+    
 
     return (
         <Content>
@@ -342,13 +390,24 @@ const Equipos = () => {
                         form={ <>
                             <ModalFormInputContainer>
                                 Nombre
-                                <Input type='text' placeholder="Escriba el nombre..." 
-                                onChange={(event) => { setNombre(event.target.value)}}/>
+                                <Input 
+                                    type='text' 
+                                    placeholder="Escriba el nombre..." 
+                                    onChange={handleInputChange}
+                                    icon={<IoShieldHalf className='icon-input'/>} 
+                                />
                             </ModalFormInputContainer>
                             <ModalFormInputContainer>
                                 Imagen
-                                <Input type='text' placeholder="example.png"
-                                onChange={(event) => { setImg(event.target.value)}} />
+                                <ModalFormInputImg>
+                                    {previewImage && <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />}
+                                    <Input 
+                                        type='file' 
+                                        accept="image/*"
+                                        onChange={(event) => handleImageUpload(event)}
+                                        icon={<MdOutlineImage className='icon-input'/>}
+                                    />
+                                </ModalFormInputImg>
                             </ModalFormInputContainer>
                             <ModalFormInputContainer>
                                 Categoría
@@ -374,8 +433,12 @@ const Equipos = () => {
                             </ModalFormInputContainer>
                             <ModalFormInputContainer>
                                 Añadir descripción (Opcional)
-                                <Input type='text' placeholder="Escriba aqui..."
-                                onChange={(event) => { setDescripcion(event.target.value)}} />
+                                <Input 
+                                    type='text' 
+                                    placeholder="Escriba aqui..."
+                                    onChange={(event) => { setDescripcion(event.target.value)}} 
+                                    icon={<BiMessageDetail className='icon-input'/>}
+                                />
                             </ModalFormInputContainer>
                         </>
                     }
