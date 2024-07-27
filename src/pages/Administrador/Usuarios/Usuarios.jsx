@@ -10,7 +10,7 @@ import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
+import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
@@ -26,6 +26,7 @@ import { fetchRoles } from '../../../redux/ServicesApi/rolesSlice';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import Select from '../../../components/Select/Select';
+import { PiEnvelope, PiIdentificationCardLight, PiPhone, PiUser } from 'react-icons/pi';
 
 const Usuarios = () => {
     const dispatch = useDispatch();
@@ -216,7 +217,27 @@ const Usuarios = () => {
         }
     };
 
+    const isUpdated = () => {
+        console.log(originalValues);
+
+        return (
+            dni !== originalValues.dni ||
+            nombre !== originalValues.nombre ||
+            apellido !== originalValues.apellido ||
+            email !== originalValues.email ||
+            telefono !== originalValues.telefono ||
+            nacimiento !== originalValues.nacimiento ||
+            rol != originalValues.rol ||
+            equipo != originalValues.equipo
+        );
+    };
+
     const editarDato = async () => {
+        if (!isUpdated) {
+            setIsSaving(false);
+            toast.info("No se realizaron cambios.");
+            return;
+        }
         setIsSaving(true);
         try {
             const response = await Axios.put(`${URL}/admin/${update}`,
@@ -255,9 +276,21 @@ const Usuarios = () => {
         setRol(selectedRows[0].id_rol)
         setEquipo(selectedRows[0].id_equipo)
         setIdUsuario(selectedRows[0].id_usuario)
-        console.log(selectedRows[0])
+        // Guarda los valores originales
+        setOriginalValues({
+            dni: selectedRows[0].dni,
+            nombre: selectedRows[0].nombre,
+            apellido: selectedRows[0].apellido,
+            email: selectedRows[0].email,
+            telefono: selectedRows[0].telefono,
+            nacimiento: selectedRows[0].nacimiento,
+            rol: selectedRows[0].id_rol,
+            equipo: selectedRows[0].id_equipo,
+        });
         openEditModal()
     };
+
+   
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
@@ -394,7 +427,11 @@ const Usuarios = () => {
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input type='text' placeholder="Escriba el nombre..." />
+                                    <Input 
+                                        type='text'
+                                        placeholder="Escriba el nombre..."
+                                        icon={<PiUser className='icon-input'/>} 
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Fecha de Nacimiento
@@ -527,7 +564,7 @@ const Usuarios = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={editarDato} disabled={isSaving}>
+                                <Button color={"success"} onClick={editarDato} disabled={!isUpdated() || isSaving}>
                                     {isSaving ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
@@ -545,13 +582,22 @@ const Usuarios = () => {
                             <>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input type='text' placeholder="Escriba el DNI..." value={dni}
-                                    onChange={(event) => { setDni(event.target.value)}}/>
+                                    <Input 
+                                        type='text' 
+                                        placeholder="Escriba el DNI..." 
+                                        value={dni}
+                                        onChange={(event) => { setDni(event.target.value)}}
+                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input type='text' placeholder="Escriba el bombre..." value={nombre}
-                                    onChange={(event) => { setNombre(event.target.value)}}/>
+                                    <Input 
+                                        type='text' 
+                                        placeholder="Escriba el bombre..." value={nombre}
+                                        onChange={(event) => { setNombre(event.target.value)}}
+                                        icon={<PiUser className='icon-input'/>} 
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Apellido
@@ -559,7 +605,9 @@ const Usuarios = () => {
                                         type='text' 
                                         placeholder="Escriba el apellido..." 
                                         value={apellido}
-                                        onChange={(event) => { setApellido(event.target.value)}}  />
+                                        onChange={(event) => { setApellido(event.target.value)}} 
+                                        icon={<PiUser className='icon-input'/>} 
+                                    />
                                 </ModalFormInputContainer>
                                 {/* <ModalFormInputContainer>
                                     Fecha de Nacimiento
@@ -567,12 +615,21 @@ const Usuarios = () => {
                                 </ModalFormInputContainer> */}
                                 <ModalFormInputContainer>
                                     Email
-                                    <Input type='text' placeholder="Escriba aqui..." value={email}
-                                    onChange={(event) => { setEmail(event.target.value)}}  />
+                                    <Input 
+                                    type='text' 
+                                    placeholder="Escriba aqui..." 
+                                    value={email}
+                                    onChange={(event) => { setEmail(event.target.value)}}
+                                    icon={<PiEnvelope className='icon-input'/>} 
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Telefono
-                                    <Input type='text' placeholder="Escriba aqui..." value={telefono}
+                                    <Input 
+                                    type='text' 
+                                    placeholder="Escriba aqui..." 
+                                    value={telefono}
+                                    icon={<PiPhone className='icon-input'/>} 
                                     onChange={(event) => { setTelefono(event.target.value)}}  />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>

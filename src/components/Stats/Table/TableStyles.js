@@ -1,3 +1,4 @@
+import { DataTable } from "primereact/datatable";
 import styled from "styled-components";
 
 export const TableContainerStyled = styled.div`
@@ -8,24 +9,24 @@ export const TableContainerStyled = styled.div`
     overflow: hidden;
     padding: 20px 0;
     gap: 20px;
-    
+    max-width: 50%;
 `
 
 export const TableTitle = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 0 20px;
+    gap: 6px;
+    padding: 0 25px;
     h3 {
         font-weight: 600;
-        font-size: 12px;
-        line-height: 12px;
+        font-size: 16px;
+        line-height: 16px;
     }
 
     p {
         font-weight: 300;
-        font-size: 8px;
-        line-height: 8px;
+        font-size: 14px;
+        line-height: 14px;
         color: var(--green);
     }
 `
@@ -36,14 +37,76 @@ export const TableTitleDivider = styled.div`
     background-color: var(--gray-200);
 `
 
-export const TableWrapper = styled.table`
-    background-color: var(--gray-300);
+export const TableWrapper = styled(DataTable)`
+    background: var(--gray-300) !important;
     width: 100%;
     border-collapse: collapse;
+    overflow: hidden;
+    .p-column-header-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        padding: 0;
+        & :nth-child(2) {
+            display: none;
+        }
+    }
 
-    th, td {
+    th.p-highlight {
+        color: var(--green);
+        & :nth-child(2) {
+            display: flex;
+            svg {
+                color: var(--green);
+                width: 8px
+            }
+            
+        }
+    }
+
+    td, th {
+        padding: 0 0 10px 0;
+        background: var(--gray-300) !important;
+        border: none;
         text-align: center;
-        padding: 5px 12px;
+        min-width: 30px
+    }
+
+    th {
+        padding-right: 0px;
+    }
+
+    thead tr:first-child th:first-child .p-column-header-content {
+        justify-content: start;
+        padding-left: 17px;
+    }
+
+    thead tr:first-child th:nth-child(2) .p-column-header-content {
+        justify-content: start;
+    }
+
+    tbody tr td .pos {
+        text-align: start;
+        &.red {
+            border-left: 2px solid red ;
+        }
+        &.green {
+            border-left: 2px solid var(--green) ;
+        }
+        &.orange {
+            border-left: 2px solid orange ;
+        }
+        padding-left: 15px;
+    }
+    
+    tbody tr td{
+        margin-top: 10px;
+    }
+
+    th {
+        text-align: center;
+        text-align: start;
     }
 
     .my-team {
@@ -55,6 +118,7 @@ export const TableWrapper = styled.table`
         display: flex;
         align-items: center;
         gap: 5px;
+        min-width: 108px
     }
 
     .team img {
@@ -89,26 +153,26 @@ export const TableWrapper = styled.table`
 `
 export const TableFoot = styled.div`
     display: flex;
-    gap: 15px;
+    gap: 20px;
     padding: 0 20px;
     flex-wrap: wrap;
 `
 
 export const TableFootItem = styled.div `
     display: flex;
-    gap: 5px;
+    gap: 6px;
     align-items: center;
 
     h3 {
         font-weight: 400;
-        font-size: 10px;
+        font-size: 14px;
         line-height: 10px;
     }
 
     div {
         border-radius: 50%;
-        height: 4px;
-        width: 4px;
+        height: 6px;
+        width: 6px;
         background-color: red;
 
         &.one {
@@ -116,11 +180,11 @@ export const TableFootItem = styled.div `
         }
 
         &.two {
-            background-color: var(--yellow);
+            background-color: orange;
         }
 
         &.three {
-            background-color: var(--red);
+            background-color: red;
         }
     }
 `

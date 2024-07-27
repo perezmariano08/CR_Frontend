@@ -9,7 +9,7 @@ export const HeaderContainerStyled = styled.header`
     align-items: center;
     padding: 0 25px;
     background-color: var(--gray-500);
-    z-index: 99;
+    z-index: 2;
 `
 
 export const HeaderWrapper = styled.div`

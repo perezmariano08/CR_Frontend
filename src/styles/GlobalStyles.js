@@ -19,6 +19,7 @@ export const GlobalStyles = createGlobalStyle`
         --import: #6366F1;
         --export: #A855F7
     }
+    
 
     html {
         scroll-behavior: smooth;
@@ -29,8 +30,28 @@ export const GlobalStyles = createGlobalStyle`
     }
 
     body {
-        background-color: var(--gray-400);
         color: var(--white);
+        height: auto !important;
+    }
+
+    /* Aplica estilos a los campos autocompletados */
+    input:-webkit-autofill,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+        background: red !important;
+        color: var(--white) !important;
+        border: 1px solid var(--gray-300) !important;
+        border-radius: 6px;
+        box-shadow: 0 0 0px 1000px var(--gray-300) inset !important;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    /* Aplica estilos a los campos autocompletados cuando tienen el foco */
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill:focus {
+        box-shadow: 0 0 0px 1000px var(--gray-300) inset !important;
+        border-color: var(--green) !important;
     }
 
 

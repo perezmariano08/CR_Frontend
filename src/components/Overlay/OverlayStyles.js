@@ -8,6 +8,6 @@ export const OverlayStyled = styled.div`
     width: 100vw;
     background-color: #000;
     opacity: .5;
-    z-index: 1;
+    z-index: 2;
     cursor: pointer;
 `

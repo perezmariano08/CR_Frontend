@@ -3,17 +3,17 @@ import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 export const AsideContainerStyled = styled(motion.aside)`
-     height: 100%;
+    height: 100%;
     position: fixed;
     top: 0;
     left: 0;
     width: 16rem;
     background-color: var(--gray-500);
     font-size: 14px;
-    z-index: 1000; // para asegurarse de que esté encima del contenido
+    z-index: 2; // para asegurarse de que esté encima del contenido
 
     @media (max-width: 968px) {
-        width: 60%;
+        width: 100%;
     }
 
     &.page-temporadas .submenu {

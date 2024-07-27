@@ -8,6 +8,7 @@ import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { DataTable } from 'primereact/datatable';
 import { Fieldset } from 'primereact/fieldset';
 import { RiLoader4Fill } from "react-icons/ri";
+import { URL } from '../../utils/utils';
 
 const Table = ({ data, dataColumns, arrayName, id_ }) => {
     const dispatch = useDispatch();
@@ -57,14 +58,14 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
 
     const imagenUsuariosBody = rowData => (
         <div className="td-user" style={{minWidth: '200px'}}>
-            <img src={`/Usuarios/${imagenUsuarios(rowData.id_usuario)}`} alt={rowData.usuario} />
+            <img src={`${URL}${imagenUsuarios(rowData.id_usuario)}`} alt={rowData.usuario} />
             <span>{rowData.usuario}</span>
         </div>
     );
 
     const equipoBodyTemplate = (rowData, field) => (
         <div className="td-team" style={{minWidth: '140px'}}>
-            <img src={`/Escudos/${escudosEquipos(rowData[field])}`} alt={rowData.nombre} />
+            <img src={`${URL}${escudosEquipos(rowData[field])}`} alt={rowData.nombre} />
             <span>{nombresEquipos(rowData[field])}</span>
         </div>
     );
@@ -110,6 +111,18 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
             return <div className="td-estado proceso">
                 <RiLoader4Fill/>
                 En proceso
+            </div>
+        }
+    }
+
+    const estadoUsuarioBodyTemplate = (rowData, field) => {
+        if (rowData[field] === "A") {
+            return <div className="td-estado activo">
+                Activo
+            </div>
+        } else {
+            return <div className="td-estado inactivo">
+                Inactivo
             </div>
         }
     }
@@ -216,6 +229,8 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                                 ? rowData => estadoBodyTemplate(rowData, 'sancionado')
                                 : arrayName === 'Expulsados' && col.field === 'estado'
                                 ? rowData => estadoAIBodyTemplate(rowData, 'estado')
+                                : arrayName === 'Usuarios' && col.field === 'estado'
+                                ? rowData => estadoUsuarioBodyTemplate(rowData, 'estado')
                                 : null
                         }
                     />
