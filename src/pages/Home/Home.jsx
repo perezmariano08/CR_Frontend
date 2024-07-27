@@ -39,12 +39,11 @@ const Home = () => {
         dispatch(fetchPartidos());
         dispatch(fetchEquipos());
         dispatch(fetchJugadores());
-}, [dispatch]);
+    }, [dispatch]);
 
-    //Proximo partido de mi equipo o actual ACTUALIZAR !!
-    const miEquipo = equipos.find((equipo) => equipo.id_equipo === user.id_equipo)
-    const partido = partidos.filter((partido) => partido.id_equipoLocal === miEquipo.id_equipo || partido.id_equipoVisita === miEquipo.id_equipo)[0];
-    const partidosFecha = partidos.filter((partido) => partido.division === miEquipo.division)
+    const miEquipo = equipos.find((equipo) => equipo.id_equipo === user.id_equipo);
+    const partido = partidos.filter((partido) => partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)[0];
+    const partidosFecha = partidos.filter((partido) => partido.division === miEquipo?.division);
 
     return (
         <>  
@@ -52,19 +51,29 @@ const Home = () => {
                 <HomeWrapper className='wrapper'>
                     <Section>
                         <h2>Próximo partido</h2>
-                        <CardPartido rol={user.id_rol} partido={partido}/>
+                        {partido ? (
+                            <CardPartido rol={user.id_rol} partido={partido}/>
+                        ) : (
+                            <p>No hay un próximo partido programado para tu equipo.</p>
+                        )}
                     </Section>
                     <Section>
-                        <h2>{`Fecha ${partidosFecha[0].jornada} - ${partidosFecha[0].torneo} ${partidosFecha[0].año}`}</h2>
-                        <CardsMatchesContainer>
-                            <CardsMatchesWrapper>
-                            {
-                                partidosFecha.map((p) => (
-                                    <CardPartido key={p.id_partido} rol={user.id_rol} partido={p} />
-                                ))
-                            }
-                            </CardsMatchesWrapper>
-                        </CardsMatchesContainer>
+                        {partidosFecha.length > 0 ? (
+                            <>
+                                <h2>{`Fecha ${partidosFecha[0].jornada} - ${partidosFecha[0].torneo} ${partidosFecha[0].año}`}</h2>
+                                <CardsMatchesContainer>
+                                    <CardsMatchesWrapper>
+                                    {
+                                        partidosFecha.map((p) => (
+                                            <CardPartido key={p.id_partido} rol={user.id_rol} partido={p} />
+                                        ))
+                                    }
+                                    </CardsMatchesWrapper>
+                                </CardsMatchesContainer>
+                            </>
+                        ) : (
+                            <p>No hay partidos programados para esta fecha.</p>
+                        )}
                     </Section>
                     <Section>
                         <h2>Posiciones</h2>

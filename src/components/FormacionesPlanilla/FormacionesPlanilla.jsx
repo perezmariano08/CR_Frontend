@@ -19,8 +19,10 @@ import Select2 from '../../components/UI/Select/Select2';
 import { IoIosStarOutline } from "react-icons/io";
 import { IoIosStar } from "react-icons/io";
 import { addBestPlayerOfTheMatch } from '../../redux/Matches/matchesSlice';
+import Axios from 'axios';
+import { URL } from '../../utils/utils';
 
-const FormacionesPlanilla = ({ idPartido }) => {
+const FormacionesPlanilla = ({ idPartido, formaciones }) => {
     const dispatch = useDispatch();
     const [activeButton, setActiveButton] = useState('local');
     const initialState = useSelector((state) => state.match) || [];
