@@ -2,6 +2,7 @@ import React from 'react';
 import { FixtureMatch, FixtureMatchInfo, FixtureMatchTeam, FixtureTitle, FixtureWrapper } from './FixtureStyles';
 import { TableTitleDivider } from '../Table/TableStyles';
 import { useSelector } from 'react-redux';
+import { URL } from '../../../utils/utils';
 
 const Fixture = ({ temporada }) => {
     const equipos = useSelector((state) => state.equipos.data);
@@ -47,7 +48,7 @@ const Fixture = ({ temporada }) => {
                         <React.Fragment key={partido.id_partido}>
                             <FixtureMatch>
                                 <FixtureMatchTeam>
-                                    <img src={`/Escudos/${escudoEquipo(partido.id_equipoLocal)}`} alt="" />
+                                    <img src={`${URL}${escudoEquipo(partido.id_equipoLocal)}`} alt="" />
                                     <h4>{nombreEquipo(partido.id_equipoLocal)}</h4>
                                 </FixtureMatchTeam>
                                 <FixtureMatchInfo>
@@ -56,7 +57,7 @@ const Fixture = ({ temporada }) => {
                                 </FixtureMatchInfo>
                                 <FixtureMatchTeam className='visit'>
                                     <h4>{nombreEquipo(partido.id_equipoVisita)}</h4>
-                                    <img src={`/Escudos/${escudoEquipo(partido.id_equipoVisita)}`} alt="" />
+                                    <img src={`${URL}${escudoEquipo(partido.id_equipoVisita)}`} alt="" />
                                 </FixtureMatchTeam>
                             </FixtureMatch>
                             <TableTitleDivider />

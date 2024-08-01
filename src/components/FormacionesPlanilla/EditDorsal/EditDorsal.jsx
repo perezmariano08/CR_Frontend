@@ -45,10 +45,10 @@ const EditDorsal = () => {
         if (playerSelected !== null) {
             if (isDorsalInUse(playerSelected, dorsalValue)) {
                 setError(true);
-                toast.error('Dorsal existente, ingrese otro');
+                toast.error('Dorsal existente, porfavor ingrese otro');
                 setDorsalValue('');
             } else {
-                dispatch(manageDorsal({ playerId: playerSelected, dorsal: dorsalValue, assign: true }));
+                dispatch(manageDorsal({ idPartido: idPartido, playerId: playerSelected, dorsal: dorsalValue, assign: true }));
                 dispatch(toggleHiddenDorsal());
                 setDorsalValue('');
             }

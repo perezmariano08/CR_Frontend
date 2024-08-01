@@ -9,6 +9,7 @@ import {
 } from './CardOldMatchesStyles';
 import { AlignmentDivider } from '../Alignment/AlignmentStyles';
 import { useSelector } from 'react-redux';
+import { URL } from '../../../utils/utils';
 
 const determineColor = (golesLocal, golesVisitante) => {
     if (golesLocal > golesVisitante) {
@@ -55,15 +56,15 @@ const CardOldMatches = ({ partidos, equipo }) => {
                             </MatchesItemDescription>
                             <MatchesItemTeams>
                                 <MatchesItemTeam>
+                                    <img src={`${URL}${equipoLocalData.img}`} alt="Escudo del equipo local" />
                                     <p>{equipoLocalData.nombre}</p>
-                                    <img src={`/Escudos/${equipoLocalData.img}`} alt="Escudo del equipo local" />
                                 </MatchesItemTeam>
                                 <MatchesItemResult style={{ backgroundColor: colorResultado }}>
                                     {`${golesLocal}-${golesVisitante}`}
                                 </MatchesItemResult>
                                 <MatchesItemTeam>
                                     <p>{equipoVisitanteData.nombre}</p>
-                                    <img src={`/Escudos/${equipoVisitanteData.img}`} alt="Escudo del equipo visitante" />
+                                    <img src={`${URL}${equipoVisitanteData.img}`} alt="Escudo del equipo visitante" />
                                 </MatchesItemTeam>
                             </MatchesItemTeams>
                         </CardOldMatchesItem>

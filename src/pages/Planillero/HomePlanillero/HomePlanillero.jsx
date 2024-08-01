@@ -10,6 +10,8 @@ import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMatches } from '../../../redux/Matches/matchesSlice';
+import { SpinerContainer } from '../../../Auth/SpinerStyles';
+import { TailSpin } from 'react-loader-spinner';
 
 const HomePlanillero = () => {
     const dispatch = useDispatch();
@@ -18,7 +20,13 @@ const HomePlanillero = () => {
     const equipos = useSelector((state) => state.equipos.data);
     const jugadoresData = useSelector((state) => state.jugadores.data);
     const loadingPartidos = useSelector((state) => state.partidos.loading);
-    const matches = useSelector((state) => state.match)
+    const matches = useSelector((state) => state.match);
+    
+    // Función para comparar dos arreglos de partidos
+    const areMatchesEqual = (matches1, matches2) => {
+        if (matches1.length !== matches2.length) return false;
+        return matches1.every((match, index) => match.ID === matches2[index].ID);
+    };
 
     useEffect(() => {
         if (userName && showWelcomeToast) {
@@ -37,17 +45,17 @@ const HomePlanillero = () => {
     }, [userName, showWelcomeToast, setShowWelcomeToast]);
 
     useEffect(() => {
-            dispatch(fetchPartidos());
-            dispatch(fetchEquipos());
-            dispatch(fetchJugadores());
+        dispatch(fetchPartidos());
+        dispatch(fetchEquipos());
+        dispatch(fetchJugadores());
     }, [dispatch]);
 
-    //CARGA PRINCIPAL DE OBJETO CONSUMIENDO BASE DE DATOS
+    // CARGA PRINCIPAL DE OBJETO CONSUMIENDO BASE DE DATOS
     useEffect(() => {
-        if (partidos.length > 0 && equipos.length > 0 && jugadoresData.length > 0 && matches.length === 0) {
+        if (partidos.length > 0 && equipos.length > 0 && jugadoresData.length > 0) {
             const partidosFiltrados = partidos.filter((partido) => partido.id_planillero === userId);
 
-            const matches = partidosFiltrados.map((partido) => {
+            const matchesData = partidosFiltrados.map((partido) => {
                 const localEquipo = equipos.find(equipo => equipo.id_equipo === partido.id_equipoLocal);
                 const visitanteEquipo = equipos.find(equipo => equipo.id_equipo === partido.id_equipoVisita);
 
@@ -87,7 +95,13 @@ const HomePlanillero = () => {
                     }
                 };
             });
-            dispatch(setMatches(matches));
+
+            const storedMatches = JSON.parse(localStorage.getItem('matches')) || [];
+
+            if (!areMatchesEqual(matchesData, storedMatches)) {
+                dispatch(setMatches(matchesData));
+                localStorage.setItem('matches', JSON.stringify(matchesData));
+            }
         }
     }, [partidos, equipos, jugadoresData, userId, dispatch]);
 
@@ -98,13 +112,15 @@ const HomePlanillero = () => {
             <HomeWrapper>
                 <Section>
                     {
-                        partidosFiltrados && partidosFiltrados.length > 0 ?(
+                        partidosFiltrados && partidosFiltrados.length > 0 ? (
                             <h2>Mis Partidos</h2>
                         ) : (
                             <h2>No tienes partidos cargados</h2>
-                    )}
+                        )}
                     {loadingPartidos ? (
-                        <p>Cargando partidos...</p>
+                        <SpinerContainer>
+                            <TailSpin width='40' height='40' color='#2AD174' />
+                        </SpinerContainer>
                     ) : (
                         partidosFiltrados.map((partido) => (
                             <CardPartido key={partido.id_partido} rol={user.id_rol} partido={partido}/>
@@ -115,6 +131,6 @@ const HomePlanillero = () => {
             <Toaster />
         </HomePlanilleroContainer>
     );
-}
+};
 
 export default HomePlanillero;

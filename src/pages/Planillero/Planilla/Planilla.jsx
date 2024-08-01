@@ -21,20 +21,26 @@ import { addActionToPlayer, addDescToMatch, toggleStateMatch } from '../../../re
 import Axios from 'axios';
 import { URL } from '../../../utils/utils.js';
 import Alignment from '../../../components/Stats/Alignment/Alignment.jsx';
+import { SpinerContainer } from '../../../Auth/SpinerStyles.js';
+import { TailSpin } from 'react-loader-spinner';
+import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice.js';
+import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice.js';
 
 const Planilla = () => {
     const dispatch = useDispatch();
     const location = useLocation();
-    const matches = useSelector((state) => state.match);
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
     const partidos = useSelector((state) => state.match);
     const partido = partidos.find(p => p.ID === partidoId);
     const match = useSelector((state) => state.partidos.data);
     const matchCorrecto = match.find(p => p.id_partido === partidoId);
+    
     const [canStartMatch, setCanStartMatch] = useState(false);
     const [descripcion, setDescripcion] = useState('');
-
+    const [bdFormaciones, setBdFormaciones] = useState(null);
+    const [bdIncidencias, setBdIncidencias] = useState(null);
+    console.log(matchCorrecto);
     const handleChange = (event) => {
         setDescripcion(event.target.value);
     }
@@ -42,6 +48,10 @@ const Planilla = () => {
     useEffect(() => {
         dispatch(toggleIdMatch(partidoId));
     }, [dispatch, partidoId]);
+
+    useEffect(() => {
+        dispatch(fetchPartidos())
+    }, [])
 
     useEffect(() => {
         if (partido) {
@@ -79,10 +89,6 @@ const Planilla = () => {
         }
     };
 
-    // Traer información de la base de datos
-    // FORMACIONES
-    const [bdFormaciones, setBdFormaciones] = useState(null);
-
     const getFormaciones = async () => {
         try {
             const res = await Axios.get(`${URL}/user/get-partidos-formaciones?id_partido=${partidoId}`);
@@ -92,13 +98,6 @@ const Planilla = () => {
             console.error('Error en el front', error);
         }
     }
-
-    useEffect(() => {
-        getFormaciones();
-    }, []);
-
-    // INCIDENCIAS
-    const [bdIncidencias, setBdIncidencias] = useState(null);
 
     const getIndicencias = async () => {
         try {
@@ -111,19 +110,22 @@ const Planilla = () => {
     }
 
     useEffect(() => {
+        getFormaciones();
         getIndicencias();
     }, []);
-    
-    if (!partido) {
-        return <div>Loading...</div>;
+
+    if (!partido || !bdFormaciones || !bdIncidencias) {
+        return <SpinerContainer>
+                    <TailSpin width='40' height='40' color='#2AD174' />
+            </SpinerContainer>
     }
 
     const { Local, Visitante } = partido;
     const localTeamId = Local.id_equipo;
     const visitingTeamId = Visitante.id_equipo;
 
-    const formacionesConNombreApellido = bdFormaciones?.reduce((acc, formacion) => {
-        const { id_jugador, id_equipo, dorsal } = formacion;
+    const formacionesConNombreApellido = bdFormaciones.reduce((acc, formacion) => {
+        const { id_jugador, id_equipo, dorsal, nombre, apellido } = formacion;
         const equipo = id_equipo === localTeamId ? Local : Visitante;
         const jugador = equipo.Player.find(player => player.ID === id_jugador);
 
@@ -131,8 +133,8 @@ const Planilla = () => {
             id_equipo,
             id_jugador,
             dorsal,
-            nombre: jugador?.Nombre.split(' ')[0],
-            apellido: jugador?.Nombre.split(' ')[1]
+            nombre,
+            apellido
         };
 
         if (id_equipo === localTeamId) {
@@ -144,9 +146,6 @@ const Planilla = () => {
         return acc;
     }, { local: [], visitante: [] });
 
-    console.log(bdIncidencias);
-
-
     return (
         <PlanillaContainerStyled className='container'>
             <MatchStatsWrapper className='wrapper'>
@@ -157,12 +156,12 @@ const Planilla = () => {
                 </Section>
                 {
                     matchCorrecto.estado === 'F' ? (
-                        <Alignment formaciones={formacionesConNombreApellido}/>
+                        <Alignment formaciones={formacionesConNombreApellido} partido={matchCorrecto}/>
                     ) : (
                         <FormacionesPlanilla idPartido={partidoId} />
                     )
                 }
-                <Incidents incidentes={bdIncidencias}/>
+                <Incidents incidentes={bdIncidencias} formaciones={formacionesConNombreApellido} partidoId={partidoId}/>
 
                 {
                     matchCorrecto.estado !== 'F' && (
