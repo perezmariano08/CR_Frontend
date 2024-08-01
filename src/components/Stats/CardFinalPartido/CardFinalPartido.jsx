@@ -5,11 +5,10 @@ import { useSelector } from 'react-redux';
 import { URL } from '../../../utils/utils';
 
 const CardFinalPartido = ({ idPartido, incidencias }) => {
-    const matches = useSelector((state) => state.match);
-    const match = matches.find(p => p.ID === idPartido);
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find((partido) => partido.id_partido === idPartido);
-
+    const match = useSelector((state) => state.match);
+    const matchCorrecto = match.find(p => p.ID === idPartido);
     const equipos = useSelector((state) => state.equipos.data);
 
     const escudosEquipos = (idEquipo) => {
@@ -23,80 +22,111 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     };
 
     // Manejo local de goles
-    const [goalLocal, setGoalLocal] = useState(0);
-    const [goalVisit, setGoalVisit] = useState(0);
-
-    const golesLocal = match.Local.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
-    const golesVisita = match.Visitante.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
+    const [localGoals, setLocalGoals] = useState([]);
+    const [visitGoals, setVisitGoals] = useState([]);
 
     useEffect(() => {
-        let localGoals = 0;
-        let visitGoals = 0;
+        if (partido?.estado !== 'F' && matchCorrecto) {
+            const local = [];
+            const visitante = [];
 
-        if (partido.estado === 'F') {
-            setGoalLocal(partido.goles_local);
-            setGoalVisit(partido.goles_visita);
-        } else {
-            golesLocal.forEach(player => {
-                player.Actions.forEach(action => {
-                    if (action.Type === 'Gol') {
-                        if (action.Detail.enContra === 'si') {
-                            visitGoals += 1;
-                        } else {
-                            localGoals += 1;
+            // Procesamos goles para el equipo local
+            matchCorrecto.Local.Player.forEach(player => {
+                if (player.Actions) {
+                    player.Actions.forEach(action => {
+                        if (action.Type === 'Gol') {
+                            const gol = {
+                                minuto: parseInt(action.Time, 10), // Convertir Time a número
+                                nombre: player.Nombre,
+                                penal: action.Detail.penal === 'si',
+                                enContra: action.Detail.enContra === 'si'
+                            };
+                            if (action.Detail.enContra === 'si') {
+                                visitante.push(gol);
+                            } else {
+                                local.push(gol);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
 
-            golesVisita.forEach(player => {
-                player.Actions.forEach(action => {
-                    if (action.Type === 'Gol') {
-                        if (action.Detail.enContra === 'si') {
-                            localGoals += 1;
-                        } else {
-                            visitGoals += 1;
+            // Procesamos goles para el equipo visitante
+            matchCorrecto.Visitante.Player.forEach(player => {
+                if (player.Actions) {
+                    player.Actions.forEach(action => {
+                        if (action.Type === 'Gol') {
+                            const gol = {
+                                minuto: parseInt(action.Time, 10), // Convertir Time a número
+                                nombre: player.Nombre,
+                                penal: action.Detail.penal === 'si',
+                                enContra: action.Detail.enContra === 'si'
+                            };
+                            if (action.Detail.enContra === 'si') {
+                                local.push(gol);
+                            } else {
+                                visitante.push(gol);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
 
-            setGoalLocal(localGoals);
-            setGoalVisit(visitGoals);
+            // Ordenar goles por minuto
+            setLocalGoals(local.sort((a, b) => a.minuto - b.minuto));
+            setVisitGoals(visitante.sort((a, b) => a.minuto - b.minuto));
         }
-    }, [golesLocal, golesVisita]);
+    }, [matchCorrecto, partido]);
 
     // Manejo en la nube de goles
     const procesarGoles = (incidencias) => {
-        if (!incidencias) return { local: [], visita: [] };
-    
+        if (!incidencias || !partido) return { local: [], visita: [] };
+
         const goles = {
             local: [],
             visita: []
         };
-    
+
         incidencias.forEach((incidencia) => {
             if (incidencia.tipo === 'Gol') {
                 const gol = {
+                    minuto: parseInt(incidencia.minuto, 10),
                     id_jugador: incidencia.id_jugador,
                     nombre: incidencia.nombre,
                     apellido: incidencia.apellido,
-                    penal: incidencia.penal // Asegúrate de que este campo esté incluido si es relevante
+                    penal: incidencia.penal === 'S',
+                    enContra: incidencia.en_contra === 'S'
                 };
-    
+
                 if (incidencia.id_equipo === partido.id_equipoLocal) {
-                    goles.local.push(gol);
+                    if (gol.enContra) {
+                        goles.visita.push(gol)
+                    } else {
+                        goles.local.push(gol);
+                    }
                 } else if (incidencia.id_equipo === partido.id_equipoVisita) {
-                    goles.visita.push(gol);
-                }
+                    if (gol.enContra) {
+                        goles.local.push(gol)
+                    } else {
+                        goles.visita.push(gol);
+                    }
+                } 
             }
         });
-    
+
+        // Ordenar goles por minuto
+        goles.local.sort((a, b) => a.minuto - b.minuto);
+        goles.visita.sort((a, b) => a.minuto - b.minuto);
+
         return goles;
     };
 
-    const goles = procesarGoles(incidencias); 
+    const golesNube = procesarGoles(incidencias);
     
+    if (!partido) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <CardPartidoWrapper>
             <CardPartidoTitles>
@@ -113,12 +143,12 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
                         partido.estado === 'F' ? (
                             <h4>{partido.goles_local}-{partido.goles_visita}</h4>
                         ) : (   
-                            <h4>{goalLocal}-{goalVisit}</h4>
+                            <h4>{localGoals.length}-{visitGoals.length}</h4>
                         )
                     }
-                    {match.matchState === null && partido.estado === 'P' ? (
+                    {matchCorrecto.matchState === null && partido.estado === 'P' ? (
                         <span>Por comenzar</span>
-                    ) : match.matchState === 'isStarted' ? (
+                    ) : matchCorrecto.matchState === 'isStarted' ? (
                         <span>En curso</span>
                     ) : partido.estado === 'F' &&(
                         <span>Final</span>
@@ -132,24 +162,36 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             <CardPartidoDivider />
             <CardPartidoGoalsContainer>
                 <CardPartidoGoalsColumn>
-                    {partido.estado === 'F' && goles.local.length > 0 ? (
-                        goles.local.map((gol, index) => (
-                            <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal === 'si' ? '(p)' : null}</h5>
+                    {partido.estado !== 'F' && localGoals.length > 0 ? (
+                        localGoals.map((gol, index) => (
+                            <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
                         ))
                     ) : (
-                        <h5></h5>
+                        golesNube.local.length > 0 ? (
+                            golesNube.local.map((gol, index) => (
+                                <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
+                            ))
+                        ) : (
+                            <h5></h5>
+                        )
                     )}
                 </CardPartidoGoalsColumn>
                 <CardPartidoGoalsColumn>
                     <HiLifebuoy />
                 </CardPartidoGoalsColumn>
                 <CardPartidoGoalsColumn>
-                    {partido.estado === 'F' && goles.visita.length > 0 ? (
-                        goles.visita.map((gol, index) => (
-                            <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal === 'si' ? '(p)' : null}</h5>
+                    {partido.estado !== 'F' && visitGoals.length > 0 ? (
+                        visitGoals.map((gol, index) => (
+                            <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
                         ))
                     ) : (
-                        <h5></h5>
+                        golesNube.visita.length > 0 ? (
+                            golesNube.visita.map((gol, index) => (
+                                <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
+                            ))
+                        ) : (
+                            <h5></h5>
+                        )
                     )}
                 </CardPartidoGoalsColumn>
             </CardPartidoGoalsContainer>

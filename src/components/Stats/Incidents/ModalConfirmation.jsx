@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
-import { toggleHiddenModal, eliminarAccionesPorDorsal } from '../../../redux/Planillero/planilleroSlice';
+import { toggleHiddenModal, eliminarAccionesPorDorsal, handleBestPlayerOfTheMatch } from '../../../redux/Planillero/planilleroSlice';
 import { addDescToMatch, deleteActionToPlayer, deleteTotalActionsToPlayer, manageDorsal, toggleStateMatch } from '../../../redux/Matches/matchesSlice';
 import { Toaster, toast } from 'react-hot-toast';
 import Axios from 'axios';
@@ -24,12 +24,33 @@ const ModalConfirmation = () => {
     const [bdEventual, setBdEventual] = useState([]);
 
     // Generación de objetos para la base de datos
-    const golesLocal = match.Local.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
-    const golesVisita = match.Visitante.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
+    const contarGoles = (players) => {
+        return players.reduce((acc, player) => {
+            if (player.Actions) {
+                player.Actions.forEach(action => {
+                    if (action.Type === 'Gol') {
+                        if (action.Detail.enContra === 'si') {
+                            // Si el gol es en contra, sumar al otro equipo
+                            acc.golesEnContra++;
+                        } else {
+                            // Gol normal
+                            acc.golesNormal++;
+                        }
+                    }
+                });
+            }
+            return acc;
+        }, { golesNormal: 0, golesEnContra: 0 });
+    };
+
+    // Contamos los goles para el equipo local
+    const golesLocal = contarGoles(match.Local.Player);
+    const golesVisita = contarGoles(match.Visitante.Player);
+
     const bd_partido = {
         id_partido: idPartido,
-        goles_local: golesLocal.length,
-        goles_visita: golesVisita.length,
+        goles_local: golesLocal.golesNormal + golesVisita.golesEnContra, // Sumar goles normales del local + goles en contra del visitante
+        goles_visita: golesVisita.golesNormal + golesLocal.golesEnContra, // Sumar goles normales del visitante + goles en contra del local
         descripcion: descToMatch,
         id_jugador_destacado: jugadorDestacado
     };
@@ -346,6 +367,15 @@ const ModalConfirmation = () => {
         }
     };
 
+    const updateSancionados = async () => {
+        try {
+            await Axios.post(`${URL}/user/calcular-expulsiones`);
+        } catch (error) {
+            toast.error('Error al actualizar las sanciones.');
+            console.error('Error al actualizar las sanciones:', error);
+        }
+    };
+
     const handleModalConfirm = async () => {
         switch(stateModal) {
             case 'action':
@@ -376,8 +406,11 @@ const ModalConfirmation = () => {
                     await insertRojas();
                     await insertAsistencias();
                     await insertAmarillas();
+                    await updateSancionados();
                     dispatch(toggleStateMatch(idPartido));
                     dispatch(toggleHiddenModal());
+                    //borrar jugador destacado
+                    dispatch(handleBestPlayerOfTheMatch(null));
                     toast.success('Partido subido correctamente en la base de datos');
                 } else {
                     toast.error('Se debe seleccionar el MVP antes de finalizar');

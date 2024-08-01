@@ -40,6 +40,7 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
     const matchCorrecto = matchState.find((match) => match.ID === idPartido);
     const currentTeam = activeButton === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
 
+    //Cargar escudos y nombres de los equipos
     const equipos = useSelector((state) => state.equipos.data);
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
@@ -59,6 +60,7 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
         }
     };
     
+    //Manejador de las acciones del partido
     const handleNext = (playerID, playerDorsal, namePlayer, idEquipo) => {
         if (matchCorrecto.matchState === null || matchCorrecto.matchState === 'matchPush') {
             if (matchCorrecto.matchState === 'matchPush') {
@@ -81,6 +83,7 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
         dispatch(toggleHiddenAction());
     };
 
+    //Edicion del dorsal
     const handleEditDorsal = (player) => {
         if (matchCorrecto.matchState !== 'matchPush') {
             if (player.eventual === 'S') {
@@ -152,9 +155,9 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
                 >
                     Local
                 </PlanillaButtons>
-                <img src={`/Escudos/${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
+                <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
                 <h3>Formaciones</h3>
-                <img src={`/Escudos/${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
+                <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
                 <PlanillaButtons
                     className={`visitante ${activeButton === 'visitante' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('visitante')}
@@ -174,7 +177,10 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
                 </thead>
                 <tbody>
                     {currentTeam && currentTeam.Player.map(player => (
-                        <tr key={player.ID} className={player.eventual === 'S' ? 'playerEventual' : ''}>
+                        <tr 
+                            key={player.ID} 
+                            className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}
+                        >
                             <td
                                 className={`dorsal ${(!player.Dorsal || player.sancionado === 'S' ) && 'disabled'}`}
                                 onClick={() => {

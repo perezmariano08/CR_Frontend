@@ -31,8 +31,8 @@ const CardPartido = ({ finished, partido, rol }) => {
 
     const viewStatsOfTheMatch = (e) => {
         e.preventDefault();
-        navigate(`/stats-match?id=${partido.id_partido}`)
-    }
+        navigate(`/stats-match?id=${partido.id_partido}`);
+    };
 
     const [goalLocal, setGoalLocal] = useState(0);
     const [goalVisit, setGoalVisit] = useState(0);
@@ -95,10 +95,15 @@ const CardPartido = ({ finished, partido, rol }) => {
         <CardPartidoWrapper> 
             <CardPartidoTitles>
                 <h3>{`${partido.division} - ${partido.torneo} ${partido.año}`}</h3>
-                {finished ? (
+                {partido.estado === 'F' ? (
                     <p>{formattedDate} {formattedTime} | Fecha {partido.jornada} - {partido.cancha}</p>
-                ) : (
+                ) : partido.estado === 'P' ? (
                     <p>Fecha {partido.jornada} - {partido.cancha}</p>
+                ) : (
+                    <>
+                        <h5>{formattedTime}</h5>
+                        <p>{formattedDate}</p>
+                    </>
                 )}
             </CardPartidoTitles>
             <CardPartidoTeams>
@@ -108,28 +113,16 @@ const CardPartido = ({ finished, partido, rol }) => {
                 </CardPartidoTeam>
 
                 <CardPartidoInfo>
-                    {match ? (match.matchState === 'isStarted' ? (
+                    {partido.estado === 'F' || (match && (match.matchState === 'isStarted' || match.matchState === 'isFinish' || match.matchState === 'matchPush')) ? (
                         <>
-                            <h4>{goalLocal}-{goalVisit}</h4>
-                            <span>En curso</span>
-                        </>
-                    ) : (partido.estado === 'F' || match.matchState === 'isFinish' || match.matchState === 'matchPush') ? (
-                        <>
-                        {
-                            partido.estado === 'F' ? (
-                                <h4>{partido.goles_local}-{partido.goles_visita}</h4>
-                            ) : (
-                                <h4>{goalLocal}-{goalVisit}</h4>
-                            )
-                        }
-                            <span>Final</span>
+                            <h4>{partido.estado === 'F' ? `${partido.goles_local}-${partido.goles_visita}` : `${goalLocal}-${goalVisit}`}</h4>
+                            <span>{partido.estado === 'F' || match.matchState === 'isFinish' ? 'Final' : 'En curso'}</span>
                         </>
                     ) : partido.estado === 'P' ? (
                         <>
                             <h5>{formattedTime}</h5>
                             <p>{formattedDate}</p>
                         </>
-                    ) : null
                     ) : (
                         <>
                             <h5>{formattedTime}</h5>
@@ -144,7 +137,6 @@ const CardPartido = ({ finished, partido, rol }) => {
                 </CardPartidoTeam>
             </CardPartidoTeams>
             {rol === 2 ? (
-                match ? (
                 <>
                     <CardPartidoDivider/>
                     <CardPartidoStats>
@@ -156,9 +148,7 @@ const CardPartido = ({ finished, partido, rol }) => {
                         </NavLink>
                     </CardPartidoStats>
                 </>
-                ) : null
             ) : rol === 3 ? (
-                match ? (
                 <>
                     <CardPartidoDivider/>
                     <CardPartidoStats>
@@ -170,7 +160,6 @@ const CardPartido = ({ finished, partido, rol }) => {
                         </NavLink>
                     </CardPartidoStats>
                 </>
-                ) : null
             ) : null}
         </CardPartidoWrapper>
     );

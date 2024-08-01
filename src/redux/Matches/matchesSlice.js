@@ -7,18 +7,42 @@ const matchesSlice = createSlice({
     initialState,
     reducers: {
         manageDorsal: (state, action) => {
-            const { playerId, dorsal, assign } = action.payload;
+            const { idPartido, playerId, dorsal, assign } = action.payload;
 
-            for (const match of state) {
-                let playerFound = false;
+            // Find the specific match by idPartido
+            const match = state.find(match => match.ID === idPartido);
+            if (!match) {
+                console.error('Partido no encontrado');
+                return;
+            }
 
-                // Buscar en el equipo Local
-                let player = match.Local.Player.find(p => p.ID === playerId);
+            let playerFound = false;
+
+            // Search in the Local team
+            let player = match.Local.Player.find(p => p.ID === playerId);
+            if (player) {
+                playerFound = true;
+                if (assign) {
+                    // Ensure no other player has the same dorsal
+                    if (!match.Local.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
+                        player.Dorsal = dorsal;
+                        player.status = true;
+                    }
+                } else {
+                    if (player.Dorsal === dorsal) {
+                        player.Dorsal = '';
+                        player.status = false;
+                    }
+                }
+            }
+
+            // Search in the Visitante team if not found in the Local team
+            if (!playerFound) {
+                player = match.Visitante.Player.find(p => p.ID === playerId);
                 if (player) {
-                    playerFound = true;
                     if (assign) {
-                        // Asegurarse de que no haya otro jugador con el mismo dorsal
-                        if (!match.Local.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
+                        // Ensure no other player has the same dorsal
+                        if (!match.Visitante.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
                             player.Dorsal = dorsal;
                             player.status = true;
                         }
@@ -26,25 +50,6 @@ const matchesSlice = createSlice({
                         if (player.Dorsal === dorsal) {
                             player.Dorsal = '';
                             player.status = false;
-                        }
-                    }
-                }
-
-                // Buscar en el equipo Visitante si no se encontró en el equipo Local
-                if (!playerFound) {
-                    player = match.Visitante.Player.find(p => p.ID === playerId);
-                    if (player) {
-                        if (assign) {
-                            // Asegurarse de que no haya otro jugador con el mismo dorsal
-                            if (!match.Visitante.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
-                                player.Dorsal = dorsal;
-                                player.status = true;
-                            }
-                        } else {
-                            if (player.Dorsal === dorsal) {
-                                player.Dorsal = '';
-                                player.status = false;
-                            }
                         }
                     }
                 }

@@ -49,6 +49,12 @@ export const TablePlanillaWrapper = styled.table`
             color: var(--yellow);  
         }
         margin-bottom: 10px;
+
+        &.expulsado {
+            color: var(--red);
+            pointer-events: none;
+            opacity: 0.5
+        }
     }
 
     td, th {
