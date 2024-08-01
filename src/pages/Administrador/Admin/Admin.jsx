@@ -11,6 +11,8 @@ import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { TableFoot, TableFootItem, TableTitle, TableTitleDivider, TableWrapper } from '../../../components/Stats/Table/TableStyles'
 import { TableContainerStyled } from '../../../components/Stats/Table/TableStyles'
+import { TbRectangleVerticalFilled } from 'react-icons/tb'
+import TableTeam from '../../../components/Stats/TableTeam/TableTeam.jsx'
 
 const Admin = () => {
     const dispatch = useDispatch()
@@ -23,7 +25,7 @@ const Admin = () => {
         {field: 'pos', header: "#"},
         {field: 'equipo', header: "Equipo"},
         {field: 'pts', header: "PTS"},
-        {field: 'pj', header: "PJ"},
+        {field: 'pj', header: <TbRectangleVerticalFilled style={{color: 'yellow'}}/>},
         {field: 'pg', header: "PG"},
         {field: 'pe', header: "PE"},
         {field: 'pp', header: "PP"},
@@ -125,53 +127,76 @@ const Admin = () => {
         </div>
     );
 
+    const TableTeamPosiciones = [
+        {
+            id_jugador: 6,
+            nombre_completo: "ALIAGA, Matias",
+            PJ: 3,
+            G: 6,
+            A: 0,
+            Am: 0,
+            R: 6,
+        },
+        {
+            id_jugador: 2,
+            nombre_completo: "BASSI, Alessandro",
+            PJ: 3,
+            G: 6,
+            A: 0,
+            Am: 0,
+            R: 6,
+        },
+    ]
+
     return (
         <Content>
             <ContentTitle>
-                <TableContainerStyled>
-                    <TableTitle>
-                        <h3>Torneo Apertura</h3>
-                        <p>Serie A</p>
-                    </TableTitle>
-                    <TableTitleDivider/>
-                    <TableWrapper
-                            value={PosicionesData}
-                            emptyMessage="No hay datos disponibles"
-                        >
-                            {ColumnasTabla.map((col) => (
-                            <Column
-                                key={col.field}
-                                field={col.field}
-                                header={col.header}
-                                sortable
-                                style={{ width: 'auto' }}
-                                body={
-                                    col.field === 'pos'
-                                    ? body
-                                    : col.field === 'equipo'
-                                    ? equipoBodyTemplate
-                                    : null
-                                }
-                            />
-                        ))}
-                    </TableWrapper>
-                    <TableTitleDivider/>
-                    <TableFoot>
-                        <TableFootItem>
-                            <div className='one'></div>
-                            <h3>Copa Oro</h3>
-                        </TableFootItem>
-                        <TableFootItem>
-                            <div className='two'></div>
-                            <h3>Copa Plata</h3>
-                        </TableFootItem>
-                        <TableFootItem>
-                            <div className='three'></div>
-                            <h3>Descenso</h3>
-                        </TableFootItem>        
-                    </TableFoot>
-                </TableContainerStyled>
+                Dashboard
             </ContentTitle>
+            <TableTeam data={TableTeamPosiciones} id_temporada={"ID temporada"}/>
+            <TableContainerStyled>
+                <TableTitle>
+                    <h3>Torneo Apertura</h3>
+                    <p>Serie A</p>
+                </TableTitle>
+                <TableTitleDivider/>
+                <TableWrapper
+                        value={PosicionesData}
+                        emptyMessage="No hay datos disponibles"
+                    >
+                        {ColumnasTabla.map((col) => (
+                        <Column
+                            key={col.field}
+                            field={col.field}
+                            header={col.header}
+                            sortable
+                            style={{ width: 'auto' }}
+                            body={
+                                col.field === 'pos'
+                                ? body
+                                : col.field === 'equipo'
+                                ? equipoBodyTemplate
+                                : null
+                            }
+                        />
+                    ))}
+                </TableWrapper>
+                <TableTitleDivider/>
+                <TableFoot>
+                    <TableFootItem>
+                        <div className='one'></div>
+                        <h3>Copa Oro</h3>
+                    </TableFootItem>
+                    <TableFootItem>
+                        <div className='two'></div>
+                        <h3>Copa Plata</h3>
+                    </TableFootItem>
+                    <TableFootItem>
+                        <div className='three'></div>
+                        <h3>Descenso</h3>
+                    </TableFootItem>        
+                </TableFoot>
+            </TableContainerStyled>
         </Content>
     )
 }

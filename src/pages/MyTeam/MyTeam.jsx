@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { MyTeamTitleContainer, MyTeamInfo, MyTeamName, MyTeamContainerStyled, MyTeamWrapper, MyTeamMatches, MyTeamMatchesItem, MyTeamMatchesDivisor } from './MyTeamStyles'
-import Celta from '/Escudos/celta-de-vino.png'
 import Section from '../../components/Section/Section'
 import Table from '../../components/Stats/Table/Table'
-import TableTeam from '../../components/Stats/TableTeam/TableTeam'
 import CardOldMatches from '../../components/Stats/CardOldMatches/CardOldMatches'
 import { TableContainerStyled, TableFoot, TableFootItem, TableTitle, TableTitleDivider, TableWrapper } from '../../components/Stats/Table/TableStyles';
 import { Column } from 'primereact/column';
@@ -141,6 +139,7 @@ const MyTeam = () => {
 
                 <Section>
                     <h2>Plantel</h2>
+
                     {/* <TableTeam jugadores={jugadores} equipo={miEquipo}/> */}
                     <TableContainerStyled>
                         <TableTitle>
@@ -185,6 +184,7 @@ const MyTeam = () => {
                             </TableFootItem>        
                         </TableFoot>
                     </TableContainerStyled>
+
                 </Section>
                     
                 <Section>

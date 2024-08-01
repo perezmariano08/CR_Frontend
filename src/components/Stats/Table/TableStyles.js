@@ -42,6 +42,7 @@ export const TableWrapper = styled(DataTable)`
     width: 100%;
     border-collapse: collapse;
     overflow: hidden;
+    
     .p-column-header-content {
         display: flex;
         justify-content: center;

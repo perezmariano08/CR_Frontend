@@ -138,6 +138,21 @@ export const TableContainerStyled = styled(DataTable)`
         }
     }
 
+    .td-temporada {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        width: fit-content;
+        font-size: 13px;
+        padding: 2px 10px;
+        border-radius: 10px;
+        color: var(--white);
+
+        &.orange {
+            background-color: #ee9410;
+        }
+    }
+
     .p-paginator {
         width: 100%;
         display: flex;
