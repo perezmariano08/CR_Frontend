@@ -186,12 +186,12 @@ const Equipos = () => {
                     setIsSaving(false);
                 } else {
                     let imageUrl = img; // Usa la URL de la imagen actual si no se ha seleccionado una nueva
-    
+
                     if (imageFile) {
+                        
                         // Crear un FormData para enviar el archivo al servidor
                         const formData = new FormData();
                         formData.append('image', imageFile);
-    
                         // Subir la imagen al servidor
                         const uploadResponse = await Axios.post(`${URL}/upload-image/equipo`, formData, {
                             headers: {

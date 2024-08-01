@@ -127,6 +127,18 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
         }
     }
 
+    const estadoTemporadaEquipo = (rowData, field) => {
+        if (rowData[field] === null) {
+            return <div className="td-temporada orange">
+                Falta temporada
+            </div>
+        } else {
+            return <div>
+                {rowData.temporada}
+            </div>
+        }
+    }
+
     const fechaBodyTemplate = (rowData, field) => {
         return <div style={{minWidth: '140px'}}>
             {formatDateTime(rowData[field])}
@@ -154,7 +166,6 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                 <span>{rowData.apellido.toUpperCase()}, {rowData.nombre}</span>
             </div>
         }
-        
     };
     
 
@@ -171,6 +182,7 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
     const editBodyTemplate = (rowData) => (
         <VscKebabVertical onClick={() => editRow(rowData)} />
     );
+
     return (
         <>
         <TableContainerStyled
@@ -178,14 +190,12 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                 emptyMessage="No hay datos disponibles"
                 removableSort
                 paginator
-                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                 rows={50}
                 rowsPerPageOptions={[5, 10, 25, 50]}
                 selectionMode={rowClick ? null : 'multiple'}
                 selection={selectedProducts}
                 onSelectionChange={onSelectionChange}
                 dataKey={id_}
-                currentPageReportTemplate="{first} al {last} de {totalRecords}"
             >
                 <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                 {dataColumns.map((col) => (
@@ -231,6 +241,8 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                                 ? rowData => estadoAIBodyTemplate(rowData, 'estado')
                                 : arrayName === 'Usuarios' && col.field === 'estado'
                                 ? rowData => estadoUsuarioBodyTemplate(rowData, 'estado')
+                                : arrayName === 'Equipos' && col.field === 'temporada'
+                                ? rowData => estadoTemporadaEquipo(rowData, 'temporada')
                                 : null
                         }
                     />
