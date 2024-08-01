@@ -9,7 +9,7 @@ import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
+import { ModalFormInputContainer, ModalFormInputImg } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
@@ -27,6 +27,10 @@ import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import Select from '../../../components/Select/Select';
 import { PiEnvelope, PiIdentificationCardLight, PiPhone, PiUser } from 'react-icons/pi';
+import { dataEstadosAI } from '../../../Data/Estados/Estados';
+import { AiOutlineCalendar } from 'react-icons/ai';
+import { LiaUserCogSolid, LiaUserEditSolid } from "react-icons/lia";
+import { MdOutlineImage } from 'react-icons/md';
 
 const Usuarios = () => {
     const dispatch = useDispatch();
@@ -219,7 +223,7 @@ const Usuarios = () => {
 
     const isUpdated = () => {
         console.log(originalValues);
-
+        console.log(img)
         return (
             dni !== originalValues.dni ||
             nombre !== originalValues.nombre ||
@@ -228,8 +232,10 @@ const Usuarios = () => {
             telefono !== originalValues.telefono ||
             nacimiento !== originalValues.nacimiento ||
             rol != originalValues.rol ||
-            equipo != originalValues.equipo
-        );
+            equipo != originalValues.equipo ||
+            estado != originalValues.estado) ||
+            img != originalValues.img
+        ;
     };
 
     const editarDato = async () => {
@@ -240,16 +246,34 @@ const Usuarios = () => {
         }
         setIsSaving(true);
         try {
+            let imageUrl = img; // Usa la URL de la imagen actual si no se ha seleccionado una nueva
+            if (imageFile) {
+                // Crear un FormData para enviar el archivo al servidor
+                const formData = new FormData();
+                formData.append('image', imageFile);
+
+                // Subir la imagen al servidor
+                const uploadResponse = await Axios.post(`${URL}/upload-image/usuario`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                imageUrl = uploadResponse.data.imageUrl;
+                setImg(imageUrl) // Usa la URL de la imagen subida
+            }
             const response = await Axios.put(`${URL}/admin/${update}`,
                 {
                     dni,
                     nombre,
                     apellido,
+                    nacimiento,
                     email,
                     telefono,
                     id_rol: rol,
                     id_equipo: equipo,
-                    id_usuario // Asegúrate de pasar el id_usuario para la cláusula WHERE
+                    estado,
+                    img: imageUrl,
+                    id_usuario
                 }
             );
             if (response.status === 200) {
@@ -276,6 +300,9 @@ const Usuarios = () => {
         setRol(selectedRows[0].id_rol)
         setEquipo(selectedRows[0].id_equipo)
         setIdUsuario(selectedRows[0].id_usuario)
+        setEstado(selectedRows[0].estado)
+        setImg(selectedRows[0].img)
+
         // Guarda los valores originales
         setOriginalValues({
             dni: selectedRows[0].dni,
@@ -286,11 +313,11 @@ const Usuarios = () => {
             nacimiento: selectedRows[0].nacimiento,
             rol: selectedRows[0].id_rol,
             equipo: selectedRows[0].id_equipo,
+            estado: selectedRows[0].estado,
+            img: selectedRows[0].img
         });
         openEditModal()
     };
-
-   
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
@@ -313,7 +340,7 @@ const Usuarios = () => {
         // setNacimiento("")
         // setRol("")
         // setEquipo("")
-        // setIdUsuario("")
+        setPreviewImage("")
         setIsEditModalOpen(false);
     }
 
@@ -360,6 +387,23 @@ const Usuarios = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const [imageFile, setImageFile] = useState(null); // Estado para almacenar el archivo de imagen
+    const [previewImage, setPreviewImage] = useState("");
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setImageFile(file)
+            setImg(file)
+            // Crear una URL de vista previa para la imagen seleccionada
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+        }
     };
 
     return (
@@ -435,7 +479,8 @@ const Usuarios = () => {
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Fecha de Nacimiento
-                                    <Input type='text' placeholder="Escriba aqui..." />
+                                    <Input type='text' placeholder="Escriba aqui..." 
+                                    icon={<AiOutlineCalendar className='icon-input'/>} />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Email
@@ -581,6 +626,26 @@ const Usuarios = () => {
                         form={
                             <>
                                 <ModalFormInputContainer>
+                                    Imagen
+                                    <ModalFormInputImg>
+                                        {previewImage && 
+                                            <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                                        }
+
+                                        {!previewImage && 
+                                            <img src={`${URL}${img}`} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                                        }
+
+                                        
+                                        <Input 
+                                            type='file' 
+                                            accept="image/*"
+                                            onChange={(event) => handleImageUpload(event)}
+                                            icon={<MdOutlineImage className='icon-input'/>}
+                                        />
+                                    </ModalFormInputImg>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
                                     DNI
                                     <Input 
                                         type='text' 
@@ -609,10 +674,15 @@ const Usuarios = () => {
                                         icon={<PiUser className='icon-input'/>} 
                                     />
                                 </ModalFormInputContainer>
-                                {/* <ModalFormInputContainer>
+                                <ModalFormInputContainer>
                                     Fecha de Nacimiento
-                                    <Input type='text' placeholder="Escriba aqui..." value={nacimiento} />
-                                </ModalFormInputContainer> */}
+                                    <Input 
+                                    type='text' 
+                                    placeholder="Escriba aqui..." 
+                                    value={nacimiento}
+                                    onChange={(event) => { setNacimiento(event.target.value)}}
+                                    icon={<AiOutlineCalendar className='icon-input'/>} />
+                                </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Email
                                     <Input 
@@ -656,22 +726,18 @@ const Usuarios = () => {
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
-                                {/* <ModalFormInputContainer>
+                                <ModalFormInputContainer>
                                     Estado
                                     <Select 
-                                        data={
-                                            [
-                                                {estado: "Activo"},
-                                                {estado: "No Activo"}
-                                            ]
-                                        }
+                                        data={dataEstadosAI}
                                         placeholder={"Seleccionar estado"}
-                                        column='estado'
                                         value={estado}
+                                        onChange={(event) => { setEstado(event.target.value)}}
+                                        id_={'id_estado'}
+                                        icon={<LiaUserEditSolid className='icon-select' />                                        }
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
-                                */}
                             </>
                         }
                     />

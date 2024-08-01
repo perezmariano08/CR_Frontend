@@ -20,6 +20,7 @@ import axios from 'axios';
 import { URL } from '../../utils/utils';
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchUsuarios } from '../../redux/ServicesApi/usuariosSlice';
+import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice';
 import { BiBlock } from "react-icons/bi";
 
 
@@ -76,6 +77,7 @@ const Aside = ({className}) => {
     const {userName, showWelcomeToast, setShowWelcomeToast, userId} = useAuth()
     useEffect(() => {
         dispatch(fetchUsuarios())
+        dispatch(fetchJugadores())
         if (userName && showWelcomeToast) {
             toast(`Bienvenid@, administrador ${userName}`, {
                 icon: '👋',
