@@ -9,7 +9,15 @@ export const FixtureWrapper = styled.div`
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
-`
+`;
+
+export const FixtureTop = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: start;
+`;
+
 export const FixtureTitle = styled.div`
     display: flex;
     flex-direction: column;
@@ -29,7 +37,28 @@ export const FixtureTitle = styled.div`
         line-height: 8px;
         color: var(--green);
     }
-`
+`;
+
+export const NavigateFixture = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: none;
+        color: var(--green);
+    }
+
+    h3 {
+        font-size: 14px;
+    }
+`;
+
 export const FixtureMatch = styled.div`
     display: flex;
     width: 100%;
@@ -37,7 +66,9 @@ export const FixtureMatch = styled.div`
     justify-content: space-between;
     padding: 0 5px;
     gap: 5px;
-`
+    cursor: pointer;
+`;
+
 export const FixtureMatchTeam = styled.div`
     display: flex;
     align-items: center;
@@ -55,7 +86,8 @@ export const FixtureMatchTeam = styled.div`
     &.visit {
         text-align: end;
     }
-`
+`;
+
 export const FixtureMatchInfo = styled.div`
     display: flex;
     flex-direction: column;
@@ -63,11 +95,11 @@ export const FixtureMatchInfo = styled.div`
     align-items: center;
     h5 {
         font-size: 14px;
-        font-weight: 600
+        font-weight: 600;
     }
     p{
         font-size: 10px;
         font-weight: 400;
         color: var(--green);
     }
-`
+`;

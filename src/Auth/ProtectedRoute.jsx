@@ -1,12 +1,16 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { SpinerContainer } from './SpinerStyles';
+import { TailSpin } from 'react-loader-spinner';
 
 const ProtectedRoute = ({ role }) => {
     const { isAuthenticated, userRole, loading } = useAuth();
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <SpinerContainer>
+                    <TailSpin width='40' height='40' color='#2AD174' />
+            </SpinerContainer>
     }
 
     if (!isAuthenticated) {

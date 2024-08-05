@@ -11,7 +11,7 @@ export const NotificationsStyledContainer = styled(motion.div)`
     position: fixed;
     padding: 20px;
     overflow: hidden;
-    overflow-y: scroll;
+    overflow-y: auto; /* Permite el scroll interno */
 
     /* Estilos del scrollbar */
     ::-webkit-scrollbar {
@@ -49,15 +49,17 @@ export const NotificationsContainer = styled.div`
     gap: 15px;
     padding: 15px;
     background-color: var(--gray-400);
-    max-height: 100%;
-    height: 100vh;
-    overflow-y: auto;
+    height: auto; 
+    max-height: 100vh; /* Ajusta la altura máxima para permitir scroll interno */
+    overflow-y: auto; /* Permite el scroll dentro del contenedor */
 `;
 
 export const NotificationContainer = styled.div`
     display: flex;
     width: 100%;
     background-color: var(--gray-500);
+    padding: 10px;
+    box-sizing: border-box; /* Asegura que padding no afecte el tamaño del contenedor */
 `;
 
 export const NotificationLeft = styled.div`
@@ -67,7 +69,7 @@ export const NotificationLeft = styled.div`
     border-right: 1px solid var(--green);
     padding: 10px;
 
-    &i,svg {
+    &i, svg {
         font-size: 50px;
         color: var(--green);
     }
@@ -76,8 +78,9 @@ export const NotificationLeft = styled.div`
 export const NotificationRight = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 100%;
+    align-items: flex-start; /* Ajusta al inicio para que el contenido no esté centrado */
+    width: calc(100% - 60px); /* Ajusta según el tamaño de NotificationLeft */
+    padding-left: 10px; /* Añade espacio entre el contenido y el borde izquierdo */
 `;
 
 export const NotificationTitle = styled.div`
@@ -85,6 +88,7 @@ export const NotificationTitle = styled.div`
     width: 100%;
     padding: 10px;
     text-align: center;
+
     h4 {
         font-size: 13px;
         font-weight: 800;
@@ -95,6 +99,7 @@ export const NotificationText = styled.div`
     padding: 10px;
     width: 100%;
     text-align: start;
+
     p {
         font-size: 11px;
         font-weight: 300;
@@ -108,9 +113,8 @@ export const NotiTopContainer = styled.div`
     align-items: center;
     gap: 10px;
     
-
-    &i,svg {
+    &i, svg {
         color: var(--green);
         cursor: pointer;
     }
-`
+`;

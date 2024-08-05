@@ -1,205 +1,153 @@
 import React, { useEffect, useState } from 'react'
-import { MyTeamTitleContainer, MyTeamInfo, MyTeamName, MyTeamContainerStyled, MyTeamWrapper, MyTeamMatches, MyTeamMatchesItem, MyTeamMatchesDivisor } from './MyTeamStyles'
-import Section from '../../components/Section/Section'
-import Table from '../../components/Stats/Table/Table'
-import CardOldMatches from '../../components/Stats/CardOldMatches/CardOldMatches'
-import { TableContainerStyled, TableFoot, TableFootItem, TableTitle, TableTitleDivider, TableWrapper } from '../../components/Stats/Table/TableStyles';
-import { Column } from 'primereact/column';
-import { useAuth } from '../../Auth/AuthContext'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice'
-import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice'
-import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice'
-import { URL } from '../../utils/utils'
-import Axios from 'axios'
+import { 
+    MyTeamTitleContainer, 
+    MyTeamInfo, 
+    MyTeamName, 
+    MyTeamContainerStyled, 
+    MyTeamWrapper, 
+    MyTeamMatches, 
+    MyTeamMatchesItem, 
+    MyTeamMatchesDivisor 
+} from './MyTeamStyles';
+import Section from '../../components/Section/Section';
+import TableTeam from '../../components/Stats/TableTeam/TableTeam.jsx';
+import CardOldMatches from '../../components/Stats/CardOldMatches/CardOldMatches';
+import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
+import { useAuth } from '../../Auth/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { URL } from '../../utils/utils';
+import { dataPlantelColumns, dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
+import { useLocation } from 'react-router-dom';
+import { getJugadoresEquipo, getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers.js';
+import useStatsTeam from '../../hooks/useStatsTeam.js';
+import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
+import { SpinerContainer } from '../../Auth/SpinerStyles.js';
+import { TailSpin } from 'react-loader-spinner';
 
 const MyTeam = () => {
-
-    const ColumnasTabla = [
-        {field: 'nombre_completo', header: "#"},
-        {field: 'PJ', header: "PJ"},
-        {field: 'G', header: "Goles"},
-        {field: 'A', header: "Asistencias"},
-        {field: 'Am', header: "Amarillas"},
-        {field: 'R', header: "Rojas"},
-
-    ]
-
     const { user } = useAuth();
+    const location = useLocation();
     const dispatch = useDispatch();
+
     const equipos = useSelector((state) => state.equipos.data);
-    const partidos = useSelector((state) => state.partidos.data);
-    const jugadoresData = useSelector((state) => state.jugadores.data);
+
+    const searchParams = new URLSearchParams(location.search);
+    const equipoIdFromParams = parseInt(searchParams.get('idEquipo'));
+
+    const equipoId = equipoIdFromParams || user.id_equipo;
     
-    const miEquipo = equipos.find((equipo) => equipo.id_equipo === user.id_equipo);
-    const jugadores = jugadoresData.filter((jugador) => jugador.id_equipo === miEquipo.id_equipo);
-
-    const partidosMiEquipo = partidos.filter((p) => {
-        const esMiEquipo = p.id_equipoLocal === miEquipo.id_equipo || p.id_equipoVisita === miEquipo.id_equipo;
-        const estadoValido = p.estado.trim() === 'F';
-        return esMiEquipo && estadoValido;
-    });
-
-    const [cantVictorias, setCantVictorias] = useState(0);
-    const [cantEmpates, setCantEmpates] = useState(0);
-    const [cantDerrotas, setCantDerrotas] = useState(0);
+    const miEquipo = equipos.find((equipo) => equipo.id_equipo === equipoId);
 
     useEffect(() => {
-        let victorias = 0;
-        let empates = 0;
-        let derrotas = 0;
+        window.scrollTo(0, 0);
+    }, [equipoId]);
 
-        partidosMiEquipo.forEach(partido => {
-            const esLocal = partido.id_equipoLocal === miEquipo.id_equipo;
-            const golesLocal = esLocal ? partido.goles_local : partido.goles_visita;
-            const golesVisitante = esLocal ? partido.goles_visita : partido.goles_local;
-
-            if (golesLocal > golesVisitante) {
-                victorias++;
-            } else if (golesLocal < golesVisitante) {
-                derrotas++;
-            } else {
-                empates++;
-            }
-        });
-
-        setCantVictorias(victorias);
-        setCantEmpates(empates);
-        setCantDerrotas(derrotas);
-
-    }, [partidosMiEquipo, miEquipo]);
-
-    useEffect(() => {
-        dispatch(fetchEquipos());
-        dispatch(fetchPartidos());
-        dispatch(fetchJugadores());
-    }, [dispatch]);
+    //Custom hook para calcular estadisticas del equipo
+    const { cantVictorias, cantEmpates, cantDerrotas, partidosMiEquipo } = useStatsTeam(equipoId);
 
     const [bdJugadores, setBdJugadores] = useState(null);
-    const id_equipo = miEquipo.id_equipo;
-    const id_temporada = miEquipo.id_temporada;
-    const getJugadoresEquipo = async () => {
-        try {
-            const res = await Axios.get(`${URL}/user/get-jugadores-equipo?id_temporada=${id_temporada}&id_equipo=${id_equipo}`)
-            const data = res.data;
-            setBdJugadores(data);
-        } catch (error) {
-            console.error('Error en la peticion', error);
-        }
-    }
+    const [temporadas, setTemporadas] = useState([]);
 
+    const id_temporada = miEquipo?.id_temporada;
+
+    //Fetch a jugadores
     useEffect(() => {
-        if (id_equipo) {
-            getJugadoresEquipo();
+        if (equipoId) {
+            getJugadoresEquipo(id_temporada, equipoId)
+            .then((data) => setBdJugadores(data))
+            .catch((error) => console.error('Error fetching temporadas:', error))
         } else {
             console.error('ID de equipo no definido');
         }
-    }, [id_equipo]);
+    }, [equipoId]);
 
-    console.log(bdJugadores);
+    //Fetch a temporadas
+    useEffect(() => {
+        getTemporadas()
+            .then((data) => setTemporadas(data))
+            .catch((error) => console.error('Error fetching temporadas:', error));
+    }, []);
 
+    const [posiciones, setPosiciones] = useState(null);
+    //Fetch a posiciones temporadas
+    useEffect(() => {
+        if (id_temporada) {
+            getPosicionesTemporada(id_temporada)
+            .then((data) => setPosiciones(data))
+            .catch((error) => console.error('Error en la petición', error))
+        } else {
+            console.error('ID de temporada no definido');
+        }
+    }, [id_temporada]);
+
+    useEffect(() => {
+        dispatch(fetchEquipos());
+    }, [dispatch]);
+
+    const temporadaFiltrada = temporadas.find((t) => t.id_temporada === id_temporada);
+
+    if (!miEquipo) {
+        return  <SpinerContainer>
+                    <TailSpin width='40' height='40' color='#2AD174' />
+                </SpinerContainer>
+    }
+    
     return (
         <>
-        <MyTeamTitleContainer>
-            <MyTeamInfo>
-                <img src={`${URL}${miEquipo.img}`} alt="" />
-                <MyTeamName>
-                    <h2>{miEquipo.nombre}</h2>
-                    <h3>{miEquipo.division}</h3>
-                </MyTeamName>
-            </MyTeamInfo>
-        </MyTeamTitleContainer>
-        <MyTeamContainerStyled className='container'>
-            <MyTeamWrapper className='wrapper'>
-                <Section>
-                    <h2>Partidos</h2>
-                    <MyTeamMatches>
-                        <MyTeamMatchesItem className='pj'>
-                            <h4>{partidosMiEquipo.length}</h4>
-                            <MyTeamMatchesDivisor/>
-                            <h5>PJ</h5>
-                        </MyTeamMatchesItem>
-                        <MyTeamMatchesItem className='pg'>
-                            <h4>{cantVictorias}</h4>
-                            <MyTeamMatchesDivisor/>
-                            <h5>PG</h5>
-                        </MyTeamMatchesItem>
-                        <MyTeamMatchesItem className='pp'>
-                            <h4>{cantDerrotas}</h4>
-                            <MyTeamMatchesDivisor/>
-                            <h5>PP</h5>
-                        </MyTeamMatchesItem>
-                        <MyTeamMatchesItem className='pe'>
-                            <h4>{cantEmpates}</h4>
-                            <MyTeamMatchesDivisor/>
-                            <h5>PE</h5>
-                        </MyTeamMatchesItem>
-                    </MyTeamMatches>
-                </Section>
+            <MyTeamTitleContainer>
+                <MyTeamInfo>
+                    <img src={`${URL}${miEquipo.img}`} alt="" />
+                    <MyTeamName>
+                        <h2>{miEquipo.nombre}</h2>
+                        <h3>{miEquipo.division}</h3>
+                    </MyTeamName>
+                </MyTeamInfo>
+            </MyTeamTitleContainer>
+            <MyTeamContainerStyled className='container'>
+                <MyTeamWrapper className='wrapper'>
+                    <Section>
+                        <h2>Partidos</h2>
+                        <MyTeamMatches>
+                            <MyTeamMatchesItem className='pj'>
+                                <h4>{partidosMiEquipo.length}</h4>
+                                <MyTeamMatchesDivisor/>
+                                <h5>PJ</h5>
+                            </MyTeamMatchesItem>
+                            <MyTeamMatchesItem className='pg'>
+                                <h4>{cantVictorias}</h4>
+                                <MyTeamMatchesDivisor/>
+                                <h5>PG</h5>
+                            </MyTeamMatchesItem>
+                            <MyTeamMatchesItem className='pp'>
+                                <h4>{cantDerrotas}</h4>
+                                <MyTeamMatchesDivisor/>
+                                <h5>PP</h5>
+                            </MyTeamMatchesItem>
+                            <MyTeamMatchesItem className='pe'>
+                                <h4>{cantEmpates}</h4>
+                                <MyTeamMatchesDivisor/>
+                                <h5>PE</h5>
+                            </MyTeamMatchesItem>
+                        </MyTeamMatches>
+                    </Section>
 
-                <Section>
-                    <h2>Plantel</h2>
+                    <Section>
+                        <h2>Plantel</h2>
+                        <TableTeam data={bdJugadores} temporada={temporadaFiltrada} dataColumns={dataPlantelColumns}/>
+                    </Section>
+                        
+                    <Section>
+                        <h2>Posiciones</h2>
+                        <TablePosiciones data={posiciones} temporada={temporadaFiltrada} dataColumns={dataPosicionesTemporadaColumns}/>
+                    </Section>
 
-                    {/* <TableTeam jugadores={jugadores} equipo={miEquipo}/> */}
-                    <TableContainerStyled>
-                        <TableTitle>
-                            <h3>Torneo Apertura</h3>
-                            <p>Serie A</p>
-                        </TableTitle>
-                        <TableTitleDivider/>
-                        <TableWrapper
-                                value={bdJugadores}
-                                emptyMessage="No hay datos disponibles"
-                            >
-                                {ColumnasTabla.map((col) => (
-                                <Column
-                                    key={col.field}
-                                    field={col.field}
-                                    header={col.header}
-                                    sortable
-                                    style={{ width: 'auto' }}
-                                    body={
-                                        col.field === 'pos'
-                                        ? body
-                                        : col.field === 'nombre'
-                                        ? equipoBodyTemplate
-                                        : null
-                                    }
-                                />
-                            ))}
-                        </TableWrapper>
-                        <TableTitleDivider/>
-                        <TableFoot>
-                            <TableFootItem>
-                                <div className='one'></div>
-                                <h3>Copa Oro</h3>
-                            </TableFootItem>
-                            <TableFootItem>
-                                <div className='two'></div>
-                                <h3>Copa Plata</h3>
-                            </TableFootItem>
-                            <TableFootItem>
-                                <div className='three'></div>
-                                <h3>Descenso</h3>
-                            </TableFootItem>        
-                        </TableFoot>
-                    </TableContainerStyled>
-
-                </Section>
-                    
-                <Section>
-                    <h2>Posiciones</h2>
-                    <Table/>
-                </Section>
-
-                <Section>
-                    <CardOldMatches partidos={partidosMiEquipo} equipo={miEquipo}/>
-                </Section>
-
-            </MyTeamWrapper>
-        </MyTeamContainerStyled>
+                    <Section>
+                        <CardOldMatches partidos={partidosMiEquipo} equipo={miEquipo}/>
+                    </Section>
+                </MyTeamWrapper>
+            </MyTeamContainerStyled>
         </>
     );
 }
 
-export default MyTeam
+export default MyTeam;

@@ -41,3 +41,12 @@ export const StatsFilterButton = styled.button`
         background-color: var(--green);
     }
 `
+export const StatsNull = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: var(--gray-300);
+    padding: 20px;
+    border-radius: 20px;
+`
