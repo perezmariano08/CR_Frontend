@@ -20,6 +20,7 @@ const MatchStats = () => {
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find(p => p.id_partido === partidoId);
     const jugadores = useSelector((state) => state.jugadores.data)
+    
     useEffect(() => {
         const fetchFormaciones = async () => {
             try {

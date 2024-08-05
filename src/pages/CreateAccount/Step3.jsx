@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { CreateAccountContainerStyled, CreateAccountData, CreateAccountInputs, CreateAccountWrapper, InputContainer } from './CreateAccountStyles'
 import Select from '../../components/Select/Select'
-import { dataEquipos } from '../../Data/Equipos/DataEquipos'
 import { IoShieldHalf } from "react-icons/io5";
 import { ButtonSubmit } from '../../components/UI/Button/ButtonStyles'
 import { useDispatch, useSelector } from 'react-redux';

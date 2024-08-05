@@ -91,6 +91,10 @@ const CardPartido = ({ finished, partido, rol }) => {
     const formattedDate = formatDate(partido.dia);
     const formattedTime = formatTime(partido.hora);
 
+    const verPaginaEquipo = (idEquipo) => {
+        navigate(`/my-team?idEquipo=${idEquipo}`);
+    }
+
     return (
         <CardPartidoWrapper> 
             <CardPartidoTitles>
@@ -108,7 +112,9 @@ const CardPartido = ({ finished, partido, rol }) => {
             </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
-                    <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
+                    <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`}
+                        onClick={() => {verPaginaEquipo(partido.id_equipoLocal)}}
+                    />
                     <h4>{`${nombreEquipos(partido.id_equipoLocal)}`}</h4>
                 </CardPartidoTeam>
 
@@ -132,7 +138,9 @@ const CardPartido = ({ finished, partido, rol }) => {
                 </CardPartidoInfo>
 
                 <CardPartidoTeam>
-                    <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
+                    <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`}
+                        onClick={() => {verPaginaEquipo(partido.id_equipoVisita)}}
+                    />
                     <h4>{`${nombreEquipos(partido.id_equipoVisita)}`}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>
