@@ -1,25 +1,103 @@
-import React, { useState } from 'react'
-import { StatsContainerStyled, StatsFilter, StatsFilterButton, StatsHeadContainer, StatsWrapper } from './StatsStyles'
-import Table from "../../components/Stats/Table/Table"
-import Fixture from '../../components/Stats/Fixture/Fixture'
-import { IoShieldHalf } from 'react-icons/io5'
-import Select from '../../components/Select/Select'
-import { useSelector } from 'react-redux'
+import React, { useEffect, useState } from 'react';
+import { StatsContainerStyled, StatsFilter, StatsFilterButton, StatsHeadContainer, StatsNull, StatsWrapper } from './StatsStyles';
+import Fixture from '../../components/Stats/Fixture/Fixture';
+import { IoShieldHalf } from 'react-icons/io5';
+import Select from '../../components/Select/Select';
+import TableTeam from '../../components/Stats/TableTeam/TableTeam.jsx';
+import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
+import { getPosicionesTemporada, getTemporadas, getEstadisticasTemporada } from '../../utils/dataFetchers.js';
+import { dataAmarillasTemporadaColumns, dataAsistenciasTemporadaColumns, dataGoleadoresTemporadaColumns, dataPosicionesTemporadaColumns, dataRojasTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
 
 const Stats = () => {
-    const temporadas = useSelector((state) => state.temporadas.data)
-    const equipos = useSelector((state) => state.equipos.data);
+    const [temporadaSeleccionada, setTemporadaSeleccionada] = useState(null);
+    const [temporadas, setTemporadas] = useState([]);
+    const [filtroActivo, setFiltroActivo] = useState('Posiciones');
+    const [estadisticaTemporada, setEstadisticaTemporada] = useState(null);
+    const [posiciones, setPosiciones] = useState(null);
 
-    const [temporadaSeleccionada, setTemporadaSeleccionada] = useState();
+    const getEstadisticasTemporadaHandler = async () => {
+        if (temporadaSeleccionada && filtroActivo) {
+            let estadistica;
+            switch (filtroActivo) {
+                case 'Goleadores':
+                    estadistica = 'goles';
+                    break;
+                case 'Asistencias':
+                    estadistica = 'asistencias';
+                    break;
+                case 'Expulsados':
+                    estadistica = 'rojas';
+                    break;
+                case 'Amarillas':
+                    estadistica = 'amarillas';
+                    break;
+                default:
+                    return;
+            }
+            try {
+                const data = await getEstadisticasTemporada(estadistica, temporadaSeleccionada);
+                setEstadisticaTemporada(data);            
+            } catch (error) {
+                console.error('Error fetching estadisticas:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        getTemporadas()
+        .then((data) => setTemporadas(data))
+        .catch((error) => console.error('Error en la petición', error));
+    }, []);
+
+    useEffect(() => {
+        const storedTemporada = localStorage.getItem('ultimaTemporadaSeleccionada');
+        if (storedTemporada) {
+            setTemporadaSeleccionada(storedTemporada);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (temporadaSeleccionada) {
+            getEstadisticasTemporadaHandler();
+            getPosicionesTemporada(temporadaSeleccionada)
+            .then((data) => setPosiciones(data))
+            .catch((error) => console.error('Error en la petición', error));
+        }
+    }, [filtroActivo, temporadaSeleccionada]);
 
     const handleTemporada = (e) => {
-        setTemporadaSeleccionada(e.target.value)
-    }
+        const selectedTemporada = e.target.value;
+        setTemporadaSeleccionada(selectedTemporada);
+        localStorage.setItem('ultimaTemporadaSeleccionada', selectedTemporada);
+    };
+
+    const handleFiltroClick = (filtro) => {
+        setFiltroActivo(filtro);
+    };
+
+    // Temporada entera seleccionada
+    const temporadaFiltrada = temporadas.find((t) => t.id_temporada == temporadaSeleccionada);
+
+    const getColumnsForFilter = () => {
+        switch (filtroActivo) {
+            case 'Posiciones':
+                return dataPosicionesTemporadaColumns;
+            case 'Goleadores':
+                return dataGoleadoresTemporadaColumns;
+            case 'Asistencias':
+                return dataAsistenciasTemporadaColumns;
+            case 'Expulsados':
+                return dataRojasTemporadaColumns;
+            case 'Amarillas':
+                return dataAmarillasTemporadaColumns;
+            default:
+                return [];
+        }
+    };
 
     return (
         <StatsContainerStyled className='container'>
             <StatsWrapper className='wrapper'>
-
                 <StatsHeadContainer>
                     <Select 
                         data={temporadas} 
@@ -27,43 +105,63 @@ const Stats = () => {
                         column='nombre_temporada'
                         id_='id_temporada'
                         icon={<IoShieldHalf className='icon-select' />}
-                        value={temporadaSeleccionada}
+                        value={temporadaSeleccionada || '0'} // Aquí se establece el valor predeterminado
                         onChange={handleTemporada}
                     />
                     <StatsFilter>
-                        <StatsFilterButton>
+                        <StatsFilterButton
+                            className={filtroActivo === 'Fixture' ? 'active' : ''}
+                            onClick={() => handleFiltroClick('Fixture')}
+                        >
                             Fixture
                         </StatsFilterButton>
-
-                        <StatsFilterButton className='active'>
+                        <StatsFilterButton
+                            className={filtroActivo === 'Posiciones' ? 'active' : ''}
+                            onClick={() => handleFiltroClick('Posiciones')}
+                        >
                             Posiciones
                         </StatsFilterButton>
-                        
-                        <StatsFilterButton>
+                        <StatsFilterButton
+                            className={filtroActivo === 'Goleadores' ? 'active' : ''}
+                            onClick={() => handleFiltroClick('Goleadores')}
+                        >
                             Goleadores
                         </StatsFilterButton>
-
-                        <StatsFilterButton>
+                        <StatsFilterButton
+                            className={filtroActivo === 'Asistencias' ? 'active' : ''}
+                            onClick={() => handleFiltroClick('Asistencias')}
+                        >
                             Asistencias
                         </StatsFilterButton>
-
-                        <StatsFilterButton>
+                        <StatsFilterButton
+                            className={filtroActivo === 'Expulsados' ? 'active' : ''}
+                            onClick={() => handleFiltroClick('Expulsados')}
+                        >
                             Expulsados
+                        </StatsFilterButton>
+                        <StatsFilterButton
+                            className={filtroActivo === 'Amarillas' ? 'active' : ''}
+                            onClick={() => handleFiltroClick('Amarillas')}
+                        >
+                            Amarillas
                         </StatsFilterButton>
                     </StatsFilter>
                 </StatsHeadContainer>
 
-                <Table>
-                </Table>
-
-                <Table>                
-                </Table>
-
-                <Fixture temporada={temporadaSeleccionada}/>
+                {(temporadaSeleccionada === null || temporadaSeleccionada === '0') && (
+                    <StatsNull>Seleccione una temporada para visualizar las estadísticas</StatsNull>
+                )}
                 
+                {temporadaSeleccionada && filtroActivo === 'Fixture' && <Fixture temporada={temporadaSeleccionada} />}
+                {temporadaSeleccionada && filtroActivo !== 'Fixture' && filtroActivo !== 'Posiciones' && (
+                    <TableTeam data={estadisticaTemporada} dataColumns={getColumnsForFilter()} temporada={temporadaFiltrada}/>
+                )}
+                {temporadaSeleccionada && filtroActivo === 'Posiciones' && (
+                    <TablePosiciones data={posiciones} temporada={temporadaFiltrada} dataColumns={getColumnsForFilter()}/>
+                )}
             </StatsWrapper>
         </StatsContainerStyled>
-    )
-}
+    );
+};
 
-export default Stats
+export default Stats;

@@ -9,7 +9,7 @@ export const TableContainerStyled = styled.div`
     overflow: hidden;
     padding: 20px 0;
     gap: 20px;
-    max-width: 50%;
+    max-width: 100%;
 `
 
 export const TableTitle = styled.div`

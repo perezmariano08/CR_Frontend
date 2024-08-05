@@ -1,20 +1,50 @@
-import React from 'react';
-import { FixtureMatch, FixtureMatchInfo, FixtureMatchTeam, FixtureTitle, FixtureWrapper } from './FixtureStyles';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { FixtureMatch, FixtureMatchInfo, FixtureMatchTeam, FixtureTitle, FixtureTop, FixtureWrapper, NavigateFixture } from './FixtureStyles';
 import { TableTitleDivider } from '../Table/TableStyles';
-import { useSelector } from 'react-redux';
 import { URL } from '../../../utils/utils';
+import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
+import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
+import { useNavigate } from 'react-router-dom';
 
 const Fixture = ({ temporada }) => {
-    const equipos = useSelector((state) => state.equipos.data);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const partidos = useSelector((state) => state.partidos.data);
-    const partidosTemporada = partidos.filter((p) => p.id_temporada === temporada);
+
+    const [fechaActual, setFechaActual] = useState(1);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await dispatch(fetchEquipos());
+            await dispatch(fetchPartidos());
+        };
+        fetchData();
+    }, [dispatch]);
+
+    // Extraccion de ids para el hook
+    const teamIds = [
+        ...new Set(partidos.map(p => [p.id_equipoLocal, p.id_equipoVisita]).flat())
+    ];
+
+    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(teamIds);
+
+    // Filtra partidosTemporada y cantidadFechas después de haber cargado los datos
+    const partidosTemporada = partidos.filter((p) => p.id_temporada == temporada);
+    const cantidadFechas = [...new Set(partidosTemporada.map((p) => p.jornada))].sort((a, b) => a - b);
+    const partidosFecha = partidosTemporada.filter((p) => p.jornada === fechaActual);
+
+    const handleJornada = (accion) => {
+        setFechaActual((prev) => (accion ? prev + 1 : prev - 1));
+    };
 
     const formatDate = (partido) => {
         const diaNombre = partido.dia_nombre;
         const diaNumero = partido.dia_numero;
         const mes = partido.mes;
         const año = partido.año;
-
         return `${diaNombre} - ${diaNumero}/${mes}/${año}`;
     };
 
@@ -23,47 +53,69 @@ const Fixture = ({ temporada }) => {
         const [horaParte, minutoParte] = hora.split(':');
         return `${horaParte}:${minutoParte}`;
     };
-
-    const escudoEquipo = (id) => {
-        const equipoEncontrado = equipos.find(equipo => equipo.id_equipo === id);
-        return equipoEncontrado?.img || '';
-    };
-
-    const nombreEquipo = (id) => {
-        const equipoEncontrado = equipos.find(equipo => equipo.id_equipo === id);
-        return equipoEncontrado?.nombre || '';
-    };
-
+    
+    const handleStatsOfTheMatch = (id) => {
+        navigate(`/stats-match?id=${id}`);
+    }
 
     return (
         <FixtureWrapper>
-            {partidosTemporada.length > 0 && (
+            {partidosTemporada.length > 0 ? (
                 <>
-                    <FixtureTitle>
-                        <h3>{formatDate(partidosTemporada[0])}</h3>
-                        <p>Fecha {partidosTemporada[0].jornada}</p>
-                    </FixtureTitle>
+                    <FixtureTop>
+                        <FixtureTitle>
+                            <h3>{formatDate(partidosTemporada.find(p => p.jornada === fechaActual) || {})}</h3>
+                            <p>Fecha {fechaActual}</p>
+                        </FixtureTitle>
+                        <NavigateFixture>
+                            {fechaActual > Math.min(...cantidadFechas) && (
+                                <button onClick={() => handleJornada(false)}>
+                                    <IoIosArrowBack/>
+                                </button>
+                            )}
+                            <h3>{fechaActual}</h3>
+                            {fechaActual < Math.max(...cantidadFechas) && (
+                                <button onClick={() => handleJornada(true)}>
+                                    <IoIosArrowForward/>
+                                </button>
+                            )}
+                        </NavigateFixture>
+                    </FixtureTop>
+
                     <TableTitleDivider />
-                    {partidosTemporada.map((partido) => (
+                    {partidosFecha.map((partido) => (
                         <React.Fragment key={partido.id_partido}>
-                            <FixtureMatch>
+                            <FixtureMatch onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
                                 <FixtureMatchTeam>
-                                    <img src={`${URL}${escudoEquipo(partido.id_equipoLocal)}`} alt="" />
-                                    <h4>{nombreEquipo(partido.id_equipoLocal)}</h4>
+                                    <img src={`${URL}${getEscudoEquipo(partido.id_equipoLocal)}`} alt="" />
+                                    <h4>{getNombreEquipo(partido.id_equipoLocal)}</h4>
                                 </FixtureMatchTeam>
                                 <FixtureMatchInfo>
-                                    <h5>{formatHour(partido.hora)}</h5>
-                                    <p>Cancha {partido.cancha}</p>
+                                {
+                                    partido.estado === 'F' ? (
+                                        <>
+                                            <p>Resultado final</p>
+                                            <h5>{`${partido.goles_local}-${partido.goles_visita}`}</h5>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h5>{formatHour(partido.hora)}</h5>
+                                            <p>{partido.cancha}</p>
+                                        </>
+                                    )
+                                }
                                 </FixtureMatchInfo>
                                 <FixtureMatchTeam className='visit'>
-                                    <h4>{nombreEquipo(partido.id_equipoVisita)}</h4>
-                                    <img src={`${URL}${escudoEquipo(partido.id_equipoVisita)}`} alt="" />
+                                    <h4>{getNombreEquipo(partido.id_equipoVisita)}</h4>
+                                    <img src={`${URL}${getEscudoEquipo(partido.id_equipoVisita)}`} alt="" />
                                 </FixtureMatchTeam>
                             </FixtureMatch>
                             <TableTitleDivider />
                         </React.Fragment>
                     ))}
                 </>
+            ) : (
+                <p>No hay datos disponibles.</p>
             )}
         </FixtureWrapper>
     );
