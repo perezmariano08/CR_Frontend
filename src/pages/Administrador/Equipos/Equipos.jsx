@@ -389,7 +389,7 @@ const Equipos = () => {
                         }
                         form={ <>
                             <ModalFormInputContainer>
-                                Nombre
+                                Nombre del equipo
                                 <Input 
                                     type='text' 
                                     placeholder="Escriba el nombre..." 
@@ -398,7 +398,7 @@ const Equipos = () => {
                                 />
                             </ModalFormInputContainer>
                             <ModalFormInputContainer>
-                                Imagen
+                                Logo (Opcional)
                                 <ModalFormInputImg>
                                     {previewImage && <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />}
                                     <Input 
