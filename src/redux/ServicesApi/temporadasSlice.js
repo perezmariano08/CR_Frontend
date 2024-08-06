@@ -5,7 +5,12 @@ import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los años
 export const fetchTemporadas = createAsyncThunk('temporadas/fetchTemporadas', async () => {
-    const response = await Axios.get(`${URL}/admin/get-temporadas`);
+    const token = localStorage.getItem('token'); // O donde guardes el token
+    const response = await Axios.get(`${URL}/admin/get-temporadas`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 });
 

@@ -5,7 +5,12 @@ import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los años
 export const fetchRoles = createAsyncThunk('roles/fetchRoles', async () => {
-    const response = await Axios.get(`${URL}/admin/get-roles`);
+    const token = localStorage.getItem('token'); // O donde guardes el token
+    const response = await Axios.get(`${URL}/admin/get-roles`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 });
 

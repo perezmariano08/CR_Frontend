@@ -328,7 +328,7 @@ const Jugadores = () => {
                     </Button>
                 </ActionsCrudButtons>
                 <ActionsCrudButtons>
-                    <label htmlFor="importInput" style={{ display: 'none' }}>
+                    {/* <label htmlFor="importInput" style={{ display: 'none' }}>
                         <input
                             type="file"
                             id="importInput"
@@ -341,7 +341,7 @@ const Jugadores = () => {
                     <Button bg="import" color="white" onClick={openImportModal}>
                         <LuUpload />
                         <p>Importar</p>
-                    </Button>
+                    </Button>  */}
                     <Button bg="export" color="white" onClick={handleExport} disabled={jugadoresList.length === 0}>
                         <LuDownload />
                         <p>Descargar</p>
