@@ -58,7 +58,7 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
 
     const imagenUsuariosBody = rowData => (
         <div className="td-user" style={{minWidth: '200px'}}>
-            <img src={`${URL}${imagenUsuarios(rowData.id_usuario)}`} alt={rowData.usuario} />
+            <img src={`${URLImages}${imagenUsuarios(rowData.id_usuario)}`} alt={rowData.usuario} />
             <span>{rowData.usuario}</span>
         </div>
     );
