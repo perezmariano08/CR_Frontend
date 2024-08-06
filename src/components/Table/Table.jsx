@@ -8,7 +8,7 @@ import { IoEllipsisVerticalSharp } from "react-icons/io5";
 import { DataTable } from 'primereact/datatable';
 import { Fieldset } from 'primereact/fieldset';
 import { RiLoader4Fill } from "react-icons/ri";
-import { URL } from '../../utils/utils';
+import { URL, URLImages } from '../../utils/utils';
 
 const Table = ({ data, dataColumns, arrayName, id_ }) => {
     const dispatch = useDispatch();
@@ -65,7 +65,7 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
 
     const equipoBodyTemplate = (rowData, field) => (
         <div className="td-team" style={{minWidth: '140px'}}>
-            <img src={`${URL}${escudosEquipos(rowData[field])}`} alt={rowData.nombre} />
+            <img src={`${URLImages}${escudosEquipos(rowData[field])}`} alt={rowData.nombre} />
             <span>{nombresEquipos(rowData[field])}</span>
         </div>
     );
