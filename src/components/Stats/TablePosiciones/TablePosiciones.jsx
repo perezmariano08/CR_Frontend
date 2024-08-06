@@ -1,7 +1,7 @@
 import React from 'react'
 import { TableContainerStyled, TableFoot, TableFootItem, TableTitle, TableTitleDivider, TableWrapper } from '../Table/TableStyles'
 import { Column } from 'primereact/column';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +36,7 @@ const TablePosiciones = ({ data, temporada, dataColumns }) => {
         <div className="team" style={{minWidth: '140px', cursor: 'pointer'}} 
             onClick={() => verPaginaEquipo(rowData.id_equipo)}
         >
-            <img src={`${URL}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.nombre}/>
+            <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.nombre}/>
             <span>{rowData.nombre}</span>
         </div>
     );

@@ -9,18 +9,23 @@ import { setLogCurrentUser } from '../../redux/user/userSlice';
 
 const More = () => {
     const dispatch = useDispatch()
-    axios.defaults.withCredentials = true;
+
+    axios.defaults.withCredentials = true; //solo si se usan coockies
 
     const closeSesion = async () => {
         try {
             // Realiza la solicitud de cierre de sesión al servidor
-            const response = await axios.post(`${URL}/auth/logout`);
+            const response = await axios.post(`${URL}/auth/logout`, null, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             
             if (response.status === 200) {
                 // Si la respuesta es exitosa, elimina el token del almacenamiento local
                 localStorage.removeItem('token');
                 // Limpia los encabezados de autorización de axios
-                axios.defaults.headers.common['Authorization'] = null;
+                delete axios.defaults.headers.common['Authorization'];
                 // Actualiza el estado de autenticación y redirige al usuario a la página de inicio de sesión
                 dispatch(setLogCurrentUser(false));
                 window.location.href = '/login';

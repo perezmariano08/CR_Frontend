@@ -4,7 +4,7 @@ import { HiLifebuoy, HiMiniPencil, HiMiniStop, HiOutlineXCircle } from "react-ic
 import { IoIosStar } from "react-icons/io";
 import { toggleHiddenModal, setActionToDelete, toggleHiddenAction, setCurrentStateModal, setActionToEdit, setEnabledActionEdit } from '../../../redux/Planillero/planilleroSlice';
 import { IncidentLocal, IndicentsContainer, IndicentsWrapper, IconContainer } from './IndicentsStyles';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { AlignmentDivider, AlignmentTeam, AlignmentTeams } from '../Alignment/AlignmentStyles';
 import { Toaster } from 'react-hot-toast';
 
@@ -140,12 +140,12 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
   <AlignmentDivider/>
   <AlignmentTeams>
     <AlignmentTeam>
-      <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
+      <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
       <h3>{nombreEquipos(partido.id_equipoLocal)}</h3>
     </AlignmentTeam>
     <AlignmentTeam>
       <h3>{nombreEquipos(partido.id_equipoVisita)}</h3>
-      <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
+      <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
     </AlignmentTeam>
   </AlignmentTeams>
   <IndicentsContainer>
