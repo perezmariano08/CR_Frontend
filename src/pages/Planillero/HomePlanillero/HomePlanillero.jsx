@@ -21,8 +21,7 @@ const HomePlanillero = () => {
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast)
 
     const partidosFiltrados = partidos.filter((partido) => partido.id_planillero === userId);
-    console.log(partidosFiltrados);
-    
+
     return (
         <HomePlanilleroContainer>
             <HomeWrapper>

@@ -10,6 +10,8 @@ import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 
 const ModalConfirmation = () => {
+    Axios.defaults.withCredentials = true;
+
     const dispatch = useDispatch();
     const hiddenModal = useSelector((state) => state.planillero.modal.hidden);
     const stateModal = useSelector((state) => state.planillero.modal.modalState);
@@ -288,7 +290,9 @@ const ModalConfirmation = () => {
     const updateJugadores = async () => {
         if (bd_jugadores_eventuales.length > 0) {
             try {
-                await Axios.put(`${URL}/user/update-jugadores`, bd_jugadores_eventuales);
+                await Axios.put(`${URL}/user/update-jugadores`, bd_jugadores_eventuales, {
+                    withCredentials: true
+                });
             } catch (error) {
                 toast.error('Error al registrar los jugadores.');
                 console.error('Error al registrar los jugadores:', error);

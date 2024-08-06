@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn } from "../CardPartido/CardPartidoStyles";
 import { HiLifebuoy } from "react-icons/hi2";
 import { useSelector } from 'react-redux';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 
 const CardFinalPartido = ({ idPartido, incidencias }) => {
     const partidos = useSelector((state) => state.partidos.data);
@@ -135,7 +135,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
-                    <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
                     <h4>{nombreEquipos(partido.id_equipoLocal)}</h4>
                 </CardPartidoTeam>
                 <CardPartidoInfo>
@@ -155,7 +155,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
                     )}
                 </CardPartidoInfo>
                 <CardPartidoTeam>
-                    <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
                     <h4>{nombreEquipos(partido.id_equipoVisita)}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>

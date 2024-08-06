@@ -15,7 +15,7 @@ import CardOldMatches from '../../components/Stats/CardOldMatches/CardOldMatches
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { URL } from '../../utils/utils';
+import { URL, URLImages } from '../../utils/utils';
 import { dataPlantelColumns, dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
 import { useLocation } from 'react-router-dom';
 import { getJugadoresEquipo, getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers.js';
@@ -98,7 +98,7 @@ const MyTeam = () => {
         <>
             <MyTeamTitleContainer>
                 <MyTeamInfo>
-                    <img src={`${URL}${miEquipo.img}`} alt="" />
+                    <img src={`${URLImages}${miEquipo.img}`} alt="" />
                     <MyTeamName>
                         <h2>{miEquipo.nombre}</h2>
                         <h3>{miEquipo.division}</h3>
