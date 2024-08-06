@@ -5,7 +5,12 @@ import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los años
 export const fetchCategorias = createAsyncThunk('categorias/fetchCategorias', async () => {
-    const response = await Axios.get(`${URL}/admin/get-categorias`);
+    const token = localStorage.getItem('token'); // O donde guardes el token
+    const response = await Axios.get(`${URL}/admin/get-categorias`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 });
 
