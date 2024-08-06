@@ -34,8 +34,7 @@ import { TbPlayFootball } from "react-icons/tb";
 const Jugadores = () => {
     const dispatch = useDispatch();
     const tuToken = localStorage.getItem('token'); // O donde guardes el token
-    console.log(tuToken);
-    
+
     const headers = {
         'Authorization': `Bearer ${tuToken}`,
         'Content-Type': 'application/json'
@@ -172,7 +171,7 @@ const Jugadores = () => {
             console.log(id_equipo);
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/user/${get}`, { headers });
+                const response = await Axios.get(`${URL}/user/${get}`);
                 const datosExistentes = response.data;
                 const datoExiste = datosExistentes.some(a => a.dni === dni);
                 if (datoExiste) {
