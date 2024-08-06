@@ -10,12 +10,12 @@ const MenuBottomPlanillero = () => {
           <h4>HOME</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/stats'}>
+        <MenuBottomItem to={'/planiller/stats'}>
           <HiAdjustmentsVertical/>
           <h4>ESTADISTICAS</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/more'}>
+        <MenuBottomItem to={'/planiller/more'}>
           <HiBars3BottomRight/>
           <h4>MÁS</h4>
         </MenuBottomItem>
