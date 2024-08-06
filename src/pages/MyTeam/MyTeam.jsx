@@ -47,7 +47,8 @@ const MyTeam = () => {
 
     const [bdJugadores, setBdJugadores] = useState(null);
     const [temporadas, setTemporadas] = useState([]);
-
+    console.log(bdJugadores);
+    
     const id_temporada = miEquipo?.id_temporada;
 
     //Fetch a jugadores
@@ -69,6 +70,7 @@ const MyTeam = () => {
     }, []);
 
     const [posiciones, setPosiciones] = useState(null);
+    
     //Fetch a posiciones temporadas
     useEffect(() => {
         if (id_temporada) {
