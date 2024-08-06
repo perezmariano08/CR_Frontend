@@ -35,23 +35,26 @@ const Login = () => {
     }
 
     const handleLoginNext = async (event) => {
-        setIsLoading(true)
+        setIsLoading(true);
         event.preventDefault();
         try {
             const response = await axios.post(`${URL}/auth/check-login`, { dni: dniUser, password: passUser });
             if (response.status === 200) {
-                dispatch(setLogCurrentUser(true))
+                localStorage.setItem('token', response.data.token); // Almacena el token
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+                dispatch(setLogCurrentUser(true));
                 window.location.href = '/';
             } else {
                 toast.error('Error durante el inicio de sesión');
-                setIsLoading(false)
+                setIsLoading(false);
             }
         } catch (error) {
             console.error("Error en la solicitud HTTP:", error);
             toast.error('Error al iniciar sesión');
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
+    
 
     useEffect(() => {
         if (isLoading) {
@@ -60,50 +63,6 @@ const Login = () => {
     }, []);
 
     return (
-        // <LoginContainerStyled>
-        //     <LoginWrapperUp>
-        //         <img src={IsotipoCR} />
-        //     </LoginWrapperUp>
-        //     <LoginWrapperDown>
-        //         <LoginDataContainer>
-        //             <LoginDataWrapper>
-        //                 <h1>¡Bienvenido!</h1>
-        //                 <LoginDataInputs>
-        //                     <Input 
-        //                         icon={<PiIdentificationCardLight className='icon-input error'/>} 
-        //                         placeholder='DNI' 
-        //                         name={'dni'} 
-        //                         id={'dni'} 
-        //                         inputMode={'numeric'}
-        //                         onChange={handleDniChange}
-        //                         value={dniUser}
-        //                     />
-        //                     <Input 
-        //                         type='password' 
-        //                         placeholder='Contraseña' 
-        //                         name={'contraseña'} 
-        //                         id={'contraseña'} 
-        //                         icon={<AiOutlineLock className='icon-input'/>}
-        //                         onChange={handlePassChange}
-        //                         value={passUser}
-        //                     />
-        //                 </LoginDataInputs>
-        //                 <LoginDataPassword>
-        //                     <NavLink>¿Olvidaste tu contraseña?</NavLink>
-        //                 </LoginDataPassword>
-        //             </LoginDataWrapper>
-        //             <ButtonLogin 
-        //                 disabled={!areInputsFilled()}
-        //                 onClick={handleLoginNext}
-        //                 type="submit"
-        //             >
-        //                 Iniciar sesión
-        //             </ButtonLogin>
-        //             <p>¿No tienes cuenta? <NavLink to={'/create-account'}>Registrate</NavLink></p>
-        //         </LoginDataContainer> 
-        //     </LoginWrapperDown>
-        //     <Toaster/>
-        // </LoginContainerStyled>
         <LoginContainerStyled>
             <LoginWrapperUp>
                 <img src={IsotipoCR} />
