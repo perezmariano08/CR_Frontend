@@ -33,6 +33,13 @@ import { TbPlayFootball } from "react-icons/tb";
 
 const Jugadores = () => {
     const dispatch = useDispatch();
+    const tuToken = localStorage.getItem('token'); // O donde guardes el token
+    console.log(tuToken);
+    
+    const headers = {
+        'Authorization': `Bearer ${tuToken}`,
+        'Content-Type': 'application/json'
+    };
 
     // Constantes del modulo
     const articuloSingular = "el"
@@ -161,44 +168,36 @@ const Jugadores = () => {
     }, []);
 
     const agregarDato = async () => {
-        if (
-            dni != "" &&
-            nombre != "" &&
-            apellido != "" &&
-            posicion != "" &&
-            id_equipo != ""
-        ) {
+        if (dni && nombre && apellido && posicion && id_equipo) {
             console.log(id_equipo);
             setIsSaving(true);
             try {
-                // Despacha fetchUsuarios para obtener los datos existentes
-                const response = await Axios.get(`${URL}/user/${get}`);
+                const response = await Axios.get(`${URL}/user/${get}`, { headers });
                 const datosExistentes = response.data;
                 const datoExiste = datosExistentes.some(a => a.dni === dni);
                 if (datoExiste) {
-                    setIsSaving(false)
+                    setIsSaving(false);
                     toast.error(`DNI ya registrado en la base de datos`);
                 } else {
-                    Axios.post(`${URL}/admin/${create}`, {
+                    await Axios.post(`${URL}/admin/${create}`, {
                         dni,
                         nombre,
                         apellido,
                         posicion,
                         id_equipo
-                    }).then(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
-                        dispatch(fetchJugadores())
-                        closeCreateModal();
-                        setDni("");
-                        setNombre("");
-                        setApellido("");
-                        setPosicion("");
-                        setIdEquipo("");
-                        setIsSaving(false)
-                    });
+                    }, { headers });
+                    toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
+                    dispatch(fetchJugadores());
+                    closeCreateModal();
+                    setDni("");
+                    setNombre("");
+                    setApellido("");
+                    setPosicion("");
+                    setIdEquipo("");
+                    setIsSaving(false);
                 }
             } catch (error) {
-                setIsSaving(false)
+                setIsSaving(false);
                 console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
                 toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
             }
@@ -206,7 +205,6 @@ const Jugadores = () => {
             toast.error("Completá los campos.");
         }
     };
-
     const editarDato = async () => {
         if (año !== "") {
             setIsSaving(true);
