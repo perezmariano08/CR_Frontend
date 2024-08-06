@@ -3,7 +3,7 @@ import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTea
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
-import { URL } from '../../../utils/utils.js';
+import { URL, URLImages } from '../../../utils/utils.js';
 
 const CardPartido = ({ finished, partido, rol }) => {
     const equipos = useSelector((state) => state.equipos.data);
@@ -112,7 +112,7 @@ const CardPartido = ({ finished, partido, rol }) => {
             </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
-                    <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`}
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoLocal)}}
                     />
                     <h4>{`${nombreEquipos(partido.id_equipoLocal)}`}</h4>
@@ -138,7 +138,7 @@ const CardPartido = ({ finished, partido, rol }) => {
                 </CardPartidoInfo>
 
                 <CardPartidoTeam>
-                    <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`}
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoVisita)}}
                     />
                     <h4>{`${nombreEquipos(partido.id_equipoVisita)}`}</h4>

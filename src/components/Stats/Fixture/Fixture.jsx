@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FixtureMatch, FixtureMatchInfo, FixtureMatchTeam, FixtureTitle, FixtureTop, FixtureWrapper, NavigateFixture } from './FixtureStyles';
 import { TableTitleDivider } from '../Table/TableStyles';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -87,7 +87,7 @@ const Fixture = ({ temporada }) => {
                         <React.Fragment key={partido.id_partido}>
                             <FixtureMatch onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
                                 <FixtureMatchTeam>
-                                    <img src={`${URL}${getEscudoEquipo(partido.id_equipoLocal)}`} alt="" />
+                                    <img src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} alt="" />
                                     <h4>{getNombreEquipo(partido.id_equipoLocal)}</h4>
                                 </FixtureMatchTeam>
                                 <FixtureMatchInfo>
@@ -107,7 +107,7 @@ const Fixture = ({ temporada }) => {
                                 </FixtureMatchInfo>
                                 <FixtureMatchTeam className='visit'>
                                     <h4>{getNombreEquipo(partido.id_equipoVisita)}</h4>
-                                    <img src={`${URL}${getEscudoEquipo(partido.id_equipoVisita)}`} alt="" />
+                                    <img src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} alt="" />
                                 </FixtureMatchTeam>
                             </FixtureMatch>
                             <TableTitleDivider />

@@ -5,7 +5,6 @@ import Section from '../../components/Section/Section';
 import { Toaster, toast } from 'react-hot-toast';
 import { useAuth } from '../../Auth/AuthContext';
 import { useSelector } from 'react-redux';
-import { useMatches, useNavigate } from 'react-router-dom';
 import { getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data';

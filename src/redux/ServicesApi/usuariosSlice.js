@@ -3,9 +3,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Axios from 'axios';
 import { URL } from '../../utils/utils';
 
-// Crear una acción asíncrona para obtener los años
+// Crear una acción asíncrona para obtener los usuarios
 export const fetchUsuarios = createAsyncThunk('usuarios/fetchUsuarios', async () => {
-    const response = await Axios.get(`${URL}/admin/get-usuarios`);
+    const token = localStorage.getItem('token'); // O donde guardes el token
+    const response = await Axios.get(`${URL}/admin/get-usuarios`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     return response.data;
 });
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { TableContainerStyled, TableTitle, TableTitleDivider } from '../Table/TableStyles';
 import { TableTeamWrapper } from './TableTeam';
 import { Column } from 'primereact/column';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 
@@ -25,7 +25,7 @@ const TableTeam = ({ data, temporada, dataColumns }) => {
 
     const jugadorBodyTemplate = (rowData) => (
         <div className="player" style={{ minWidth: '140px' }}>
-            <img src={`${URL}/uploads/Jugadores/${imagenJugador(rowData.id_jugador)}`} alt={rowData.nombre_completo} />
+            <img src={`${URLImages}/uploads/Jugadores/${imagenJugador(rowData.id_jugador)}`} alt={rowData.nombre_completo} />
             <span>{rowData.nombre_completo}</span>
         </div>
     );

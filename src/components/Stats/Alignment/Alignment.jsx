@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlignmentDivider, AlignmentLocal, AlignmentPlayer, AlignmentPlayerContainer, AlignmentTeam, AlignmentTeams, AlignmentVisit, AlignmentWrapper } from './AlignmentStyles';
 import { useSelector } from 'react-redux';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 
 const Alignment = ({ formaciones, jugadores, partido }) => {
   const equipos = useSelector((state) => state.equipos.data);
@@ -62,12 +62,12 @@ const Alignment = ({ formaciones, jugadores, partido }) => {
       <AlignmentDivider />
       <AlignmentTeams>
         <AlignmentTeam>
-          <img src={`${URL}${escudosEquipos(localPlayers[0]?.id_equipo)}`} alt="" />
+          <img src={`${URLImages}${escudosEquipos(localPlayers[0]?.id_equipo)}`} alt="" />
           <h3>{nombreEquipos(localPlayers[0]?.id_equipo)}</h3>
         </AlignmentTeam>
         <AlignmentTeam>
           <h3>{nombreEquipos(visitantePlayers[0]?.id_equipo)}</h3>
-          <img src={`${URL}${escudosEquipos(visitantePlayers[0]?.id_equipo)}`} alt="" />
+          <img src={`${URLImages}${escudosEquipos(visitantePlayers[0]?.id_equipo)}`} alt="" />
         </AlignmentTeam>
       </AlignmentTeams>
       <AlignmentPlayerContainer>

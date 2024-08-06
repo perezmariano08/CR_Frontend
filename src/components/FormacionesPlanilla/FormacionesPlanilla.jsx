@@ -20,7 +20,7 @@ import { IoIosStarOutline } from "react-icons/io";
 import { IoIosStar } from "react-icons/io";
 import { addBestPlayerOfTheMatch } from '../../redux/Matches/matchesSlice';
 import Axios from 'axios';
-import { URL } from '../../utils/utils';
+import { URL, URLImages } from '../../utils/utils';
 
 const FormacionesPlanilla = ({ idPartido, formaciones }) => {
     const dispatch = useDispatch();
@@ -155,9 +155,9 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
                 >
                     Local
                 </PlanillaButtons>
-                <img src={`${URL}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
+                <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
                 <h3>Formaciones</h3>
-                <img src={`${URL}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
+                <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
                 <PlanillaButtons
                     className={`visitante ${activeButton === 'visitante' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('visitante')}
