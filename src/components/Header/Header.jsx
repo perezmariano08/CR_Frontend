@@ -23,25 +23,30 @@ const Header = () => {
 //Cerrar Sesion 
 axios.defaults.withCredentials = true;
 const closeSesion = async () => {
-  
-    try {
+  try {
+      // Realiza la solicitud de cierre de sesión al servidor
+      const response = await axios.post(`${URL}/auth/logout`, null, {
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+      });
       
-        const response = await axios.post(`${URL}/auth/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        if (response.status === 401) {
-            console.error('Error al cerrar sesión: No autorizado');
-        } else if (response.status !== 200) {
-            console.error('Error al cerrar sesión: ', response.statusText);
-        } else {
-            console.log('Sesión cerrada exitosamente');
-            dispatch(setLogCurrentUser())
-            window.location.href = '/login';
-        }
-    } catch (error) {
-        console.error('Error al cerrar sesión aca:', error);
-    }
+      if (response.status === 200) {
+          // Si la respuesta es exitosa, elimina el token del almacenamiento local
+          localStorage.removeItem('token');
+          // Limpia los encabezados de autorización de axios
+          delete axios.defaults.headers.common['Authorization'];
+          // Actualiza el estado de autenticación y redirige al usuario a la página de inicio de sesión
+          dispatch(setLogCurrentUser(false));
+          window.location.href = '/login';
+      } else {
+          // Maneja errores que no sean de autorización (401)
+          console.error('Error al cerrar sesión: ', response.statusText);
+      }
+  } catch (error) {
+      // Maneja cualquier otro error que pueda ocurrir durante la solicitud
+      console.error('Error al cerrar sesión:', error);
+  }
 };
   return (
     <>
