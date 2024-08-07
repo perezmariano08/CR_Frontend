@@ -15,7 +15,7 @@ import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
 import Axios from 'axios';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
@@ -109,7 +109,7 @@ const Usuarios = () => {
         if (fileData) {
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
+                const response = await Axios.get(`${URLImages}/admin/${get}`);
                 const datosExistentes = response.data.map(a => a.año);
                 const nuevosDatos = fileData.filter(row => !datosExistentes.includes(row.año));
                 if (nuevosDatos.length > 0) {
@@ -253,7 +253,7 @@ const Usuarios = () => {
                 formData.append('image', imageFile);
 
                 // Subir la imagen al servidor
-                const uploadResponse = await Axios.post(`${URL}/upload-image/usuario`, formData, {
+                const uploadResponse = await Axios.post(`${URLImages}/upload-image/usuario`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -633,7 +633,7 @@ const Usuarios = () => {
                                         }
 
                                         {!previewImage && 
-                                            <img src={`${URL}${img}`} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                                            <img src={`${URLImages}${img}`} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
                                         }
 
                                         

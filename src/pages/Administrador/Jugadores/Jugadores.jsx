@@ -34,8 +34,7 @@ import { TbPlayFootball } from "react-icons/tb";
 const Jugadores = () => {
     const dispatch = useDispatch();
     const tuToken = localStorage.getItem('token'); // O donde guardes el token
-    console.log(tuToken);
-    
+
     const headers = {
         'Authorization': `Bearer ${tuToken}`,
         'Content-Type': 'application/json'
@@ -172,7 +171,7 @@ const Jugadores = () => {
             console.log(id_equipo);
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/user/${get}`, { headers });
+                const response = await Axios.get(`${URL}/user/${get}`);
                 const datosExistentes = response.data;
                 const datoExiste = datosExistentes.some(a => a.dni === dni);
                 if (datoExiste) {
@@ -328,7 +327,7 @@ const Jugadores = () => {
                     </Button>
                 </ActionsCrudButtons>
                 <ActionsCrudButtons>
-                    <label htmlFor="importInput" style={{ display: 'none' }}>
+                    {/* <label htmlFor="importInput" style={{ display: 'none' }}>
                         <input
                             type="file"
                             id="importInput"
@@ -341,7 +340,7 @@ const Jugadores = () => {
                     <Button bg="import" color="white" onClick={openImportModal}>
                         <LuUpload />
                         <p>Importar</p>
-                    </Button>
+                    </Button>  */}
                     <Button bg="export" color="white" onClick={handleExport} disabled={jugadoresList.length === 0}>
                         <LuDownload />
                         <p>Descargar</p>
