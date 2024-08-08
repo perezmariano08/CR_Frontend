@@ -1,5 +1,5 @@
-import React from 'react';
-import { HomeWrapper } from '../../Home/HomeStyles';
+import React, { useEffect, useState } from 'react';
+import { HomeWrapper, ViewMore } from '../../Home/HomeStyles';
 import Section from '../../../components/Section/Section';
 import { HomePlanilleroContainer } from './HomePlanilleroStyles';
 import CardPartido from '../../../components/Stats/CardPartido/CardPartido';
@@ -12,36 +12,67 @@ import useFetchMatches from '../../../hooks/useFetchMatches';
 import useMessageWelcome from '../../../hooks/useMessageWelcome';
 
 const HomePlanillero = () => {
-    const { user, userId, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
+    const { user, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
     const partidos = useSelector((state) => state.partidos.data);
     const loadingPartidos = useSelector((state) => state.partidos.loading);
 
-    //Traer todos los partidos del planillero
-    useFetchMatches((partidos) => partidos.id_planillero === userId);
-    useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast)
+    const [showAll, setShowAll] = useState(false);
+    // Fetch matches based on user ID
+    useFetchMatches((partidos) => partidos.id_planillero === user.id_usuario);
+    useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
-    const partidosFiltrados = partidos.filter((partido) => partido.id_planillero === userId);
+    // Filter and sort partidos
+    const partidosPendientes = partidos
+        .filter((partido) => partido.id_planillero === user.id_usuario && partido.estado === 'P')
+        .sort((a, b) => new Date(a.dia) - new Date(b.dia));
+
+    const partidosNoPendientes = partidos
+        .filter((partido) => partido.id_planillero === user.id_usuario && partido.estado !== 'P')
+        .sort((a, b) => new Date(a.dia) - new Date(b.dia));
+
+    const partidosFiltrados = [...partidosPendientes, ...partidosNoPendientes];
+
+    useEffect(() => {
+        if (!showAll) {
+            window.scrollTo(0, 0);
+        }
+    }, [showAll]);
+
+    const handleViewMore = (e, accion) => {
+        e.preventDefault();
+        if (accion) {
+            setShowAll(true);
+        } else {
+            setShowAll(false);
+        }   
+    }
 
     return (
         <HomePlanilleroContainer>
             <HomeWrapper>
                 <Section>
-                    {
-                        partidosFiltrados && partidosFiltrados.length > 0 ? (
-                            <h2>Mis Partidos</h2>
-                        ) : (
-                            <h2>No tienes partidos cargados</h2>
-                        )}
+                    {partidosFiltrados && partidosFiltrados.length > 0 ? (
+                        <h2>Mis Partidos</h2>
+                    ) : (
+                        <h2>No tienes partidos cargados</h2>
+                    )}
                     {loadingPartidos ? (
                         <SpinerContainer>
                             <TailSpin width='40' height='40' color='#2AD174' />
                         </SpinerContainer>
                     ) : (
-                        partidosFiltrados.map((partido) => (
-                            <CardPartido key={partido.id_partido} rol={user.id_rol} partido={partido}/>
+                        partidosFiltrados.slice(0, showAll ? partidosFiltrados.length : 3).map((partido) => (
+                            <CardPartido key={partido.id_partido} rol={user.id_rol} partido={partido} />
                         ))
                     )}
                 </Section>
+                {partidosFiltrados.length > 3 && (
+                    <ViewMore>
+                        <a href="" onClick={(e) => handleViewMore(e, !showAll)}>
+                            {showAll ? 'Ver menos' : 'Ver más'}
+                        </a>
+                    </ViewMore>
+                )}
             </HomeWrapper>
             <Toaster />
         </HomePlanilleroContainer>

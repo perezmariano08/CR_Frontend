@@ -2,7 +2,7 @@ import React, { useState, forwardRef } from 'react';
 import { InputContainerStyled, InputWrapper } from './InputSyles';
 import { AiOutlineEye, AiFillEyeInvisible } from 'react-icons/ai';
 
-const Input = forwardRef(({ placeholder, type = "text", icon, className, isError, ...props }, ref) => {
+const Input = forwardRef(({ placeholder, type = "text", icon, className, isError, errorMessage, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -25,7 +25,7 @@ const Input = forwardRef(({ placeholder, type = "text", icon, className, isError
                     {showPassword ? <AiOutlineEye /> : <AiFillEyeInvisible className='eye-off' />}
                 </div>
             )}
-            {isError && <span className='error-message'>Este campo es obligatorio</span>}
+            {isError && <span className='error-message'>{errorMessage}</span>}
         </InputContainerStyled>
     );
 });

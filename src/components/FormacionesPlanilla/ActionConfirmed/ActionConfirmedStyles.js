@@ -92,6 +92,10 @@ export const ActionNext = styled.button`
     border: none;
     cursor: pointer;
     
+    &.loader {
+        background-color: transparent;
+    }
+
     &.cancel {
         background-color: var(--red);
     }

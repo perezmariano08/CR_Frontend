@@ -5,7 +5,7 @@ import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
 import { toggleHiddenModal, eliminarAccionesPorDorsal, handleBestPlayerOfTheMatch } from '../../../redux/Planillero/planilleroSlice';
 import { addDescToMatch, deleteActionToPlayer, deleteTotalActionsToPlayer, manageDorsal, toggleStateMatch } from '../../../redux/Matches/matchesSlice';
-import { Toaster, toast } from 'react-hot-toast';
+import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 
@@ -22,7 +22,9 @@ const ModalConfirmation = () => {
     const matchState = useSelector((state) => state.match);
     const match = matchState.find((match) => match.ID === idPartido);
     const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.jugador_destacado);
+
     const [bdEventual, setBdEventual] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Generación de objetos para la base de datos
     const contarGoles = (players) => {
@@ -378,6 +380,8 @@ const ModalConfirmation = () => {
     };
 
     const handleModalConfirm = async () => {
+    try {
+        setLoading(true);
         switch(stateModal) {
             case 'action':
                 dispatch(deleteActionToPlayer({ actionToDelete }));
@@ -421,7 +425,14 @@ const ModalConfirmation = () => {
             default:
                 break;
         }
-    };
+    } catch (error) {
+        toast.error('Ocurrio un error durante la operacion')
+        console.error('Error: ', error)
+    } finally {
+        setLoading(false);
+    }
+};
+    
     let modalTitle;
     switch (stateModal) {
         case 'action':
@@ -459,9 +470,18 @@ const ModalConfirmation = () => {
                             <AlignmentDivider />
                         </ActionTitle>
                         <ButtonContainer>
-                            <ActionNext onClick={handleModalConfirm}>
-                                Confirmar
-                            </ActionNext>
+                            {
+                                !loading ? (
+                                <ActionNext onClick={handleModalConfirm}>
+                                    Confirmar
+                                </ActionNext>
+                                ) : 
+                                (
+                                <ActionNext className='loader'>
+                                    <LoaderIcon/>
+                                </ActionNext>
+                                )
+                            }
                             <ActionNext onClick={handleModalCancel} className="cancel">
                                 Cancelar
                             </ActionNext>

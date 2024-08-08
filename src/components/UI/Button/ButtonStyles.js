@@ -29,6 +29,7 @@ export const ButtonWrapper = styled(motion(NavLink))`
 `
 
 export const ButtonSubmit = styled.button`
+    width: 100%;
     display: flex;
     padding: 10.5px 17.5px;
     gap: 10px;
@@ -38,7 +39,7 @@ export const ButtonSubmit = styled.button`
     font-weight: 600;
     background-color: var(--green);
     height: fit-content;
-    border-radius: 20px;
+    border-radius: 10px;
     cursor: pointer;
     user-select: none;
     color: ${({ color }) => `var(--${color})`};
