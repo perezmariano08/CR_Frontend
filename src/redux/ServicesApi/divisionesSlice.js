@@ -5,12 +5,7 @@ import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los años
 export const fetchDivisiones = createAsyncThunk('divisiones/fetchDivisiones', async () => {
-    const token = localStorage.getItem('token'); // O donde guardes el token
-    const response = await Axios.get(`${URL}/admin/get-divisiones`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+    const response = await Axios.get(`${URL}/user/get-divisiones`);
     return response.data;
 });
 

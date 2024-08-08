@@ -33,6 +33,7 @@ import PrivateLayoutPlanillero from '../components/Layout/LayoutPlanillero';
 import MorePlanillero from '../pages/More/MorePlanillero';
 import Divisiones from '../pages/Administrador/Divisiones/Divisiones';
 import Expulsados from '../pages/Administrador/Expulsados/Expulsados';
+import ForgotPassword from '../pages/Login/ForgotPassword/ForgotPassword';
 
 const Routes = () => {
     return (
@@ -46,11 +47,12 @@ const Routes = () => {
                     <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} />
                     <Route path='/create-password' element={<Layout> <Step2/> </Layout>} />
                     <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} />
+                    <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} />
 
                     {/* Rutas Privadas */}
                     <Route element={<ProtectedRoute />}>
                         {/* Rutas admin */}
-                        <Route element={<ProtectedRoute role={1} />}>
+                        <Route element={<ProtectedRoute roles={1} />}>
                             <Route path='/admin/temporadas/temporada' element={<LayoutAdmin className="page-temporadas"> <Temporadas/> </LayoutAdmin>} />
                             <Route path='/admin/temporadas/categorias' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
                             <Route path='/admin/temporadas/sedes' element={<LayoutAdmin> <Sedes/> </LayoutAdmin>} />
@@ -66,15 +68,17 @@ const Routes = () => {
                         </Route>
 
                         {/* Planillero */}
-                        <Route element={<ProtectedRoute role={2} />}>
+                        <Route element={<ProtectedRoute roles={[2]} />}>
                             <Route path='/planillero' element={<PrivateLayoutPlanillero> <HomePlanillero/> </PrivateLayoutPlanillero>} />
                             <Route path='/planillero/planilla' element={<PrivateLayoutPlanillero> <Planilla/> </PrivateLayoutPlanillero>} />
                             <Route path='/planiller/stats' element={<PrivateLayoutPlanillero> <Stats/> </PrivateLayoutPlanillero>} />
                             <Route path='/planiller/more' element={<PrivateLayoutPlanillero> <MorePlanillero/> </PrivateLayoutPlanillero>} />
+                            {/* <Route path='/my-team' element={<PrivateLayoutPlanillero> <MyTeam/> </PrivateLayoutPlanillero>} />
+                            <Route path='/stats-match' element={<PrivateLayoutPlanillero> <MatchStats/> </PrivateLayoutPlanillero>} /> */}
                         </Route>
 
                         {/* Rutas del usuario */}
-                        <Route element={<ProtectedRoute role={3} />}>
+                        <Route element={<ProtectedRoute roles={[3]} />}>
                             <Route path='/' element={<LayoutPrivate> <Home/> </LayoutPrivate>} />
                             <Route path='/my-team' element={<LayoutPrivate> <MyTeam/> </LayoutPrivate>} />
                             <Route path='/stats' element={<LayoutPrivate> <Stats/> </LayoutPrivate>} />

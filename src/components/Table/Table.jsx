@@ -41,12 +41,12 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
     const equipos = useSelector((state) => state.equipos.data)
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.img : 'team-default.png';
+        return equipo ? equipo.img : '';
     };
 
     const nombresEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.nombre : 'Nombre';
+        return equipo ? equipo.nombre : '';
     };
 
     const usuarios = useSelector((state) => state.usuarios.data)
@@ -63,12 +63,23 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
         </div>
     );
 
-    const equipoBodyTemplate = (rowData, field) => (
-        <div className="td-team" style={{minWidth: '140px'}}>
-            <img src={`${URLImages}${escudosEquipos(rowData[field])}`} alt={rowData.nombre} />
-            <span>{nombresEquipos(rowData[field])}</span>
-        </div>
-    );
+    const equipoBodyTemplate = (rowData, field) => {
+        if (!rowData[field]) {
+            return (
+                <div className="td-temporada orange">
+                    Falta equipo
+                </div>
+            );
+        }
+    
+        return (
+            <div className="td-team" style={{minWidth: '140px'}}>
+                <img src={`${URLImages}${escudosEquipos(rowData[field])}`} alt={nombresEquipos(rowData[field])} />
+                <span>{nombresEquipos(rowData[field])}</span>
+            </div>
+        );
+    };
+    
 
     const rolBodyTemplate = rowData => {
         return nombreRol(rowData.id_rol)

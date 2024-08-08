@@ -16,6 +16,7 @@ export const CardOldMatchesItem = styled.div`
     flex-direction: column;
     width: 100%;
     gap: 10px;
+    cursor: pointer;
 `
 
 export const MatchesItemDescription = styled.div`

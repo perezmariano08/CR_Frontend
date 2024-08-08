@@ -175,8 +175,14 @@ export const LoginDataPassword = styled.div`
 
     a {
         font-weight: 300;
-        color: var(--white)
+        color: var(--white);
+        transition: color .5s ease; /* Aplica la transición solo al color */
     }
+
+    a:hover {
+        color: var(--green);
+    }
+    
 `
 export const ButtonLogin = styled.button`
     display: flex;
@@ -195,7 +201,7 @@ export const ButtonLogin = styled.button`
     border: 1px solid var(--green);
     background: var(--green);
     transition: all .3s ease-in-out;
-
+    width: 100%;
     &:hover {
         opacity: .9;
         @media (maxwidth: 768px) {
@@ -219,4 +225,10 @@ export const ButtonLogin = styled.button`
         animation: go1268368563 1s linear infinite;
     }
 `
-
+export const ActivInfoContainer = styled.div`
+    & p {
+        text-align: start;
+        font-size: 14px;
+        color: var(--green);
+    }
+`

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
     MyTeamTitleContainer, 
     MyTeamInfo, 
@@ -15,7 +15,7 @@ import CardOldMatches from '../../components/Stats/CardOldMatches/CardOldMatches
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { URL, URLImages } from '../../utils/utils';
+import { URLImages } from '../../utils/utils';
 import { dataPlantelColumns, dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
 import { useLocation } from 'react-router-dom';
 import { getJugadoresEquipo, getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers.js';
@@ -35,65 +35,66 @@ const MyTeam = () => {
     const equipoIdFromParams = parseInt(searchParams.get('idEquipo'));
 
     const equipoId = equipoIdFromParams || user.id_equipo;
-    
-    const miEquipo = equipos.find((equipo) => equipo.id_equipo === equipoId);
+
+    const miEquipo = useMemo(() => equipos.find((equipo) => equipo.id_equipo === equipoId), [equipos, equipoId]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [equipoId]);
 
-    //Custom hook para calcular estadisticas del equipo
+    // Custom hook para calcular estadisticas del equipo
     const { cantVictorias, cantEmpates, cantDerrotas, partidosMiEquipo } = useStatsTeam(equipoId);
 
     const [bdJugadores, setBdJugadores] = useState(null);
     const [temporadas, setTemporadas] = useState([]);
-    console.log(bdJugadores);
-    
+    const [posiciones, setPosiciones] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     const id_temporada = miEquipo?.id_temporada;
 
-    //Fetch a jugadores
     useEffect(() => {
-        if (equipoId) {
-            getJugadoresEquipo(id_temporada, equipoId)
-            .then((data) => setBdJugadores(data))
-            .catch((error) => console.error('Error fetching temporadas:', error))
-        } else {
-            console.error('ID de equipo no definido');
+        // Función para obtener datos
+        const fetchData = async () => {
+            try {
+                const [jugadoresData, temporadasData, posicionesData] = await Promise.all([
+                    getJugadoresEquipo(id_temporada, equipoId),
+                    getTemporadas(),
+                    getPosicionesTemporada(id_temporada)
+                ]);
+
+                setBdJugadores(jugadoresData);
+                setTemporadas(temporadasData);
+                setPosiciones(posicionesData);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        if (equipoId && id_temporada) {
+            fetchData();
         }
-    }, [equipoId]);
+    }, [equipoId, id_temporada]);
 
-    //Fetch a temporadas
     useEffect(() => {
-        getTemporadas()
-            .then((data) => setTemporadas(data))
-            .catch((error) => console.error('Error fetching temporadas:', error));
-    }, []);
-
-    const [posiciones, setPosiciones] = useState(null);
-    
-    //Fetch a posiciones temporadas
-    useEffect(() => {
-        if (id_temporada) {
-            getPosicionesTemporada(id_temporada)
-            .then((data) => setPosiciones(data))
-            .catch((error) => console.error('Error en la petición', error))
-        } else {
-            console.error('ID de temporada no definido');
+        if (equipos.length === 0) {
+            dispatch(fetchEquipos());
         }
-    }, [id_temporada]);
+    }, [dispatch, equipos.length]);
 
-    useEffect(() => {
-        dispatch(fetchEquipos());
-    }, [dispatch]);
-
-    const temporadaFiltrada = temporadas.find((t) => t.id_temporada === id_temporada);
+    const temporadaFiltrada = useMemo(() => 
+        temporadas.find((t) => t.id_temporada === id_temporada), 
+        [temporadas, id_temporada]
+    );
 
     if (!miEquipo) {
-        return  <SpinerContainer>
-                    <TailSpin width='40' height='40' color='#2AD174' />
-                </SpinerContainer>
+        return (
+            <SpinerContainer>
+                <TailSpin width='40' height='40' color='#2AD174' />
+            </SpinerContainer>
+        );
     }
-    
+
     return (
         <>
             <MyTeamTitleContainer>
@@ -135,7 +136,16 @@ const MyTeam = () => {
 
                     <Section>
                         <h2>Plantel</h2>
-                        <TableTeam data={bdJugadores} temporada={temporadaFiltrada} dataColumns={dataPlantelColumns}/>
+                        {
+                            loading ? (
+                                <SpinerContainer>
+                                    <TailSpin width='40' height='40' color='#2AD174' />
+                                </SpinerContainer>
+                            ) : (
+                                
+                                <TableTeam data={bdJugadores} temporada={temporadaFiltrada} dataColumns={dataPlantelColumns}/>
+                            )
+                        }
                     </Section>
                         
                     <Section>

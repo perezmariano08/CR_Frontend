@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPartidos } from "../redux/ServicesApi/partidosSlice";
 
 
 const useMatchesUser = (idEquipo) => {
+    const dispatch = useDispatch();
     const partidos = useSelector((state) => state.partidos.data);
     const equipos = useSelector((state) => state.equipos.data);
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idEquipo);
 
     const [fechaActual, setFechaActual] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchPartidos())
+    }, [])
 
     useEffect(() => {
         if (partidos.length > 0 && miEquipo) {

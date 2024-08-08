@@ -9,7 +9,7 @@ const Button = ({ children, bg, color, onClick, as, htmlFor, disabled }) => {
             onClick={onClick}
             as={as}
             htmlFor={htmlFor}
-            disabled={disabled}  // Añadido
+            disabled={disabled}
         >
             {children}
         </ButtonWrapper>
