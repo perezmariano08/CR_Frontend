@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 export const CreateAccountContainerStyled = styled.div`
@@ -39,6 +40,23 @@ export const CreateAccountData = styled.div`
         width: 100%;
     }
 `
+export const ForgotPasswordTitle = styled.div`
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    h2 {
+        text-align: center;
+    }
+
+    i,svg {
+        color: var(--green);
+        font-size: 70px;
+    }
+`
 
 export const CreateAccountInputs = styled.form`
     display: flex;
@@ -67,5 +85,18 @@ export const ErrorContainer = styled.div`
     p, svg {
         color: var(--red);
         font-size: 12px;
+    }
+`
+export const BackToLogin = styled(NavLink)`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--gray-200);
+    transition: color ease .5s;
+
+    &:hover {
+        color: var(--gray-100);
     }
 `

@@ -9,23 +9,29 @@ import {
 } from './CardOldMatchesStyles';
 import { AlignmentDivider } from '../Alignment/AlignmentStyles';
 import { useSelector } from 'react-redux';
-import { URL, URLImages } from '../../../utils/utils';
+import { URLImages } from '../../../utils/utils';
+import { useNavigate } from 'react-router-dom';
 
-const determineColor = (golesLocal, golesVisitante) => {
-    if (golesLocal > golesVisitante) {
-        return 'var(--green)';
-    } else if (golesLocal === golesVisitante) {
-        return 'var(--yellow)';
-    } else {
-        return 'var(--red)';
-    }
-}
 
 const CardOldMatches = ({ partidos, equipo }) => {
+    const navigate = useNavigate();
+    const determineColor = (golesLocal, golesVisitante) => {
+        if (golesLocal > golesVisitante) {
+            return 'var(--green)';
+        } else if (golesLocal === golesVisitante) {
+            return 'var(--yellow)';
+        } else {
+            return 'var(--red)';
+        }
+    }
     const equipos = useSelector((state) => state.equipos.data);
 
     const getEquipoData = (id) => {
         return equipos.find((e) => e.id_equipo === id) || { nombre: 'Desconocido', img: 'default.png' };
+    }
+
+    const viewToStatsMatch = (id) => {
+        navigate(`/stats-match?id=${id}`)
     }
 
     return (
@@ -53,7 +59,7 @@ const CardOldMatches = ({ partidos, equipo }) => {
 
                         return (
                             <React.Fragment key={partido.id_partido}>
-                                <CardOldMatchesItem>
+                                <CardOldMatchesItem onClick={() => viewToStatsMatch(partido.id_partido)}>
                                     <MatchesItemDescription>
                                         <p>{`${partido.dia_nombre} ${partido.dia_numero} / ${partido.mes}`}</p>
                                         <p>{`Fecha ${partido.jornada} ${partido.torneo} ${partido.año}`}</p>

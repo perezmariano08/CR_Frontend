@@ -7,6 +7,8 @@ import TableTeam from '../../components/Stats/TableTeam/TableTeam.jsx';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { getPosicionesTemporada, getTemporadas, getEstadisticasTemporada } from '../../utils/dataFetchers.js';
 import { dataAmarillasTemporadaColumns, dataAsistenciasTemporadaColumns, dataGoleadoresTemporadaColumns, dataPosicionesTemporadaColumns, dataRojasTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
+import { TailSpin } from 'react-loader-spinner';
+import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 
 const Stats = () => {
     const [temporadaSeleccionada, setTemporadaSeleccionada] = useState(null);
@@ -14,9 +16,11 @@ const Stats = () => {
     const [filtroActivo, setFiltroActivo] = useState('Posiciones');
     const [estadisticaTemporada, setEstadisticaTemporada] = useState(null);
     const [posiciones, setPosiciones] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const getEstadisticasTemporadaHandler = async () => {
         if (temporadaSeleccionada && filtroActivo) {
+            setLoading(true);
             let estadistica;
             switch (filtroActivo) {
                 case 'Goleadores':
@@ -39,6 +43,8 @@ const Stats = () => {
                 setEstadisticaTemporada(data);            
             } catch (error) {
                 console.error('Error fetching estadisticas:', error);
+            } finally {
+                setLoading(false);
             }
         }
     };
@@ -46,7 +52,8 @@ const Stats = () => {
     useEffect(() => {
         getTemporadas()
         .then((data) => setTemporadas(data))
-        .catch((error) => console.error('Error en la petición', error));
+        .catch((error) => console.error('Error en la petición', error))
+        .finally(() => setLoading(false));
     }, []);
 
     useEffect(() => {
@@ -58,10 +65,12 @@ const Stats = () => {
 
     useEffect(() => {
         if (temporadaSeleccionada) {
+            setLoading(true);
             getEstadisticasTemporadaHandler();
             getPosicionesTemporada(temporadaSeleccionada)
             .then((data) => setPosiciones(data))
-            .catch((error) => console.error('Error en la petición', error));
+            .catch((error) => console.error('Error en la petición', error))
+            .finally(() => setLoading(false));
         }
     }, [filtroActivo, temporadaSeleccionada]);
 
@@ -105,7 +114,7 @@ const Stats = () => {
                         column='nombre_temporada'
                         id_='id_temporada'
                         icon={<IoShieldHalf className='icon-select' />}
-                        value={temporadaSeleccionada || '0'} // Aquí se establece el valor predeterminado
+                        value={temporadaSeleccionada || '0'}
                         onChange={handleTemporada}
                     />
                     <StatsFilter>
@@ -151,12 +160,18 @@ const Stats = () => {
                 {(temporadaSeleccionada === null || temporadaSeleccionada === '0') && (
                     <StatsNull>Seleccione una temporada para visualizar las estadísticas</StatsNull>
                 )}
+
+                {loading && (
+                    <SpinerContainer>
+                        <TailSpin width='40' height='40' color='#2AD174' />
+                    </SpinerContainer>
+                )}
                 
-                {temporadaSeleccionada && filtroActivo === 'Fixture' && <Fixture temporada={temporadaSeleccionada} />}
-                {temporadaSeleccionada && filtroActivo !== 'Fixture' && filtroActivo !== 'Posiciones' && (
+                {!loading && temporadaSeleccionada != 0 && filtroActivo === 'Fixture' && <Fixture temporada={temporadaSeleccionada} />}
+                {!loading && temporadaSeleccionada && filtroActivo !== 'Fixture' && filtroActivo !== 'Posiciones' && (
                     <TableTeam data={estadisticaTemporada} dataColumns={getColumnsForFilter()} temporada={temporadaFiltrada}/>
                 )}
-                {temporadaSeleccionada && filtroActivo === 'Posiciones' && (
+                {!loading && temporadaSeleccionada && filtroActivo === 'Posiciones' && (
                     <TablePosiciones data={posiciones} temporada={temporadaFiltrada} dataColumns={getColumnsForFilter()}/>
                 )}
             </StatsWrapper>
