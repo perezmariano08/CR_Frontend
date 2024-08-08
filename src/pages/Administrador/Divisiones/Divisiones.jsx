@@ -10,7 +10,7 @@ import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
+import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
@@ -22,50 +22,106 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
 import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchAños } from '../../../redux/ServicesApi/añosSlice';
-import { dataSedesColumns } from '../../../Data/Sedes/Sedes';
-import { fetchSedes } from '../../../redux/ServicesApi/sedesSlice';
-import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { dataDivisionesColumns } from '../../../Data/Divisiones/Divisiones';
 import { fetchDivisiones } from '../../../redux/ServicesApi/divisionesSlice';
+import { BiMessageDetail } from 'react-icons/bi';
+import { MdDriveFileRenameOutline } from 'react-icons/md';
+
+import useForm from '../../../hooks/useForm';
+import { useCrud } from '../../../hooks/useCrud';
 
 const Divisiones = () => {
     const dispatch = useDispatch();
+
+    // Manejo del form
+    const [formState, handleFormChange, resetForm] = useForm({ 
+        nombre_division: '', 
+        descripcion_division: '' 
+    });
+    const isFormEmpty = !formState.nombre_division.trim();
 
     // Constantes del modulo
     const articuloSingular = "la"
     const articuloPlural = "las"
     const id = "id_division"
     const plural = "divisiones"
-    const singular = "division"
-    const get = "get-divisiones"
-    const create = "crear-division"
-    const importar = "importar-divisiones"
-    const eliminar = "delete-division"
+    const singular = "división"
+
+    const crearEndpoint = "crear-division"
+    const importarEndpoint = "importar-divisiones"
+    const eliminarEndpoint = "delete-division"
 
     // Estados para manejar la apertura y cierre de los modales
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    // Estado de los botones que realizan una accion en la base de datos
-    const [isSaving, setIsSaving] = useState(false);
-
     // Estados para guardar los datos del archivo
     const [fileKey, setFileKey] = useState(0);
     const [fileName, setFileName] = useState(false);
     const [fileData, setFileData] = useState(null);
+
     // Referencia del input
     const fileInputRef = useRef(null);
-
-    // Estados para guardar los valores de los inputs
-    const [nombre, setNombre] = useState("");
-    const [descripcion, setDescripcion] = useState("");
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const divisionesList = useSelector((state) => state.divisiones.data);
 
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
+
+    // CREAR
+    const { crear, isSaving } = useCrud(
+        `${URL}/user/${crearEndpoint}`, fetchDivisiones, 'Registro creado correctamente.', "Error al crear el registro."
+    );
+
+    const agregarRegistro = async () => {
+        if (!formState.nombre_division.trim()) {
+            toast.error("Completá los campos.");
+            return;
+        }
+        
+        if (divisionesList.some(a => a.nombre === formState.nombre_division.trim())) {
+            toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
+            return
+        } 
+        
+        const data = {
+            nombre: formState.nombre_division.trim(),
+            descripcion: formState.descripcion_division.trim(),
+        };
+        
+        await crear(data);
+        closeCreateModal();
+        resetForm()
+    };
+
+    // ELIMINAR
+    const { eliminar, isDeleting } = useCrud(
+        `${URL}/user/${eliminarEndpoint}`, fetchDivisiones, 'Registro eliminado correctamente.', "Error al eliminar el registro."
+    );
+
+    const eliminarRegistros = async () => {
+        if (selectedRows.length > 0) {
+            const ids = selectedRows.map(row => row.id_division);
+            try {
+                await eliminar(ids);
+                dispatch(clearSelectedRows());
+            } catch (error) {
+                console.error("Error eliminando años:", error);
+            } finally {
+                closeDeleteModal();
+            }
+        } else {
+            toast.error(`No hay ${plural} seleccionadas.`);
+        }
+    };
+
+    // IMPORTAR
+    const { importar, isImporting } = useCrud(
+        `${URL}/user/${importarEndpoint}`, 
+        fetchDivisiones
+    );
 
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
@@ -85,127 +141,32 @@ const Divisiones = () => {
         });
     };
 
-    const handleFileImport = async () => {
-        if (fileData) {
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
-                const datosExistentes = response.data.map(a => a.año);
-                const nuevosDatos = fileData.filter(row => !datosExistentes.includes(row.año));
-                if (nuevosDatos.length > 0) {
-                    Axios.post(`${URL}/admin/${importar}`, nuevosDatos)
-                        .then(() => {
-                            toast.success(`Se importaron ${nuevosDatos.length} registros correctamente.`);
-                            closeImportModal()
-                            dispatch(fetchAños());
-                            setFileKey(prevKey => prevKey + 1);
-                            setFileName(""); // Restablece el nombre del archivo después de la importación
-                            setFileData(null); // Restablece los datos del archivo después de la importación
-                            setIsSaving(false);
-                        });
-                } else {
-                    setIsSaving(false);
-                    toast.error(`Todos ${articuloPlural} ${plural} del archivo ya existen.`);
-                }
-            } catch (error) {
-                setIsSaving(false);
-                toast.error("Error al verificar los datos.");
-                console.error("Error al verificar los datos:", error);
-            }
-        } else {
-            setIsSaving(false);
+    const importarRegistros = async () => {
+        if (!fileData) {
             toast.error("No hay datos para importar.");
+            return;
         }
-    };
 
-    const eliminarAños = async () => {
-        if (selectedRows.length > 0) {
-            setIsSaving(true);
-            const deletePromises = selectedRows.map(row => 
-                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_division })
-            );
+        try {
+            await importar(fileData, divisionesList);
+        } catch (error) {
+            console.error("Error eliminando años:", error);
+        } finally {
+            closeImportModal();
+            setFileKey(prevKey => prevKey + 1);
+            setFileName(""); // Restablece el nombre del archivo después de la importación
+            setFileData(null); // Restablece los datos del archivo después de la importación
+        }
+        
+    };
     
-            toast.promise(
-                Promise.all(deletePromises)
-                    .then(async () => {
-                        dispatch(fetchCategorias());
-                        closeDeleteModal();
-                        dispatch(clearSelectedRows());
-                        setFileKey(prevKey => prevKey + 1);
-                        setIsSaving(false);
-                    }),
-                {
-                    loading: 'Borrando...',
-                    success: `${plural.charAt(0).toUpperCase() + plural.slice(1)}  eliminadas correctamente`,
-                    error: `No se pudieron eliminar ${articuloPlural} ${plural}.`,
-                }
-            ).catch(error => {
-                setIsSaving(false);
-                console.error(`Error al eliminar ${articuloPlural} ${plural}.`, error);
-            });
-        } else {
-            toast.error(`No hay ${plural} seleccionadas.`);
-        }
-    };
-
-
-    useEffect(() => {
-        dispatch(fetchDivisiones());
-        return () => {
-            dispatch(clearSelectedRows());
-        };
-    }, []);
-
-    const agregarDato = async () => {
-        if (nombre !== "") {
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
-                const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.nombre === nombre);
-                if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
-                } else {
-                    Axios.post(`${URL}/admin/${create}`, {
-                        nombre,
-                        descripcion
-                    }).then(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente.`);
-                        dispatch(fetchDivisiones());
-                        closeCreateModal();
-                        setNombre("");
-                        setDescripcion("");
-                        setIsSaving(false)
-                    });
-                }
-            } catch (error) {
-                setIsSaving(false)
-                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
-            }
-        } else {
-            toast.error("Completá los campos.");
-        }
-    };
-
-    // Funciones que manejan el estado de los modales (Apertura y cierre)
-    const openCreateModal = () => setIsCreateModalOpen(true);
-    const closeCreateModal = () => setIsCreateModalOpen(false);
-    const openDeleteModal = () => setIsDeleteModalOpen(true);
-    const closeDeleteModal = () => setIsDeleteModalOpen(false);
-    const openImportModal = () => setIsImportModalOpen(true);
-    const closeImportModal = () => {
-        setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
-        setFileData(null); // Restablece los datos del archivo cuando se cierra el modal
-        setIsImportModalOpen(false);
-    };
-
     const cancelFileSelection = () => {
         setFileName(""); // Restablece el nombre del archivo
         setFileKey(prevKey => prevKey + 1); // Forza la actualización del input de archivo
         setFileData(null); // Restablece los datos del archivo
     };
 
+    // EXPORTAR
     const convertToCSV = (objArray) => {
         const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
         let csv = '\uFEFF'; // BOM (Byte Order Mark)
@@ -230,7 +191,7 @@ const Divisiones = () => {
     };
     
     const handleExport = () => {
-        const csv = convertToCSV(añosList);
+        const csv = convertToCSV(divisionesList);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -242,6 +203,20 @@ const Divisiones = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    // Funciones que manejan el estado de los modales (Apertura y cierre)
+    const openCreateModal = () => setIsCreateModalOpen(true);
+    const closeCreateModal = () => {
+        setIsCreateModalOpen(false)
+    }
+    const openDeleteModal = () => setIsDeleteModalOpen(true);
+    const closeDeleteModal = () => setIsDeleteModalOpen(false);
+    const openImportModal = () => setIsImportModalOpen(true);
+    const closeImportModal = () => {
+        setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
+        setFileData(null); // Restablece los datos del archivo cuando se cierra el modal
+        setIsImportModalOpen(false);
     };
 
     return (
@@ -262,6 +237,7 @@ const Divisiones = () => {
                 <ActionsCrudButtons>
                     <label htmlFor="importInput" style={{ display: 'none' }}>
                         <input
+                            name='importar'
                             type="file"
                             id="importInput"
                             accept=".csv"
@@ -279,8 +255,6 @@ const Divisiones = () => {
                         <p>Descargar</p>
                     </Button>
                 </ActionsCrudButtons>
-                    
-                
             </ActionsCrud>
             <Table data={divisionesList} dataColumns={dataDivisionesColumns} arrayName={singular.charAt(0).toUpperCase() + singular.slice(1)} id_={id} />
             {
@@ -297,9 +271,16 @@ const Divisiones = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={agregarDato} disabled={isSaving}>
+                                <Button 
+                                    color={"success"} 
+                                    onClick={() => {
+                                        agregarRegistro();
+                                    }}
+                                    disabled={isFormEmpty || isSaving}
+                                >
                                     {isSaving ? (
                                         <>
+                                            Guardando
                                             <LoaderIcon size="small" color='green' />
                                         </>
                                     ) : (
@@ -314,14 +295,26 @@ const Divisiones = () => {
                         form={
                             <>
                                 <ModalFormInputContainer>
-                                    Nombre
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setNombre(event.target.value)}}/>
+                                    Nombre de la división
+                                    <Input 
+                                        type='text'
+                                        name='nombre_division' 
+                                        placeholder="Escriba aqui..." 
+                                        value={formState.nombre_division}
+                                        onChange={handleFormChange}
+                                        icon={<MdDriveFileRenameOutline className='icon-input'/>}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Añadir descripción (Opcional)
-                                    <Input type='text' placeholder="Escriba aqui..." 
-                                    onChange={(event) => { setDescripcion(event.target.value)}}/>
+                                    <Input 
+                                        type='text'
+                                        name='descripcion_division' 
+                                        placeholder="Escriba aqui..." 
+                                        value={formState.descripcion_division}
+                                        onChange={handleFormChange}
+                                        icon={<BiMessageDetail className='icon-input'/>}
+                                    />
                                 </ModalFormInputContainer>
                             </>
                         }
@@ -343,8 +336,8 @@ const Divisiones = () => {
                                     <IoClose />
                                     No
                                 </Button>
-                                <Button color={"success"} onClick={eliminarAños} disabled={isSaving}>
-                                    {isSaving ? (
+                                <Button color={"success"} onClick={eliminarRegistros} disabled={isDeleting}>
+                                    {isDeleting ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
                                         </>
@@ -384,8 +377,8 @@ const Divisiones = () => {
                                         <p>Seleccionar</p>
                                     </Button>
                                 )}
-                                <Button color={"success"} onClick={handleFileImport} disabled={!fileName}>
-                                    {isSaving ? (
+                                <Button color={"success"} onClick={importarRegistros} disabled={!fileName || isImporting}>
+                                    {isImporting ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
                                         </>

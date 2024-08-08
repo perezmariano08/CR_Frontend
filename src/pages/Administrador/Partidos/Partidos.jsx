@@ -10,7 +10,7 @@ import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
+import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
@@ -29,6 +29,11 @@ import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { dataPartidosColumns } from '../../../Data/Partidos/Partidos';
 import Select from '../../../components/Select/Select';
+import { MdSchedule } from "react-icons/md";
+import { BsCalendar2Date } from "react-icons/bs";
+import { GiSoccerField } from "react-icons/gi";
+import { GiWhistle } from "react-icons/gi";
+import { PiNumberCircleSevenThin } from "react-icons/pi";
 
 const Partidos = () => {
     const dispatch = useDispatch();
@@ -198,7 +203,7 @@ const Partidos = () => {
             ) {
                 setIsSaving(true);
                 try {
-                        Axios.post(`${URL}/admin/${create}`, {
+                        Axios.post(`${URL}/user/${create}`, {
                             id_temporada,
                             id_equipoLocal,
                             id_equipoVisita,
@@ -232,7 +237,6 @@ const Partidos = () => {
                 toast.error("Completá los campos.");
             }
         }
-       
     };
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
@@ -398,28 +402,53 @@ const Partidos = () => {
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Jornada
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setJornada(event.target.value)}}/>
+                                    <Input
+                                        name={"jornada"}
+                                        type='text' 
+                                        placeholder="Escriba aqui el nombre de la sede..." 
+                                        onChange={(event) => { setJornada(event.target.value)}}
+                                        icon={<PiNumberCircleSevenThin className='icon-input'/>}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Dia
-                                    <Input type='text' placeholder="2024-07-10" 
-                                    onChange={(event) => { setDia(event.target.value)}}/>
+                                    <Input 
+                                        type='text'
+                                        name={"dia"}
+                                        placeholder="2024-07-10" 
+                                        onChange={(event) => { setDia(event.target.value)}}
+                                        icon={<BsCalendar2Date className='icon-input'/>}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Hora
-                                    <Input type='text' placeholder="20:00:00" 
-                                    onChange={(event) => { setHora(event.target.value)}}/>
+                                    <Input 
+                                        type='text'
+                                        name={"hora"}
+                                        placeholder="20:00:00" 
+                                        onChange={(event) => { setHora(event.target.value)}}
+                                        icon={<MdSchedule className='icon-input'/>}                             
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Cancha
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setCancha(event.target.value)}}/>
+                                    <Input 
+                                        type='text'
+                                        name={"cancha"}
+                                        placeholder="Escriba aqui el nombre de la sede..." 
+                                        onChange={(event) => { setCancha(event.target.value)}}
+                                        icon={<GiSoccerField className='icon-input'/>}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Arbitro
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setArbitro(event.target.value)}}/>
+                                    <Input 
+                                        type='text'
+                                        name={"arbitro"}
+                                        placeholder="Escriba aqui el nombre de la sede..." 
+                                        onChange={(event) => { setArbitro(event.target.value)}}
+                                        icon={<GiWhistle className='icon-input'/>}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Planillero

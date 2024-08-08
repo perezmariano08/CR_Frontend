@@ -11,16 +11,28 @@ import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { TableFoot, TableFootItem, TableTitle, TableTitleDivider, TableWrapper } from '../../../components/Stats/Table/TableStyles'
 import { TableContainerStyled } from '../../../components/Stats/Table/TableStyles'
-import { TbRectangleVerticalFilled } from 'react-icons/tb'
+import { TbRectangleVerticalFilled, TbShirtSport, TbUser, TbUsers } from 'react-icons/tb'
 import TableTeam from '../../../components/Stats/TableTeam/TableTeam.jsx'
+import { DashboardItemDivider, DashboardItemInfoWrapper, DashboardItemsWrapper, DashboardItemWrapper } from './AdminStyles.js'
+import { LiaFutbol } from 'react-icons/lia'
+import { IoShieldHalf } from 'react-icons/io5'
+import { NavLink } from 'react-router-dom'
 
 const Admin = () => {
     const dispatch = useDispatch()
-    const sedesList = useSelector((state) => state.sedes.data);
-    const temporadasList = useSelector((state) => state.temporadas.data);
-    const añosList = useSelector((state) => state.años.data);
-    const categoriasList = useSelector((state) => state.categorias.data);
-    const torneosList = useSelector((state) => state.torneos.data);
+
+    // Estado del el/los Listado/s que se necesitan en el modulo
+    const jugadoresList = useSelector((state) => state.jugadores.data);
+    const equiposList = useSelector((state) => state.equipos.data);
+    const partidosList = useSelector((state) => state.partidos.data);
+    const usuariosList = useSelector((state) => state.usuarios.data);
+
+    // Partidos finalizados
+    const partidosFinalizados = partidosList.filter(partido => partido.estado === "F").length;
+
+
+    console.log(partidosList);
+    
     const ColumnasTabla = [
         {field: 'pos', header: "#"},
         {field: 'equipo', header: "Equipo"},
@@ -148,55 +160,50 @@ const Admin = () => {
         },
     ]
 
+
+
+    console.log(partidosFinalizados);
+    
+
     return (
         <Content>
-            <ContentTitle>
-                Dashboard
-            </ContentTitle>
-            <TableTeam data={TableTeamPosiciones} id_temporada={"ID temporada"}/>
-            <TableContainerStyled>
-                <TableTitle>
-                    <h3>Torneo Apertura</h3>
-                    <p>Serie A</p>
-                </TableTitle>
-                <TableTitleDivider/>
-                <TableWrapper
-                        value={PosicionesData}
-                        emptyMessage="No hay datos disponibles"
-                    >
-                        {ColumnasTabla.map((col) => (
-                        <Column
-                            key={col.field}
-                            field={col.field}
-                            header={col.header}
-                            sortable
-                            style={{ width: 'auto' }}
-                            body={
-                                col.field === 'pos'
-                                ? body
-                                : col.field === 'equipo'
-                                ? equipoBodyTemplate
-                                : null
-                            }
-                        />
-                    ))}
-                </TableWrapper>
-                <TableTitleDivider/>
-                <TableFoot>
-                    <TableFootItem>
-                        <div className='one'></div>
-                        <h3>Copa Oro</h3>
-                    </TableFootItem>
-                    <TableFootItem>
-                        <div className='two'></div>
-                        <h3>Copa Plata</h3>
-                    </TableFootItem>
-                    <TableFootItem>
-                        <div className='three'></div>
-                        <h3>Descenso</h3>
-                    </TableFootItem>        
-                </TableFoot>
-            </TableContainerStyled>
+            <DashboardItemsWrapper>
+                <DashboardItemWrapper>
+                    <LiaFutbol />
+                    <DashboardItemInfoWrapper>
+                        <span className='numero'>{partidosFinalizados}/{partidosList.length}</span>
+                        <span className='titulo'>Partidos</span>
+                        <span className='descripcion'>(jugados/totales)</span>
+                    </DashboardItemInfoWrapper>
+                </DashboardItemWrapper>
+                <DashboardItemDivider/>
+                <DashboardItemWrapper>
+                    <IoShieldHalf />
+                    <DashboardItemInfoWrapper>
+                        <span className='numero'>{equiposList.length}</span>
+                        <span className='titulo'>Equipos</span>
+                        <NavLink to={"/admin/equipos"} className='link'>Ver todos</NavLink>
+                    </DashboardItemInfoWrapper>
+                </DashboardItemWrapper>
+                <DashboardItemDivider/>
+                <DashboardItemWrapper>
+                    <TbShirtSport />
+                    <DashboardItemInfoWrapper>
+                        <span className='numero'>{jugadoresList.length}</span>
+                        <span className='titulo'>Jugadores</span>
+                        <NavLink to={"/admin/jugadores"} className='link'>Ver todos</NavLink>
+                    </DashboardItemInfoWrapper>
+                </DashboardItemWrapper>
+                <DashboardItemDivider/>
+                <DashboardItemWrapper>
+                    <TbUsers />
+                    <DashboardItemInfoWrapper>
+                        <span className='numero'>{usuariosList.length}</span>
+                        <span className='titulo'>Usuarios</span>
+                        <NavLink to={"/admin/usuarios"} className='link'>Ver todos</NavLink>
+                    </DashboardItemInfoWrapper>
+                </DashboardItemWrapper>
+            </DashboardItemsWrapper>
         </Content>
     )
 }

@@ -12,10 +12,15 @@ export const ButtonWrapper = styled.button`
     border-radius: 10px;
     font-size: 14px;
     cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-    opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-    pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+    opacity: ${({ disabled }) => (disabled ? 0.5 : .9)};
+    transition: all .2s ease-in-out;
     
     &:hover {
-        opacity: ${({ disabled }) => (disabled ? 0.9 : 0.9)};
+        opacity: ${({ disabled }) => (disabled ? 0.5 : 0.75)};
+        background: ${({ $bg = '' }) => $bg === '' ? 'var(--gray-400)' : $bg};
+    }   
+    
+    &:disabled {
+        cursor: not-allowed
     }
 ` 

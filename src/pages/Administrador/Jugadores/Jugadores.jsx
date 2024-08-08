@@ -14,7 +14,6 @@ import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
-import { dataAñosColumns } from '../../../Data/Años/DataAños';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
@@ -22,7 +21,6 @@ import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
 import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
-import { fetchAños } from '../../../redux/ServicesApi/añosSlice';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataJugadoresColumns } from '../../../Data/Jugadores/Jugadores';
@@ -30,6 +28,8 @@ import Select from '../../../components/Select/Select';
 import { PiIdentificationCardLight, PiUser } from 'react-icons/pi';
 
 import { TbPlayFootball } from "react-icons/tb";
+import useForm from '../../../hooks/useForm';
+import { useCrud } from '../../../hooks/useCrud';
 
 const Jugadores = () => {
     const dispatch = useDispatch();
@@ -40,6 +40,17 @@ const Jugadores = () => {
         'Content-Type': 'application/json'
     };
 
+    // Manejo del form
+    const [formState, handleFormChange, resetForm] = useForm({ 
+        dni_jugador: '', 
+        nombre_jugador: '', 
+        apellido_jugador: '', 
+        posicion_jugador: '', 
+        id_equipo: null,
+    });
+
+    const isFormEmpty = !formState.dni_jugador.trim();
+
     // Constantes del modulo
     const articuloSingular = "el"
     const articuloPlural = "los"
@@ -47,9 +58,10 @@ const Jugadores = () => {
     const plural = "jugadores"
     const singular = "jugador"
     const get = "get-jugadores"
-    const create = "crear-jugador"
+    const crearEndpoint = "crear-jugador"
     const importar = "importar-jugadores"
     const eliminar = "delete-jugador"
+    const actualizarEndpoint = "update-jugador"
 
     // Estados para manejar la apertura y cierre de los modales
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -58,9 +70,7 @@ const Jugadores = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Estado de los botones que realizan una accion en la base de datos
-    const [isSaving, setIsSaving] = useState(false);
 
-    const [isEditing, setIsEditing] = useState(false);
     
     // Estados para guardar los datos del archivo
     const [fileKey, setFileKey] = useState(0);
@@ -68,17 +78,6 @@ const Jugadores = () => {
     const [fileData, setFileData] = useState(null);
     // Referencia del input
     const fileInputRef = useRef(null);
-
-    // Estados para guardar los valores de los inputs
-    const [dni, setDni] = useState("");
-    const [nombre, setNombre] = useState("");
-    const [apellido, setApellido] = useState("");
-    const [posicion, setPosicion] = useState("");
-    const [id_equipo, setIdEquipo] = useState("");
-    const [img, setImg] = useState("");
-    const [eventual, setEventual] = useState("");
-    const [sancionado, setSancionado] = useState("");
-    
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const jugadoresList = useSelector((state) => state.jugadores.data);
@@ -107,7 +106,6 @@ const Jugadores = () => {
     
     const handleFileImport = async () => {
         if (fileData) {
-            setIsSaving(true);
             try {
                 const response = await Axios.post(`${URL}/admin/importar-jugadores`, fileData);
                 toast.success(`Se importaron los registros correctamente.`);
@@ -123,7 +121,6 @@ const Jugadores = () => {
                 console.error("Error al importar los datos:", error);
             }
         } else {
-            setIsSaving(false);
             toast.error("No hay datos para importar.");
         }
     };
@@ -131,9 +128,8 @@ const Jugadores = () => {
 
     const eliminarDato = async () => {
         if (selectedRows.length > 0) {
-            setIsSaving(true);
             const deletePromises = selectedRows.map(row => 
-                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_jugador })
+                Axios.post(`${URL}/user/${eliminar}`, { id: row.id_jugador })
             );
     
             toast.promise(
@@ -143,7 +139,6 @@ const Jugadores = () => {
                         closeDeleteModal();
                         dispatch(clearSelectedRows());
                         setFileKey(prevKey => prevKey + 1);
-                        setIsSaving(false);
                     }),
                 {
                     loading: 'Borrando...',
@@ -166,94 +161,80 @@ const Jugadores = () => {
         };
     }, []);
 
-    const agregarDato = async () => {
-        if (dni && nombre && apellido && posicion && id_equipo) {
-            console.log(id_equipo);
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/user/${get}`);
-                const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.dni === dni);
-                if (datoExiste) {
-                    setIsSaving(false);
-                    toast.error(`DNI ya registrado en la base de datos`);
-                } else {
-                    await Axios.post(`${URL}/admin/${create}`, {
-                        dni,
-                        nombre,
-                        apellido,
-                        posicion,
-                        id_equipo
-                    }, { headers });
-                    toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
-                    dispatch(fetchJugadores());
-                    closeCreateModal();
-                    setDni("");
-                    setNombre("");
-                    setApellido("");
-                    setPosicion("");
-                    setIdEquipo("");
-                    setIsSaving(false);
-                }
-            } catch (error) {
-                setIsSaving(false);
-                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
-            }
-        } else {
+    // CREAR
+    const { crear, isSaving } = useCrud(
+        `${URL}/user/${crearEndpoint}`, fetchJugadores, 'Registro creado correctamente.', "Error al crear el registro."
+    );
+
+    const agregarRegistro = async () => {
+        console.log(formState);
+        
+        if (
+            !formState.dni_jugador ||
+            !formState.nombre_jugador ||
+            !formState.apellido_jugador
+        ) {
             toast.error("Completá los campos.");
+            return;
         }
+        
+        if (jugadoresList.some(a => a.dni === formState.dni_jugador.trim())) {
+            toast.error(`El jugador ya existe en la base de datos`);
+            return
+        } 
+        
+        const data = {
+            dni: formState.dni_jugador.trim(),
+            nombre: formState.nombre_jugador.trim(),
+            apellido: formState.apellido_jugador.trim(),
+            posicion: formState.posicion_jugador.trim(),
+            id_equipo: formState.id_equipo
+        };
+        
+        await crear(data);
+        closeCreateModal();
+        resetForm()
     };
-    const editarDato = async () => {
-        if (año !== "") {
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
-                const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.año === año);
-                if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
-                } else {
-                    Axios.post(`${URL}/admin/${create}`, {
-                        año,
-                        descripcion
-                    }).then(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
-                        dispatch(fetchAños());
-                        closeCreateModal();
-                        setAño("");
-                        setDescripcion("");
-                        setIsSaving(false)
-                    });
-                }
-            } catch (error) {
-                setIsSaving(false)
-                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
-            }
-        } else {
-            toast.error("Completá los campos.");
+
+    // ACTUALIZAR
+    const { actualizar, isUpdating } = useCrud(
+        `${URL}/user/${actualizarEndpoint}`, fetchJugadores, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+    );
+
+    const actualizarDato = async () => {
+        const data = {
+            dni: formState.dni_jugador,
+            nombre: formState.nombre_jugador,
+            apellido: formState.apellido_jugador,
+            posicion: formState.posicion_jugador,
+            id_equipo: formState.id_equipo,
+            id_jugador: formState.id_jugador
         }
+        await actualizar(data);
+        dispatch(clearSelectedRows());
+        closeEditModal()
     };
 
     const editRow = () => {
-        setNombre(selectedRows[0].jugador)
-        console.log(selectedRows[0].jugador)
+        formState.dni_jugador = selectedRows[0].dni
+        formState.nombre_jugador = selectedRows[0].nombre
+        formState.apellido_jugador = selectedRows[0].apellido
+        formState.posicion_jugador = selectedRows[0].posicion
+        formState.id_equipo = selectedRows[0].id_equipo
+        formState.id_jugador = selectedRows[0].id_jugador
         openEditModal()
     };
+
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
     const openEditModal = () => setIsEditModalOpen(true);
-    const closeCreateModal = () => {
-        setIsCreateModalOpen(false)
-        setIsSaving(false);
-    }
-    const closeEditModal = () => setIsEditModalOpen(false);
+    const closeCreateModal = () => setIsCreateModalOpen(false)
+    const closeEditModal = () => {
+        setIsEditModalOpen(false)
+        resetForm()
+    };
     const openDeleteModal = () => setIsDeleteModalOpen(true);
-    const closeDeleteModal = () => {
-        setIsDeleteModalOpen(false);
-        setIsSaving(false);
-    }
+    const closeDeleteModal = () => setIsDeleteModalOpen(false)
     const openImportModal = () => setIsImportModalOpen(true);
     const closeImportModal = () => {
         setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
@@ -306,7 +287,7 @@ const Jugadores = () => {
         link.click();
         document.body.removeChild(link);
     };
-
+    
     return (
         <Content>
             <Toaster />
@@ -327,7 +308,7 @@ const Jugadores = () => {
                     </Button>
                 </ActionsCrudButtons>
                 <ActionsCrudButtons>
-                    {/* <label htmlFor="importInput" style={{ display: 'none' }}>
+                    <label htmlFor="importInput" style={{ display: 'none' }}>
                         <input
                             type="file"
                             id="importInput"
@@ -340,7 +321,7 @@ const Jugadores = () => {
                     <Button bg="import" color="white" onClick={openImportModal}>
                         <LuUpload />
                         <p>Importar</p>
-                    </Button>  */}
+                    </Button>
                     <Button bg="export" color="white" onClick={handleExport} disabled={jugadoresList.length === 0}>
                         <LuDownload />
                         <p>Descargar</p>
@@ -365,7 +346,7 @@ const Jugadores = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={agregarDato} disabled={isSaving}>
+                                <Button color={"success"} onClick={agregarRegistro} disabled={isSaving}>
                                     {isSaving ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
@@ -384,45 +365,57 @@ const Jugadores = () => {
                                 <ModalFormInputContainer>
                                     DNI
                                     <Input 
+                                        name='dni_jugador'
                                         type='text' 
                                         placeholder="Escriba el DNI..."
                                         icon={<PiIdentificationCardLight className='icon-input'/>} 
-                                        onChange={(event) => { setDni(event.target.value)}}
+                                        value={formState.dni_jugador}
+                                        onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
                                     <Input 
+                                        name='nombre_jugador'
                                         type='text' 
                                         placeholder="Escriba el nombre..." 
                                         icon={<PiUser className='icon-input'/>} 
-                                        onChange={(event) => { setNombre(event.target.value)}}
+                                        value={formState.nombre_jugador}
+                                        onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Apellido
                                     <Input 
+                                        name='apellido_jugador'
                                         type='text' 
                                         placeholder="Escriba el apellido..."
                                         icon={<PiUser className='icon-input'/>} 
-                                        onChange={(event) => { setApellido(event.target.value)}}
+                                        value={formState.apellido_jugador}
+                                        onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Posición
-                                    <Input type='text' placeholder="Escriba la posicion..." 
-                                    icon={<TbPlayFootball className='icon-input'/>} 
-                                    onChange={(event) => { setPosicion(event.target.value)}}
+                                    <Input 
+                                        name='posicion_jugador'
+                                        type='text' 
+                                        placeholder="Escriba la posicion..." 
+                                        icon={<TbPlayFootball className='icon-input'/>} 
+                                        value={formState.posicion_jugador}
+                                        onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Equipo
                                     <Select 
+                                        name={'id_equipo'}
                                         data={equiposList}
                                         placeholder="Seleccionar equipo"
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
-                                        onChange={(event) => { setIdEquipo(event.target.value)}}
+                                        value={formState.id_equipo}
+                                        onChange={handleFormChange}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
@@ -519,15 +512,15 @@ const Jugadores = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={editarDato} disabled={isSaving}>
-                                    {isSaving ? (
+                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdating}>
+                                    {isUpdating ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
                                         </>
                                     ) : (
                                         <>
                                             <IoCheckmark />
-                                            Editar
+                                            Actualizar
                                         </>
                                     )}
                                 </Button>
@@ -537,29 +530,65 @@ const Jugadores = () => {
                             <>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input type='text' placeholder="Escriba el DNI..." value={nombre}/>
+                                    <Input 
+                                        name='dni_jugador'
+                                        type='text' 
+                                        placeholder="Escriba el DNI..."
+                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                        value={formState.dni_jugador}
+                                        onChange={handleFormChange}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                    <Input 
+                                        name='nombre_jugador'
+                                        type='text' 
+                                        placeholder="Escriba el nombre..." 
+                                        icon={<PiUser className='icon-input'/>} 
+                                        value={formState.nombre_jugador}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Apellido
+                                    <Input 
+                                        name='apellido_jugador'
+                                        type='text' 
+                                        placeholder="Escriba el apellido..."
+                                        icon={<PiUser className='icon-input'/>} 
+                                        value={formState.apellido_jugador}
+                                        onChange={handleFormChange}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Posición
-                                    <Input type='text' placeholder="Escriba el DNI..." />
+                                    <Input 
+                                        name='posicion_jugador'
+                                        type='text' 
+                                        placeholder="Escriba la posicion..." 
+                                        icon={<TbPlayFootball className='icon-input'/>} 
+                                        value={formState.posicion_jugador}
+                                        onChange={handleFormChange}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Equipo
                                     <Select 
+                                        name={'id_equipo'}
                                         data={equiposList}
                                         placeholder="Seleccionar equipo"
-                                        icon={<IoShieldHalf className='icon-select' />}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_equipo"}
+                                        value={formState.id_equipo}
+                                        onChange={handleFormChange}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
                             </>
                         }
                     />
-                    <Overlay onClick={closeCreateModal} />
+                    <Overlay onClick={closeEditModal} />
                 </>
             }
         </Content>

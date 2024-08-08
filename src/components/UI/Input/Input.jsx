@@ -2,7 +2,7 @@ import React, { useState, forwardRef } from 'react';
 import { InputContainerStyled, InputWrapper } from './InputSyles';
 import { AiOutlineEye, AiFillEyeInvisible } from 'react-icons/ai';
 
-const Input = forwardRef(({ placeholder, type = "text", icon, className, isError, ...props }, ref) => {
+const Input = forwardRef(({ placeholder, type = "text", icon, className, isError, name, value, onChange, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -14,9 +14,12 @@ const Input = forwardRef(({ placeholder, type = "text", icon, className, isError
     return (
         <InputContainerStyled className={className}>
             <InputWrapper
+                name={name}
                 ref={ref}
                 type={inputType}
+                value={value}
                 placeholder={placeholder}
+                onChange={onChange}
                 {...props} // Pasar todos los props al campo de entrada
             />
             {icon && <div className='icon-container'>{icon}</div>}
