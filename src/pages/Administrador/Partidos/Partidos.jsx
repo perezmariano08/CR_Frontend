@@ -89,6 +89,7 @@ const Partidos = () => {
     const planillerosList = useMemo(() => {
         return usuariosList.filter(usuario => usuario.id_rol === 2);
     }, [usuariosList]);
+    
 
     const equiposFilterList = useMemo(() => {
         return equiposList.filter(equipo => equipo.id_temporada == id_temporada);
