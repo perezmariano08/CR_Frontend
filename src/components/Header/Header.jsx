@@ -7,7 +7,7 @@ import { toggleAside } from '../../redux/Aside/asideSlice';
 import { useAuth } from '../../Auth/AuthContext';
 import axios from 'axios';
 import { IoIosLogOut } from "react-icons/io";
-import { URL } from '../../utils/utils';
+import { URL, URLImages } from '../../utils/utils';
 import { setLogCurrentUser } from '../../redux/user/userSlice';
 
 const Header = () => {
@@ -56,7 +56,7 @@ const closeSesion = async () => {
             <HiOutlineBars3  /> 
           </HeaderMenuBars>
           <HeaderUser>
-              <img src={`${URL}${imgUsuarios(userId)}`} />
+              <img src={`${URLImages}${imgUsuarios(userId)}`} />
               <p>¡Bienvenido/a, {userName}!</p>
               <IoIosLogOut onClick={closeSesion}/>
           </HeaderUser>

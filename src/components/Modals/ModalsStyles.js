@@ -48,7 +48,8 @@ export const ModalFormInputContainer = styled.div`
     width: 100%;
     flex-direction: column;
     gap: 10px;
-    font-size: 14px;
+    font-size: 12px;
+    text-transform: uppercase;
 `
 
 export const ModalFormInputImg = styled.div`

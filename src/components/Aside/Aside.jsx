@@ -6,18 +6,13 @@ import { LiaFutbol } from "react-icons/lia";
 import { TbCalendarEvent } from "react-icons/tb";
 import { PiUsers } from "react-icons/pi";
 import { MdOutlineDashboard } from "react-icons/md";
-import { IoIosLogOut } from "react-icons/io";
-import { AsideContainerStyled, AsideHeader, AsideMenu, AsideMenuWrapper, AsideUser, MenuItem, NavLinkAngleDown, NavLinkItem, SubMenu, SubMenuItem } from './AsideStyles';
+import { AsideContainerStyled, AsideHeader, AsideMenu, AsideMenuWrapper, MenuItem, NavLinkAngleDown, NavLinkItem, SubMenu, SubMenuItem } from './AsideStyles';
 import Divider from '../Divider/Divider';
 import LogoCR from '../../assets/Logos/logoCopaRelampago.png'
-import UserImg from '../../assets/user-default.png'
 import { useLocation } from 'react-router-dom';
 import { TbShirtSport } from "react-icons/tb";
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLogCurrentUser } from '../../redux/user/userSlice';
-import axios from 'axios';
-import { URL } from '../../utils/utils';
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchUsuarios } from '../../redux/ServicesApi/usuariosSlice';
 import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice';
@@ -45,33 +40,6 @@ const Aside = ({className}) => {
         setShowSubMenuSanciones(!showSubMenuSanciones);
     };
 
-    //Cerrar Sesion 
-    axios.defaults.withCredentials = true;
-    const closeSesion = async () => {
-        try {
-            const response = await axios.post(`${URL}/auth/logout`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-            if (response.status === 401) {
-                console.error('Error al cerrar sesión: No autorizado');
-            } else if (response.status !== 200) {
-                console.error('Error al cerrar sesión: ', response.statusText);
-            } else {
-                console.log('Sesión cerrada exitosamente');
-                dispatch(setLogCurrentUser())
-                window.location.href = '/login';
-            }
-        } catch (error) {
-            console.error('Error al cerrar sesión aca:', error);
-        }
-    };
-
-    const imgUsuarios = (idUsuario) => {
-        const usuario = usuarios.find((usuario) => usuario.id_usuario === idUsuario)
-        return usuario ? usuario.img : null;
-    };
-
 
     //Mensaje bienvenida
     const {userName, showWelcomeToast, setShowWelcomeToast, userId} = useAuth()
@@ -96,7 +64,6 @@ const Aside = ({className}) => {
     }, [userName, showWelcomeToast, setShowWelcomeToast, isActiveTemporadas]);
 
     const isOpen = useSelector((state) => state.aside.isOpen);
-
     
     return (
         <>
@@ -155,12 +122,12 @@ const Aside = ({className}) => {
                                     className='submenu'
                                 >
                                     <SubMenu>
-                                        <SubMenuItem to={"/admin/temporadas/temporada"} isActive={isActiveTemporadas} >Crear temporada</SubMenuItem>
-                                        <SubMenuItem to={"/admin/temporadas/categorias"} isActive={isActiveTemporadas}>Categorías</SubMenuItem>
-                                        <SubMenuItem to={"/admin/temporadas/torneos"} isActive={isActiveTemporadas}>Torneos</SubMenuItem>
-                                        <SubMenuItem to={"/admin/temporadas/sedes"} isActive={isActiveTemporadas}>Sedes</SubMenuItem>
-                                        <SubMenuItem to={"/admin/temporadas/años"} isActive={isActiveTemporadas}>Años</SubMenuItem>
-                                        <SubMenuItem to={"/admin/temporadas/divisiones"} isActive={isActiveTemporadas}>Divisiones</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/temporada"}>Crear temporada</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/categorias"}>Categorías</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/torneos"}>Torneos</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/sedes"}>Sedes</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/años"}>Años</SubMenuItem>
+                                        <SubMenuItem to={"/admin/temporadas/divisiones"}>Divisiones</SubMenuItem>
                                     </SubMenu>
                                 </motion.div> 
                             )}
@@ -191,8 +158,8 @@ const Aside = ({className}) => {
                                     className='submenu'
                                 >
                                     <SubMenu>
-                                        <SubMenuItem to={"/admin/sanciones/expulsados"} isActive={isActiveSanciones}>Expulsados</SubMenuItem>
-                                        <SubMenuItem to={"/admin/sanciones/amonestados"} isActive={isActiveSanciones}>Amonestados</SubMenuItem>
+                                        <SubMenuItem to={"/admin/sanciones/expulsados"}>Expulsados</SubMenuItem>
+                                        <SubMenuItem to={"/admin/sanciones/amonestados"}>Amonestados</SubMenuItem>
                                     </SubMenu>
                                 </motion.div> 
                             )}
