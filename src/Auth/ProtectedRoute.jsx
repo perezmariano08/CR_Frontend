@@ -4,20 +4,20 @@ import { useAuth } from './AuthContext';
 import { SpinerContainer } from './SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
 
-const ProtectedRoute = ({ role }) => {
+const ProtectedRoute = ({ roles }) => {
     const { isAuthenticated, userRole, loading } = useAuth();
 
     if (loading) {
         return <SpinerContainer>
-                    <TailSpin width='40' height='40' color='#2AD174' />
-            </SpinerContainer>
+            <TailSpin width='40' height='40' color='#2AD174' />
+        </SpinerContainer>
     }
 
     if (!isAuthenticated) {
         return <Navigate to="/login" />;
     }
 
-    if (role && role !== userRole) {
+    if (roles && !roles.includes(userRole)) {
         if (userRole === 3) {
             return <Navigate to="/" />;
         } else if (userRole === 2) {
