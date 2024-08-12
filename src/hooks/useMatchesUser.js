@@ -47,7 +47,9 @@ const useMatchesUser = (idEquipo) => {
 
     const partidoAMostrar = proximoPartido || ultimoPartido;
 
-    return { partidoAMostrar, partidos, proximoPartido, fechaActual };
+    const partidosFecha = partidos.filter(partido => partido.id_temporada === miEquipo.id_temporada)
+
+    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual };
 }
 
 export default useMatchesUser;

@@ -17,12 +17,6 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
   const matches = useSelector((state) => state.match);
   const match = matches.find(p => p.ID === partidoId);
 
-  // Get the team name and badge by ID
-  const getTeamInfo = (idEquipo) => {
-    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-    return equipo ? { nombre: equipo.nombre, img: equipo.img } : { nombre: 'Unknown Team', img: '/default-image.png' };
-  };
-
   // Get local and visitor incidents
   const getIncidenciasFromLocal = (team, isLocal) => {
     return team.Player

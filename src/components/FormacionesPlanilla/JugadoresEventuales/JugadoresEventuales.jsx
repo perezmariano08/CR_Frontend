@@ -9,6 +9,7 @@ import Input2 from '../../UI/Input/Input2';
 import { Toaster, toast } from 'react-hot-toast';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
+import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 
 const JugadoresEventuales = () => {
     const dispatch = useDispatch();
@@ -76,7 +77,7 @@ const JugadoresEventuales = () => {
         }
     }, [dataJugadorEventual]);
 
-    const searchDorsal = (dorsal, dni, eventual) => {
+    const searchDorsal = (dorsal, dni, eventual) => {        
         if (!equipoCorrecto) return false;
 
         const players = isEnabledEdit
@@ -87,12 +88,13 @@ const JugadoresEventuales = () => {
 
         const foundByDorsal = players.some(player => player.Dorsal === dorsal);
         const foundByDNI = players.some(player => player.DNI === dni);
+        const foundByDNIForTeams = jugadores.some(player => player.dni === dni && player.eventual === 'N')
 
         if (foundByDorsal && foundByDNI) {
             return '1';
         } else if (foundByDorsal) {
             return '2';
-        } else if (foundByDNI) {
+        } else if (foundByDNI || foundByDNIForTeams) {
             return '3';
         } else {
             return false;
@@ -117,9 +119,13 @@ const JugadoresEventuales = () => {
     };
 
     useEffect(() => {
+        dispatch(fetchJugadores());
+    }, []);
+    
+    useEffect(() => {
         traerPartidosEventuales();
     }, []);
-
+    
     const verificarJugador = (dni) => {
         // Verificar si el DNI ya existe en jugadores regulares (no eventuales) del equipo actual
         const jugadorExistenteRegular = jugadores.find(
@@ -127,6 +133,7 @@ const JugadoresEventuales = () => {
         );
     
         if (jugadorExistenteRegular) {
+            toast.error('El jugador ya existe en jugadores regulares (no eventuales) del equipo actual');
             return false;
         }
     
@@ -140,6 +147,7 @@ const JugadoresEventuales = () => {
         );
     
         if (jugadorExistenteEnOtroEquipo) {
+            toast.error('El jugador eventual ya está registrado en el equipo rival');
             return false;
         }
     
@@ -149,7 +157,15 @@ const JugadoresEventuales = () => {
         );
         
         if (jugadorEventualEnTemporada.length >= 3) {
+            toast.error('El jugador ya jugo sus 3 partidos correspondientes como eventual');
             return false;
+        }
+
+        if (jugadorEventualEnTemporada.length = 2) {
+            toast('Ultimo partido como eventual para este jugador', {
+                icon: `⚠️`,
+                duration: 4000,
+            });
         }
     
         return true;
@@ -167,7 +183,6 @@ const JugadoresEventuales = () => {
                 case false:
                     const jugadorApto = verificarJugador(dniValue);
                     if (!jugadorApto) {
-                        toast.error('El jugador no cumple con los requisitos para ser agregado');
                         setDorsalValue('');
                         setDniValue('');
                         setNameValue('');

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 import { URL, URLImages } from '../../../utils/utils.js';
 
-const CardPartido = ({ finished, partido, rol }) => {
+const CardPartido = ({ partido, rol }) => {
     const equipos = useSelector((state) => state.equipos.data);
     const matches = useSelector((state) => state.match);
     const dispatch = useDispatch();
@@ -156,7 +156,7 @@ const CardPartido = ({ finished, partido, rol }) => {
                         </NavLink>
                     </CardPartidoStats>
                 </>
-            ) : rol === 3 ? (
+            ) : rol === 3 && partido.estado === 'F' ? (
                 <>
                     <CardPartidoDivider/>
                     <CardPartidoStats>

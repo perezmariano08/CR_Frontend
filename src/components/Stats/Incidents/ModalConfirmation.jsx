@@ -150,8 +150,9 @@ const ModalConfirmation = () => {
     const bd_golesVisita = generarBdGoles(match.Visitante, idPartido);
     const bd_goles = [...bd_golesLocal, ...bd_golesVisita];
 
-    const generarBdRojas = (team, partido) => {
+    const generarBdRojas = (team, idPartido) => {
         const rojas = [];
+        let amarilla = 0;
         team.Player.forEach(jugador => {
             if (jugador.Actions) {
                 jugador.Actions.forEach(accion => {
@@ -163,6 +164,18 @@ const ModalConfirmation = () => {
                         descripcion: '',
                         motivo: accion.Sancion
                     });
+                    }
+                    if (accion.Type === 'Amarilla') {
+                        amarilla++;
+                        if (amarilla === 2) {
+                            rojas.push({
+                                id_partido: idPartido,
+                                id_jugador: jugador.ID,
+                                minuto: parseInt(accion.Time),
+                                descripcion: '',
+                                motivo: 'Doble amarilla'
+                            });
+                        }
                     }
                 })
             }
@@ -191,7 +204,7 @@ const ModalConfirmation = () => {
         })
         return amarillas;
     }
-
+    
     const bd_amarillasLocal = generarBdAmarillas(match.Local, idPartido);
     const bd_amarillasVisita = generarBdAmarillas(match.Visitante, idPartido);
     const bd_amarillas = [...bd_amarillasLocal, ...bd_amarillasVisita];

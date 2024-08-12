@@ -1,10 +1,14 @@
+import { IoIosFootball } from "react-icons/io";
+import { LuRectangleVertical } from "react-icons/lu";
+import { GiSoccerKick } from "react-icons/gi";
+
 export const dataPlantelColumns = [
     {field: 'nombre_completo', header: "Nombre"},
     {field: 'PJ', header: "PJ"},
-    {field: 'G', header: "PG"},
-    {field: 'A', header: "PE"},
-    {field: 'Am', header: "PP"},
-    {field: 'R', header: "GF"},
+    {field: 'G', header: <IoIosFootball/>},
+    {field: 'A', header: <GiSoccerKick/>},
+    {field: 'Am', header: <LuRectangleVertical/>},
+    {field: 'R', header: <LuRectangleVertical/>},
 ]
 
 export const dataPosicionesTemporadaColumns = [
