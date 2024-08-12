@@ -107,16 +107,14 @@ const Jugadores = () => {
     const handleFileImport = async () => {
         if (fileData) {
             try {
-                const response = await Axios.post(`${URL}/admin/importar-jugadores`, fileData);
+                const response = await Axios.post(`${URL}/user/importar-jugadores`, fileData);
                 toast.success(`Se importaron los registros correctamente.`);
                 closeImportModal();
                 dispatch(fetchJugadores());
                 setFileKey(prevKey => prevKey + 1);
                 setFileName(""); // Restablece el nombre del archivo después de la importación
                 setFileData(null); // Restablece los datos del archivo después de la importación
-                setIsSaving(false);
             } catch (error) {
-                setIsSaving(false);
                 toast.error("Error al importar los datos.");
                 console.error("Error al importar los datos:", error);
             }
