@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FormacionesPlanillaTitle, FormacionesPlanillaWrapper, PlanillaButtons, PlayerEventContainer, TablePlanillaWrapper } from './FormacionesPlanillaStyles';
+import { FormacionesPlanillaHeader, FormacionesPlanillaTitle, FormacionesPlanillaWrapper, PlanillaButtons, PlayerEventContainer, TablePlanillaWrapper } from './FormacionesPlanillaStyles';
 import { AlignmentDivider } from '../Stats/Alignment/AlignmentStyles';
 import { HiMiniPencil, HiOutlineXCircle } from "react-icons/hi2";
 import {
@@ -148,31 +148,36 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
 
     return (
         <FormacionesPlanillaWrapper>
+            <FormacionesPlanillaHeader>
+                <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
+                <h3>Formaciones</h3>
+                <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
+            </FormacionesPlanillaHeader>
             <FormacionesPlanillaTitle>
                 <PlanillaButtons
                     className={`local ${activeButton === 'local' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('local')}
                 >
-                    Local
+                    {nombreEquipos(partido.id_equipoLocal)}
                 </PlanillaButtons>
-                <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
-                <h3>Formaciones</h3>
-                <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
+                
                 <PlanillaButtons
                     className={`visitante ${activeButton === 'visitante' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('visitante')}
                 >
-                    Visitante
+                    {nombreEquipos(partido.id_equipoVisita)}
                 </PlanillaButtons>
             </FormacionesPlanillaTitle>
             <AlignmentDivider />
             <TablePlanillaWrapper>
                 <thead>
                     <tr className='head'>
-                        <th>Dorsal</th>
-                        <th>DNI</th>
-                        <th>Nombre</th>
-                        <th>Editar</th>
+                        <div className='info-player'>
+                            <th className='dorsal'>#</th>
+                            <th className='dni'>DNI</th>
+                            <th className='nombre'>Nombre</th>
+                        </div>
+                        <th className='editar'>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -181,7 +186,8 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
                             key={player.ID} 
                             className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}
                         >
-                            <td
+                            <div className='info-player'>
+                                <td
                                 className={`dorsal ${(!player.Dorsal || player.sancionado === 'S' ) && 'disabled'}`}
                                 onClick={() => {
                                         if (player.Dorsal && player.sancionado !== 'S') {
@@ -191,8 +197,9 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
                             >
                                 {player.Dorsal}
                             </td>
-                            <td className='text'>{player.DNI}</td>
-                            <td className='text'>{player.Nombre}</td>
+                            <td className='text dni'>{player.DNI}</td>
+                            <td className='text nombre'>{player.Nombre}</td>
+                            </div>
                             <td className='tdActions'>
                                 <HiMiniPencil
                                     className='edit'

@@ -108,7 +108,7 @@ export const CardPartidoGoalsContainer= styled.div`
     justify-content: center;
     align-items: start;
     gap: 25px;
-    padding: 15px 35px;
+    padding: 15px;
 
     & svg, i {
         color: var(--gray-200)
@@ -119,6 +119,7 @@ export const CardPartidoGoalsColumn = styled.div`
     flex-direction: column;
     text-align: end;
     gap: 2px;
+    width: 50%;
 
     h5 {
         font-size: 10;
@@ -126,7 +127,7 @@ export const CardPartidoGoalsColumn = styled.div`
         width:100%;
     }
 
-    &.visit {
+    &.visita {
         text-align: start;
     }
 `
