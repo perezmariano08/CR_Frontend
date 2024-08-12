@@ -142,7 +142,6 @@ const MyTeam = () => {
                                     <TailSpin width='40' height='40' color='#2AD174' />
                                 </SpinerContainer>
                             ) : (
-                                
                                 <TableTeam data={bdJugadores} temporada={temporadaFiltrada} dataColumns={dataPlantelColumns}/>
                             )
                         }

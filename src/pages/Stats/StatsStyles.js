@@ -49,4 +49,5 @@ export const StatsNull = styled.div`
     background: var(--gray-300);
     padding: 20px;
     border-radius: 20px;
+    text-align: center;
 `

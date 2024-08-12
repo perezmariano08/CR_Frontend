@@ -18,6 +18,10 @@ const INITIAL_STATE = {
         dni: '',
         nombre: '',
         equipo: '',
+    },
+    forgotPasssword: {
+        resend: false,
+        counter: 0,
     }
 };
 
@@ -56,9 +60,15 @@ const userSlice = createSlice({
                 console.error('currentUser es null');
             }
         },
+        handleResendPassword: (state) => {
+            state.forgotPasssword.resend = !state.forgotPasssword.resend
+        },
+        setCounter: (state, action) => {
+            state.forgotPasssword.counter = action.payload;
+        },
     },
 });
 
-export const { setCurrentUser, toggleHiddenMenu, setNewUser, setNewUserPassword, setNewUserTeamFavorite, setLogCurrentUser} = userSlice.actions;
+export const { setCurrentUser, toggleHiddenMenu, setNewUser, setNewUserPassword, setNewUserTeamFavorite, setLogCurrentUser, handleResendPassword, setCounter} = userSlice.actions;
 
 export default userSlice.reducer;

@@ -26,7 +26,6 @@ const Planilla = () => {
     const {
         partido,
         matchCorrecto,
-        canStartMatch,
         descripcion,
         bdFormaciones,
         bdIncidencias,
@@ -61,7 +60,6 @@ const Planilla = () => {
                     )
                 }
                 <Incidents incidentes={bdIncidencias} formaciones={formacionesConNombreApellido} partidoId={partidoId}/>
-
                 {
                     matchCorrecto.estado !== 'F' && (
                     <InputDescContainer>

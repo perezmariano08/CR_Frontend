@@ -11,18 +11,20 @@ import { dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data
 import useFetchMatches from '../../hooks/useFetchMatches';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import useMessageWelcome from '../../hooks/useMessageWelcome.js';
+import { StatsNull } from '../Stats/StatsStyles.js';
 
 const Home = () => {
     const { user, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
 
     const equipos = useSelector((state) => state.equipos.data);
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === user.id_equipo);
+
     const id_temporada = miEquipo?.id_temporada;
 
     //Custom hooks
     useFetchMatches((partido) => miEquipo && partido.division === miEquipo.division);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast)
-    const { partidoAMostrar, partidos, proximoPartido, fechaActual } = useMatchesUser(user.id_equipo);
+    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(user.id_equipo);
 
     const [posiciones, setPosiciones] = useState(null);
     const [temporadas, setTemporadas] = useState([]);
@@ -58,11 +60,13 @@ const Home = () => {
                                 partido={partidoAMostrar}
                             />
                         ) : (
-                            <p>No hay partidos programados para tu equipo.</p>
+                            <StatsNull>
+                                <p>No hay partidos programados para tu equipo.</p>
+                            </StatsNull>
                         )}
                     </Section>
                     <Section>
-                        {fechaActual && partidos.length > 0 ? (
+                        {fechaActual && partidosFecha.length > 0 ? (
                             <>
                                 <h2>{`Fecha ${fechaActual} - ${partidos[0].torneo} ${partidos[0].año}`}</h2>
                                 <CardsMatchesContainer>
@@ -83,7 +87,9 @@ const Home = () => {
                                 </CardsMatchesContainer>
                             </>
                         ) : (
-                            <p>No hay partidos disponibles.</p>
+                            <StatsNull>
+                                <p>No hay partidos disponibles para esta fecha.</p>
+                            </StatsNull>
                         )}
                     </Section>
                     {posiciones && temporadaFiltrada && (

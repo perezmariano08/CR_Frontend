@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BackToLogin, CreateAccountContainerStyled, CreateAccountData, CreateAccountInputs, CreateAccountWrapper, ForgotPasswordTitle, InputContainer } from "../../CreateAccount/CreateAccountStyles";
 import toast, { LoaderIcon, Toaster } from "react-hot-toast";
 import { IoIosArrowBack } from "react-icons/io";
@@ -12,6 +12,9 @@ import axios from "axios";
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resend, setResend] = useState(false)
+    const [counter, setCounter] = useState(0);
+
     const handleSetEmail = (e) => {
         setEmail(e.target.value);
     };
@@ -60,10 +63,20 @@ const ForgotPassword = () => {
         const emailExists = await checkEmail(email);
         if (emailExists) {
             await sendEmail(email);
+            setResend(true);
+            setCounter(180);
         }
 
         setEmail('')
     };
+
+    useEffect(() => {
+        let timer;
+        if (counter > 0) {
+            timer = setTimeout(() => setCounter(counter - 1), 1000);
+        }
+        return () => clearTimeout(timer);
+    }, [counter]);
 
     return (
         <CreateAccountContainerStyled>
@@ -86,7 +99,7 @@ const ForgotPassword = () => {
                         </InputContainer>
                     </CreateAccountInputs>
                     <ButtonLogin
-                        disabled={!email}
+                        disabled={!email || counter > 0}
                         onClick={handleSendForgotEmail}
                     >
                         {
@@ -96,7 +109,7 @@ const ForgotPassword = () => {
                                 </>
                             ) : (
                                 <>
-                                    Enviar
+                                    {counter > 0 ? `Reintentar en ${counter}s` : 'Enviar'}
                                 </>
                             )
                         }
