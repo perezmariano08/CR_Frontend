@@ -161,7 +161,7 @@ const JugadoresEventuales = () => {
             return false;
         }
 
-        if (jugadorEventualEnTemporada.length = 2) {
+        if (jugadorEventualEnTemporada.length === 2) {
             toast('Ultimo partido como eventual para este jugador', {
                 icon: `⚠️`,
                 duration: 4000,
