@@ -6,7 +6,7 @@ import { toggleHiddenModal, setActionToDelete, toggleHiddenAction, setCurrentSta
 import { IncidentLocal, IndicentsContainer, IndicentsWrapper, IconContainer } from './IndicentsStyles';
 import { URL, URLImages } from '../../../utils/utils';
 import { AlignmentDivider, AlignmentTeam, AlignmentTeams } from '../Alignment/AlignmentStyles';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 
 const Incidents = ({ incidentes, formaciones, partidoId }) => {
@@ -139,11 +139,11 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
   <h3>Incidencias</h3>
   <AlignmentDivider/>
   <AlignmentTeams>
-    <AlignmentTeam>
+    <AlignmentTeam className='local'>
       <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
       <h3>{nombreEquipos(partido.id_equipoLocal)}</h3>
     </AlignmentTeam>
-    <AlignmentTeam>
+    <AlignmentTeam className='visita'>
       <h3>{nombreEquipos(partido.id_equipoVisita)}</h3>
       <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
     </AlignmentTeam>

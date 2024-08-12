@@ -19,14 +19,20 @@ export const AlignmentTeams = styled.div`
     display: flex;
     width: 100%;
     justify-content: space-between;
+    gap: 10px;
 `
 export const AlignmentTeam = styled.div`
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    width: 50%;
+
+    &.visita {
+        justify-content: end;
+    }
 
     img {
-        width: 50px;
+        width: 20px;
     }
 
     h3 {

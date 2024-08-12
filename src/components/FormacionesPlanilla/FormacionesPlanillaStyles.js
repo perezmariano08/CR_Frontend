@@ -16,7 +16,7 @@ export const FormacionesPlanillaTitle = styled.div`
     width: 100%;
     align-items: center;
     justify-content: space-between;
-
+    gap: 10px;
     h3 {
         font-weight: 600;
     }
@@ -25,16 +25,31 @@ export const FormacionesPlanillaTitle = styled.div`
         width: 30px;
     }
 `
+
+export const FormacionesPlanillaHeader = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+
+    img {
+        width: 30px;
+    }
+`
+
+
 export const PlanillaButtons = styled.button`
     background: transparent;
-    padding: 5px 10px;
+    padding: 5px;
     color: white;
     border-radius: 10px;
     border: 1px solid var(--green);
     cursor: pointer;
+    width: 50%;
+    font-size: 12px;
+    transition: all .2s ease-in-out;
     &.active {
         background-color: var(--green);
-        font-size: 15px;
     }
 `;
 export const TablePlanillaWrapper = styled.table`
@@ -44,7 +59,7 @@ export const TablePlanillaWrapper = styled.table`
     display: flex;
     flex-direction: column;
 
-    tr{
+    tr {
         &.playerEventual {
             color: var(--yellow);  
         }
@@ -57,27 +72,74 @@ export const TablePlanillaWrapper = styled.table`
         }
     }
 
-    td, th {
+    td {
         padding: 10px;
     }
+
     th {
-        color: var(--gray-200);
+        text-align: start;
+        color: var(--gray-200); 
+        font-size: 12px;
+        padding: 20px 10px 20px 10px;
+        width: 100%;
+        width: fit-content;
+        &.th-dorsal {
+            min-width: 40px;
+        }
+
+        &.th-dni {
+            min-width: 80px;
+        }
+
+        &.th-nombre {
+            min-width: 40px;
+        }
     }
 
     .head {
         display: flex;
-        justify-content: space-between;
         align-items: center;
         width: 100%;
-    }
+
+        .info-player {
+            width: 70%;
+        }
+
+        .dorsal {
+            min-width: 40px;
+        }
+
+        .dni {
+            min-width: 90px;
+        }
+        .editar {
+            width: 30%;
+            text-align: end;
+        }
+    } 
 
     tbody tr {
         display: flex;
-        justify-content: space-between;
         width: 100%;
+
+        .info-player {
+            display: flex;
+            width: 70%;
+        }
     }
 
     td {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        text-align: start;
+        &.dni {
+            min-width: 90px;
+        }
+
+        &.nombre {
+            width: 100%;
+        }
         &.disabled {
             opacity: 0.5;
             pointer-events: none;
@@ -86,8 +148,10 @@ export const TablePlanillaWrapper = styled.table`
     &.tdActions {
         display: flex;
         align-items: center;
-        gap: 5px;
-
+        justify-content: flex-end;
+        width: 30%;
+        gap: 10px;
+        font-size: 20px;
         .edit {
             color: var(--green);
             cursor: pointer;
@@ -104,25 +168,35 @@ export const TablePlanillaWrapper = styled.table`
         }
 
         .disabled {
-            pointer-events: none;
             opacity: 0.5;
-        }
+            pointer-events:none;        }
     }}
 
-    .dorsal {
-        min-width: 60px;
-        background: white;
+    td.dorsal {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'League Gothic';
+        min-width: 40px;
+        min-height: 30px;
+        background: var(--green);
         color: var(--gray-300);
-        font-weight: 700;
-        font-size: 17px;
-        border-radius: 15px;
-        text-align: center;
+        font-weight: 400;
+        font-size: 20px;
+        border-radius: 8px;
         cursor: pointer;
+
+        &.disabled {
+            background-color: var(--white);
+            opacity: .1;
+            pointer-events: none;
+        }
     }
 
     .text {
-        text-align: end;
+        text-align: start;
         font-weight: 600;
+        font-size: 12px;
     }
 `;
 

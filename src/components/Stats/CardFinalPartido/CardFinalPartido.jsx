@@ -176,10 +176,8 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
                         )
                     )}
                 </CardPartidoGoalsColumn>
-                <CardPartidoGoalsColumn>
-                    <HiLifebuoy />
-                </CardPartidoGoalsColumn>
-                <CardPartidoGoalsColumn>
+                <HiLifebuoy />
+                <CardPartidoGoalsColumn className='visita'>
                     {partido.estado !== 'F' && visitGoals.length > 0 ? (
                         visitGoals.map((gol, index) => (
                             <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>

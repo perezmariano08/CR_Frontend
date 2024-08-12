@@ -31,7 +31,7 @@ export const ButtonMatch = styled.button`
     &&.finish {
         background: var(--red);
         border: 1px solid var(--red);
-        cursor: not-allowed
+        pointer-events: none;
     }
 `
 
