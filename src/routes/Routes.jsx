@@ -52,7 +52,7 @@ const Routes = () => {
                     {/* Rutas Privadas */}
                     <Route element={<ProtectedRoute />}>
                         {/* Rutas admin */}
-                        <Route element={<ProtectedRoute roles={1} />}>
+                        <Route element={<ProtectedRoute roles={[1]} />}>
                             <Route path='/admin/temporadas/temporada' element={<LayoutAdmin className="page-temporadas"> <Temporadas/> </LayoutAdmin>} />
                             <Route path='/admin/temporadas/categorias' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
                             <Route path='/admin/temporadas/sedes' element={<LayoutAdmin> <Sedes/> </LayoutAdmin>} />
