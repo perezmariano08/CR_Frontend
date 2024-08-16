@@ -15,11 +15,16 @@ import { useNavigate } from 'react-router-dom';
 
 const CardOldMatches = ({ partidos, equipo }) => {
     const navigate = useNavigate();
+    
+    const viewToStatsMatch = (id) => {
+        navigate(`/stats-match?id=${id}`)
+    }
+    
     const determineColor = (golesLocal, golesVisitante) => {
         if (golesLocal > golesVisitante) {
             return 'var(--green)';
         } else if (golesLocal === golesVisitante) {
-            return 'var(--yellow)';
+            return 'var(--gray-200)';
         } else {
             return 'var(--red)';
         }
@@ -30,9 +35,6 @@ const CardOldMatches = ({ partidos, equipo }) => {
         return equipos.find((e) => e.id_equipo === id) || { nombre: 'Desconocido', img: 'default.png' };
     }
 
-    const viewToStatsMatch = (id) => {
-        navigate(`/stats-match?id=${id}`)
-    }
 
     return (
         <CardOldMatchesWrapper>
@@ -62,19 +64,19 @@ const CardOldMatches = ({ partidos, equipo }) => {
                                 <CardOldMatchesItem onClick={() => viewToStatsMatch(partido.id_partido)}>
                                     <MatchesItemDescription>
                                         <p>{`${partido.dia_nombre} ${partido.dia_numero} / ${partido.mes}`}</p>
-                                        <p>{`Fecha ${partido.jornada} ${partido.torneo} ${partido.año}`}</p>
+                                        <p className='fecha'>{`Fecha ${partido.jornada} ${partido.torneo} ${partido.año}`}</p>
                                     </MatchesItemDescription>
                                     <MatchesItemTeams>
                                         <MatchesItemTeam>
-                                            <img src={`${URLImages}${equipoLocalData.img}`} alt="Escudo del equipo local" />
                                             <p>{equipoLocalData.nombre}</p>
+                                            <img src={`${URLImages}${equipoLocalData.img}`} alt="Escudo del equipo local" />
                                         </MatchesItemTeam>
                                         <MatchesItemResult style={{ backgroundColor: colorResultado }}>
                                             {`${golesLocal}-${golesVisitante}`}
                                         </MatchesItemResult>
-                                        <MatchesItemTeam>
-                                            <p>{equipoVisitanteData.nombre}</p>
+                                        <MatchesItemTeam className='visit'>
                                             <img src={`${URLImages}${equipoVisitanteData.img}`} alt="Escudo del equipo visitante" />
+                                            <p>{equipoVisitanteData.nombre}</p>
                                         </MatchesItemTeam>
                                     </MatchesItemTeams>
                                 </CardOldMatchesItem>

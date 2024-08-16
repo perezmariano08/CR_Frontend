@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../Auth/AuthContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data';
@@ -12,29 +12,45 @@ import useFetchMatches from '../../hooks/useFetchMatches';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import useMessageWelcome from '../../hooks/useMessageWelcome.js';
 import { StatsNull } from '../Stats/StatsStyles.js';
+import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 
 const Home = () => {
+    const dispatch = useDispatch();
+
     const { user, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
 
-    const equipos = useSelector((state) => state.equipos.data);
-    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === user.id_equipo);
+    useEffect(() => {
+        dispatch(fetchEquipos());
+    }, []);
 
+    const equipos = useSelector((state) => state.equipos.data);
+    const [miEquipo, setMiEquipo] = useState(null);
+
+    useEffect(() => {
+        if (equipos && user?.id_equipo) {
+            const equipo = equipos.find((equipo) => equipo.id_equipo === user.id_equipo);
+            setMiEquipo(equipo);
+        }
+    }, [equipos, user]);
+
+    console.log(equipos);
+    
     const id_temporada = miEquipo?.id_temporada;
 
-    //Custom hooks
+    // Custom hooks
     useFetchMatches((partido) => miEquipo && partido.division === miEquipo.division);
-    useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast)
-    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(user.id_equipo);
+    useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
+    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(miEquipo?.id_equipo);
 
     const [posiciones, setPosiciones] = useState(null);
     const [temporadas, setTemporadas] = useState([]);
 
-    //Fetch a informacion de temporadas 
+    // Fetch a información de temporadas
     useEffect(() => {
         if (id_temporada) {
             getPosicionesTemporada(id_temporada)
-            .then((data) => setPosiciones(data))
-            .catch((error) => console.error('Error en la petición', error))
+                .then((data) => setPosiciones(data))
+                .catch((error) => console.error('Error en la petición', error));
         } else {
             console.error('ID de temporada no definido');
         }
@@ -68,10 +84,10 @@ const Home = () => {
                     <Section>
                         {fechaActual && partidosFecha.length > 0 ? (
                             <>
-                                <h2>{`Fecha ${fechaActual} - ${partidos[0].torneo} ${partidos[0].año}`}</h2>
+                                <h2>{`Fecha ${fechaActual} - ${partidosFecha[0].torneo} ${partidosFecha[0].año}`}</h2>
                                 <CardsMatchesContainer>
                                     <CardsMatchesWrapper>
-                                        {partidos
+                                        {partidosFecha
                                             .filter(
                                                 (p) =>
                                                     miEquipo && p.division === miEquipo.division && p.jornada === fechaActual

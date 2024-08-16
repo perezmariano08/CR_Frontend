@@ -15,6 +15,8 @@ export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async () =>
         }
     });
 
+    console.log('Response data:', response.data);
+
     return response.data;
 });
 const equiposSlice = createSlice({

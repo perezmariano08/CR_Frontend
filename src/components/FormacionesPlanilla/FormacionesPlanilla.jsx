@@ -15,12 +15,9 @@ import {
     handleBestPlayerOfTheMatch
 } from '../../redux/Planillero/planilleroSlice';
 import { Toaster, toast } from 'react-hot-toast';
-import Select2 from '../../components/UI/Select/Select2';
 import { IoIosStarOutline } from "react-icons/io";
 import { IoIosStar } from "react-icons/io";
-import { addBestPlayerOfTheMatch } from '../../redux/Matches/matchesSlice';
-import Axios from 'axios';
-import { URL, URLImages } from '../../utils/utils';
+import { URLImages } from '../../utils/utils';
 
 const FormacionesPlanilla = ({ idPartido, formaciones }) => {
     const dispatch = useDispatch();
