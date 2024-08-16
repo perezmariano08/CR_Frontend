@@ -4,13 +4,17 @@ import { TableContainerStyled } from './TableStyles';
 import { setSelectedRows } from '../../redux/SelectedRows/selectedRowsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { VscKebabVertical } from "react-icons/vsc";
-import { IoEllipsisVerticalSharp } from "react-icons/io5";
-import { DataTable } from 'primereact/datatable';
-import { Fieldset } from 'primereact/fieldset';
-import { RiLoader4Fill } from "react-icons/ri";
-import { URL, URLImages } from '../../utils/utils';
+import { IoShieldHalf } from "react-icons/io5";
 
-const Table = ({ data, dataColumns, arrayName, id_ }) => {
+import { URL, URLImages } from '../../utils/utils';
+import { TbShirtSport } from 'react-icons/tb';
+
+import { CiViewList } from "react-icons/ci";
+import { DataItemEstado, DataItemTemporada, LinkEdicion } from '../../pages/Administrador/Ediciones/edicionesStyles';
+import { useNavigate } from 'react-router-dom';
+
+
+const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false}) => {
     const dispatch = useDispatch();
     const selectedProducts = useSelector((state) => state.selectedRows.selectedRows);
     const [rowClick, setRowClick] = useState(true);
@@ -194,21 +198,77 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
         <VscKebabVertical onClick={() => editRow(rowData)} />
     );
 
+    const jugadoresEdicionTemplate = rowData => (
+        <DataItemTemporada to={'/admin/jugadores'}>
+            <TbShirtSport />
+            {rowData.jugadores}
+        </DataItemTemporada>
+    );
+
+    const equiposEdicionTemplate = rowData => (
+        <DataItemTemporada to={'/admin/equipos'}>
+            <IoShieldHalf />
+            {rowData.equipos}
+        </DataItemTemporada>
+    );
+
+    const categoriasEdicionTemplate = rowData => (
+        <DataItemTemporada to={'/admin/categorias'}>
+            <CiViewList />
+            {rowData.categorias}
+        </DataItemTemporada>
+    );
+
+    const estadoEdicionTemplate = rowData => {
+        if (rowData.estado === "JUGANDO") {
+            return <DataItemEstado className='blue'>
+                {rowData.estado}
+            </DataItemEstado>
+        } else {
+            return <DataItemEstado className='gray'>
+                {rowData.estado}
+            </DataItemEstado>
+        }
+    }
+
+    const linkEdicionTemplate = rowData => (
+        <LinkEdicion to={`/admin/ediciones/${rowData.id_edicion}`}>
+            Ingresar
+        </LinkEdicion>
+    )
+
+    const linkCategoriaTemplate = rowData => (
+        <LinkEdicion to={`/admin/ediciones/${rowData.id_edicion}/${rowData.id_categoria}`}>
+            Ingresar
+        </LinkEdicion>
+    )
+    const navigate = useNavigate(); // Hook para manejar la navegación
+
+    const handleRowClicks = (rowData) => {
+        // Aquí defines la ruta a la que deseas redirigir
+        navigate(`${urlClick}${rowData[id_]}`);
+    };
+
     return (
         <>
         <TableContainerStyled
                 value={data}
                 emptyMessage="No hay datos disponibles"
                 removableSort
-                paginator
+                paginator={paginator}
                 rows={50}
                 rowsPerPageOptions={[5, 10, 25, 50]}
                 selectionMode={rowClick ? null : 'multiple'}
                 selection={selectedProducts}
                 onSelectionChange={onSelectionChange}
                 dataKey={id_}
+                onRowClick={rowClickLink ? (e) => handleRowClicks(e.data) : null} // Condicional para onRowClick
             >
-                <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+                {
+                    selection && (
+                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+                    )
+                }
                 {dataColumns.map((col) => (
                     <Column
                         key={col.field}
@@ -254,7 +314,21 @@ const Table = ({ data, dataColumns, arrayName, id_ }) => {
                                 ? rowData => estadoUsuarioBodyTemplate(rowData, 'estado')
                                 : arrayName === 'Equipos' && col.field === 'temporada'
                                 ? rowData => estadoTemporadaEquipo(rowData, 'temporada')
+                                : arrayName === 'Ediciones' && col.field === 'jugadores'
+                                ? jugadoresEdicionTemplate
+                                : arrayName === 'Ediciones' && col.field === 'equipos'
+                                ? equiposEdicionTemplate
+                                : arrayName === 'Ediciones' && col.field === 'categorias'
+                                ? categoriasEdicionTemplate
+                                : arrayName === 'Ediciones' && col.field === 'estado'
+                                || arrayName === 'Categorias' && col.field === 'estado'
+                                ? estadoEdicionTemplate
+                                : arrayName === 'Ediciones' && col.field === 'link'
+                                ? linkEdicionTemplate
+                                : arrayName === 'Categorias' && col.field === 'link'
+                                ? linkCategoriaTemplate
                                 : null
+                                
                         }
                     />
                 ))}

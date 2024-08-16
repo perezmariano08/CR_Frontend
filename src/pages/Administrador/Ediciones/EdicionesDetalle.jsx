@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
 import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
@@ -9,12 +9,12 @@ import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer, ModalFormInputImg } from '../../../components/Modals/ModalsStyles';
+import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
-import { debounce } from 'lodash';
+import { dataEdicionesColumns } from '../../../Data/Ediciones/DataEdiciones';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
@@ -22,29 +22,45 @@ import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
 import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
-import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
-import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
-import { fetchDivisiones } from '../../../redux/ServicesApi/divisionesSlice';
+import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
-import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
+import { CategoriasEdicionEmpty, MenuContentTop, TablasTemporadaContainer, TablaTemporada } from './edicionesStyles';
+import useForm from '../../../hooks/useForm';
+import { TbPlayFootball } from 'react-icons/tb';
 import Select from '../../../components/Select/Select';
-import { PiUser } from 'react-icons/pi';
-import { MdMessage, MdOutlineImage } from "react-icons/md";
-import { BiMessageDetail } from 'react-icons/bi';
 
-const Equipos = () => {
+import { TbNumber } from "react-icons/tb";
+import { BsCalendar2Event } from "react-icons/bs";
+import { NavLink, useParams } from 'react-router-dom';
+import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
+
+const EdicionesDetalle = () => {
     const dispatch = useDispatch();
+    const { id_page } = useParams(); // Obtenemos el id desde la URL
+    
+    // Manejo del form
+    const [formState, handleFormChange, resetForm] = useForm({ 
+        nombre_edicion: '',
+        id_torneo: '',
+        temporada: new Date().getFullYear(),
+        mes_inicio: '',
+        mes_finalizacion: '',
+        puntos_victoria: 3,
+        puntos_empate: 1,
+        puntos_derrota: 0,
+    });
+    const isFormEmpty = !formState.nombre_edicion.trim();
 
     // Constantes del modulo
     const articuloSingular = "el"
     const articuloPlural = "los"
-    const id = "id_equipo"
-    const plural = "equipos"
-    const singular = "equipo"
-    const get = "get-equipos"
-    const create = "crear-equipo"
-    const importar = "importar-equipo"
-    const eliminar = "delete-equipo"
+    const id = "id_año"
+    const plural = "ediciones"
+    const singular = "edicion"
+    const get = "get-anios"
+    const create = "crear-anio"
+    const importar = "importar-anios"
+    const eliminar = "delete-anio"
 
     // Estados para manejar la apertura y cierre de los modales
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -62,17 +78,19 @@ const Equipos = () => {
     const fileInputRef = useRef(null);
 
     // Estados para guardar los valores de los inputs
-    const [nombre, setNombre] = useState("");
+    const [año, setAño] = useState("");
     const [descripcion, setDescripcion] = useState("");
-    const [categoria, setCategoria] = useState("");
-    const [division, setDivision] = useState("");
-    const [img, setImg] = useState("");
 
     // Estado del el/los Listado/s que se necesitan en el modulo
-    const equiposList = useSelector((state) => state.equipos.data);
-    const divisionesList = useSelector((state) => state.divisiones.data);
+    const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
-
+    console.log(edicionesList);
+    
+    const edicionesListConLinks = edicionesList.map(edicion => ({
+    ...edicion,
+    link: `/${edicion.id_edicion}`,  // Aquí construyes el enlace basado en el id u otros datos
+    }));
+    
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
 
@@ -131,13 +149,13 @@ const Equipos = () => {
         if (selectedRows.length > 0) {
             setIsSaving(true);
             const deletePromises = selectedRows.map(row => 
-                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_jugador })
+                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_año })
             );
     
             toast.promise(
                 Promise.all(deletePromises)
                     .then(async () => {
-                        dispatch(fetchJugadores());
+                        dispatch(fetchAños());
                         closeDeleteModal();
                         dispatch(clearSelectedRows());
                         setFileKey(prevKey => prevKey + 1);
@@ -158,68 +176,41 @@ const Equipos = () => {
 
 
     useEffect(() => {
-        dispatch(fetchJugadores());
-        dispatch(fetchEquipos());
-        dispatch(fetchDivisiones())
-        dispatch(fetchCategorias())
+        dispatch(fetchEdiciones());
+        dispatch(fetchCategorias());
         return () => {
             dispatch(clearSelectedRows());
         };
     }, []);
 
     const agregarDato = async () => {
-        if (
-            nombre !== "" && 
-            categoria !== "" && 
-            img !== "" && 
-            division !== "") {
+        if (formState.nombre_edicion !== "") {
+            console.log(formState);
             setIsSaving(true);
             try {
-                const response = await Axios.get(`${URL}/user/${get}`);
+                const response = await Axios.get(`${URL}/user/get-ediciones`);
                 const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.nombre === nombre);
+                const datoExiste = datosExistentes.some(a => a.nombre === formState.nombre_edicion);
                 if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)} ${singular} ya existe.`);
-                    setIsSaving(false);
+                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
                 } else {
-                    let imageUrl = img; // Usa la URL de la imagen actual si no se ha seleccionado una nueva
-
-                    if (imageFile) {
-                        
-                        // Crear un FormData para enviar el archivo al servidor
-                        const formData = new FormData();
-                        formData.append('image', imageFile);
-                        // Subir la imagen al servidor
-                        const uploadResponse = await Axios.post(`${URL}/upload-image/equipo`, formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        });
-                        imageUrl = uploadResponse.data.imageUrl;
-                        setImg(imageUrl) // Usa la URL de la imagen subida
-                    }
-    
-                    Axios.post(`${URL}/admin/${create}`, {
-                        nombre,
-                        categoria,
-                        division,
-                        img: imageUrl,
-                        descripcion
+                    Axios.post(`${URL}/user/crear-edicion`, {
+                        nombre: formState.nombre_edicion,
+                        temporada: formState.temporada,
+                        puntos_victoria: formState.puntos_victoria,
+                        puntos_empate: formState.puntos_empate,
+                        puntos_derrota: formState.puntos_derrota
                     }).then(() => {
                         toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
-                        setIsSaving(false);
-                        dispatch(fetchEquipos());
+                        dispatch(fetchEdiciones());
                         closeCreateModal();
-                        setNombre("");
+                        setAño("");
                         setDescripcion("");
-                        setImg("");
-                        setCategoria("");
-                        setDivision("");
-                        setImageFile(null); // Restablece el archivo de imagen
+                        setIsSaving(false)
                     });
                 }
             } catch (error) {
-                setIsSaving(false);
+                setIsSaving(false)
                 console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
                 toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
             }
@@ -230,10 +221,7 @@ const Equipos = () => {
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
     const openCreateModal = () => setIsCreateModalOpen(true);
-    const closeCreateModal = () => {
-        setPreviewImage(false);
-        setIsCreateModalOpen(false)
-    };
+    const closeCreateModal = () => setIsCreateModalOpen(false);
     const openDeleteModal = () => setIsDeleteModalOpen(true);
     const closeDeleteModal = () => setIsDeleteModalOpen(false);
     const openImportModal = () => setIsImportModalOpen(true);
@@ -271,14 +259,9 @@ const Equipos = () => {
     
         return csv;
     };
-
-    const editRow = () => {
-        setNombre(selectedRows[0].nombre);
-        openCreateModal()
-    };
     
     const handleExport = () => {
-        const csv = convertToCSV(añosList);
+        const csv = convertToCSV(edicionesList);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -291,78 +274,60 @@ const Equipos = () => {
         link.click();
         document.body.removeChild(link);
     };
-
-    const [imageFile, setImageFile] = useState(null); // Estado para almacenar el archivo de imagen
-    const [previewImage, setPreviewImage] = useState("");
-
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setImageFile(file);
-            setImg(file)
-            // Crear una URL de vista previa para la imagen seleccionada
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
-            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
-        }
-    };
-
-    // Debounce the onChange handler
-    const handleInputChange = useCallback(debounce((event) => {
-        setNombre(event.target.value);
-    }, 300), []);
     
-
+    const temporadas = [...new Set(edicionesList.map(edicion => edicion.temporada))]
+    .sort((a, b) => b - a); // Ordena las temporadas de más reciente a más antigua
+    
+    const edicionFiltrada  = edicionesList.find(edicion => edicion.id_edicion == id_page);
+    const categoriasFilter  = categoriasList.filter(categoria => categoria.id_edicion == id_page);
+    const categoriasLista = categoriasFilter.map(categoria => ({
+        ...categoria,
+        link: ``, 
+        }));
+    console.log(categoriasList);
+    
     return (
         <Content>
+            <MenuContentTop>
+                <NavLink to={'/admin/ediciones'}>Ediciones</NavLink>
+                /
+                <div>{edicionFiltrada.nombre}</div>
+            </MenuContentTop>
+            
             <Toaster />
-            <ContentTitle>{plural.charAt(0).toUpperCase() + plural.slice(1)}</ContentTitle>
-            <ActionsCrud>
-                <ActionsCrudButtons>
-                    <Button bg="success" color="white" onClick={openCreateModal}>
-                        <FiPlus />
-                        <p>Nuevo</p>
-                    </Button>
-                    <Button bg="danger" color="white" onClick={openDeleteModal} disabled={selectedRows.length === 0}>
-                        <IoTrashOutline />
-                        <p>Eliminar</p>
-                    </Button>
-                    <Button bg="import" color="white" onClick={editRow} disabled={selectedRows.length > 1 || selectedRows.length === 0}>
-                        <IoTrashOutline />
-                        <p>Eliminar</p>
-                    </Button>
-                </ActionsCrudButtons>
-                <ActionsCrudButtons>
-                    <label htmlFor="importInput" style={{ display: 'none' }}>
-                        <input
-                            type="file"
-                            id="importInput"
-                            accept=".csv"
-                            key={fileKey}
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
+
+            
+            {
+                categoriasLista.length > 0 ? (
+                    <>
+                        <Table
+                            data={categoriasLista}
+                            dataColumns={dataCategoriasColumns}
+                            arrayName={'Categorias'}
+                            paginator={false}
                         />
-                    </label>
-                    <Button bg="import" color="white" onClick={openImportModal}>
-                        <LuUpload />
-                        <p>Importar</p>
-                    </Button>
-                    <Button bg="export" color="white" onClick={handleExport} disabled={equiposList.length === 0}>
-                        <LuDownload />
-                        <p>Descargar</p>
-                    </Button>
-                </ActionsCrudButtons>
-            </ActionsCrud>
-            <Table data={equiposList} dataColumns={dataEquiposColumns} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
+                        <Button bg="success" color="white" onClick={openCreateModal}>
+                            <FiPlus />
+                            <p>Agregar categoría</p>
+                        </Button>
+                    </>
+                ) : (
+                    <CategoriasEdicionEmpty>
+                        <h2>¡Ya podés empezar a crear categorías!</h2>
+                        <Button bg="success" color="white" onClick={openCreateModal}>
+                            <FiPlus />
+                            <p>Nueva categoría</p>
+                        </Button>
+                    </CategoriasEdicionEmpty>
+                )
+            }
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
                         animate={{ opacity: isCreateModalOpen ? 1 : 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        title={`Crear ${singular}`}
+                        title={`Crear categoría`}
                         onClickClose={closeCreateModal}
                         buttons={
                             <>
@@ -384,61 +349,110 @@ const Equipos = () => {
                                 </Button>
                             </>
                         }
-                        form={ <>
-                            <ModalFormInputContainer>
-                                Nombre del equipo
-                                <Input 
-                                    type='text' 
-                                    placeholder="Escriba el nombre..." 
-                                    onChange={handleInputChange}
-                                    icon={<IoShieldHalf className='icon-input'/>} 
-                                />
-                            </ModalFormInputContainer>
-                            <ModalFormInputContainer>
-                                Logo (Opcional)
-                                <ModalFormInputImg>
-                                    {previewImage && <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />}
+                        form={
+                            <>
+                                <ModalFormInputContainer>
+                                    nombre
                                     <Input 
-                                        type='file' 
-                                        accept="image/*"
-                                        onChange={(event) => handleImageUpload(event)}
-                                        icon={<MdOutlineImage className='icon-input'/>}
+                                        name='nombre_categoria'
+                                        type='text' 
+                                        placeholder="Nombre" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.nombre_categoria}
+                                        onChange={handleFormChange}
                                     />
-                                </ModalFormInputImg>
-                            </ModalFormInputContainer>
-                            <ModalFormInputContainer>
-                                Categoría
-                                <Select
-                                    data={categoriasList}
-                                    placeholder="Seleccionar categoría"
-                                    icon={<IoShieldHalf className='icon-select'/>}
-                                    id_={"id_categoria"}
-                                    onChange={(event) => { setCategoria(event.target.value)}}
-                                >
-                                </Select>
-                            </ModalFormInputContainer>
-                            <ModalFormInputContainer>
-                                División
-                                <Select
-                                    data={divisionesList}
-                                    placeholder="Seleccionar divisin"
-                                    icon={<IoShieldHalf className='icon-select'/>}
-                                    id_={"id_division"}
-                                    onChange={(event) => { setDivision(event.target.value)}}
-                                >
-                                </Select>
-                            </ModalFormInputContainer>
-                            <ModalFormInputContainer>
-                                Añadir descripción (Opcional)
-                                <Input 
-                                    type='text' 
-                                    placeholder="Escriba aqui..."
-                                    onChange={(event) => { setDescripcion(event.target.value)}} 
-                                    icon={<BiMessageDetail className='icon-input'/>}
-                                />
-                            </ModalFormInputContainer>
-                        </>
-                    }
+                                    <p>
+                                        Ejemplos de nombres: <span>Primera Masculino, Femenino F5, Infantiles F11, B Veteranos</span>
+                                    </p>
+                                </ModalFormInputContainer>
+                                <ModalFormWrapper>
+                                <ModalFormInputContainer>
+                                    genero
+                                    <Select 
+                                        name={'genero'}
+                                        data={[
+                                            {
+                                                genero: 'B',
+                                                nombre: "Mixto",
+                                            },
+                                            {
+                                                genero: 'M',
+                                                nombre: "Masculino",
+                                            },
+                                            {
+                                                genero: 'F',
+                                                nombre: "Femenino",
+                                            }
+                                        ]}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"genero"}
+                                        column='nombre'
+                                        value={formState.genero}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    tipo de futbol
+                                    <Select 
+                                        name={'tipo_futbol'}
+                                        data={[
+                                            {
+                                                tipo_futbol: 7,
+                                                nombre: "Futbol 7",
+                                            },
+                                            {
+                                                tipo_futbol: 8,
+                                                nombre: "Futbol 8",
+                                            },
+                                            {
+                                                tipo_futbol: 9,
+                                                nombre: "Futbol 9",
+                                            },
+                                            {
+                                                tipo_futbol: 11,
+                                                nombre: "Futbol 11",
+                                            },
+                                            {
+                                                tipo_futbol: 1,
+                                                nombre: "Otro",
+                                            }
+                                        ]}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"tipo_futbol"}
+                                        column='nombre'
+                                        value={formState.tipo_futbol}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                </ModalFormWrapper>
+                                <ModalFormWrapper>
+                                <ModalFormInputContainer>
+                                    duración de cada tiempo
+                                    <Input 
+                                        name='duracion_tiempo'
+                                        type='number' 
+                                        placeholder="45" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.duracion_tiempo}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    duración del entretiempo
+                                    <Input 
+                                        name='duracion_entretiempo'
+                                        type='number' 
+                                        placeholder="5" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.duracion_entretiempo}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                </ModalFormWrapper>
+                            </>
+                        }
                     />
                     <Overlay onClick={closeCreateModal} />
                 </>
@@ -520,4 +534,4 @@ const Equipos = () => {
     );
 };
 
-export default Equipos;
+export default EdicionesDetalle;

@@ -17,6 +17,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { fetchUsuarios } from '../../redux/ServicesApi/usuariosSlice';
 import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice';
 import { BiBlock } from "react-icons/bi";
+import { HiOutlineTrophy } from "react-icons/hi2";
 
 
 const Aside = ({className}) => {
@@ -81,6 +82,10 @@ const Aside = ({className}) => {
                         <MdOutlineDashboard />
                         <p>Dashboard</p>
                     </NavLinkItem>
+                    <NavLinkItem to={"/admin/ediciones"}>
+                        <HiOutlineTrophy />
+                        <p>Ediciones</p>
+                    </NavLinkItem>
                     <NavLinkItem to={"/admin/equipos"}>
                         <IoShieldHalf />
                         <p>Equipos</p>
@@ -122,11 +127,11 @@ const Aside = ({className}) => {
                                     className='submenu'
                                 >
                                     <SubMenu>
+                                        <SubMenuItem to={"/admin/temporadas/años"}>Ediciones</SubMenuItem>
                                         <SubMenuItem to={"/admin/temporadas/temporada"}>Crear temporada</SubMenuItem>
                                         <SubMenuItem to={"/admin/temporadas/categorias"}>Categorías</SubMenuItem>
                                         <SubMenuItem to={"/admin/temporadas/torneos"}>Torneos</SubMenuItem>
                                         <SubMenuItem to={"/admin/temporadas/sedes"}>Sedes</SubMenuItem>
-                                        <SubMenuItem to={"/admin/temporadas/años"}>Años</SubMenuItem>
                                         <SubMenuItem to={"/admin/temporadas/divisiones"}>Divisiones</SubMenuItem>
                                     </SubMenu>
                                 </motion.div> 

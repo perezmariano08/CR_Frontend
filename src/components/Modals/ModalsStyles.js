@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 
 export const ModalContainerStyled = styled(motion.div)`
-    width: 450px;
+    min-width: 450px;
     background-color: var(--gray-500);
     display: flex;
     flex-direction: column;
@@ -42,6 +42,15 @@ export const ModalForm = styled.form`
     gap: 20px;
     z-index: 99;
 `
+export const ModalFormWrapper = styled.div`
+    display: flex;
+    gap: 15px;
+    align-items: start;
+
+    select {
+        min-width: 200px;
+    }
+`
 
 export const ModalFormInputContainer = styled.div`
     display: flex;
@@ -50,6 +59,17 @@ export const ModalFormInputContainer = styled.div`
     gap: 10px;
     font-size: 12px;
     text-transform: uppercase;
+
+    p {
+        transition: all .2s ease-in-out;
+        color: var(--white);
+        font-weight: 500;
+        text-transform: initial;
+        span {
+            font-weight: 700;
+            color: var(--green);
+        }
+    }
 `
 
 export const ModalFormInputImg = styled.div`

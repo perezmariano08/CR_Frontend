@@ -34,13 +34,14 @@ import MorePlanillero from '../pages/More/MorePlanillero';
 import Divisiones from '../pages/Administrador/Divisiones/Divisiones';
 import Expulsados from '../pages/Administrador/Expulsados/Expulsados';
 import ForgotPassword from '../pages/Login/ForgotPassword/ForgotPassword';
+import Ediciones from '../pages/Administrador/Ediciones/Ediciones';
+import EdicionesDetalle from '../pages/Administrador/Ediciones/EdicionesDetalle';
 
 const Routes = () => {
     return (
         <AuthProvider>
             <BrowserRouter>
                 <ReactDomRoutes>
-
                     {/* Rutas Públicas */}
                     <Route path='/onboarding' element={<Layout> <Onboarding/> </Layout>} />
                     <Route path='/login' element={<Layout> <Login/> </Layout>} />
@@ -64,6 +65,8 @@ const Routes = () => {
                             <Route path='/admin/equipos' element={<LayoutAdmin> <Equipos/> </LayoutAdmin>} />
                             <Route path='/admin/partidos' element={<LayoutAdmin> <Partidos/> </LayoutAdmin>} />
                             <Route path='/admin/dashboard' element={<LayoutAdmin> <Admin/> </LayoutAdmin>} />
+                            <Route path='/admin/ediciones' element={<LayoutAdmin> <Ediciones/> </LayoutAdmin>} />
+                            <Route path='/admin/ediciones/:id_page' element={<LayoutAdmin> <EdicionesDetalle/> </LayoutAdmin>} />
                             <Route path='/admin/sanciones/expulsados' element={<LayoutAdmin> <Expulsados/> </LayoutAdmin>} />
                         </Route>
 

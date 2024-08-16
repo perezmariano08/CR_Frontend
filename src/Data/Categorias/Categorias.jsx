@@ -1,6 +1,10 @@
 export const dataCategoriasColumns = [
     { field: "nombre", header: "Categoría" },
-    { field: "descripcion", header: "Descripción" }
+    { field: "estado", header: "Estado" },
+    { field: "partidos", header: "Partidos jugados / totales" },
+    { field: "equipos", header: "Equipos" },
+    { field: "jugadores", header: "jugadores" },
+    { field: "link", header: "" },
 ];
 
 
