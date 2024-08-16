@@ -14,7 +14,7 @@ export const FixtureWrapper = styled.div`
 export const FixtureTop = styled.div`
     display: flex;
     width: 100%;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     align-items: start;
 `;
 
@@ -27,13 +27,13 @@ export const FixtureTitle = styled.div`
     width: 100%;
     h3 {
         font-weight: 600;
-        font-size: 12px;
-        line-height: 12px;
+        font-size: 14px;
+        line-height: 16px;
     }
 
     p {
         font-weight: 300;
-        font-size: 8px;
+        font-size: 10px;
         line-height: 8px;
         color: var(--green);
     }
@@ -42,8 +42,24 @@ export const FixtureTitle = styled.div`
 export const NavigateFixture = styled.div`
     display: flex;
     align-items: center;
+    justify-content: end;
+    width: 50%;
+    gap: 5px;
+
+    h3 {
+        font-size: 14px;
+        /* margin: 0 16px; */
+        /* flex: 1; */
+        /* text-align: center; */
+    }
+`;
+
+export const ButtonWrapper = styled.div`
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 8px;
+    /* width: 40px; */
+    width: 20%;
 
     button {
         display: flex;
@@ -53,19 +69,13 @@ export const NavigateFixture = styled.div`
         border: none;
         color: var(--green);
     }
-
-    h3 {
-        font-size: 14px;
-    }
 `;
 
 export const FixtureMatch = styled.div`
     display: flex;
     width: 100%;
     align-items: center;
-    justify-content: space-between;
     padding: 0 5px;
-    gap: 5px;
     cursor: pointer;
 `;
 
@@ -73,18 +83,20 @@ export const FixtureMatchTeam = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: start;
-    gap: 3px;
+    text-align: end;
+    gap: 5px;
     min-width: 100px;
+    width: 100%;
     h4 {
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 12px;
+        font-weight: 300;
+        width: 100%;
     }
     img {
         height: 30px;
     }
     &.visit {
-        text-align: end;
+        text-align: start;
     }
 `;
 
@@ -93,13 +105,20 @@ export const FixtureMatchInfo = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
     h5 {
-        font-size: 14px;
+        font-size: 17px;
         font-weight: 600;
     }
     p{
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 400;
         color: var(--green);
     }
 `;
+
+export const FixtureTitleDivider = styled.div`
+    height: 1px;
+    width: 100%;
+    background-color: var(--gray-200);
+`

@@ -17,23 +17,23 @@ export const IndicentsContainer = styled.div`
 `
 export const IncidentLocal = styled.div`
     display: flex;
-    gap: 20px;
+    gap: 10px;
     padding: 10px 0;
-    border-top: 1px solid var(--gray-200);
+    /* border-top: 1px solid var(--gray-200); */
     align-items: center;
 
     h3 {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 600;
     }
 
     &i,svg {
         color: var(--green);
-        font-size: 12px;
+        font-size: 15px;
     }
 
     h4 {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 300;
     }
 

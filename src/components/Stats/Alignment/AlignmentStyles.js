@@ -25,18 +25,18 @@ export const AlignmentTeam = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
-    width: 50%;
+    /* width: 50%; */
 
     &.visita {
         justify-content: end;
     }
 
     img {
-        width: 20px;
+        width: 30px;
     }
 
     h3 {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
     }
 `
@@ -59,12 +59,13 @@ export const AlignmentPlayer = styled.div`
     gap: 5px;
 
     h4 {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 600;
+        color: var(--green);
     }
 
     p  {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 300;
     }
 `

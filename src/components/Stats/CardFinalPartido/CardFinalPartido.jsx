@@ -31,7 +31,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             const visitante = [];
 
             // Procesamos goles para el equipo local
-            matchCorrecto.Local.Player.forEach(player => {
+            matchCorrecto?.Local.Player.forEach(player => {
                 if (player.Actions) {
                     player.Actions.forEach(action => {
                         if (action.Type === 'Gol') {
@@ -52,7 +52,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             });
 
             // Procesamos goles para el equipo visitante
-            matchCorrecto.Visitante.Player.forEach(player => {
+            matchCorrecto?.Visitante.Player.forEach(player => {
                 if (player.Actions) {
                     player.Actions.forEach(action => {
                         if (action.Type === 'Gol') {
@@ -146,9 +146,9 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
                             <h4>{localGoals.length}-{visitGoals.length}</h4>
                         )
                     }
-                    {matchCorrecto.matchState === null && partido.estado === 'P' ? (
+                    {matchCorrecto?.matchState === null && partido.estado === 'P' ? (
                         <span>Por comenzar</span>
-                    ) : matchCorrecto.matchState === 'isStarted' ? (
+                    ) : matchCorrecto?.matchState === 'isStarted' ? (
                         <span>En curso</span>
                     ) : partido.estado === 'F' &&(
                         <span>Final</span>

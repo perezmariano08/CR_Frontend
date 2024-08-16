@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPartidos } from "../redux/ServicesApi/partidosSlice";
+import { fetchEquipos } from "../redux/ServicesApi/equiposSlice";
 
 
 const useMatchesUser = (idEquipo) => {
@@ -13,6 +14,7 @@ const useMatchesUser = (idEquipo) => {
 
     useEffect(() => {
         dispatch(fetchPartidos())
+        dispatch(fetchEquipos())
     }, [])
 
     useEffect(() => {

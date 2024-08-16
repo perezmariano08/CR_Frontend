@@ -37,7 +37,7 @@ const MyTeam = () => {
     const equipoId = equipoIdFromParams || user.id_equipo;
 
     const miEquipo = useMemo(() => equipos.find((equipo) => equipo.id_equipo === equipoId), [equipos, equipoId]);
-
+    
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [equipoId]);
@@ -109,7 +109,7 @@ const MyTeam = () => {
             <MyTeamContainerStyled className='container'>
                 <MyTeamWrapper className='wrapper'>
                     <Section>
-                        <h2>Partidos</h2>
+                        <h2>Estadísticas</h2>
                         <MyTeamMatches>
                             <MyTeamMatchesItem className='pj'>
                                 <h4>{partidosMiEquipo.length}</h4>

@@ -4,10 +4,10 @@ import { HiLifebuoy, HiMiniPencil, HiMiniStop, HiOutlineXCircle } from "react-ic
 import { IoIosStar } from "react-icons/io";
 import { toggleHiddenModal, setActionToDelete, toggleHiddenAction, setCurrentStateModal, setActionToEdit, setEnabledActionEdit } from '../../../redux/Planillero/planilleroSlice';
 import { IncidentLocal, IndicentsContainer, IndicentsWrapper, IconContainer } from './IndicentsStyles';
-import { URL, URLImages } from '../../../utils/utils';
+import { TbRectangleVerticalFilled } from "react-icons/tb";
+import { URLImages } from '../../../utils/utils';
 import { AlignmentDivider, AlignmentTeam, AlignmentTeams } from '../Alignment/AlignmentStyles';
 import toast, { Toaster } from 'react-hot-toast';
-
 
 const Incidents = ({ incidentes, formaciones, partidoId }) => {
   const dispatch = useDispatch();
@@ -19,6 +19,8 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
 
   // Get local and visitor incidents
   const getIncidenciasFromLocal = (team, isLocal) => {
+    if (!team || !team.Player) return [];
+
     return team.Player
       .filter(player => player.Actions)
       .flatMap(player => player.Actions.map(action => {
@@ -66,7 +68,7 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
             penal: incident.penal,
             enContra: incident.en_contra
           },
-          Local: incident.id_equipo === (partido ? partido.id_equipoLocal : '')
+          Local: incident.id_equipo === partido.id_equipoLocal
         };
       });
   };
@@ -83,93 +85,109 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
 
   incidencias.sort((a, b) => a.Minuto - b.Minuto);
 
-  const mejorJugador = formaciones.local.concat(formaciones.visitante)
-    .find(jugador => jugador.id_jugador === (partido ? partido.jugador_destacado : ''));
+  const mejorJugador = [
+    ...(formaciones.local || []),
+    ...(formaciones.visitante || [])
+  ].find(jugador => jugador.id_jugador === partido.jugador_destacado);
 
-    const escudosEquipos = (idEquipo) => {
-      const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-      return equipo ? equipo.img : '/default-image.png';
-    };
-  
-    const nombreEquipos = (idEquipo) => {
-      const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-      return equipo ? equipo.nombre : 'Unknown Team';
-    };
+  const escudosEquipos = (idEquipo) => {
+    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
+    return equipo ? equipo.img : '/default-image.png';
+  };
 
-    const renderActionIcon = (action) => {
-      switch (action.Accion) {
-        case 'Gol':
-          return <HiLifebuoy />;
-        case 'Amarilla':
-          return <HiMiniStop className="yellow" />;
-        case 'Roja':
-          return <HiMiniStop className="red" />;
-        default:
-          return null;
-      }
-    };
+  const nombreEquipos = (idEquipo) => {
+    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
+    return equipo ? equipo.nombre : 'Unknown Team';
+  };
 
-    const handleDeleteAction = (action) => {
-      if (partido?.estado !== 'F') {
-        dispatch(toggleHiddenModal());
-        dispatch(setActionToDelete(action));
-        dispatch(setCurrentStateModal('action'));
-      } else {
-        toast.error('El partido ya ha sido cargado en la base de datos');
-      }
-    };
-  
-    const handleEditAccion = (action) => {
-      if (partido?.estado !== 'F') {
-        dispatch(setActionToEdit(action));
-        dispatch(setEnabledActionEdit());
-        dispatch(toggleHiddenAction());
-      } else {
-        toast.error('El partido ya ha sido cargado en la base de datos');
-      }
-    };
+  const renderActionIcon = (action) => {
+    switch (action.Accion) {
+      case 'Gol':
+        return <HiLifebuoy />;
+      case 'Amarilla':
+        return <TbRectangleVerticalFilled className="yellow" />;
+      case 'Roja':
+        return <TbRectangleVerticalFilled className="red" />;
+      default:
+        return null;
+    }
+  };
+
+  const handleDeleteAction = (action) => {
+    if (partido.estado !== 'F') {
+      dispatch(toggleHiddenModal());
+      dispatch(setActionToDelete(action));
+      dispatch(setCurrentStateModal('action'));
+    } else {
+      toast.error('El partido ya ha sido cargado en la base de datos');
+    }
+  };
+
+  const handleEditAccion = (action) => {
+    if (partido.estado !== 'F') {
+      dispatch(setActionToEdit(action));
+      dispatch(setEnabledActionEdit());
+      dispatch(toggleHiddenAction());
+    } else {
+      toast.error('El partido ya ha sido cargado en la base de datos');
+    }
+  };
+
   return (
-<IndicentsWrapper>
-  <h3>Incidencias</h3>
-  <AlignmentDivider/>
-  <AlignmentTeams>
-    <AlignmentTeam className='local'>
-      <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
-      <h3>{nombreEquipos(partido.id_equipoLocal)}</h3>
-    </AlignmentTeam>
-    <AlignmentTeam className='visita'>
-      <h3>{nombreEquipos(partido.id_equipoVisita)}</h3>
-      <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
-    </AlignmentTeam>
-  </AlignmentTeams>
-  <IndicentsContainer>
-    {incidencias.map((action, index) => (
-      <IncidentLocal key={index} className={action.Local ? 'local' : 'visit'}>
-        <h3>{action.Minuto}'</h3>
-        {renderActionIcon(action)}
-        <h4>{action.Nombre}</h4>
-        {partido.estado !== 'F' && (
-          <IconContainer>
-            <HiMiniPencil onClick={() => handleEditAccion(action)} />
-            <HiOutlineXCircle
-              className='delete'
-              onClick={() => handleDeleteAction(action)}
-            />
-          </IconContainer>
+    <IndicentsWrapper>
+      <h3>Incidencias</h3>
+      <AlignmentDivider />
+      <AlignmentTeams>
+        <AlignmentTeam className='local'>
+          <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
+          <h3>{nombreEquipos(partido.id_equipoLocal)}</h3>
+        </AlignmentTeam>
+        <AlignmentTeam className='visita'>
+          <h3>{nombreEquipos(partido.id_equipoVisita)}</h3>
+          <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
+        </AlignmentTeam>
+      </AlignmentTeams>
+      <IndicentsContainer>
+        {incidencias.map((action, index) => (
+          <IncidentLocal key={index} className={action.Local ? 'local' : 'visit'}>
+            {action.Local ? (
+              <>
+                {partido.estado !== 'F' && (
+                  <IconContainer>
+                    <HiMiniPencil onClick={() => handleEditAccion(action)} />
+                    <HiOutlineXCircle className='delete' onClick={() => handleDeleteAction(action)} />
+                  </IconContainer>
+                )}
+                <h3>{action.Minuto}'</h3>
+                {renderActionIcon(action)}
+                <h4>{action.Nombre}</h4>
+              </>
+            ) : (
+              <>
+                <h4>{action.Nombre}</h4>
+                {renderActionIcon(action)}
+                <h3>{action.Minuto}'</h3>
+                {partido.estado !== 'F' && (
+                  <IconContainer>
+                    <HiMiniPencil onClick={() => handleEditAccion(action)} />
+                    <HiOutlineXCircle className='delete' onClick={() => handleDeleteAction(action)} />
+                  </IconContainer>
+                )}
+              </>
+            )}
+          </IncidentLocal>
+        ))}
+        {partido.estado === 'F' && mejorJugador && (
+          <IncidentLocal className='mejorJugador'>
+            <h3>Mejor Jugador</h3>
+            <h4>{mejorJugador.nombre} {mejorJugador.apellido}</h4>
+            <IoIosStar />
+          </IncidentLocal>
         )}
-      </IncidentLocal>
-    ))}
-    {partido.estado === 'F' && mejorJugador && (
-      <IncidentLocal className='mejorJugador'>
-        <h3>Mejor Jugador</h3>
-        <h4>{mejorJugador.nombre} {mejorJugador.apellido}</h4>
-        <IoIosStar />
-      </IncidentLocal>
-    )}
-  </IndicentsContainer>
-  <Toaster />
-</IndicentsWrapper>
-);
+      </IndicentsContainer>
+      <Toaster />
+    </IndicentsWrapper>
+  );
 };
 
 export default Incidents;

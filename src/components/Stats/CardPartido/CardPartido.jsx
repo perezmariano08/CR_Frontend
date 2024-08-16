@@ -156,7 +156,7 @@ const CardPartido = ({ partido, rol }) => {
                         </NavLink>
                     </CardPartidoStats>
                 </>
-            ) : rol === 3 && partido.estado === 'F' ? (
+            ) : rol === 3 ? (
                 <>
                     <CardPartidoDivider/>
                     <CardPartidoStats>
