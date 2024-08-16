@@ -14,6 +14,7 @@ export const ButtonWrapper = styled.button`
     cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
     opacity: ${({ disabled }) => (disabled ? 0.5 : .9)};
     transition: all .2s ease-in-out;
+    width: fit-content;
     
     &:hover {
         opacity: ${({ disabled }) => (disabled ? 0.5 : 0.75)};

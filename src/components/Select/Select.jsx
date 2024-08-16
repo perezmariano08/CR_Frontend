@@ -16,7 +16,7 @@ const Select = ({ data, placeholder, column = "nombre", onChange, id_, icon, val
     return (
         <SelectContainerStyled>
             <SelectWrapper onChange={handleSelectChange} value={value} disabled={disabled} name={name}>
-                <option value=''>{placeholder}</option>
+                {placeholder && <option value=''>{placeholder}</option>}
                 {data.map((item, index) => (
                     <option key={index} value={item[id_]}>
                         {item[column]}

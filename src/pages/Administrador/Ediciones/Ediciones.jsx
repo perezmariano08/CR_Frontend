@@ -1,36 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
-import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
-import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
 import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
-import { LuDownload, LuUpload } from 'react-icons/lu';
+import { LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
-import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
-import { dataEdicionesColumns } from '../../../Data/Ediciones/DataEdiciones';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
-import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
 import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
+import { TablasTemporadaContainer, TablaTemporada } from './edicionesStyles';
 import useForm from '../../../hooks/useForm';
-import { TbPlayFootball } from 'react-icons/tb';
 import Select from '../../../components/Select/Select';
 
 import { TbNumber } from "react-icons/tb";
 import { BsCalendar2Event } from "react-icons/bs";
+import { edicionesListColumns } from '../../../Data/Ediciones/edicionesListColumns';
 
-const Años = () => {
+const Ediciones = () => {
     const dispatch = useDispatch();
 
     // Manejo del form
@@ -49,7 +45,7 @@ const Años = () => {
     // Constantes del modulo
     const articuloSingular = "el"
     const articuloPlural = "los"
-    const id = "id_año"
+    const id = "id_edicion"
     const plural = "ediciones"
     const singular = "edicion"
     const get = "get-anios"
@@ -78,90 +74,14 @@ const Años = () => {
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
-
+    
+    const edicionesListConLinks = edicionesList.map(edicion => ({
+    ...edicion,
+    link: `/${edicion.id_edicion}`,  // Aquí construyes el enlace basado en el id u otros datos
+    }));
+    
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
-
-    const handleFileChange = async (event) => {
-        const file = event.target.files[0];
-        setFileName(file.name); // Guarda el nombre del archivo seleccionado
-
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                const data = results.data.filter(row => Object.keys(row).length > 0);
-                setFileData(data); // Guarda los datos del archivo en el estado
-            },
-            error: (error) => {
-                toast.error("Error al leer el archivo");
-                console.error("Error al leer el archivo:", error);
-            }
-        });
-    };
-
-    const handleFileImport = async () => {
-        if (fileData) {
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/admin/${get}`);
-                const datosExistentes = response.data.map(a => a.año);
-                const nuevosDatos = fileData.filter(row => !datosExistentes.includes(row.año));
-                if (nuevosDatos.length > 0) {
-                    Axios.post(`${URL}/admin/${importar}`, nuevosDatos)
-                        .then(() => {
-                            toast.success(`Se importaron ${nuevosDatos.length} registros correctamente.`);
-                            closeImportModal()
-                            dispatch(fetchAños());
-                            setFileKey(prevKey => prevKey + 1);
-                            setFileName(""); // Restablece el nombre del archivo después de la importación
-                            setFileData(null); // Restablece los datos del archivo después de la importación
-                            setIsSaving(false);
-                        });
-                } else {
-                    setIsSaving(false);
-                    toast.error(`Todos ${articuloPlural} ${plural} del archivo ya existen.`);
-                }
-            } catch (error) {
-                setIsSaving(false);
-                toast.error("Error al verificar los datos.");
-                console.error("Error al verificar los datos:", error);
-            }
-        } else {
-            setIsSaving(false);
-            toast.error("No hay datos para importar.");
-        }
-    };
-
-    const eliminarAños = async () => {
-        if (selectedRows.length > 0) {
-            setIsSaving(true);
-            const deletePromises = selectedRows.map(row => 
-                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_año })
-            );
-    
-            toast.promise(
-                Promise.all(deletePromises)
-                    .then(async () => {
-                        dispatch(fetchAños());
-                        closeDeleteModal();
-                        dispatch(clearSelectedRows());
-                        setFileKey(prevKey => prevKey + 1);
-                        setIsSaving(false);
-                    }),
-                {
-                    loading: 'Borrando...',
-                    success: `${plural.charAt(0).toUpperCase() + plural.slice(1)}  eliminados correctamente`,
-                    error: `No se pudieron eliminar ${articuloPlural} ${plural}.`,
-                }
-            ).catch(error => {
-                console.error(`Error al eliminar ${articuloPlural} ${plural}.`, error);
-            });
-        } else {
-            toast.error(`No hay ${plural} seleccionados.`);
-        }
-    };
-
 
     useEffect(() => {
         dispatch(fetchEdiciones());
@@ -224,92 +144,31 @@ const Años = () => {
         setFileData(null); // Restablece los datos del archivo
     };
 
-    const convertToCSV = (objArray) => {
-        const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
-        let csv = '\uFEFF'; // BOM (Byte Order Mark)
-    
-        const headers = Object.keys(array[0]).filter(key => key !== id);
-        csv += headers.join(',') + '\r\n';
-    
-        for (let i = 0; i < array.length; i++) {
-            let line = '';
-            for (let index in array[i]) {
-                if (index !== id) {
-                    if (line !== '') line += ',';
-                    line += array[i][index];
-                }
-            }
-            if (line.trim() !== '') {
-                csv += line + '\r\n';
-            }
-        }
-    
-        return csv;
-    };
-    
-    const handleExport = () => {
-        const csv = convertToCSV(edicionesList);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-    
-        link.setAttribute('href', url);
-        link.setAttribute('download', `${plural}.csv`);
-        link.style.visibility = 'hidden';
-    
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+
     
     const temporadas = [...new Set(edicionesList.map(edicion => edicion.temporada))]
     .sort((a, b) => b - a); // Ordena las temporadas de más reciente a más antigua
     
     return (
         <Content>
+            <Toaster />
             <Button bg="success" color="white" onClick={openCreateModal}>
                 <FiPlus />
                 <p>Agregar nueva edición</p>
             </Button>
-            <Toaster />
-            {/* <ActionsCrud>
-                <ActionsCrudButtons>
-                    
-                    <Button bg="danger" color="white" onClick={openDeleteModal} disabled={selectedRows.length === 0}>
-                        <IoTrashOutline />
-                        <p>Eliminar</p>
-                    </Button> 
-                </ActionsCrudButtons>
-                <ActionsCrudButtons>
-                    <label htmlFor="importInput" style={{ display: 'none' }}>
-                        <input
-                            type="file"
-                            id="importInput"
-                            accept=".csv"
-                            key={fileKey}
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                        />
-                    </label>
-                    <Button bg="import" color="white" onClick={openImportModal}>
-                        <LuUpload />
-                        <p>Importar</p>
-                    </Button>
-                    <Button bg="export" color="white" onClick={handleExport} disabled={edicionesList.length === 0}>
-                        <LuDownload />
-                        <p>Descargar</p>
-                    </Button>
-                </ActionsCrudButtons>
-            </ActionsCrud> */}
             <TablasTemporadaContainer>
                 {temporadas.map(temporada => (
                     <TablaTemporada key={temporada}>
                         <h2>Temporada {temporada}</h2>
                         <Table 
-                            data={edicionesList.filter(edicion => edicion.temporada === temporada)} 
-                            dataColumns={dataEdicionesColumns} 
+                            data={edicionesListConLinks.filter(edicion => edicion.temporada === temporada)} 
+                            dataColumns={edicionesListColumns} 
                             arrayName={'Ediciones'} 
                             paginator={false}
+                            selection={false}
+                            id_={id}
+                            urlClick={'/admin/ediciones/'}
+                            rowClickLink
                         />
                     </TablaTemporada>
                 ))}
@@ -568,4 +427,4 @@ const Años = () => {
     );
 };
 
-export default Años;
+export default Ediciones;

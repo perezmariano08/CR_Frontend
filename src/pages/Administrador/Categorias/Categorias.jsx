@@ -4,13 +4,13 @@ import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
 import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
-import { IoTrashOutline } from 'react-icons/io5';
+import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
+import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
+import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
@@ -26,9 +26,22 @@ import { dataSedesColumns } from '../../../Data/Sedes/Sedes';
 import { fetchSedes } from '../../../redux/ServicesApi/sedesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
+import useForm from '../../../hooks/useForm';
+import { BsCalendar2Event } from 'react-icons/bs';
+import Select from '../../../components/Select/Select';
 
 const Categorias = () => {
     const dispatch = useDispatch();
+
+    // Manejo del form
+    const [formState, handleFormChange, resetForm] = useForm({ 
+        nombre_categoria: '',
+        genero: 'M',
+        tipo_futbol: '',
+        duracion_tiempo: '',
+        duracion_entretiempo: '',
+    });
+    const isFormEmpty = !formState.nombre_categoria.trim();
 
     // Constantes del modulo
     const articuloSingular = "la"
@@ -281,7 +294,7 @@ const Categorias = () => {
                     
                 
             </ActionsCrud>
-            <Table data={categoriasList} dataColumns={dataCategoriasColumns} arrayName={singular.charAt(0).toUpperCase() + singular.slice(1)} id_={id} />
+            <Table data={categoriasList} dataColumns={dataCategoriasColumns} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
@@ -313,15 +326,105 @@ const Categorias = () => {
                         form={
                             <>
                                 <ModalFormInputContainer>
-                                    Nombre
-                                    <Input type='text' placeholder="Escriba aqui el nombre de la sede..." 
-                                    onChange={(event) => { setNombre(event.target.value)}}/>
+                                    nombre
+                                    <Input 
+                                        name='nombre_categoria'
+                                        type='text' 
+                                        placeholder="Nombre" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.nombre_categoria}
+                                        onChange={handleFormChange}
+                                    />
+                                    <p>
+                                        Ejemplos de nombres: <span>Primera Masculino, Femenino F5, Infantiles F11, B Veteranos</span>
+                                    </p>
+                                </ModalFormInputContainer>
+                                <ModalFormWrapper>
+                                <ModalFormInputContainer>
+                                    genero
+                                    <Select 
+                                        name={'genero'}
+                                        data={[
+                                            {
+                                                genero: 'B',
+                                                nombre: "Mixto",
+                                            },
+                                            {
+                                                genero: 'M',
+                                                nombre: "Masculino",
+                                            },
+                                            {
+                                                genero: 'F',
+                                                nombre: "Femenino",
+                                            }
+                                        ]}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"genero"}
+                                        column='nombre'
+                                        value={formState.genero}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
-                                    Añadir descripción (Opcional)
-                                    <Input type='text' placeholder="Escriba aqui..." 
-                                    onChange={(event) => { setDescripcion(event.target.value)}}/>
+                                    tipo de futbol
+                                    <Select 
+                                        name={'tipo_futbol'}
+                                        data={[
+                                            {
+                                                tipo_futbol: 7,
+                                                nombre: "Futbol 7",
+                                            },
+                                            {
+                                                tipo_futbol: 8,
+                                                nombre: "Futbol 8",
+                                            },
+                                            {
+                                                tipo_futbol: 9,
+                                                nombre: "Futbol 9",
+                                            },
+                                            {
+                                                tipo_futbol: 11,
+                                                nombre: "Futbol 11",
+                                            },
+                                            {
+                                                tipo_futbol: 1,
+                                                nombre: "Otro",
+                                            }
+                                        ]}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"tipo_futbol"}
+                                        column='nombre'
+                                        value={formState.tipo_futbol}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
                                 </ModalFormInputContainer>
+                                </ModalFormWrapper>
+                                <ModalFormWrapper>
+                                <ModalFormInputContainer>
+                                    duración de cada tiempo
+                                    <Input 
+                                        name='duracion_tiempo'
+                                        type='number' 
+                                        placeholder="45" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.duracion_tiempo}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    duración del entretiempo
+                                    <Input 
+                                        name='duracion_entretiempo'
+                                        type='number' 
+                                        placeholder="5" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.duracion_entretiempo}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                </ModalFormWrapper>
                             </>
                         }
                     />

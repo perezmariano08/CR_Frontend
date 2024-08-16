@@ -2,19 +2,20 @@ import { DataTable } from "primereact/datatable";
 import styled from "styled-components";
 
 export const TableContainerStyled = styled(DataTable)`
-    background-color: var(--gray-300) !important;
+    /* background-color: var(--gray-300) !important; */
     border-radius: 10px;
     border-collapse: collapse;
     font-size: 14px;
     width: 100%;
     overflow: hidden;
+
     td, th {
         text-align: left;
         overflow: hidden; /* Oculta el contenido que desborda */
         text-overflow: ellipsis; /* Muestra puntos suspensivos si el contenido desborda */
         padding: 15px 20px; /* Espaciado interno de las celdas */
         min-width: fit-content;
-        background-color: var(--gray-300) !important;
+        background-color: var(--gray-300);
         /* user-select: none; */
     }
     th {
@@ -44,9 +45,20 @@ export const TableContainerStyled = styled(DataTable)`
         border-bottom: 1px solid var(--gray-200) !important;
     }
 
+    tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
     tr:nth-last-child(1) {
         border: none;
     }
+
+    tbody tr:hover {
+        cursor: pointer;
+        opacity: .85;
+        transition: all .2s ease-in-out;
+    }
+
 
     input.checkbox {
         appearance: none; /* Anular los estilos por defecto del navegador */
