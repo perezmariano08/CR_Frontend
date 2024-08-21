@@ -57,16 +57,6 @@ export const LinkEdicion = styled(NavLink)`
     }
 `
 
-export const MenuContentTop = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--white);
-    a {
-        color: var(--green);
-    }
-`
-
 export const CategoriasEdicionEmpty = styled.div`
     display: flex;
     flex-direction: column;
@@ -78,3 +68,4 @@ export const CategoriasEdicionEmpty = styled.div`
 
     }
 `
+

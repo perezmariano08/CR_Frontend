@@ -5,20 +5,10 @@ import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los años
 export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async () => {
-    // Obtener el token desde localStorage (ajusta esto según tu implementación)
-    const token = localStorage.getItem('token'); // Ajusta 'token' al nombre que usas
-
-    // Realizar la solicitud con el token en los encabezados
-    const response = await Axios.get(`${URL}/user/get-equipos`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    console.log('Response data:', response.data);
-
+    const response = await Axios.get(`${URL}/user/get-equipos`)
     return response.data;
 });
+
 const equiposSlice = createSlice({
     name: 'equipos',
     initialState: {

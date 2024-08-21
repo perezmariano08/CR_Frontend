@@ -28,7 +28,7 @@ const Input = forwardRef(({ placeholder, type = "text", icon, className, isError
                     {showPassword ? <AiOutlineEye /> : <AiFillEyeInvisible className='eye-off' />}
                 </div>
             )}
-            {isError && <span className='error-message'>{errorMessage}</span>}
+            {isError && <span className='error-message'>{errorMessage}Hola</span>}
         </InputContainerStyled>
     );
 });

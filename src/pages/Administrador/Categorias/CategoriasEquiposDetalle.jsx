@@ -37,95 +37,31 @@ import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
+import { CategoriaEquiposEmpty, EquipoDetalleInfo, EquipoWrapper } from './categoriasStyles';
+import { dataJugadoresColumns } from '../../../Data/Jugadores/Jugadores';
 
-const Categorias = () => {
-    const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
-    
-    // Manejo del form
-    const [formState, handleFormChange, resetForm] = useForm({ 
-        id_edicion: id_page,
-        nombre_categoria: '',
-        genero: 'M',
-        tipo_futbol: 7,
-        duracion_tiempo: '',
-        duracion_entretiempo: '',
-    });
-    const isFormEmpty = !formState.nombre_categoria.trim();
-
-    // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
-    const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModalsCrud();
-
-    // Constantes del modulo
-    const articuloSingular = "el"
-    const articuloPlural = "los"
-    const id = "id_equipo"
-    const plural = "ediciones"
-    const singular = "edicion"
-    const get = "get-anios"
-    const create = "crear-anio"
-    const importar = "importar-anios"
-    const eliminar = "delete-anio"
-
-
-
+const CategoriasEquiposDetalle = () => {
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const equiposList = useSelector((state) => state.equipos.data);
-    
+    const jugadoresList = useSelector((state) => state.jugadores.data);
+
+    const dispatch = useDispatch();
+    const { id_page } = useParams(); // Obtenemos el id desde la URL
+
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
     }, []);
 
-
-    // CREAR
-    const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-categoria`, fetchCategorias, 'Registro creado correctamente.', "Error al crear el registro."
-    );
-
-    const agregarRegistro = async () => {
-        if (!formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo) {
-            toast.error("Completá los campos.");
-            return;
-        }
-
-        if (formState.duracion_tiempo < 4 ) {
-            toast.error("La duración de cada tiempo debe tener al menos 5.");
-            return;
-        }
-
-        if (categoriasList.some(a => a.nombre === formState.nombre_categoria.trim() && a.id_edicion == formState.id_edicion)) {
-            toast.error(`La categoría ya existe en esta edición.`);
-            return;
-        }
-        
-        
-        const data = {
-            id_edicion: formState.id_edicion,
-            nombre: formState.nombre_categoria.trim(),
-            genero: formState.genero,
-            tipo_futbol: formState.tipo_futbol,
-            duracion_tiempo: formState.duracion_tiempo,
-            duracion_entretiempo: formState.duracion_entretiempo
-        };
-        
-        await crear(data);
-        closeCreateModal();
-        resetForm()
-    };
     
-    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_page);
-    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_page)
-    const categoriasListLink = categoriasEdicion.map(categoria => ({
-        ...categoria,
-        link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
-    }));
-
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_page)
+    const equipoFiltrado = equiposList.find(equipo => equipo.id_equipo == id_page);
+    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == equipoFiltrado.id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
+    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == equipoFiltrado.id_categoria)
+    const jugadoresEquipoFiltrado = jugadoresList.filter(jugador => jugador.id_equipo == id_page && jugador.eventual === 'N');
     
     return (
         <Content>
@@ -137,21 +73,42 @@ const Categorias = () => {
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
             <ContentNavWrapper>
-                <li><NavLink to={`/admin/categorias/resumen/${id_page}`}>Resumen</NavLink></li>
-                <li><NavLink to={`/admin/categorias/formato/${id_page}`}>Formato</NavLink></li>
+                <li><NavLink to={`/admin/categorias/resumen/${edicionFiltrada.id_edicion}`}>Resumen</NavLink></li>
+                <li><NavLink to={`/admin/categorias/formato/${edicionFiltrada.id_edicion}`}>Formato</NavLink></li>
                 <li><NavLink to={`/admin/categorias/fixture/${id_page}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
-                <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
+                <li><NavLink to={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
+                <li><NavLink to={`/admin/categorias/config/${edicionFiltrada.id_edicion}`}>Configuración</NavLink></li>
             </ContentNavWrapper>
-            
-            <p>PONER ESTADISTICAS DE ESA CATEGORIA, POR EJ</p>
-            <p>PARTIDOS JUGADOS</p>
-            <p>VACANTES DE LAS ZONAS</p>
-            <p>EQUIPOS EN LAS ZONAS</p>
-            <p>JUGADORES</p>
-            <p>LO QUE SE NOS OCURRA</p>
+            <EquipoDetalleInfo>
+                <EquipoWrapper>
+                    <img src={`https://coparelampago.com${equipoFiltrado.img}`} alt={equipoFiltrado.nombre} />
+                    <h1>{equipoFiltrado.nombre}</h1>
+                </EquipoWrapper>
+                <Button bg="success" color="white" >
+                    <p>Editar equipo</p>
+                </Button>
+            </EquipoDetalleInfo>
+            {
+                jugadoresEquipoFiltrado.length > 0 ? (
+                    <>
+                        <p>Lista de buena fé ({jugadoresEquipoFiltrado.length} jugadores)</p>
+                        <Table
+                            data={jugadoresEquipoFiltrado}
+                            dataColumns={dataJugadoresColumns}
+                            arrayName={'Jugadores'}
+                            paginator={false}
+                            selection={false}
+                            id_={'id_jugador'}
+                            urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                            rowClickLink
+                        />
+                    </>
+                ) : (
+                    <p>No se han encontrado jugadores.</p>
+                )
+            }
         </Content>
     );
 };
 
-export default Categorias;
+export default CategoriasEquiposDetalle;

@@ -28,7 +28,6 @@ export const SelectContainerStyled = styled.div`
     }
 `
 export const SelectWrapper = styled.select`
-    min-width: 300px;
     border-radius: 10px;
     width: 100%;
     background-color: transparent;

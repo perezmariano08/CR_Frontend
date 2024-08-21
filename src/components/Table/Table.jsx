@@ -14,7 +14,7 @@ import { DataItemEstado, DataItemTemporada, LinkEdicion } from '../../pages/Admi
 import { useNavigate } from 'react-router-dom';
 
 
-const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false}) => {
+const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false, sortable = true}) => {
     const dispatch = useDispatch();
     const selectedProducts = useSelector((state) => state.selectedRows.selectedRows);
     const [rowClick, setRowClick] = useState(true);
@@ -45,7 +45,7 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
     const equipos = useSelector((state) => state.equipos.data)
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.img : '';
+        return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
     };
 
     const nombresEquipos = (idEquipo) => {
@@ -232,13 +232,13 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
     }
 
     const linkEdicionTemplate = rowData => (
-        <LinkEdicion to={`/admin/ediciones/${rowData.id_edicion}`}>
+        <LinkEdicion to={`${rowData.link}`}>
             Ingresar
         </LinkEdicion>
     )
 
     const linkCategoriaTemplate = rowData => (
-        <LinkEdicion to={`/admin/ediciones/${rowData.id_edicion}/${rowData.id_categoria}`}>
+        <LinkEdicion to={`${rowData.link}`}>
             Ingresar
         </LinkEdicion>
     )
@@ -274,7 +274,7 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                         key={col.field}
                         field={col.field}
                         header={col.header}
-                        sortable
+                        sortable={sortable}
                         style={{ width: 'auto' }}
                         body={
                             arrayName === 'Equipos' && col.field === 'nombre'

@@ -1,22 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
-import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
-import { LuUpload } from 'react-icons/lu';
+import { IoShieldHalf } from 'react-icons/io5';
 import Table from '../../../components/Table/Table';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
-import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
-import Axios from 'axios';
 import { URL } from '../../../utils/utils';
-import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
+import { LoaderIcon, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
-import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { TablasTemporadaContainer, TablaTemporada } from './edicionesStyles';
 import useForm from '../../../hooks/useForm';
@@ -25,9 +20,18 @@ import Select from '../../../components/Select/Select';
 import { TbNumber } from "react-icons/tb";
 import { BsCalendar2Event } from "react-icons/bs";
 import { edicionesListColumns } from '../../../Data/Ediciones/edicionesListColumns';
+import { useCrud } from '../../../hooks/useCrud';
+import useModalsCrud from '../../../hooks/useModalsCrud';
 
 const Ediciones = () => {
     const dispatch = useDispatch();
+
+    // Estado del el/los Listado/s que se necesitan en el modulo
+    const edicionesList = useSelector((state) => state.ediciones.data);
+    const edicionesListLink = edicionesList.map(edicion => ({
+    ...edicion,
+    link: `/admin/ediciones/categorias/${edicion.id_edicion}`,  // Aquí construyes el enlace basado en el id u otros datos
+    }));
 
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
@@ -42,116 +46,45 @@ const Ediciones = () => {
     });
     const isFormEmpty = !formState.nombre_edicion.trim();
 
-    // Constantes del modulo
-    const articuloSingular = "el"
-    const articuloPlural = "los"
-    const id = "id_edicion"
-    const plural = "ediciones"
-    const singular = "edicion"
-    const get = "get-anios"
-    const create = "crear-anio"
-    const importar = "importar-anios"
-    const eliminar = "delete-anio"
+    // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
+    const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModalsCrud();
 
-    // Estados para manejar la apertura y cierre de los modales
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    // CREAR - AGREGAR REGISTRO
+    const { crear, isSaving } = useCrud(
+        `${URL}/user/crear-edicion`, fetchEdiciones, 'Registro creado correctamente.', "Error al crear el registro."
+    );
 
-    // Estado de los botones que realizan una accion en la base de datos
-    const [isSaving, setIsSaving] = useState(false);
-
-    // Estados para guardar los datos del archivo
-    const [fileKey, setFileKey] = useState(0);
-    const [fileName, setFileName] = useState(false);
-    const [fileData, setFileData] = useState(null);
-    // Referencia del input
-    const fileInputRef = useRef(null);
-
-    // Estados para guardar los valores de los inputs
-    const [año, setAño] = useState("");
-    const [descripcion, setDescripcion] = useState("");
-
-    // Estado del el/los Listado/s que se necesitan en el modulo
-    const edicionesList = useSelector((state) => state.ediciones.data);
-    
-    const edicionesListConLinks = edicionesList.map(edicion => ({
-    ...edicion,
-    link: `/${edicion.id_edicion}`,  // Aquí construyes el enlace basado en el id u otros datos
-    }));
-    
-    // Estado de las filas seleccionadas para eliminar
-    const selectedRows = useSelector(state => state.selectedRows.selectedRows);
-
-    useEffect(() => {
-        dispatch(fetchEdiciones());
-        return () => {
-            dispatch(clearSelectedRows());
-        };
-    }, []);
-
-    const agregarDato = async () => {
-        if (formState.nombre_edicion !== "") {
-            console.log(formState);
-            setIsSaving(true);
-            try {
-                const response = await Axios.get(`${URL}/user/get-ediciones`);
-                const datosExistentes = response.data;
-                const datoExiste = datosExistentes.some(a => a.nombre === formState.nombre_edicion);
-                if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
-                } else {
-                    Axios.post(`${URL}/user/crear-edicion`, {
-                        nombre: formState.nombre_edicion,
-                        temporada: formState.temporada,
-                        puntos_victoria: formState.puntos_victoria,
-                        puntos_empate: formState.puntos_empate,
-                        puntos_derrota: formState.puntos_derrota
-                    }).then(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrado correctamente.`);
-                        dispatch(fetchEdiciones());
-                        closeCreateModal();
-                        setAño("");
-                        setDescripcion("");
-                        setIsSaving(false)
-                    });
-                }
-            } catch (error) {
-                setIsSaving(false)
-                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
-            }
-        } else {
+    const agregarRegistro = async () => {
+        const nombre_temporada = `${formState.nombre_edicion.trim()} ${formState.temporada}`
+        if (!nombre_temporada.trim()) {
             toast.error("Completá los campos.");
+            return;
         }
+        if (edicionesList.some(a => a.nombre_temporada === nombre_temporada.trim())) {
+            toast.error(`La edición ya existe.`);
+            return
+        } 
+        const data = {
+            nombre: formState.nombre_edicion.trim(),
+            temporada: formState.temporada,
+            puntos_victoria: formState.puntos_victoria,
+            puntos_empate: formState.puntos_empate,
+            puntos_derrota: formState.puntos_derrota
+        };
+        await crear(data);
+        closeCreateModal();
+        resetForm()
     };
-
-    // Funciones que manejan el estado de los modales (Apertura y cierre)
-    const openCreateModal = () => setIsCreateModalOpen(true);
-    const closeCreateModal = () => setIsCreateModalOpen(false);
-    const openDeleteModal = () => setIsDeleteModalOpen(true);
-    const closeDeleteModal = () => setIsDeleteModalOpen(false);
-    const openImportModal = () => setIsImportModalOpen(true);
-    const closeImportModal = () => {
-        setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
-        setFileData(null); // Restablece los datos del archivo cuando se cierra el modal
-        setIsImportModalOpen(false);
-    };
-
-    const cancelFileSelection = () => {
-        setFileName(""); // Restablece el nombre del archivo
-        setFileKey(prevKey => prevKey + 1); // Forza la actualización del input de archivo
-        setFileData(null); // Restablece los datos del archivo
-    };
-
-
     
     const temporadas = [...new Set(edicionesList.map(edicion => edicion.temporada))]
     .sort((a, b) => b - a); // Ordena las temporadas de más reciente a más antigua
-    
+
+    useEffect(() => {
+        dispatch(fetchEdiciones());
+    }, []);
+
     return (
         <Content>
-            <Toaster />
             <Button bg="success" color="white" onClick={openCreateModal}>
                 <FiPlus />
                 <p>Agregar nueva edición</p>
@@ -161,26 +94,26 @@ const Ediciones = () => {
                     <TablaTemporada key={temporada}>
                         <h2>Temporada {temporada}</h2>
                         <Table 
-                            data={edicionesListConLinks.filter(edicion => edicion.temporada === temporada)} 
+                            data={edicionesListLink.filter(edicion => edicion.temporada === temporada)} 
                             dataColumns={edicionesListColumns} 
                             arrayName={'Ediciones'} 
                             paginator={false}
                             selection={false}
-                            id_={id}
-                            urlClick={'/admin/ediciones/'}
+                            sortable={false}
+                            id_={'id_edicion'}
+                            urlClick={'/admin/ediciones/categorias/'}
                             rowClickLink
                         />
                     </TablaTemporada>
                 ))}
             </TablasTemporadaContainer>
-            
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
                         animate={{ opacity: isCreateModalOpen ? 1 : 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        title={`Crear ${singular}`}
+                        title={`Crear edición`}
                         onClickClose={closeCreateModal}
                         buttons={
                             <>
@@ -188,10 +121,11 @@ const Ediciones = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={agregarDato} disabled={isSaving}>
+                                <Button color={"success"} onClick={agregarRegistro} disabled={isFormEmpty || isSaving}>
                                     {isSaving ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
+                                            Guardando
                                         </>
                                     ) : (
                                         <>
@@ -348,79 +282,6 @@ const Ediciones = () => {
                         }
                     />
                     <Overlay onClick={closeCreateModal} />
-                </>
-            }
-            {
-                isDeleteModalOpen && <>
-                    <ModalDelete initial={{ opacity: 0 }}
-                        animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        message={`${articuloPlural} ${plural}`}
-                        onClickClose={closeDeleteModal}
-                        buttons={
-                            <>
-                                <Button color={"danger"} onClick={closeDeleteModal}>
-                                    <IoClose />
-                                    No
-                                </Button>
-                                <Button color={"success"} onClick={eliminarAños} disabled={isSaving}>
-                                    {isSaving ? (
-                                        <>
-                                            <LoaderIcon size="small" color='green' />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IoCheckmark />
-                                            Si
-                                        </>
-                                    )}
-                                </Button>
-                            </>
-                        }
-                    />
-                    <Overlay onClick={closeDeleteModal} />
-                </>
-            }
-            {
-                isImportModalOpen && <>
-                    <ModalImport initial={{ opacity: 0 }}
-                        animate={{ opacity: isImportModalOpen ? 1 : 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        title="Carga tu archivo"
-                        message={`${articuloPlural} ${plural}`}
-                        onClickClose={closeImportModal}
-                        fileName={fileName}
-                        buttons={
-                            <>
-                                {fileName ? (
-                                    <Button color="danger" onClick={cancelFileSelection}>
-                                        <IoClose />
-                                        Cancelar archivo
-                                    </Button>
-                                ) : (
-                                    <Button bg="import" color="white" as="label" htmlFor="importInput">
-                                        <LuUpload />
-                                        <p>Seleccionar</p>
-                                    </Button>
-                                )}
-                                <Button color={"success"} onClick={handleFileImport} disabled={!fileName}>
-                                    {isSaving ? (
-                                        <>
-                                            <LoaderIcon size="small" color='green' />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LuUpload />
-                                            Importar
-                                        </>
-                                    )}
-                                </Button>
-                            </>
-                        }
-                    />
-                    <Overlay onClick={closeImportModal} />
                 </>
             }
         </Content>

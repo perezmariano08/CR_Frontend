@@ -87,7 +87,7 @@ export const InputWrapper = styled.input`
     color: var(--white);
     outline: none; 
     width: 100%;
-    padding: 10px 36px;
+    padding: 10px 10px 10px 36px;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
     appearance: none;
     border-radius: 6px;

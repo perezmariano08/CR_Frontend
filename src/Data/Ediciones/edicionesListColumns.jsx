@@ -1,5 +1,5 @@
 export const edicionesListColumns = [
-  { field: "nombre", header: "Nombre" },
+  { field: "nombre_temporada", header: "Nombre" },
   { field: "estado", header: "Estado" },
   { field: "partidos", header: "Partidos jugados" },
   { field: "jugadores", header: "Jugadores" },

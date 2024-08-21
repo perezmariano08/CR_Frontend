@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 
 export const ModalContainerStyled = styled(motion.div)`
-    min-width: 450px;
+    min-width: 550px;
     background-color: var(--gray-500);
     display: flex;
     flex-direction: column;
@@ -46,9 +46,14 @@ export const ModalFormWrapper = styled.div`
     display: flex;
     gap: 15px;
     align-items: start;
-
+    width: 100%;
     select {
-        min-width: 200px;
+        width: 100%;
+    }
+
+    @media (max-width: 600px) {
+        width: 100%;
+        flex-wrap: wrap;
     }
 `
 

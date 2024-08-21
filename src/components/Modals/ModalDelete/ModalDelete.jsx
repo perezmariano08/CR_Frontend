@@ -3,7 +3,7 @@ import { ModalButtons, ModalContainerStyled, ModalMessage, ModalHeader } from '.
 import { IoClose } from "react-icons/io5";
 import { GoAlert } from "react-icons/go";
 
-const ModalDelete = ({ buttons, message, onClickClose, initial, animate, exit, transition }) => {
+const ModalDelete = ({ buttons, message, onClickClose, initial, animate, exit, transition, text }) => {
     return (
         <ModalContainerStyled
             initial={initial}
@@ -17,7 +17,7 @@ const ModalDelete = ({ buttons, message, onClickClose, initial, animate, exit, t
             </ModalHeader>
             <ModalMessage>
                 <GoAlert/>
-                ¿Estas seguro que deseas eliminar { message } seleccionadas?
+                {text || `¿Estás seguro que deseas eliminar ${message} seleccionadas?`}
             </ModalMessage>
             <ModalButtons>
                 {buttons}
