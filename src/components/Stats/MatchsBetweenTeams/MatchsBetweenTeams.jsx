@@ -16,7 +16,7 @@ const MatchsBetweenTeams = ({ partidosEntreEquipos, idLocal, idVisita}) => {
                 return  <CardOldMatchesItem key={p.id_partido}>
             <MatchesItemDescription>
             <p>{`${p.dia_nombre} ${p.dia_numero} / ${p.mes}`}</p>
-            <p className='fecha'>{`Fecha ${p.jornada} ${p.torneo} ${p.año}`}</p>
+            <p className='fecha'>{`Fecha ${p.jornada} ${p.nombre_edicion}`}</p>
             </MatchesItemDescription>
             <MatchesItemTeams>
                 <MatchesItemTeam>

@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { URLImages } from '../../utils/utils';
 import { dataPlantelColumns, dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
 import { useLocation } from 'react-router-dom';
-import { getJugadoresEquipo, getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers.js';
+import { getJugadoresEquipo, getPosicionesTemporada, getZonas } from '../../utils/dataFetchers.js';
 import useStatsTeam from '../../hooks/useStatsTeam.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
@@ -46,24 +46,24 @@ const MyTeam = () => {
     const { cantVictorias, cantEmpates, cantDerrotas, partidosMiEquipo } = useStatsTeam(equipoId);
 
     const [bdJugadores, setBdJugadores] = useState(null);
-    const [temporadas, setTemporadas] = useState([]);
+    const [zonas, setZonas] = useState([]);
     const [posiciones, setPosiciones] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const id_temporada = miEquipo?.id_temporada;
+    const id_zona = miEquipo?.id_zona;
 
     useEffect(() => {
         // Función para obtener datos
         const fetchData = async () => {
             try {
                 const [jugadoresData, temporadasData, posicionesData] = await Promise.all([
-                    getJugadoresEquipo(id_temporada, equipoId),
-                    getTemporadas(),
-                    getPosicionesTemporada(id_temporada)
+                    getJugadoresEquipo(id_zona, equipoId),
+                    getZonas(),
+                    getPosicionesTemporada(id_zona)
                 ]);
 
                 setBdJugadores(jugadoresData);
-                setTemporadas(temporadasData);
+                setZonas(temporadasData);
                 setPosiciones(posicionesData);
                 setLoading(false);
             } catch (error) {
@@ -71,10 +71,10 @@ const MyTeam = () => {
             }
         };
 
-        if (equipoId && id_temporada) {
+        if (equipoId && id_zona) {
             fetchData();
         }
-    }, [equipoId, id_temporada]);
+    }, [equipoId, id_zona]);
 
     useEffect(() => {
         if (equipos.length === 0) {
@@ -82,9 +82,9 @@ const MyTeam = () => {
         }
     }, [dispatch, equipos.length]);
 
-    const temporadaFiltrada = useMemo(() => 
-        temporadas.find((t) => t.id_temporada === id_temporada), 
-        [temporadas, id_temporada]
+    const zonaFiltrada = useMemo(() => 
+        zonas.find((z) => z.id_zona === id_zona), 
+        [zonas, id_zona]
     );
 
     if (!miEquipo) {
@@ -142,14 +142,14 @@ const MyTeam = () => {
                                     <TailSpin width='40' height='40' color='#2AD174' />
                                 </SpinerContainer>
                             ) : (
-                                <TableTeam data={bdJugadores} temporada={temporadaFiltrada} dataColumns={dataPlantelColumns}/>
+                                <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns}/>
                             )
                         }
                     </Section>
                         
                     <Section>
                         <h2>Posiciones</h2>
-                        <TablePosiciones data={posiciones} temporada={temporadaFiltrada} dataColumns={dataPosicionesTemporadaColumns}/>
+                        <TablePosiciones data={posiciones} zona={zonaFiltrada} dataColumns={dataPosicionesTemporadaColumns}/>
                     </Section>
 
                     <Section>

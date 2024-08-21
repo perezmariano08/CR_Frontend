@@ -5,117 +5,113 @@ import { IoShieldHalf } from 'react-icons/io5';
 import Select from '../../components/Select/Select';
 import TableTeam from '../../components/Stats/TableTeam/TableTeam.jsx';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
-import { getPosicionesTemporada, getTemporadas, getEstadisticasTemporada } from '../../utils/dataFetchers.js';
-import { dataAmarillasTemporadaColumns, dataAsistenciasTemporadaColumns, dataGoleadoresTemporadaColumns, dataPosicionesTemporadaColumns, dataRojasTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
+import { getPosicionesTemporada, getZonas, getEstadisticasTemporada } from '../../utils/dataFetchers.js';
 import { TailSpin } from 'react-loader-spinner';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategorias } from '../../redux/ServicesApi/categoriasSlice.js';
+import useGetStatsHandler from '../../hooks/useGetStatsHandler.js';
+import { getColumns } from './helper.js';
 
 const Stats = () => {
-    const [temporadaSeleccionada, setTemporadaSeleccionada] = useState(null);
-    const [temporadas, setTemporadas] = useState([]);
+    const dispatch = useDispatch();
+    const categorias = useSelector((state) => state.categorias.data);
+
+    const [zonaSeleccionada, setZonaSeleccionada] = useState(() => {
+        const storedZona = localStorage.getItem('ultimaZonaSeleccionada');
+        return storedZona ? Number(storedZona) : null;
+    });
+    
+    const [zonasFiltradas, setZonasFiltradas] = useState([]);
     const [filtroActivo, setFiltroActivo] = useState('Posiciones');
-    const [estadisticaTemporada, setEstadisticaTemporada] = useState(null);
-    const [posiciones, setPosiciones] = useState(null);
+    const [zonas, setZonas] = useState([]);
+    const [posicionesPorZona, setPosicionesPorZona] = useState({});
     const [loading, setLoading] = useState(true);
 
-    const getEstadisticasTemporadaHandler = async () => {
-        if (temporadaSeleccionada && filtroActivo) {
+    // Use custom hook
+    const { estadisticaZona, getEstadisticasZonaHandler } = useGetStatsHandler(zonaSeleccionada, filtroActivo);
+
+    useEffect(() => {
+        dispatch(fetchCategorias());
+    }, [dispatch]);
+
+    useEffect(() => {
+        const fetchZonas = async () => {
             setLoading(true);
-            let estadistica;
-            switch (filtroActivo) {
-                case 'Goleadores':
-                    estadistica = 'goles';
-                    break;
-                case 'Asistencias':
-                    estadistica = 'asistencias';
-                    break;
-                case 'Expulsados':
-                    estadistica = 'rojas';
-                    break;
-                case 'Amarillas':
-                    estadistica = 'amarillas';
-                    break;
-                default:
-                    return;
-            }
             try {
-                const data = await getEstadisticasTemporada(estadistica, temporadaSeleccionada);
-                setEstadisticaTemporada(data);            
+                const data = await getZonas();
+                setZonas(data);
             } catch (error) {
-                console.error('Error fetching estadisticas:', error);
+                console.error('Error en la petición', error);
             } finally {
                 setLoading(false);
             }
-        }
-    };
-
-    useEffect(() => {
-        getTemporadas()
-        .then((data) => setTemporadas(data))
-        .catch((error) => console.error('Error en la petición', error))
-        .finally(() => setLoading(false));
+        };
+        fetchZonas();
     }, []);
 
     useEffect(() => {
-        const storedTemporada = localStorage.getItem('ultimaTemporadaSeleccionada');
-        if (storedTemporada) {
-            setTemporadaSeleccionada(storedTemporada);
+        if (zonaSeleccionada) {
+            const zonasFiltradas = zonas?.filter(zona => zona.id_categoria === zonaSeleccionada);
+            setZonasFiltradas(zonasFiltradas);
+        } else {
+            setZonasFiltradas([]);
         }
-    }, []);
+    }, [zonaSeleccionada, zonas]);
 
     useEffect(() => {
-        if (temporadaSeleccionada) {
+        if (zonaSeleccionada) {
             setLoading(true);
-            getEstadisticasTemporadaHandler();
-            getPosicionesTemporada(temporadaSeleccionada)
-            .then((data) => setPosiciones(data))
-            .catch((error) => console.error('Error en la petición', error))
-            .finally(() => setLoading(false));
+            getEstadisticasZonaHandler();
+            const fetchPosiciones = async () => {
+                const nuevasPosiciones = {};
+                for (const zona of zonasFiltradas) {
+                    try {
+                        const data = await getPosicionesTemporada(zona.id_zona);
+                        nuevasPosiciones[zona.id_zona] = data;
+                    } catch (error) {
+                        console.error('Error en la petición de posiciones:', error);
+                    }
+                }
+                setPosicionesPorZona(nuevasPosiciones);
+                setLoading(false);
+            };
+            fetchPosiciones();
+        } else {
+            setPosicionesPorZona({});
+            setLoading(false);
         }
-    }, [filtroActivo, temporadaSeleccionada]);
+    }, [filtroActivo, zonaSeleccionada, zonasFiltradas]);
 
-    const handleTemporada = (e) => {
-        const selectedTemporada = e.target.value;
-        setTemporadaSeleccionada(selectedTemporada);
-        localStorage.setItem('ultimaTemporadaSeleccionada', selectedTemporada);
+    const handleZona = (e) => {
+        const selectedCategoria = Number(e.target.value);
+        if (selectedCategoria === 0) {
+            setZonaSeleccionada(null);
+            localStorage.removeItem('ultimaZonaSeleccionada');
+        } else {
+            setZonaSeleccionada(selectedCategoria);
+            localStorage.setItem('ultimaZonaSeleccionada', selectedCategoria);
+        }
     };
 
     const handleFiltroClick = (filtro) => {
         setFiltroActivo(filtro);
     };
 
-    // Temporada entera seleccionada
-    const temporadaFiltrada = temporadas.find((t) => t.id_temporada == temporadaSeleccionada);
-
-    const getColumnsForFilter = () => {
-        switch (filtroActivo) {
-            case 'Posiciones':
-                return dataPosicionesTemporadaColumns;
-            case 'Goleadores':
-                return dataGoleadoresTemporadaColumns;
-            case 'Asistencias':
-                return dataAsistenciasTemporadaColumns;
-            case 'Expulsados':
-                return dataRojasTemporadaColumns;
-            case 'Amarillas':
-                return dataAmarillasTemporadaColumns;
-            default:
-                return [];
-        }
-    };
+    const getColumnsForFilter = () => getColumns(filtroActivo);
 
     return (
         <StatsContainerStyled className='container'>
             <StatsWrapper className='wrapper'>
                 <StatsHeadContainer>
                     <Select 
-                        data={temporadas} 
-                        placeholder='Seleccionar temporada' 
-                        column='nombre_temporada'
-                        id_='id_temporada'
+                        data={categorias}
+                        placeholder='Seleccionar categoría'
+                        column='nombre'
+                        id_='id_categoria'
                         icon={<IoShieldHalf className='icon-select' />}
-                        value={temporadaSeleccionada || '0'}
-                        onChange={handleTemporada}
+                        value={zonaSeleccionada === null ? '' : zonaSeleccionada} // Ajustar aquí
+                        onChange={handleZona}
                     />
                     <StatsFilter>
                         <StatsFilterButton
@@ -157,8 +153,8 @@ const Stats = () => {
                     </StatsFilter>
                 </StatsHeadContainer>
 
-                {(temporadaSeleccionada === null || temporadaSeleccionada === '0') && (
-                    <StatsNull>Seleccione una temporada para visualizar las estadísticas</StatsNull>
+                {(zonaSeleccionada === null || zonaSeleccionada === 0) && (
+                    <StatsNull>Seleccione una categoría para visualizar las estadísticas</StatsNull>
                 )}
 
                 {loading && (
@@ -166,13 +162,23 @@ const Stats = () => {
                         <TailSpin width='40' height='40' color='#2AD174' />
                     </SpinerContainer>
                 )}
-                
-                {!loading && temporadaSeleccionada != 0 && filtroActivo === 'Fixture' && <Fixture temporada={temporadaSeleccionada} />}
-                {!loading && temporadaSeleccionada && filtroActivo !== 'Fixture' && filtroActivo !== 'Posiciones' && (
-                    <TableTeam data={estadisticaTemporada} dataColumns={getColumnsForFilter()} temporada={temporadaFiltrada}/>
+
+                {/* Renderizado por Zona */}
+                {!loading && zonaSeleccionada && filtroActivo === 'Fixture' && <Fixture zona={zonasFiltradas?.[0]} />}
+                {!loading && zonaSeleccionada && filtroActivo === 'Posiciones' && (
+                    zonasFiltradas?.map(zona => (
+                        <TablePosiciones 
+                            key={zona.id_zona}
+                            data={posicionesPorZona[zona.id_zona]} 
+                            zona={zona} 
+                            dataColumns={getColumnsForFilter()}
+                        />
+                    ))
                 )}
-                {!loading && temporadaSeleccionada && filtroActivo === 'Posiciones' && (
-                    <TablePosiciones data={posiciones} temporada={temporadaFiltrada} dataColumns={getColumnsForFilter()}/>
+
+                {/* Renderizado por Categoría */}
+                {!loading && zonaSeleccionada && filtroActivo !== 'Fixture' && filtroActivo !== 'Posiciones' && (
+                    <TableTeam data={estadisticaZona} dataColumns={getColumnsForFilter()} zona={zonasFiltradas?.[0]} />
                 )}
             </StatsWrapper>
         </StatsContainerStyled>

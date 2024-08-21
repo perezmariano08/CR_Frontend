@@ -5,7 +5,7 @@ import Section from '../../components/Section/Section';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPosicionesTemporada, getTemporadas } from '../../utils/dataFetchers';
+import { getPosicionesTemporada, getZonas } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data';
 import useFetchMatches from '../../hooks/useFetchMatches';
@@ -16,53 +16,42 @@ import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 
 const Home = () => {
     const dispatch = useDispatch();
-
     const { user, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
-
+    
     useEffect(() => {
         dispatch(fetchEquipos());
-    }, []);
+    }, [dispatch]);
 
     const equipos = useSelector((state) => state.equipos.data);
-    const [miEquipo, setMiEquipo] = useState(null);
-
-    useEffect(() => {
-        if (equipos && user?.id_equipo) {
-            const equipo = equipos.find((equipo) => equipo.id_equipo === user.id_equipo);
-            setMiEquipo(equipo);
-        }
-    }, [equipos, user]);
-
-    console.log(equipos);
-    
-    const id_temporada = miEquipo?.id_temporada;
+    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === user?.id_equipo);
+    const id_zona = miEquipo?.id_zona;
 
     // Custom hooks
     useFetchMatches((partido) => miEquipo && partido.division === miEquipo.division);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
-    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(miEquipo?.id_equipo);
+    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(user.id_equipo);
 
     const [posiciones, setPosiciones] = useState(null);
-    const [temporadas, setTemporadas] = useState([]);
+    const [zonas, setZonas] = useState([]);
 
-    // Fetch a información de temporadas
+    // Fetch a información de zonas
     useEffect(() => {
-        if (id_temporada) {
-            getPosicionesTemporada(id_temporada)
+        if (id_zona) {
+            getPosicionesTemporada(id_zona)
                 .then((data) => setPosiciones(data))
                 .catch((error) => console.error('Error en la petición', error));
         } else {
-            console.error('ID de temporada no definido');
+            console.error('ID de zona no definido');
         }
-    }, [id_temporada]);
+    }, [id_zona]);
 
     useEffect(() => {
-        getTemporadas()
-            .then((data) => setTemporadas(data))
+        getZonas()
+            .then((data) => setZonas(data))
             .catch((error) => console.error('Error fetching temporadas:', error));
     }, []);
 
-    const temporadaFiltrada = temporadas.find((t) => t.id_temporada === id_temporada);
+    const zonasFiltradas = zonas.find((z) => z.id_zona === id_zona);
 
     return (
         <>
@@ -84,13 +73,13 @@ const Home = () => {
                     <Section>
                         {fechaActual && partidosFecha.length > 0 ? (
                             <>
-                                <h2>{`Fecha ${fechaActual} - ${partidosFecha[0].torneo} ${partidosFecha[0].año}`}</h2>
+                                <h2>{`Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`}</h2>
                                 <CardsMatchesContainer>
                                     <CardsMatchesWrapper>
                                         {partidosFecha
                                             .filter(
                                                 (p) =>
-                                                    miEquipo && p.division === miEquipo.division && p.jornada === fechaActual
+                                                    miEquipo && p.id_zona === miEquipo.id_zona && p.jornada === fechaActual
                                             )
                                             .map((p) => (
                                                 <CardPartido
@@ -108,12 +97,12 @@ const Home = () => {
                             </StatsNull>
                         )}
                     </Section>
-                    {posiciones && temporadaFiltrada && (
+                    {posiciones && zonasFiltradas && (
                         <Section>
                             <h2>Tabla de Posiciones</h2>
                             <TablePosiciones
                                 data={posiciones}
-                                temporada={temporadaFiltrada}
+                                zona={zonasFiltradas}
                                 dataColumns={dataPosicionesTemporadaColumns}
                             />
                         </Section>
