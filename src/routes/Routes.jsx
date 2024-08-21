@@ -35,7 +35,13 @@ import Divisiones from '../pages/Administrador/Divisiones/Divisiones';
 import Expulsados from '../pages/Administrador/Expulsados/Expulsados';
 import ForgotPassword from '../pages/Login/ForgotPassword/ForgotPassword';
 import Ediciones from '../pages/Administrador/Ediciones/Ediciones';
-import EdicionesDetalle from '../pages/Administrador/Ediciones/EdicionesDetalle';
+import EdicionesConfig from '../pages/Administrador/Ediciones/EdicionesConfig';
+import EdicionesCategorias from '../pages/Administrador/Ediciones/EdicionesCategorias';
+import CategoriasEquipos from '../pages/Administrador/Categorias/CategoriasEquipos';
+import CategoriasFixture from '../pages/Administrador/Categorias/CategoriasFixture';
+import CategoriasConfig from '../pages/Administrador/Categorias/CategoriasConfig';
+import CategoriasFormato from '../pages/Administrador/Categorias/CategoriasFormato';
+import CategoriasEquiposDetalle from '../pages/Administrador/Categorias/CategoriasEquiposDetalle';
 
 const Routes = () => {
     return (
@@ -66,7 +72,14 @@ const Routes = () => {
                             <Route path='/admin/partidos' element={<LayoutAdmin> <Partidos/> </LayoutAdmin>} />
                             <Route path='/admin/dashboard' element={<LayoutAdmin> <Admin/> </LayoutAdmin>} />
                             <Route path='/admin/ediciones' element={<LayoutAdmin> <Ediciones/> </LayoutAdmin>} />
-                            <Route path='/admin/ediciones/:id_page' element={<LayoutAdmin> <EdicionesDetalle/> </LayoutAdmin>} />
+                            <Route path='/admin/ediciones/categorias/:id_page' element={<LayoutAdmin> <EdicionesCategorias/> </LayoutAdmin>} />
+                            <Route path='/admin/ediciones/config/:id_page' element={<LayoutAdmin> <EdicionesConfig/> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/resumen/:id_page' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/fixture/:id_page' element={<LayoutAdmin> <CategoriasFixture /> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/equipos/:id_page' element={<LayoutAdmin> <CategoriasEquipos /> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/equipos/:id_page/detalle/:id_page' element={<LayoutAdmin> <CategoriasEquiposDetalle /> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/config/:id_page' element={<LayoutAdmin> <CategoriasConfig /> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/formato/:id_page' element={<LayoutAdmin> <CategoriasFormato /> </LayoutAdmin>} />
                             <Route path='/admin/sanciones/expulsados' element={<LayoutAdmin> <Expulsados/> </LayoutAdmin>} />
                         </Route>
 

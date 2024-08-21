@@ -288,7 +288,6 @@ const Jugadores = () => {
     
     return (
         <Content>
-            <Toaster />
             <ContentTitle>{plural.charAt(0).toUpperCase() + plural.slice(1)}</ContentTitle>
             <ActionsCrud>
                 <ActionsCrudButtons>

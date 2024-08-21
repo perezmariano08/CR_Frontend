@@ -4,14 +4,7 @@ import Axios from 'axios';
 import { URL } from '../../utils/utils';
 
 export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async () => {
-    const token = localStorage.getItem('token');
-
-    const response = await Axios.get(`${URL}/user/get-equipos`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
+    const response = await Axios.get(`${URL}/user/get-equipos`)
     return response.data;
 });
 

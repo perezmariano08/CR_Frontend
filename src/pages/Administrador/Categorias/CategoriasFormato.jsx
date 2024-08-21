@@ -38,7 +38,7 @@ import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 
-const Categorias = () => {
+const CategoriasFormato = () => {
     const dispatch = useDispatch();
     const { id_page } = useParams(); // Obtenemos el id desde la URL
     
@@ -144,14 +144,9 @@ const Categorias = () => {
                 <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
             </ContentNavWrapper>
             
-            <p>PONER ESTADISTICAS DE ESA CATEGORIA, POR EJ</p>
-            <p>PARTIDOS JUGADOS</p>
-            <p>VACANTES DE LAS ZONAS</p>
-            <p>EQUIPOS EN LAS ZONAS</p>
-            <p>JUGADORES</p>
-            <p>LO QUE SE NOS OCURRA</p>
+            <p>FORMATO DE LA CATEGORIA</p>
         </Content>
     );
 };
 
-export default Categorias;
+export default CategoriasFormato;

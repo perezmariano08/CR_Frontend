@@ -47,19 +47,6 @@ const Aside = ({className}) => {
     useEffect(() => {
         dispatch(fetchUsuarios())
         dispatch(fetchJugadores())
-        if (userName && showWelcomeToast) {
-            toast(`Bienvenid@, administrador ${userName}`, {
-                icon: '👋',
-                style: {
-                    borderRadius: '10px',
-                    background: 'var(--gray-500)',
-                    color: 'var(--white)',
-                },
-                duration: 4000,
-                position: "top-center"
-            });
-            setShowWelcomeToast(false);
-        }
         setShowSubMenuTemporadas(isActiveTemporadas);
         setShowSubMenuSanciones(isActiveSanciones);
     }, [userName, showWelcomeToast, setShowWelcomeToast, isActiveTemporadas]);

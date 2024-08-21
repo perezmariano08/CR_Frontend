@@ -314,10 +314,8 @@ const Equipos = () => {
         setNombre(event.target.value);
     }, 300), []);
     
-
     return (
         <Content>
-            <Toaster />
             <ContentTitle>{plural.charAt(0).toUpperCase() + plural.slice(1)}</ContentTitle>
             <ActionsCrud>
                 <ActionsCrudButtons>

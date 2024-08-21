@@ -36,13 +36,13 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             const response = await Axios.put(url, data);
             if (response.status === 200) {
                 setIsUpdating(false);
-                toast.success(`actualizado correctamente.`);
+                toast.success(successMessage);
                 dispatch(fetchAction());
             }
         } catch (error) {
             setIsUpdating(false);
             console.error(`Error al verificar o agregar.`, error);
-            toast.error(`Hubo un problema al verificar`);
+            toast.error(errorMessage);
         }
     };
 
@@ -89,8 +89,21 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
         }
     };
     
+    const eliminarPorId = async (id) => {
+        setIsDeleting(true);
+        try {
+            await Axios.post(url, {id} );
+            toast.success('Registro eliminado correctamente.');
+            dispatch(fetchAction());
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error(errorMessage);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
     
     
 
-    return { crear, actualizar, eliminar, importar, isImporting, isDeleting, isSaving, isUpdating};
+    return { crear, actualizar, eliminar, importar, eliminarPorId, isImporting, isDeleting, isSaving, isUpdating};
 };
