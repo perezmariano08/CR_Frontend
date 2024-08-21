@@ -107,9 +107,11 @@ const CardPartido = ({ partido, rol }) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
     
+    console.log(partido);
+    
     return (
         <CardPartidoWrapper> 
-            <CardPartidoTitles>
+            <CardPartidoTitles>                
                 <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
                 {partido.estado === 'F' ? (
                     <p>{formattedDate} {formattedTime} | Fecha {partido.jornada} - {partido.cancha}</p>
