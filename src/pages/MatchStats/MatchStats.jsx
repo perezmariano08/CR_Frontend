@@ -22,13 +22,13 @@ const MatchStats = () => {
 
     const [formaciones, setFormaciones] = useState(null);
     const [incidencias, setIncidencias] = useState(null);
-    const [activeTab, setActiveTab] = useState('Previa'); // Estado para controlar la pestaña activa
+    const [activeTab, setActiveTab] = useState('Previa');
 
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find(p => p.id_partido === partidoId);
     const jugadores = useSelector((state) => state.jugadores.data);
 
-    //CUSTOM
+    //CUSTOM HOOK
     const { partidosJugados, partidosEntreEquipos } = useMatchOlds(partido?.id_equipoLocal, partido?.id_equipoVisita);
 
     useEffect(() => {

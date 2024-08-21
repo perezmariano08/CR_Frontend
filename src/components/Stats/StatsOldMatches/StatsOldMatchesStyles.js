@@ -23,6 +23,7 @@ export const LocalContainer = styled.div`
     align-items: start;
     justify-content: center;
     width: 100%;
+    gap: 20px;
 `
 export const VisitaContainer = styled.div`
     display: flex;
@@ -30,6 +31,7 @@ export const VisitaContainer = styled.div`
     align-items: end;
     justify-content: center;
     width: 100%;
+    gap: 20px;
 `
 
 export const OldMatchContainer = styled.div`

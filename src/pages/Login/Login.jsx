@@ -69,6 +69,9 @@ const Login = () => {
             }
             console.error("Error en la solicitud HTTP:", error);
             setIsLoading(false);
+        } finally {
+            setDniUser('')
+            setPassUser('')
         }
     };
     

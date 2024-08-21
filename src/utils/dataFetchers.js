@@ -3,9 +3,9 @@ import { URL } from "./utils";
 
 Axios.defaults.withCredentials = true;
 
-export const getPosicionesTemporada = async (id_temporada) => {
+export const getPosicionesTemporada = async (id_zona) => {
     try {
-        const res = await Axios.get(`${URL}/user/get-posiciones-temporada?id_temporada=${id_temporada}`, {
+        const res = await Axios.get(`${URL}/user/get-posiciones-zona?id_zona=${id_zona}`, {
             withCredentials: true
         });
         return res.data;
@@ -15,9 +15,9 @@ export const getPosicionesTemporada = async (id_temporada) => {
     }
 };
 
-export const getTemporadas = async () => {
+export const getZonas = async () => {
     try {
-        const res = await Axios.get(`${URL}/user/get-temporadas`, {
+        const res = await Axios.get(`${URL}/user/get-zonas`, {
             withCredentials: true
         });
         return res.data;
@@ -27,9 +27,9 @@ export const getTemporadas = async () => {
     }
 };
 
-export const getJugadoresEquipo = async (id_temporada, equipoId) => {
+export const getJugadoresEquipo = async (id_zona, equipoId) => {
     try {
-        const res = await Axios.get(`${URL}/user/get-jugadores-equipo?id_temporada=${id_temporada}&id_equipo=${equipoId}`, {
+        const res = await Axios.get(`${URL}/user/get-jugadores-equipo?id_zona=${id_zona}&id_equipo=${equipoId}`, {
             withCredentials: true
         });
         return res.data;
@@ -38,12 +38,12 @@ export const getJugadoresEquipo = async (id_temporada, equipoId) => {
     }
 };
 
-export const getEstadisticasTemporada = async (estadistica, id_temporada) => {
+export const getEstadisticasTemporada = async (estadistica, id_categoria) => {
     try {
-        const res = await Axios.get(`${URL}/user/get-estadistica-temporada`, {
+        const res = await Axios.get(`${URL}/user/get-estadistica-categoria`, {
             params: {
                 estadistica,
-                id_temporada
+                id_categoria
             },
             withCredentials: true
         });
@@ -75,3 +75,15 @@ export const getIndicencias = async (partidoId) => {
         console.error('Error en el front', error);
     }
 };
+
+export const traerPartidosEventuales = async () => {
+    try {
+        const response = await Axios.get(`${URL}/user/get-partidos-eventuales`);
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return [];
+    }
+};
+

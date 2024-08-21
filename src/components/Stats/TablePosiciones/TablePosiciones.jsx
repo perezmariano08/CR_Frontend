@@ -1,15 +1,15 @@
 import React from 'react'
 import { TableContainerStyled, TableFoot, TableFootItem, TableTitle, TableTitleDivider, TableWrapper } from '../Table/TableStyles'
 import { Column } from 'primereact/column';
-import { URL, URLImages } from '../../../utils/utils';
+import { URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import { useNavigate } from 'react-router-dom';
 
-const TablePosiciones = ({ data, temporada, dataColumns }) => {
+const TablePosiciones = ({ data, zona, dataColumns }) => {
     const equipos = useSelector((state) => state.equipos.data);
     const navigate = useNavigate();
-    if (!temporada) {
+    if (!zona) {
         return null;
     }
 
@@ -36,12 +36,12 @@ const TablePosiciones = ({ data, temporada, dataColumns }) => {
         <div className="team" style={{minWidth: '140px', cursor: 'pointer'}} 
             onClick={() => verPaginaEquipo(rowData.id_equipo)}
         >
-            <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.nombre}/>
-            <span>{rowData.nombre}</span>
+            <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.equipo}/>
+            <span>{rowData.equipo}</span>
         </div>
     );
 
-    const nombreTorneo = `${temporada.torneo} ${temporada.año}`;
+    const nombreTorneo = zona.nombre_edicion;
 
     const verPaginaEquipo = (idEquipo) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
@@ -51,11 +51,11 @@ const TablePosiciones = ({ data, temporada, dataColumns }) => {
         <TableContainerStyled>
             <TableTitle>
                 <h3>{nombreTorneo}</h3>
-                <p>{temporada.division}</p>
+                <p>{zona.nombre_categoria} - {zona.nombre_zona}</p>
             </TableTitle>
             <TableTitleDivider/>
             <TableWrapper
-                    value={data}
+                value={data}
                     emptyMessage="No hay datos disponibles"
                 >
                 {dataColumns.map((col) => (

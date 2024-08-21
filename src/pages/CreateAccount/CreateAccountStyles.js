@@ -2,22 +2,26 @@ import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 export const CreateAccountContainerStyled = styled.div`
-    padding: 30px;
-    height: 100vh;
-    width: 100%;
     display: flex;
-    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    @media (max-width: 700px) {
+        position: relative;
+    }
 `
 
 export const CreateAccountWrapper = styled.div`
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 100px;
+    justify-content: center;
+    flex-direction: column;
+    padding: 50px 100px;
     width: 100%;
+    min-width: 50%;
+    gap: 30px;
     height: 100%;
-
+    background-color: var(--gray-500);
+    
     p a {
         color: var(--green);
     }

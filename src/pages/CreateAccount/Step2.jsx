@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { CreateAccountContainerStyled, CreateAccountData, CreateAccountInputs, CreateAccountWrapper, InputContainer } from './CreateAccountStyles';
+import {
+    CreateAccountContainerStyled,
+    CreateAccountData,
+    CreateAccountInputs,
+    CreateAccountWrapper,
+    InputContainer,
+} from './CreateAccountStyles';
 import Input from '../../components/UI/Input/Input';
 import { AiOutlineLock } from 'react-icons/ai';
 import { ButtonSubmit } from '../../components/UI/Button/ButtonStyles';
@@ -9,6 +15,7 @@ import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { URL } from '../../utils/utils';
 import axios from 'axios';
+import { ButtonLogin, LoginWrapperInfo } from '../Login/LoginStyles';
 
 const Step2 = () => {
     const navigate = useNavigate();
@@ -20,16 +27,16 @@ const Step2 = () => {
 
     const [passwordError, setPasswordError] = useState('');
     const [repeatPasswordError, setRepeatPasswordError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [redirecting, setRedirecting] = useState(false); // Estado de redirección
 
-    //Recovery
+    // Recovery
     const [recoveryPassword, setRecoveryPassword] = useState(false);
     const [token, setToken] = useState('');
 
     const handlePasswordChange = (event) => {
         const newPassword = event.target.value;
         setPasswordError('');
-        
+
         if (newPassword.trim().length < 6) {
             setPasswordError('La contraseña debe tener al menos 6 caracteres.');
         } else if (newPassword.trim().split('').filter(char => !isNaN(parseInt(char))).length < 3) {
@@ -45,45 +52,60 @@ const Step2 = () => {
         const newRepeatPassword = event.target.value;
         setRepeatPassword(newRepeatPassword);
         setRepeatPasswordError('');
-        
+
         if (password !== newRepeatPassword) {
             setRepeatPasswordError('Las contraseñas no coinciden.');
         }
     };
 
-    //RECOVERY PASSWORD
+    // RECOVERY PASSWORD
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const token = params.get('token');
-            if (token) {
-                setRecoveryPassword(true);
-                setToken(token);
-            }
+        if (token) {
+            setRecoveryPassword(true);
+            setToken(token);
+        }
     }, [location.search]);
 
     const sendNewPassword = async (clave) => {
+        setRedirecting(true); // Activa el estado de redirección
         try {
-            setLoading(true);
             const response = await axios.post(`${URL}/auth/change-password`, { clave, token });
             if (response.status === 200) {
-                toast.success('Contraseña actualizada exitosamente');
-                setTimeout(() => {
-                    navigate('/login')
-                }, 2000)
+                toast.promise(
+                    new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve();
+                            navigate('/login');
+                        }, 3000);
+                    }),
+                    {
+                        loading: 'Actualizando contraseña...',
+                        success: 'Contraseña actualizada exitosamente, redirigiendo al login',
+                        error: 'Error al procesar la solicitud',
+                    }
+                );
                 return true;
             }
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                toast.error('Usuario no encontrado');
+            if (error.response) {
+                if (error.response.status === 404) {
+                    toast.error('Usuario no encontrado');
+                } else {
+                    toast.error(`Error: ${error.response.data.message || 'Error al procesar la solicitud'}`);
+                }
+                console.error("Error en la solicitud HTTP:", error.response.data || error.message);
             } else {
-                toast.error('Error al procesar la solicitud');
+                toast.error('Error en la solicitud');
+                console.error("Error en la solicitud HTTP:", error.message);
             }
-            console.error("Error en la solicitud HTTP:", error.response?.data || error.message);
             return false;
         } finally {
-            setLoading(false);
+            setRedirecting(false); // Desactiva el estado de redirección si hay error
         }
     };
+    
 
     const handleNextStep3 = () => {
         if (passwordError || repeatPasswordError || password === '') {
@@ -95,7 +117,10 @@ const Step2 = () => {
             const convertPassword = password.trim();
             if (!recoveryPassword) {
                 dispatch(setNewUserPassword(convertPassword));
-                window.location.href = '/favorite-team';
+                setRedirecting(true); // Activa el estado de redirección
+                setTimeout(() => {
+                    window.location.href = '/favorite-team';
+                }, 2000);
             } else {
                 if (token && convertPassword) {
                     sendNewPassword(convertPassword);
@@ -108,15 +133,18 @@ const Step2 = () => {
 
     return (
         <CreateAccountContainerStyled>
+            <LoginWrapperInfo>
+                <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
+                <span>novedades</span>
+                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+            </LoginWrapperInfo>
             <CreateAccountWrapper>
                 <CreateAccountData>
-                    {
-                        recoveryPassword ? (
-                            <h2>Actualiza tu contraseña</h2>
-                        ) : (
-                            <h2>Crea tu contraseña</h2>
-                        )
-                    }
+                    {recoveryPassword ? (
+                        <h2>Actualiza tu contraseña</h2>
+                    ) : (
+                        <h2>Crea tu contraseña</h2>
+                    )}
                     <CreateAccountInputs>
                         <InputContainer>
                             <Input
@@ -143,14 +171,13 @@ const Step2 = () => {
                             />
                             {repeatPasswordError && <p>{repeatPasswordError}</p>}
                         </InputContainer>
-
                     </CreateAccountInputs>
-                    <ButtonSubmit
+                    <ButtonLogin
                         onClick={handleNextStep3}
-                        disabled={loading}
+                        disabled={redirecting} // Desactiva el botón durante la redirección
                     >
-                        {loading ? <LoaderIcon/> : 'Continuar'}
-                    </ButtonSubmit>
+                        {redirecting ? <LoaderIcon /> : 'Continuar'}
+                    </ButtonLogin>
                 </CreateAccountData>
             </CreateAccountWrapper>
             <Toaster />
