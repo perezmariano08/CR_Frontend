@@ -6,11 +6,11 @@ import { URL, URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 
-const TableTeam = ({ data, temporada, dataColumns }) => {
+const TableTeam = ({ data, zona, dataColumns }) => {
     const jugadores = useSelector((state) => state.jugadores.data);
 
-    if (!temporada) {
-        return null; // Handle the case where no temporada is selected
+    if (!zona) {
+        return null;
     }
 
     if (!data || data.length === 0) {
@@ -30,13 +30,13 @@ const TableTeam = ({ data, temporada, dataColumns }) => {
         </div>
     );
 
-    const nombreTorneo = `${temporada.torneo} ${temporada.año}`;
+    const nombreTorneo = zona.nombre_edicion;
 
     return (
         <TableContainerStyled>
             <TableTitle>
                 <h3>{nombreTorneo}</h3>
-                <p>{temporada.division}</p>
+                <p>{zona.nombre_categoria}</p>
             </TableTitle>
             <TableTitleDivider />
             <TableTeamWrapper value={data} emptyMessage="No hay datos disponibles">

@@ -16,9 +16,9 @@ export const calcularEstadisticas = (partidos) => {
     });
 
     const totalPartidos = partidos.length;
-    const porcentajeVictoriasLocal = (victoriasLocal / totalPartidos) * 100;
-    const porcentajeVictoriasVisita = (victoriasVisita / totalPartidos) * 100;
-    const porcentajeEmpates = (empates / totalPartidos) * 100;
+    const porcentajeVictoriasLocal = Math.round((victoriasLocal / totalPartidos) * 100);
+    const porcentajeVictoriasVisita = Math.round((victoriasVisita / totalPartidos) * 100);
+    const porcentajeEmpates = Math.round((empates / totalPartidos) * 100);
 
     return {
         victoriasLocal,

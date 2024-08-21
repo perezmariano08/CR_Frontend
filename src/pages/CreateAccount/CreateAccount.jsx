@@ -7,19 +7,20 @@ import { AiOutlineMail, AiOutlineMobile, AiOutlineUser } from 'react-icons/ai'
 import { IoWarningOutline } from "react-icons/io5";
 import { PiIdentificationCardLight } from "react-icons/pi";
 import { useFormik } from 'formik'
-import { ButtonSubmit } from '../../components/UI/Button/ButtonStyles'
 import * as Yup from 'yup'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { setNewUser } from '../../redux/user/userSlice'
 import axios from 'axios';
 import { URL } from '../../utils/utils'
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster, toast, LoaderIcon } from 'react-hot-toast';
+import { ButtonLogin, LoginWrapperInfo } from '../Login/LoginStyles'
+
 
 const CreateAccount = () => {
-
     const [dniExists, setDniExists] = useState(false);
     const [emailExists, setEmailExists] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const dispatch = useDispatch()
 
@@ -96,6 +97,7 @@ const CreateAccount = () => {
         },
         validationSchema,
         onSubmit: async (values, { resetForm }) => {
+            setIsLoading(true);
             const emailAvailable = await checkEmail(values.email);
             const dniAvailable = await checkDni(values.dni);
             if (!emailAvailable || !dniAvailable) {
@@ -106,6 +108,7 @@ const CreateAccount = () => {
                 resetForm();
                 nextPage();
             }
+            setIsLoading(false);
             setFormSubmitted(true);
         }
     });
@@ -205,11 +208,25 @@ const CreateAccount = () => {
                                 </ErrorContainer>
                             )}
                         </InputContainer>
-                        <ButtonSubmit type='submit'>Continuar</ButtonSubmit>
+                        <ButtonLogin type='submit'>
+                            {isLoading ? (
+                                <>
+                                    <LoaderIcon />
+                                </>
+                            ) : (
+                                'Continuar'
+                            )}
+                        </ButtonLogin>
                     </CreateAccountInputs>
                 </CreateAccountData>
                 <p>¿Ya tienes cuenta? <NavLink to={'/login'}>Inicia Sesion</NavLink></p>
             </CreateAccountWrapper>
+
+            <LoginWrapperInfo>
+                <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
+                <span>novedades</span>
+                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+            </LoginWrapperInfo>
             <Toaster />
         </CreateAccountContainerStyled>
     )

@@ -11,7 +11,7 @@ const useMatchesUser = (idEquipo) => {
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idEquipo);
 
     const [fechaActual, setFechaActual] = useState(null);
-
+    
     useEffect(() => {
         dispatch(fetchPartidos())
         dispatch(fetchEquipos())
@@ -20,7 +20,7 @@ const useMatchesUser = (idEquipo) => {
     useEffect(() => {
         if (partidos.length > 0 && miEquipo) {
             const sortedPartidos = partidos
-                .filter((partido) => partido.division === miEquipo.division)
+                .filter((partido) => partido.id_zona === miEquipo.id_zona)
                 .sort((a, b) => new Date(b.dia) - new Date(a.dia));
 
             const latestFecha = sortedPartidos.reduce((max, partido) => (partido.jornada > max ? partido.jornada : max), 0);
@@ -49,7 +49,7 @@ const useMatchesUser = (idEquipo) => {
 
     const partidoAMostrar = proximoPartido || ultimoPartido;
 
-    const partidosFecha = partidos.filter(partido => partido.id_temporada === miEquipo.id_temporada)
+    const partidosFecha = partidos.filter(partido => partido.id_zona === miEquipo?.id_zona)
 
     return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual };
 }

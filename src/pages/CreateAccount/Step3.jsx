@@ -7,11 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setNewUserTeamFavorite } from '../../redux/user/userSlice';
 import axios from 'axios';
 import { URL } from '../../utils/utils';
-import { Toaster, toast } from 'react-hot-toast';
+import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice';
 import { SpinerContainer } from '../../Auth/SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
+import { ButtonLogin, LoginWrapperInfo } from '../Login/LoginStyles';
 
 const Step3 = () => {
     const equiposList = useSelector((state) => state.equipos.data)
@@ -90,13 +91,18 @@ const Step3 = () => {
                                 )}
                             </InputContainer>
                         </CreateAccountInputs>
-                        <ButtonSubmit onClick={handleNext}>
-                            Crear cuenta
-                        </ButtonSubmit>
+                        <ButtonLogin onClick={handleNext}>
+                            {loading ? <LoaderIcon /> : 'Continuar'}
+                        </ButtonLogin>
                     </CreateAccountData>
                 )
                 }
             </CreateAccountWrapper>
+            <LoginWrapperInfo>
+                <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
+                <span>novedades</span>
+                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+            </LoginWrapperInfo>
             <Toaster />
         </CreateAccountContainerStyled>
     )

@@ -64,7 +64,7 @@ const CardOldMatches = ({ partidos, equipo }) => {
                                 <CardOldMatchesItem onClick={() => viewToStatsMatch(partido.id_partido)}>
                                     <MatchesItemDescription>
                                         <p>{`${partido.dia_nombre} ${partido.dia_numero} / ${partido.mes}`}</p>
-                                        <p className='fecha'>{`Fecha ${partido.jornada} ${partido.torneo} ${partido.año}`}</p>
+                                        <p className='fecha'>{`Fecha ${partido.jornada} ${partido.nombre_edicion}`}</p>
                                     </MatchesItemDescription>
                                     <MatchesItemTeams>
                                         <MatchesItemTeam>

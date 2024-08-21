@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ButtonWrapper, FixtureMatch, FixtureMatchInfo, FixtureMatchTeam, FixtureTitle, FixtureTitleDivider, FixtureTop, FixtureWrapper, NavigateFixture } from './FixtureStyles';
-import { TableTitleDivider } from '../Table/TableStyles';
-import { URL, URLImages } from '../../../utils/utils';
+import { URLImages } from '../../../utils/utils';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { useNavigate } from 'react-router-dom';
 
-const Fixture = ({ temporada }) => {
+const Fixture = ({ zona }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const partidos = useSelector((state) => state.partidos.data);
@@ -32,7 +31,7 @@ const Fixture = ({ temporada }) => {
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(teamIds);
 
     // Filtra partidosTemporada y cantidadFechas después de haber cargado los datos
-    const partidosTemporada = partidos.filter((p) => p.id_temporada == temporada);
+    const partidosTemporada = partidos.filter((p) => p.id_zona === zona?.id_zona);
     const cantidadFechas = [...new Set(partidosTemporada.map((p) => p.jornada))].sort((a, b) => a - b);
     const partidosFecha = partidosTemporada.filter((p) => p.jornada === fechaActual);
 

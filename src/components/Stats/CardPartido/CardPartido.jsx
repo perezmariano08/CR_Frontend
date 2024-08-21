@@ -3,7 +3,8 @@ import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTea
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
-import { URL, URLImages } from '../../../utils/utils.js';
+import { URLImages } from '../../../utils/utils.js';
+import { getZonas } from '../../../utils/dataFetchers.js';
 
 const CardPartido = ({ partido, rol }) => {
     const equipos = useSelector((state) => state.equipos.data);
@@ -12,6 +13,17 @@ const CardPartido = ({ partido, rol }) => {
     const navigate = useNavigate();
 
     const match = matches.find(p => p.ID === partido.id_partido);
+
+    const [zona, setZona] = useState([]);
+
+    useEffect(() => {
+        getZonas()
+            .then((data) => {
+                const zonaCorrecta = data.filter(z => z.id_zona === partido.id_zona);
+                setZona(zonaCorrecta);
+            })
+            .catch((error) => console.error('Error fetching zonas:', error));
+    }, [partido.id_zona]);
 
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
@@ -94,11 +106,11 @@ const CardPartido = ({ partido, rol }) => {
     const verPaginaEquipo = (idEquipo) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
-
+    
     return (
         <CardPartidoWrapper> 
             <CardPartidoTitles>
-                <h3>{`${partido.division} - ${partido.torneo} ${partido.año}`}</h3>
+                <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
                 {partido.estado === 'F' ? (
                     <p>{formattedDate} {formattedTime} | Fecha {partido.jornada} - {partido.cancha}</p>
                 ) : partido.estado === 'P' ? (

@@ -130,7 +130,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     return (
         <CardPartidoWrapper>
             <CardPartidoTitles>
-                <h3>{`${partido.division} - ${partido.torneo} ${partido.año}`}</h3>
+                <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
                 <p>{`${partido.dia_nombre} ${partido.dia_numero}/${partido.mes}`} | {`Fecha ${partido.jornada} - ${partido.cancha}`}</p>
             </CardPartidoTitles>
             <CardPartidoTeams>
