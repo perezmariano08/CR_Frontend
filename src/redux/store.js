@@ -23,6 +23,7 @@ import rolesReducer from "./ServicesApi/rolesSlice"
 import expulsadosReducer from "./ServicesApi/expulsadosSlice"
 import asideReducer from "./Aside/asideSlice"; // Importa tu nuevo slice
 import edicionesReducer from "./ServicesApi/edicionesSlice"
+import plantelesReducer from "./ServicesApi/plantelesSlice"
 
 const reducers = combineReducers({
     notis: notisReducer,
@@ -43,7 +44,8 @@ const reducers = combineReducers({
     roles: rolesReducer,
     expulsados: expulsadosReducer,
     aside: asideReducer, 
-    ediciones: edicionesReducer
+    ediciones: edicionesReducer,
+    planteles: plantelesReducer
 });
 
 const persistConfig = {
@@ -67,7 +69,8 @@ const persistConfig = {
         "roles",
         "expulsados",
         "aside",
-        "ediciones"
+        "ediciones",
+        "planteles"
     ]
 }
 

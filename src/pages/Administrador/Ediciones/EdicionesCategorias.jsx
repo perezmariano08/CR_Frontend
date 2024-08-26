@@ -24,6 +24,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
+import { EstadoBodyTemplate, LinkBodyTemplate } from '../../../components/Table/TableStyles';
 
 const EdicionesCategorias = () => {
     const dispatch = useDispatch();
@@ -47,13 +48,27 @@ const EdicionesCategorias = () => {
     const id = "id_categoria"
 
     // Estado del el/los Listado/s que se necesitan en el modulo
-    const edicionesList = useSelector((state) => state.ediciones.data);
-    const categoriasList = useSelector((state) => state.categorias.data);
-    
-    useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-    }, []);
+    const edicionesList = useSelector((state) => state.ediciones.data)
+    const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == id_page)
+    const categoriasList = useSelector((state) => state.categorias.data)
+    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_page)
+    const categoriasListLink = categoriasEdicion.map(categoria => ({
+        ...categoria,
+        estado: (
+            <>
+                {categoria.estado === "JUGANDO" ? (
+                    <EstadoBodyTemplate $bg={"import"}>{categoria.estado}</EstadoBodyTemplate>
+                ) : (
+                    <EstadoBodyTemplate $bg={"gray-200"}>{categoria.estado}</EstadoBodyTemplate>
+                )}
+            </>
+        ),
+        link: (
+            <LinkBodyTemplate to={`/admin/categorias/resumen/${categoria.id_categoria}`}>
+                Ingresar
+            </LinkBodyTemplate>
+        ),
+    }));
 
 
     // CREAR
@@ -67,8 +82,6 @@ const EdicionesCategorias = () => {
             return;
         }
 
-        
-        
         if (formState.duracion_tiempo < 5 ) {
             toast.error("La duración de cada tiempo debe tener al menos 5.");
             return;
@@ -93,13 +106,12 @@ const EdicionesCategorias = () => {
         resetForm()
     };
     
-    const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == id_page);
-    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_page)
-    const categoriasListLink = categoriasEdicion.map(categoria => ({
-        ...categoria,
-        link: `/admin/categorias/resumen/${categoria.id_categoria}`, 
-    }));
-
+    
+    useEffect(() => {
+        dispatch(fetchEdiciones());
+        dispatch(fetchCategorias());
+    }, []);
+    
     return (
         <Content>
             <MenuContentTop>
@@ -117,9 +129,9 @@ const EdicionesCategorias = () => {
                         <Table
                             data={categoriasListLink}
                             dataColumns={dataCategoriasColumns}
-                            arrayName={'Categorias'}
                             paginator={false}
                             selection={false}
+                            sortable={false}
                             id_={id}
                             urlClick={`/admin/categorias/resumen/`}
                             rowClickLink

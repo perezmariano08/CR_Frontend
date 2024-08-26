@@ -14,32 +14,28 @@ import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
-import { dataEdicionesColumns } from '../../../Data/Ediciones/DataEdiciones';
-import Axios from 'axios';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
-import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
-import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
-import { CategoriasEdicionEmpty, TablasTemporadaContainer, TablaTemporada } from '../Ediciones/edicionesStyles';
 import useForm from '../../../hooks/useForm';
 import { TbPlayFootball } from 'react-icons/tb';
 import Select from '../../../components/Select/Select';
 
-import { TbNumber } from "react-icons/tb";
 import { BsCalendar2Event } from "react-icons/bs";
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import { CategoriaEquiposEmpty } from './categoriasStyles';
+import { useEquipos } from '../../../hooks/useEquipos';
+import { EquipoBodyTemplate } from '../../../components/Table/TableStyles';
 
 const CategoriasEquipos = () => {
+    const { escudosEquipos, nombresEquipos } = useEquipos();
+
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
@@ -187,6 +183,12 @@ const CategoriasEquipos = () => {
             <Button bg={"import"} onClick={() => navigate(`/admin/categorias/formato/${categoriaFiltrada.id_categoria}`)}>
                 Asignar
             </Button>
+        ),
+        equipo: (
+            <EquipoBodyTemplate>
+                <img src={`${URLImages}${escudosEquipos(categoria.id_equipo)}`} alt={nombresEquipos(categoria.id_equipo)} />
+                <span>{nombresEquipos(categoria.id_equipo)}</span>
+            </EquipoBodyTemplate>
         )
     }));
     
@@ -217,12 +219,11 @@ const CategoriasEquipos = () => {
                         <Table
                             data={categoriasEquiposLink}
                             dataColumns={dataEquiposColumns}
-                            arrayName={'Equipos'}
                             paginator={false}
                             selection={false}
                             sortable={false}
                             id_={id}
-                            urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                            urlClick={`/admin/categorias/equipos/${id_page}/detalle/`}
                             rowClickLink
                         />
                     </>

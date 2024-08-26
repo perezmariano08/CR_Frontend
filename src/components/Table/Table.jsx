@@ -10,7 +10,7 @@ import { URL, URLImages } from '../../utils/utils';
 import { TbShirtSport } from 'react-icons/tb';
 
 import { CiViewList } from "react-icons/ci";
-import { DataItemEstado, DataItemTemporada, LinkEdicion } from '../../pages/Administrador/Ediciones/edicionesStyles';
+import { DataItemEstado, DataItemTemporada } from '../../pages/Administrador/Ediciones/edicionesStyles';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -32,6 +32,21 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         const seconds = String(date.getSeconds()).padStart(2, '0');
     
         return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+    const formatPartidoDateTime = dateString => {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return '00-00-0000 00:00:00';
+        }
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+        return `${day}/${month}/${year}`;
     }
 
     // Traer equipos
@@ -160,6 +175,12 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         </div>
     }
 
+    const fechaPartidoBodyTemplate = (rowData, field) => {
+        return <div>
+            {formatPartidoDateTime(rowData[field])}
+        </div>
+    }
+
     const jugadorBodyTemplate = rowData => {
         if (rowData.sancionado === "S"){
             return <div className="td-player">
@@ -198,52 +219,7 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         <VscKebabVertical onClick={() => editRow(rowData)} />
     );
 
-    const jugadoresEdicionTemplate = rowData => (
-        <DataItemTemporada to={'/admin/jugadores'}>
-            <TbShirtSport />
-            {rowData.jugadores}
-        </DataItemTemporada>
-    );
-
-    const equiposEdicionTemplate = rowData => (
-        <DataItemTemporada to={'/admin/equipos'}>
-            <IoShieldHalf />
-            {rowData.equipos}
-        </DataItemTemporada>
-    );
-
-    const categoriasEdicionTemplate = rowData => (
-        <DataItemTemporada to={'/admin/categorias'}>
-            <CiViewList />
-            {rowData.categorias}
-        </DataItemTemporada>
-    );
-
-    const estadoEdicionTemplate = rowData => {
-        if (rowData.estado === "JUGANDO") {
-            return <DataItemEstado className='blue'>
-                {rowData.estado}
-            </DataItemEstado>
-        } else {
-            return <DataItemEstado className='gray'>
-                {rowData.estado}
-            </DataItemEstado>
-        }
-    }
-
-    const linkEdicionTemplate = rowData => (
-        <LinkEdicion to={`${rowData.link}`}>
-            Ingresar
-        </LinkEdicion>
-    )
-
-    const linkCategoriaTemplate = rowData => (
-        <LinkEdicion to={`${rowData.link}`}>
-            Ingresar
-        </LinkEdicion>
-    )
     const navigate = useNavigate(); // Hook para manejar la navegación
-
     const handleRowClicks = (rowData) => {
         // Aquí defines la ruta a la que deseas redirigir
         navigate(`${urlClick}${rowData[id_]}`);
@@ -280,7 +256,6 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                             arrayName === 'Equipos' && col.field === 'nombre'
                             || arrayName === 'Usuarios' && col.field === 'equipo'
                             || arrayName === 'Jugadores' && col.field === 'id_equipo'
-                            || arrayName === 'Expulsados' && col.field === 'id_equipo'
                                 ? rowData => equipoBodyTemplate(rowData, 'id_equipo')
                                 : arrayName === 'Jugadores' && col.field === 'jugador' 
                                 ? jugadorBodyTemplate
@@ -297,7 +272,7 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                                 : arrayName === 'Usuarios' && col.field === 'fecha_actualizacion'
                                 ? rowData => fechaBodyTemplate(rowData, 'fecha_actualizacion')
                                 : arrayName === 'Partidos' && col.field === 'dia'
-                                ? rowData => fechaBodyTemplate(rowData, 'dia')
+                                ? rowData => fechaPartidoBodyTemplate(rowData, 'dia')
                                 : arrayName === 'Jugadores' && col.field === 'sancionado'
                                 ? rowData => booleanoBodyTemplate(rowData, 'sancionado')
                                 : arrayName === 'Jugadores' && col.field === 'eventual'
@@ -306,29 +281,11 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                                 ? rowData => golNuloTemplate(rowData, 'goles_local')
                                 : arrayName === 'Partidos' && col.field === 'goles_visita'
                                 ? rowData => golNuloTemplate(rowData, 'goles_visita')
-                                : arrayName === 'Expulsados' && col.field === 'sancionado'
-                                ? rowData => estadoBodyTemplate(rowData, 'sancionado')
-                                : arrayName === 'Expulsados' && col.field === 'estado'
-                                ? rowData => estadoAIBodyTemplate(rowData, 'estado')
                                 : arrayName === 'Usuarios' && col.field === 'estado'
                                 ? rowData => estadoUsuarioBodyTemplate(rowData, 'estado')
                                 : arrayName === 'Equipos' && col.field === 'temporada'
                                 ? rowData => estadoTemporadaEquipo(rowData, 'temporada')
-                                : arrayName === 'Ediciones' && col.field === 'jugadores'
-                                ? jugadoresEdicionTemplate
-                                : arrayName === 'Ediciones' && col.field === 'equipos'
-                                ? equiposEdicionTemplate
-                                : arrayName === 'Ediciones' && col.field === 'categorias'
-                                ? categoriasEdicionTemplate
-                                : arrayName === 'Ediciones' && col.field === 'estado'
-                                || arrayName === 'Categorias' && col.field === 'estado'
-                                ? estadoEdicionTemplate
-                                : arrayName === 'Ediciones' && col.field === 'link'
-                                ? linkEdicionTemplate
-                                : arrayName === 'Categorias' && col.field === 'link'
-                                ? linkCategoriaTemplate
                                 : null
-                                
                         }
                     />
                 ))}

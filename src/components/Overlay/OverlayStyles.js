@@ -10,4 +10,8 @@ export const OverlayStyled = styled.div`
     opacity: .5;
     z-index: 2;
     cursor: pointer;
+
+    &:disabled {
+        cursor: not-allowed
+    }
 `

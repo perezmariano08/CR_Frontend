@@ -1,4 +1,5 @@
 import { DataTable } from "primereact/datatable";
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 export const TableContainerStyled = styled(DataTable)`
@@ -8,6 +9,7 @@ export const TableContainerStyled = styled(DataTable)`
     font-size: 14px;
     width: 100%;
     overflow: hidden;
+    user-select: none;
 
     td, th {
         text-align: left;
@@ -22,6 +24,7 @@ export const TableContainerStyled = styled(DataTable)`
         color: var(--gray-200);
         border: none;
         border-bottom: 1px solid var(--gray-200);
+        text-transform: uppercase;
         &.p-sortable-column .p-column-header-content {
             gap: 10px;
 
@@ -39,6 +42,7 @@ export const TableContainerStyled = styled(DataTable)`
         padding: 15px 20px;
         width: fit-content;
         height: 100%;
+        border: none;
         border-bottom: 1px solid var(--gray-200);
     }
     tbody tr {
@@ -58,6 +62,7 @@ export const TableContainerStyled = styled(DataTable)`
         opacity: .85;
         transition: all .2s ease-in-out;
     }
+    
 
 
     input.checkbox {
@@ -93,6 +98,10 @@ export const TableContainerStyled = styled(DataTable)`
         text-overflow: ellipsis; /* Muestra puntos suspensivos si el contenido desborda */
     }
     th.th-team {
+    }
+
+    th .p-column-title {
+        width: 100%;
     }
 
     td img {
@@ -251,4 +260,70 @@ export const TableContainerStyled = styled(DataTable)`
         transition: all .2s ease-in-out;
     }
 
+`
+
+export const EstadoBodyTemplate = styled.div`
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    width: fit-content;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    color: var(--white);
+    background-color: ${({ $bg }) => `var(--${$bg})` || 'var(--gray-200)'};
+`
+
+export const AccionesBodyTemplate = styled.div`
+    display: flex;
+    gap: 10px;
+    max-width: fit-content;
+    color: var(--white);
+    button {
+        padding: 6px 10px;
+    }
+`
+
+export const EquipoBodyTemplate = styled.div`
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 160px;
+    &.local {
+        flex-direction: row-reverse;
+        text-align: end;
+    }
+`
+
+export const ResultadoBodyTemplate = styled.div`
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+
+    .ganador {
+        font-weight: 800;
+    }
+`
+
+export const LinkBodyTemplate = styled(NavLink)`
+    color: var(--green);
+    text-decoration: underline;
+    transition: all .2s ease-in-out;
+    &:hover {
+        opacity: .7;
+    }
+`
+
+export const DataItemTemplate = styled(NavLink)`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--white);
+    width: fit-content;
+
+    svg {
+        font-size: 20px;
+        color: var(--green);
+    }
 `

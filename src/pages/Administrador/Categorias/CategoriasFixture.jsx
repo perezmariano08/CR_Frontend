@@ -16,7 +16,7 @@ import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
 import { dataEdicionesColumns } from '../../../Data/Ediciones/DataEdiciones';
 import Axios from 'axios';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
@@ -40,10 +40,13 @@ import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import { dataPartidosColumns } from '../../../Data/Partidos/Partidos';
 import { LiaAngleLeftSolid, LiaAngleRightSolid } from "react-icons/lia";
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
+import { useEquipos } from '../../../hooks/useEquipos';
+import { EquipoBodyTemplate, ResultadoBodyTemplate } from '../../../components/Table/TableStyles';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
     const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const { escudosEquipos, nombresEquipos } = useEquipos();
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
@@ -203,7 +206,7 @@ const CategoriasFixture = () => {
     // Agregar acciones a la tabla
         const partidosListLink = partidosCategoria.map(partido => ({
             ...partido,
-            eliminar: (
+            acciones: (
                 <div style={{display: "flex", gap: "10px"}}>
                     <Button bg={"danger"} onClick={() => ''}>
                         <IoTrashOutline />
@@ -212,8 +215,26 @@ const CategoriasFixture = () => {
                         <IoPencil />
                     </Button>
                 </div>
-                
             ),
+            id_equipoLocal: (
+                <EquipoBodyTemplate className='local'>
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+                    <span>{nombresEquipos(partido.id_equipoLocal)}</span>
+                </EquipoBodyTemplate>
+            ),
+            id_equipoVisita: (
+                <EquipoBodyTemplate>
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
+                    <span>{nombresEquipos(partido.id_equipoVisita)}</span>
+                </EquipoBodyTemplate>
+            ),
+            resultado: (
+                <ResultadoBodyTemplate>
+                    <span>{partido.goles_local}</span>
+                    <span>-</span>
+                    <span>{partido.goles_visita}</span>
+                </ResultadoBodyTemplate>
+            )
         }));
     // Agrupar partidos por fecha
     const partidosPorFecha = partidosListLink.reduce((acc, partido) => {
@@ -299,7 +320,6 @@ const CategoriasFixture = () => {
                         <Table
                             data={partidosPorFecha[fechaSeleccionada]}
                             dataColumns={dataPartidosColumns}
-                            arrayName={'Partidos'}
                             paginator={false}
                             selection={false}
                             sortable={false}

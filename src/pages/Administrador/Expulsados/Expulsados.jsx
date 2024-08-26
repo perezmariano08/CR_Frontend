@@ -15,7 +15,7 @@ import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
 import Axios from 'axios';
-import { URL } from '../../../utils/utils';
+import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,6 +28,7 @@ import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import Select from '../../../components/Select/Select';
 import { fetchExpulsados } from '../../../redux/ServicesApi/expulsadosSlice';
 import { dataExpulsadosColumn } from '../../../Data/Expulsados/DataExpulsados';
+import { EquipoBodyTemplate } from '../../../components/Table/TableStyles';
 
 const Expulsados = () => {
     const dispatch = useDispatch();
@@ -81,7 +82,57 @@ const Expulsados = () => {
     const rolesList = useSelector((state) => state.roles.data);
     const equiposList = useSelector((state) => state.equipos.data);
     const expulsadosList = useSelector((state) => state.expulsados.data);
-
+    const expulsados = expulsadosList.map((expulsado) => {
+        // Buscar el equipo correspondiente en equiposList
+        const equipo = equiposList.find(e => e.id_equipo === expulsado.id_equipo);
+    
+        // Si se encuentra el equipo, asignar el nombre y la imagen
+        const nombreEquipo = equipo ? equipo.nombre : 'Equipo no encontrado';
+        const imagenEquipo = equipo.img ? `${URLImages}/${equipo.img}` : `${URLImages}/uploads/Equipos/team-default.png`;
+    
+        return {
+            ...expulsado,
+            id_equipo: (
+                <EquipoBodyTemplate>
+                    <img src={imagenEquipo} alt={nombreEquipo} />
+                    <span>{nombreEquipo}</span>
+                </EquipoBodyTemplate>
+            ),
+            fechas: (
+                <>
+                    {
+                        expulsado.fechas === 1 ? (
+                            `${expulsado.fechas} fecha`
+                        ) : (
+                            `${expulsado.fechas} fechas`
+                        )
+                    }
+                </>
+            ),
+            fechas_restantes: (
+                <>
+                    {
+                        expulsado.fechas_restantes === 1 ? (
+                            `${expulsado.fechas_restantes} fecha`
+                        ) : (
+                            `${expulsado.fechas_restantes} fechas`
+                        )
+                    }
+                </>
+            ),
+            multa: (
+                <>
+                    {
+                        expulsado.multa === 'S' ? (
+                            `SI`
+                        ) : (
+                            `NO`
+                        )
+                    }
+                </>
+            ),
+        };
+    });
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
 
@@ -359,7 +410,7 @@ const Expulsados = () => {
                     
                 
             </ActionsCrud>
-            <Table data={expulsadosList} dataColumns={dataExpulsadosColumn} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
+            <Table data={expulsados} dataColumns={dataExpulsadosColumn} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
