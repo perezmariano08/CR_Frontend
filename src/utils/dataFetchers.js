@@ -87,3 +87,13 @@ export const traerPartidosEventuales = async () => {
     }
 };
 
+export const traerPlantelesPartido = async (id_partido) => {
+    try {
+        const response = await Axios.get(`${URL}/user/get-planteles-partido?id_partido=${id_partido}`)
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return [];
+    }
+}

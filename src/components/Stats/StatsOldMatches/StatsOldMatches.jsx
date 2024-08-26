@@ -9,8 +9,8 @@ import { useNavigate } from 'react-router-dom';
 const StatsOldMatches = ({ partidosPorEquipo, idLocal, idVisita }) => {
     const navigate = useNavigate();
 
-    const partidosLocal = partidosPorEquipo.local;
-    const partidosVisita = partidosPorEquipo.visita;
+    const partidosLocal = partidosPorEquipo.local.filter((p) => p.estado === 'F');
+    const partidosVisita = partidosPorEquipo.visita.filter((p) => p.estado === 'F');
     const ids = [idLocal, idVisita];
 
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(ids);

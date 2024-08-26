@@ -13,7 +13,8 @@ export const StatsOldMatchesWrapper = styled.div`
 `
 export const StatsOldMatchesContainer = styled.div`
     display: flex;
-    align-items: center;
+    align-items: start;
+    /* justify-content: start; */
     width: 100%;
 `
 

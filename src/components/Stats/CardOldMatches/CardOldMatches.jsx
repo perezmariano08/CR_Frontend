@@ -35,7 +35,6 @@ const CardOldMatches = ({ partidos, equipo }) => {
         return equipos.find((e) => e.id_equipo === id) || { nombre: 'Desconocido', img: 'default.png' };
     }
 
-
     return (
         <CardOldMatchesWrapper>
             <h3>Últimos partidos</h3>
@@ -59,6 +58,11 @@ const CardOldMatches = ({ partidos, equipo }) => {
                         const equipoLocalData = getEquipoData(equipoLocal);
                         const equipoVisitanteData = getEquipoData(equipoVisitante);
 
+                        const escudosEquipos = (idEquipo) => {
+                            const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
+                            return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
+                        };
+
                         return (
                             <React.Fragment key={partido.id_partido}>
                                 <CardOldMatchesItem onClick={() => viewToStatsMatch(partido.id_partido)}>
@@ -69,13 +73,13 @@ const CardOldMatches = ({ partidos, equipo }) => {
                                     <MatchesItemTeams>
                                         <MatchesItemTeam>
                                             <p>{equipoLocalData.nombre}</p>
-                                            <img src={`${URLImages}${equipoLocalData.img}`} alt="Escudo del equipo local" />
+                                            <img src={`${URLImages}${escudosEquipos(equipoLocalData.id_equipo)}`} alt={equipoLocalData.nombre}/>
                                         </MatchesItemTeam>
                                         <MatchesItemResult style={{ backgroundColor: colorResultado }}>
                                             {`${golesLocal}-${golesVisitante}`}
                                         </MatchesItemResult>
                                         <MatchesItemTeam className='visit'>
-                                            <img src={`${URLImages}${equipoVisitanteData.img}`} alt="Escudo del equipo visitante" />
+                                            <img src={`${URLImages}${escudosEquipos(equipoLocalData.id_equipo)}`} alt={equipoLocalData.nombre}/>
                                             <p>{equipoVisitanteData.nombre}</p>
                                         </MatchesItemTeam>
                                     </MatchesItemTeams>

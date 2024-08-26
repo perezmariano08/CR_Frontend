@@ -27,11 +27,13 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
         }
     };
 
+    //SACAR
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.img : 'team-default.png';
+        return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
     };
 
+    //SACAR
     const equipoBodyTemplate = (rowData, field) => (
         <div className="team" style={{minWidth: '140px', cursor: 'pointer'}} 
             onClick={() => verPaginaEquipo(rowData.id_equipo)}

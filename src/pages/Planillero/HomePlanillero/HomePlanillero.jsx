@@ -5,7 +5,7 @@ import { HomePlanilleroContainer } from './HomePlanilleroStyles';
 import CardPartido from '../../../components/Stats/CardPartido/CardPartido';
 import { useAuth } from '../../../Auth/AuthContext';
 import { Toaster } from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { SpinerContainer } from '../../../Auth/SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
 import useFetchMatches from '../../../hooks/useFetchMatches';
@@ -17,11 +17,11 @@ const HomePlanillero = () => {
     const loadingPartidos = useSelector((state) => state.partidos.loading);
 
     const [showAll, setShowAll] = useState(false);
-    // Fetch matches based on user ID
+
+    //Custom Hooks
     useFetchMatches((partidos) => partidos.id_planillero === user.id_usuario);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
-    // Filter and sort partidos
     const partidosPendientes = partidos
         .filter((partido) => partido.id_planillero === user.id_usuario && partido.estado === 'P')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));

@@ -52,7 +52,7 @@ const Home = () => {
     }, []);
 
     const zonasFiltradas = zonas.find((z) => z.id_zona === id_zona);
-
+    
     return (
         <>
             <HomeContainerStyled className='container'>
@@ -77,10 +77,6 @@ const Home = () => {
                                 <CardsMatchesContainer>
                                     <CardsMatchesWrapper>
                                         {partidosFecha
-                                            .filter(
-                                                (p) =>
-                                                    miEquipo && p.id_zona === miEquipo.id_zona && p.jornada === fechaActual
-                                            )
                                             .map((p) => (
                                                 <CardPartido
                                                     key={p.id_partido}

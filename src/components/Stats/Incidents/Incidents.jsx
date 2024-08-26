@@ -8,6 +8,7 @@ import { TbRectangleVerticalFilled } from "react-icons/tb";
 import { URLImages } from '../../../utils/utils';
 import { AlignmentDivider, AlignmentTeam, AlignmentTeams } from '../Alignment/AlignmentStyles';
 import toast, { Toaster } from 'react-hot-toast';
+import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 
 const Incidents = ({ incidentes, formaciones, partidoId }) => {
   const dispatch = useDispatch();
@@ -90,15 +91,8 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
     ...(formaciones.visitante || [])
   ].find(jugador => jugador.id_jugador === partido.jugador_destacado);
 
-  const escudosEquipos = (idEquipo) => {
-    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-    return equipo ? equipo.img : '/default-image.png';
-  };
-
-  const nombreEquipos = (idEquipo) => {
-    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-    return equipo ? equipo.nombre : 'Unknown Team';
-  };
+  //Hook nombres y escudos equipos
+  const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
   const renderActionIcon = (action) => {
     switch (action.Accion) {
@@ -139,12 +133,16 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
       <AlignmentDivider />
       <AlignmentTeams>
         <AlignmentTeam className='local'>
-          <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
-          <h3>{nombreEquipos(partido.id_equipoLocal)}</h3>
+        <img 
+            src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
+            alt={`${getNombreEquipo(partido.id_equipoLocal)}`}/>
+          <h3>{`${getNombreEquipo(partido.id_equipoLocal)}`}</h3>
         </AlignmentTeam>
         <AlignmentTeam className='visita'>
-          <h3>{nombreEquipos(partido.id_equipoVisita)}</h3>
-          <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
+        <h3>{`${getNombreEquipo(partido.id_equipoVisita)}`}</h3>
+        <img 
+            src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
+            alt={`${getNombreEquipo(partido.id_equipoVisita)}`}/>
         </AlignmentTeam>
       </AlignmentTeams>
       <IndicentsContainer>

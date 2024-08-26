@@ -5,9 +5,12 @@ import { Column } from 'primereact/column';
 import { URL, URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
+import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 
 const TableTeam = ({ data, zona, dataColumns }) => {
     const jugadores = useSelector((state) => state.jugadores.data);
+    const equipoIds = data?.map(row => row.id_equipo);
+    const { getEscudoEquipo } = useNameAndShieldTeams(equipoIds);
 
     if (!zona) {
         return null;
@@ -17,15 +20,12 @@ const TableTeam = ({ data, zona, dataColumns }) => {
         return <StatsNull>No hay datos disponibles.</StatsNull>;
     }
 
-    const imagenJugador = (idJugador) => {
-        if (!jugadores) return null;
-        const jugador = jugadores.find((jugador) => jugador.id_jugador === idJugador);
-        return jugador ? jugador.img : null;
-    };
-
     const jugadorBodyTemplate = (rowData) => (
         <div className="player" style={{ minWidth: '140px' }}>
-            <img src={`${URLImages}/uploads/Jugadores/${imagenJugador(rowData.id_jugador)}`} alt={rowData.nombre_completo} />
+            <img 
+                src={`${URLImages}${getEscudoEquipo(rowData.id_equipo)}`} 
+                alt={rowData.nombre_completo} 
+            />
             <span>{rowData.nombre_completo}</span>
         </div>
     );
@@ -54,4 +54,5 @@ const TableTeam = ({ data, zona, dataColumns }) => {
         </TableContainerStyled>
     );
 };
+
 export default TableTeam;
