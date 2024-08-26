@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
@@ -30,7 +30,7 @@ const ModalConfirmation = () => {
     const {bd_formaciones} = useGenerarBdFormaciones(idPartido);
     const {bd_goles, bd_rojas, bd_amarillas, bd_asistencias} = useGenerarBdStats(idPartido)
     const {bd_jugadores_eventuales} = useGenerarBdEventual(idPartido);
-
+    
     // Envío a la base de datos
     const { 
         updateJugadores, 
@@ -68,18 +68,22 @@ const ModalConfirmation = () => {
                     break;
                 case 'matchPush':
                     if (jugadorDestacado) {
+                        // Ejecutar updateJugadores primero
                         await updateJugadores();
-                        await updateMatch();
-                        await insertFormaciones();
-                        await insertGoles();
-                        await insertRojas();
-                        await insertAsistencias();
-                        await insertAmarillas();
-                        await updateSancionados();
+                        
+                        // Luego ejecutar las demás operaciones
+                        await Promise.all([
+                            updateMatch(),
+                            insertFormaciones(),
+                            insertGoles(),
+                            insertRojas(),
+                            insertAmarillas(),
+                            insertAsistencias(),
+                            updateSancionados()
+                        ]);
                         dispatch(toggleStateMatch(idPartido));
                         dispatch(toggleHiddenModal());
-                        //borrar jugador destacado
-                        dispatch(handleBestPlayerOfTheMatch(null));
+                        dispatch(handleBestPlayerOfTheMatch(null)); //Borrar jugador destacado
                         toast.success('Partido subido correctamente en la base de datos');
                     } else {
                         toast.error('Se debe seleccionar el MVP antes de finalizar');

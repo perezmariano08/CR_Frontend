@@ -11,7 +11,7 @@ const useNameAndShieldTeams = (ids) => {
     }, [])
     
     const getEquiposData = (ids) => {
-        return ids.reduce((acc, id) => {
+        return ids?.reduce((acc, id) => {
         const equipo = equipos.find(equipo => equipo.id_equipo === id);
         if (equipo) {
             acc[id] = {
@@ -26,7 +26,7 @@ const useNameAndShieldTeams = (ids) => {
     const equiposData = getEquiposData(ids);
 
     const getNombreEquipo = (id) => equiposData[id]?.nombre || '';
-    const getEscudoEquipo = (id) => equiposData[id]?.escudo || '';
+    const getEscudoEquipo = (id) => equiposData[id]?.escudo || '/uploads/Equipos/team-default.png';
 
     return { getNombreEquipo, getEscudoEquipo };
 };

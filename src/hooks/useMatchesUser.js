@@ -23,8 +23,7 @@ const useMatchesUser = (idEquipo) => {
                 .filter((partido) => partido.id_zona === miEquipo.id_zona)
                 .sort((a, b) => new Date(b.dia) - new Date(a.dia));
 
-            const latestFecha = sortedPartidos.reduce((max, partido) => (partido.jornada > max ? partido.jornada : max), 0);
-
+            const latestFecha = sortedPartidos.reduce((max, partido) => (partido.jornada > max ? partido.jornada : max), 0);            
             setFechaActual(latestFecha);
         }
     }, [partidos, miEquipo]);
@@ -49,7 +48,7 @@ const useMatchesUser = (idEquipo) => {
 
     const partidoAMostrar = proximoPartido || ultimoPartido;
 
-    const partidosFecha = partidos.filter(partido => partido.id_zona === miEquipo?.id_zona)
+    const partidosFecha = partidos.filter(partido => partido.id_zona == miEquipo?.id_zona && partido.jornada == fechaActual)
 
     return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual };
 }

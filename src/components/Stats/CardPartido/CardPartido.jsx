@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 import { URLImages } from '../../../utils/utils.js';
 import { getZonas } from '../../../utils/dataFetchers.js';
+import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
 
 const CardPartido = ({ partido, rol }) => {
-    const equipos = useSelector((state) => state.equipos.data);
     const matches = useSelector((state) => state.match);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -15,6 +15,9 @@ const CardPartido = ({ partido, rol }) => {
     const match = matches.find(p => p.ID === partido.id_partido);
 
     const [zona, setZona] = useState([]);
+
+    //HOOK ESCUDOS Y NOMBRES
+    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
     useEffect(() => {
         getZonas()
@@ -24,16 +27,6 @@ const CardPartido = ({ partido, rol }) => {
             })
             .catch((error) => console.error('Error fetching zonas:', error));
     }, [partido.id_zona]);
-
-    const escudosEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.img : null;
-    };
-
-    const nombreEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.nombre : null;
-    };
 
     const handlePlanillarClick = (e) => {
         e.preventDefault();
@@ -49,6 +42,7 @@ const CardPartido = ({ partido, rol }) => {
     const [goalLocal, setGoalLocal] = useState(0);
     const [goalVisit, setGoalVisit] = useState(0);
 
+    // !ESTO VUELA
     useEffect(() => {
         if (match) {
             const golesLocal = match.Local.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
@@ -106,9 +100,7 @@ const CardPartido = ({ partido, rol }) => {
     const verPaginaEquipo = (idEquipo) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
-    
-    console.log(partido);
-    
+
     return (
         <CardPartidoWrapper> 
             <CardPartidoTitles>                
@@ -126,10 +118,12 @@ const CardPartido = ({ partido, rol }) => {
             </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
-                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`}
+                    <img 
+                        src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
+                        alt={`${getNombreEquipo(partido.id_equipoLocal)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoLocal)}}
                     />
-                    <h4>{`${nombreEquipos(partido.id_equipoLocal)}`}</h4>
+                    <h4>{getNombreEquipo(partido.id_equipoLocal)}</h4>
                 </CardPartidoTeam>
 
                 <CardPartidoInfo>
@@ -152,10 +146,12 @@ const CardPartido = ({ partido, rol }) => {
                 </CardPartidoInfo>
 
                 <CardPartidoTeam>
-                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`}
+                    <img 
+                        src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
+                        alt={`${getNombreEquipo(partido.id_equipoVisita)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoVisita)}}
                     />
-                    <h4>{`${nombreEquipos(partido.id_equipoVisita)}`}</h4>
+                    <h4>{getNombreEquipo(partido.id_equipoVisita)}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>
             {rol === 2 ? (

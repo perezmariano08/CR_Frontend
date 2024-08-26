@@ -4,10 +4,10 @@ import { InputContainerStyled2, InputWrapper2 } from './InputSyles';
 const Input2 = ({ placeholder, children, type = "text", value, onChange, onValueChange, ref }) => {
     const handleChange = (e) => {
         if (onChange) {
-            onChange(e); // Pasamos el evento completo al llamar a la función onChange si está definida
+            onChange(e);
         }
         if (onValueChange) {
-            onValueChange(e.target.value); // Pasamos solo el valor del input al llamar a la función onValueChange si está definida
+            onValueChange(e.target.value);
         }
     };
 

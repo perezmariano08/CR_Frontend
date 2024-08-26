@@ -162,4 +162,34 @@ export const TitleInputContainer = styled.div`
     p {
         font-size: 12px;
     }
+
+    &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+    }
+`
+export const SelectEventual = styled.select`
+    background-color: var(--gray-300);
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--gray-200);
+    font-size: 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: 5px;
+    padding: 8px;
+    width: 60%;
+
+    &:focus {
+        outline: 0 none;
+        outline-offset: 0;
+        box-shadow: 0 0 0 1px var(--green);
+        border-color: var(--green);
+
+        ~ .icon-input {
+            color: var(--green);
+        }
+    }
 `

@@ -69,7 +69,7 @@ const matchesSlice = createSlice({
                 // Count eventual players in the team
                 const eventualPlayersCounts = team.Player.filter((p) => p.eventual === 'S').length;
         
-                if (eventualPlayersCounts < 3) {
+                if (eventualPlayersCounts <= 4) {
                     // Check if the player already exists by DNI or Dorsal
                     const existingPlayerIndex = team.Player.findIndex((p) => p.DNI === player.DNI || p.Dorsal === player.Dorsal);
         
@@ -88,7 +88,7 @@ const matchesSlice = createSlice({
                         match.Visitante = { ...match.Visitante, Player: [...team.Player] };
                     }
                 } else {
-                    console.log('Limite de 3 jugadores eventuales alcanzado');
+                    console.log('Limite de 4 jugadores eventuales alcanzado');
                 }
             } else {
                 console.log('Partido no encontrado');

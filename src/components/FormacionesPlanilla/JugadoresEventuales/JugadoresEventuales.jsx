@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { setDisabledStateInfoPlayerEvent, toggleHiddenPlayerEvent } from '../../../redux/Planillero/planilleroSlice';
 import { addEventualPlayer } from '../../../redux/Matches/matchesSlice';
-import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, IconClose, TitleInputContainer } from '../ActionConfirmed/ActionConfirmedStyles';
+import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, IconClose, SelectEventual, TitleInputContainer } from '../ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-import { Toaster, toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
@@ -104,7 +104,7 @@ const JugadoresEventuales = () => {
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
             const eventualPlayersCounts = equipoCorrecto.Player.filter(player => player.eventual === 'S').length;
-            setMaxQuantityPlayers(eventualPlayersCounts < 3);
+            setMaxQuantityPlayers(eventualPlayersCounts < 4);
         }
     };
 
@@ -167,9 +167,10 @@ const JugadoresEventuales = () => {
                 duration: 4000,
             });
         }
-    
         return true;
     };
+
+    
     
     const handleNext = () => {
         if (isAnyValueEmpty()) {
@@ -177,8 +178,9 @@ const JugadoresEventuales = () => {
             return;
         }
         const repeatType = searchDorsal(dorsalValue, dniValue, dataJugadorEventual);
-    
-        if (maxQuantityPlayers) {
+        const isEditing = isEnabledEdit;
+
+        if (maxQuantityPlayers || isEditing) {
             switch (repeatType) {
                 case false:
                     const jugadorApto = verificarJugador(dniValue);
@@ -252,6 +254,26 @@ const JugadoresEventuales = () => {
         dispatch(setDisabledStateInfoPlayerEvent());
         dispatch(toggleHiddenPlayerEvent());
     };
+    
+    const jugadoresEventualesEquipo = bdEventual.filter((e) => {
+        return e.id_equipo === equipoCorrecto?.id_equipo;
+    });
+    
+    const handlePlayerSelect = (event) => {
+        const selectedPlayer = jugadoresEventualesEquipo.find(player => player.id_jugador == event.target.value);
+        if (selectedPlayer) {
+            setNameValue(selectedPlayer.nombre || '');
+            setSurNameValue(selectedPlayer.apellido || '');
+            setDniValue(selectedPlayer.dni || '');
+            setDorsalValue(selectedPlayer.dorsal || '');
+        } else {
+            setDorsalValue('');
+            setDniValue('');
+            setNameValue('');
+            setSurNameValue('');
+        }
+    };
+    
 
     return (
         <>
@@ -272,6 +294,17 @@ const JugadoresEventuales = () => {
                             <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer className='large'>
+                            <TitleInputContainer>
+                                <p>J.E existentes</p>
+                                <SelectEventual onChange={handlePlayerSelect}>
+                                    <option value="">Seleccione un jugador</option>
+                                    {jugadoresEventualesEquipo.map(player => (
+                                        <option key={player.id_jugador} value={player.id_jugador}>
+                                            {`${player.nombre} ${player.apellido}`}
+                                        </option>
+                                    ))}
+                                </SelectEventual>
+                            </TitleInputContainer>
                             <TitleInputContainer>
                                 <p>Dorsal</p>
                                 <Input2
