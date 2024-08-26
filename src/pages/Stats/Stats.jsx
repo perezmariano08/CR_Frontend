@@ -99,7 +99,7 @@ const Stats = () => {
     };
 
     const getColumnsForFilter = () => getColumns(filtroActivo);
-
+    
     return (
         <StatsContainerStyled className='container'>
             <StatsWrapper className='wrapper'>
@@ -110,7 +110,7 @@ const Stats = () => {
                         column='nombre'
                         id_='id_categoria'
                         icon={<IoShieldHalf className='icon-select' />}
-                        value={zonaSeleccionada === null ? '' : zonaSeleccionada} // Ajustar aquí
+                        value={zonaSeleccionada === null ? '' : zonaSeleccionada}
                         onChange={handleZona}
                     />
                     <StatsFilter>

@@ -57,6 +57,8 @@ const MatchStats = () => {
     const visitingTeamId = partido.id_equipoVisita;
     
     const formacionesConNombreApellido = formacionesHelper(formaciones, localTeamId, visitingTeamId);
+    console.log(partidoId);
+        
 
     if (!formaciones || !incidencias || !partido) {
         return (

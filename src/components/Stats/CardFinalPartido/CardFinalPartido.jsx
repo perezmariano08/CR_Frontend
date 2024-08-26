@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn } from "../CardPartido/CardPartidoStyles";
 import { HiLifebuoy } from "react-icons/hi2";
 import { useSelector } from 'react-redux';
-import { URL, URLImages } from '../../../utils/utils';
+import { URLImages } from '../../../utils/utils';
 
 const CardFinalPartido = ({ idPartido, incidencias }) => {
     const partidos = useSelector((state) => state.partidos.data);
@@ -11,11 +11,13 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     const matchCorrecto = match.find(p => p.ID === idPartido);
     const equipos = useSelector((state) => state.equipos.data);
 
+    //SACAR
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.img : '/default-image.png';
+        return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
     };
 
+    //SACAR
     const nombreEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
         return equipo ? equipo.nombre : 'Unknown Team';
@@ -25,6 +27,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     const [localGoals, setLocalGoals] = useState([]);
     const [visitGoals, setVisitGoals] = useState([]);
 
+    //SACAR
     useEffect(() => {
         if (partido?.estado !== 'F' && matchCorrecto) {
             const local = [];
@@ -79,6 +82,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     }, [matchCorrecto, partido]);
 
     // Manejo en la nube de goles
+    // !SACAR
     const procesarGoles = (incidencias) => {
         if (!incidencias || !partido) return { local: [], visita: [] };
 

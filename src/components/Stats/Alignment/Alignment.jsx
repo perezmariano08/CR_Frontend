@@ -1,20 +1,11 @@
 import React from 'react';
 import { AlignmentDivider, AlignmentLocal, AlignmentPlayer, AlignmentPlayerContainer, AlignmentTeam, AlignmentTeams, AlignmentVisit, AlignmentWrapper } from './AlignmentStyles';
-import { useSelector } from 'react-redux';
-import { URL, URLImages } from '../../../utils/utils';
+import { URLImages } from '../../../utils/utils';
+import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 
 const Alignment = ({ formaciones, jugadores, partido }) => {
-  const equipos = useSelector((state) => state.equipos.data);
-
-  const escudosEquipos = (idEquipo) => {
-    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-    return equipo ? equipo.img : null;
-  };
-
-  const nombreEquipos = (idEquipo) => {
-    const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-    return equipo ? equipo.nombre : null;
-  };
+  //HOOK ESCUDOS Y NOMBRES
+  const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
   const getJugadoresPorEquipo = (idEquipo) => {
     return jugadores.filter((j) => j.id_equipo === idEquipo && j.eventual === 'N');
@@ -22,7 +13,7 @@ const Alignment = ({ formaciones, jugadores, partido }) => {
 
   const localPlayers = partido.estado === 'F' ? formaciones?.local || [] : getJugadoresPorEquipo(partido.id_equipoLocal);
   const visitantePlayers = partido.estado === 'F' ? formaciones?.visitante || [] : getJugadoresPorEquipo(partido.id_equipoVisita);
-
+  
   const renderPlayers = (players, isMatchFinished, isLocal) => {
     let numero = 1;
     return players.map(player => (
@@ -62,12 +53,16 @@ const Alignment = ({ formaciones, jugadores, partido }) => {
       <AlignmentDivider />
       <AlignmentTeams>
         <AlignmentTeam>
-          <img src={`${URLImages}${escudosEquipos(localPlayers[0]?.id_equipo)}`} alt="" />
-          <h3>{nombreEquipos(localPlayers[0]?.id_equipo)}</h3>
+        <img 
+            src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
+            alt={`${getNombreEquipo(partido.id_equipoLocal)}`}/>
+          <h3>{`${getNombreEquipo(partido.id_equipoLocal)}`}</h3>
         </AlignmentTeam>
         <AlignmentTeam>
-          <h3>{nombreEquipos(visitantePlayers[0]?.id_equipo)}</h3>
-          <img src={`${URLImages}${escudosEquipos(visitantePlayers[0]?.id_equipo)}`} alt="" />
+        <h3>{`${getNombreEquipo(partido.id_equipoVisita)}`}</h3>
+        <img 
+            src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
+            alt={`${getNombreEquipo(partido.id_equipoVisita)}`}/>
         </AlignmentTeam>
       </AlignmentTeams>
       <AlignmentPlayerContainer>
