@@ -48,15 +48,6 @@ export const DataItemEstado = styled.div`
     }
 `
 
-export const LinkEdicion = styled(NavLink)`
-    color: var(--green);
-    text-decoration: underline;
-    transition: all .2s ease-in-out;
-    &:hover {
-        opacity: .7;
-    }
-`
-
 export const CategoriasEdicionEmpty = styled.div`
     display: flex;
     flex-direction: column;

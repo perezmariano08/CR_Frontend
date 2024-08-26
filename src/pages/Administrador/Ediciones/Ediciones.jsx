@@ -1,27 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+// Componentes
 import Content from '../../../components/Content/Content';
 import Button from '../../../components/Button/Button';
-import { FiPlus } from 'react-icons/fi';
-import { IoShieldHalf } from 'react-icons/io5';
 import Table from '../../../components/Table/Table';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
+import Select from '../../../components/Select/Select';
 import Input from '../../../components/UI/Input/Input';
-import { IoCheckmark, IoClose } from "react-icons/io5";
 import Overlay from '../../../components/Overlay/Overlay';
+import { DataItemTemplate, EstadoBodyTemplate, LinkBodyTemplate } from '../../../components/Table/TableStyles';
 import { URL } from '../../../utils/utils';
 import { LoaderIcon, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { TablasTemporadaContainer, TablaTemporada } from './edicionesStyles';
-import useForm from '../../../hooks/useForm';
-import Select from '../../../components/Select/Select';
-
-import { TbNumber } from "react-icons/tb";
+// Iconos
+import { IoCheckmark, IoClose } from "react-icons/io5";
+import { FiPlus } from 'react-icons/fi';
+import { IoShieldHalf } from 'react-icons/io5';
+import { TbNumber, TbShirtSport } from "react-icons/tb";
 import { BsCalendar2Event } from "react-icons/bs";
-import { edicionesListColumns } from '../../../Data/Ediciones/edicionesListColumns';
+import { CiViewList } from 'react-icons/ci';
+// Hooks
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
+import useForm from '../../../hooks/useForm';
+import { edicionesListColumns } from '../../../Data/Ediciones/edicionesListColumns';
 
 const Ediciones = () => {
     const dispatch = useDispatch();
@@ -29,8 +33,39 @@ const Ediciones = () => {
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const edicionesListLink = edicionesList.map(edicion => ({
-    ...edicion,
-    link: `/admin/ediciones/categorias/${edicion.id_edicion}`,  // Aquí construyes el enlace basado en el id u otros datos
+        ...edicion,
+        estado: (
+            <>
+                {edicion.estado === "JUGANDO" ? (
+                    <EstadoBodyTemplate $bg={"import"}>{edicion.estado}</EstadoBodyTemplate>
+                ) : (
+                    <EstadoBodyTemplate $bg={"gray-200"}>{edicion.estado}</EstadoBodyTemplate>
+                )}
+            </>
+        ),
+        jugadores: (
+            <DataItemTemplate to={`/admin/jugadores`}>
+                <TbShirtSport />
+                {edicion.jugadores}
+            </DataItemTemplate>
+        ),
+        equipos: (
+            <DataItemTemplate to={`/admin/equipos`}>
+                <IoShieldHalf />
+                {edicion.equipos}
+            </DataItemTemplate>
+        ),
+        categorias: (
+            <DataItemTemplate to={`/admin/categorias`}>
+                <CiViewList />
+                {edicion.categorias}
+            </DataItemTemplate>
+        ),
+        link: (
+            <LinkBodyTemplate to={`/admin/ediciones/categorias/${edicion.id_edicion}`}>
+                Ingresar
+            </LinkBodyTemplate>
+        ),
     }));
 
     // Manejo del form
@@ -75,9 +110,10 @@ const Ediciones = () => {
         closeCreateModal();
         resetForm()
     };
-    
+
+    // Ordenar las temporadas de más reciente a más antigua
     const temporadas = [...new Set(edicionesList.map(edicion => edicion.temporada))]
-    .sort((a, b) => b - a); // Ordena las temporadas de más reciente a más antigua
+    .sort((a, b) => b - a); 
 
     useEffect(() => {
         dispatch(fetchEdiciones());
@@ -96,7 +132,6 @@ const Ediciones = () => {
                         <Table 
                             data={edicionesListLink.filter(edicion => edicion.temporada === temporada)} 
                             dataColumns={edicionesListColumns} 
-                            arrayName={'Ediciones'} 
                             paginator={false}
                             selection={false}
                             sortable={false}
@@ -117,7 +152,7 @@ const Ediciones = () => {
                         onClickClose={closeCreateModal}
                         buttons={
                             <>
-                                <Button color={"danger"} onClick={closeCreateModal}>
+                                <Button color={"danger"} onClick={closeCreateModal} disabled={isSaving}>
                                     <IoClose />
                                     Cancelar
                                 </Button>
@@ -281,7 +316,7 @@ const Ediciones = () => {
                             </>
                         }
                     />
-                    <Overlay onClick={closeCreateModal} />
+                    <Overlay onClick={closeCreateModal} disabled={isSaving} />
                 </>
             }
         </Content>

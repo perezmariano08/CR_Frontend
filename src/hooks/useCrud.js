@@ -102,8 +102,21 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             setIsDeleting(false);
         }
     };
-    
+
+    const eliminarPorData = async (data) => {
+        setIsDeleting(true);
+        try {
+            await Axios.post(url, data);
+            toast.success('Registro eliminado correctamente.');
+            dispatch(fetchAction());
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error(errorMessage);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
     
 
-    return { crear, actualizar, eliminar, importar, eliminarPorId, isImporting, isDeleting, isSaving, isUpdating};
+    return { crear, actualizar, eliminar, importar, eliminarPorId, eliminarPorData, isImporting, isDeleting, isSaving, isUpdating};
 };
