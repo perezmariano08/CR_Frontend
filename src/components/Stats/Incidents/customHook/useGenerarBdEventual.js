@@ -51,6 +51,7 @@ const useGenerarBdEventual = (idPartido) => {
                     apellido: apellido,
                     id_equipo: match.Visitante.id_equipo,
                     eventual: player.eventual,
+                    id_edicion: match.id_edicion,
                     id_categoria: match.id_categoria
                 };
     
