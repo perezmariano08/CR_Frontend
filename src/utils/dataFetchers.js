@@ -97,3 +97,25 @@ export const traerPlantelesPartido = async (id_partido) => {
         return [];
     }
 }
+
+export const verificarJugadorEventual = async (dni, id_categoria) => {
+    try {
+        const response = await Axios.get(`${URL}/user/verificar-jugador?dni=${dni}&id_categoria=${id_categoria}`)
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return [];
+    }
+}
+
+export const getSanciones = async () => {
+    try {
+        const response = await Axios.get(`${URL}/user/get-expulsados`)
+        const data = response.data;
+        return data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return [];
+    }
+}

@@ -39,7 +39,7 @@ const Fixture = ({ zona }) => {
         setFechaActual((prev) => (accion ? prev + 1 : prev - 1));
     };
 
-    const formatDate = (partido) => {
+    const formatDate = (partido) => {        
         const diaNombre = partido.dia_nombre;
         const diaNumero = partido.dia_numero;
         const mes = partido.mes;
@@ -76,7 +76,7 @@ const Fixture = ({ zona }) => {
                                     <div className="placeholder" />
                                 )}
                             </ButtonWrapper>
-                            <h3>{fechaActual}</h3>
+                            <h3>Fecha {fechaActual}</h3>
                             <ButtonWrapper>
                                 {fechaActual < Math.max(...cantidadFechas) ? (
                                     <button onClick={() => handleJornada(true)}>
@@ -101,13 +101,11 @@ const Fixture = ({ zona }) => {
                                 {
                                     partido.estado === 'F' ? (
                                         <>
-                                            <p>Resultado final</p>
                                             <h5>{`${partido.goles_local}-${partido.goles_visita}`}</h5>
                                         </>
                                     ) : (
                                         <>
                                             <h5>{formatHour(partido.hora)}</h5>
-                                            <p>{partido.cancha}</p>
                                         </>
                                     )
                                 }
@@ -117,7 +115,7 @@ const Fixture = ({ zona }) => {
                                     <h4>{getNombreEquipo(partido.id_equipoVisita)}</h4>
                                 </FixtureMatchTeam>
                             </FixtureMatch>
-                            <FixtureTitleDivider />
+                            {/* <FixtureTitleDivider /> */}
                         </React.Fragment>
                     ))}
                 </>

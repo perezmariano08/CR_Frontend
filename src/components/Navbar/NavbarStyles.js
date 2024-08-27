@@ -16,7 +16,7 @@ export const NavbarWrapper = styled.div`
     align-items: center;
     padding: 0 30px;
     width: 100%;
-    max-width: 1200px;
+    /* max-width: 1200px; */
     height: 100%;
 
     img {

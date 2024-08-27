@@ -35,9 +35,9 @@ export const usePlanilla = (partidoId) => {
             setMatchCorrecto(foundMatch);
 
             if (foundPartido) {
-                const localPlayers = foundPartido.Local.Player.filter(player => player.status);
-                const visitantePlayers = foundPartido.Visitante.Player.filter(player => player.status);
-                setCanStartMatch(localPlayers.length >= 5 && visitantePlayers.length >= 5);
+                const localPlayers = foundPartido.Local.Player?.filter(player => player.status);
+                const visitantePlayers = foundPartido.Visitante.Player?.filter(player => player.status);
+                setCanStartMatch(localPlayers?.length >= 5 && visitantePlayers?.length >= 5);
             }
         }
     }, [partidos, match, partidoId]);

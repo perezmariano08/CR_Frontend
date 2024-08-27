@@ -7,7 +7,7 @@ const useBdPartido = (idPartido) => {
     const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.jugador_destacado);
     
     const contarGoles = (players) => {
-        return players.reduce((acc, player) => {
+        return players?.reduce((acc, player) => {
             if (player.Actions) {
                 player.Actions.forEach(action => {
                     if (action.Type === 'Gol') {
@@ -31,8 +31,8 @@ const useBdPartido = (idPartido) => {
     
     const bd_partido = {
         id_partido: idPartido,
-        goles_local: golesLocal.golesNormal + golesVisita.golesEnContra,
-        goles_visita: golesVisita.golesNormal + golesLocal.golesEnContra,
+        goles_local: golesLocal?.golesNormal + golesVisita?.golesEnContra,
+        goles_visita: golesVisita?.golesNormal + golesLocal?.golesEnContra,
         descripcion: descToMatch,
         id_jugador_destacado: jugadorDestacado
     };

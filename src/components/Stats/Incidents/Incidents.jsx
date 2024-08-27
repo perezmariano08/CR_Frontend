@@ -14,7 +14,6 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
   const dispatch = useDispatch();
   const partidos = useSelector((state) => state.partidos.data);
   const partido = partidos.find((partido) => partido.id_partido === partidoId);
-  const equipos = useSelector((state) => state.equipos.data);
   const matches = useSelector((state) => state.match);
   const match = matches.find(p => p.ID === partidoId);
 
@@ -52,8 +51,7 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
       ...(formaciones.visitante || [])
     ];
 
-    return incidentes
-      .filter(i => i.tipo !== 'Asistencia')
+    return incidentes?.filter(i => i.tipo !== 'Asistencia')
       .map(incident => {
         const jugador = jugadores.find(j => j.id_jugador === incident.id_jugador);
         return {

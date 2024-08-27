@@ -1,19 +1,15 @@
-import React from 'react';
+import React, { memo }from 'react';
 import { TableContainerStyled, TableTitle, TableTitleDivider } from '../Table/TableStyles';
-import { TableTeamWrapper } from './TableTeam';
+import {TableTeamWrapper} from '../TableTeam/TableTeam'
 import { Column } from 'primereact/column';
 import { URLImages } from '../../../utils/utils';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 
-const TableTeam = ({ data, zona, dataColumns }) => {
+const TableSanciones = memo(({ data, dataColumns }) => {
     const equipoIds = data?.map(row => row.id_equipo);
     const { getEscudoEquipo } = useNameAndShieldTeams(equipoIds);
-
-    if (!zona) {
-        return null;
-    }
-
+    
     if (!data || data.length === 0) {
         return <StatsNull>No hay datos disponibles.</StatsNull>;
     }
@@ -24,17 +20,17 @@ const TableTeam = ({ data, zona, dataColumns }) => {
                 src={`${URLImages}${getEscudoEquipo(rowData.id_equipo)}`} 
                 alt={rowData.nombre_completo} 
             />
-            <span>{rowData.nombre_completo}</span>
+            <span>{rowData.jugador}</span>
         </div>
     );
 
-    const nombreTorneo = zona.nombre_edicion;
+    const nombreTorneo = data[0]?.edicion;
 
     return (
         <TableContainerStyled>
             <TableTitle>
                 <h3>{nombreTorneo}</h3>
-                <p>{zona.nombre_categoria}</p>
+                <p>Tribunal de diciplina</p>
             </TableTitle>
             <TableTitleDivider />
             <TableTeamWrapper
@@ -51,12 +47,12 @@ const TableTeam = ({ data, zona, dataColumns }) => {
                         header={col.header}
                         sortable
                         style={{ width: 'auto' }}
-                        body={col.field === 'nombre_completo' ? jugadorBodyTemplate : null}
+                        body={col.field === 'jugador' ? jugadorBodyTemplate : null}
                     />
                 ))}
             </TableTeamWrapper>
         </TableContainerStyled>
     );
-};
+});
 
-export default TableTeam;
+export default TableSanciones;

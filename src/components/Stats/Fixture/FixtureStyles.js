@@ -5,7 +5,7 @@ export const FixtureWrapper = styled.div`
     padding: 20px 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
@@ -75,6 +75,7 @@ export const FixtureMatch = styled.div`
     display: flex;
     width: 100%;
     align-items: center;
+    justify-content: center;
     padding: 0 5px;
     cursor: pointer;
 `;
