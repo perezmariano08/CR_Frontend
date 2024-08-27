@@ -1,14 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEquipos } from '../redux/ServicesApi/equiposSlice'
 
 const useNameAndShieldTeams = (ids) => {
     const dispatch = useDispatch();
     const equipos = useSelector((state) => state.equipos.data);
+    const [isFetched, setIsFetched] = useState(false);
 
     useEffect(() => {
-        dispatch(fetchEquipos());
-    }, [])
+        if (!isFetched) {
+            dispatch(fetchEquipos()).then(() => setIsFetched(true));
+        }
+    }, [dispatch, isFetched]);
     
     const getEquiposData = (ids) => {
         return ids?.reduce((acc, id) => {

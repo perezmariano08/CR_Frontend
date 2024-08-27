@@ -22,7 +22,7 @@ const useGenerarBdEventual = (idPartido) => {
     
         const dniExistentes = new Set(jugadoresExistentes.map(jugador => jugador.dni));
     
-        match.Local.Player.forEach((player) => {
+        match.Local.Player?.forEach((player) => {
             if (player.eventual === 'S' && !dniExistentes.has(player.DNI)) {
                 const [nombre, apellido] = player.Nombre.split(' ');
                 const jugador = {
@@ -41,7 +41,7 @@ const useGenerarBdEventual = (idPartido) => {
             }
         });
     
-        match.Visitante.Player.forEach((player) => {
+        match.Visitante.Player?.forEach((player) => {
             if (player.eventual === 'S' && !dniExistentes.has(player.DNI)) {
                 const [nombre, apellido] = player.Nombre.split(' ');
                 const jugador = {
@@ -51,6 +51,7 @@ const useGenerarBdEventual = (idPartido) => {
                     apellido: apellido,
                     id_equipo: match.Visitante.id_equipo,
                     eventual: player.eventual,
+                    id_edicion: match.id_edicion,
                     id_categoria: match.id_categoria
                 };
     

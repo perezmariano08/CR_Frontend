@@ -99,50 +99,51 @@ const matchesSlice = createSlice({
                 ...match,
                 Local: {
                     ...match.Local,
-                    Player: match.Local.Player.map(player => ({
+                    Player: match.Local?.Player?.map(player => ({
                         ...player,
                         Dorsal: player.Dorsal || '',
                         status: player.status || false,
-                    }))
+                    })) || []
                 },
                 Visitante: {
                     ...match.Visitante,
-                    Player: match.Visitante.Player.map(player => ({
+                    Player: match.Visitante?.Player?.map(player => ({
                         ...player,
                         Dorsal: player.Dorsal || '',
                         status: player.status || false,
-                    }))
+                    })) || []
                 }
             }));
-
+        
             const newMatches = action.payload.map(newMatch => {
                 const existingMatch = existingMatches.find(match => match.ID === newMatch.ID);
-
+        
                 if (existingMatch) {
                     return {
                         ...newMatch,
                         Local: {
                             ...newMatch.Local,
-                            Player: newMatch.Local.Player.map(player => {
-                                const existingPlayer = existingMatch.Local.Player.find(p => p.ID === player.ID);
+                            Player: newMatch.Local?.Player?.map(player => {
+                                const existingPlayer = existingMatch.Local?.Player?.find(p => p.ID === player.ID);
                                 return existingPlayer ? { ...player, Dorsal: existingPlayer.Dorsal, status: existingPlayer.status } : player;
-                            })
+                            }) || []
                         },
                         Visitante: {
                             ...newMatch.Visitante,
-                            Player: newMatch.Visitante.Player.map(player => {
-                                const existingPlayer = existingMatch.Visitante.Player.find(p => p.ID === player.ID);
+                            Player: newMatch.Visitante?.Player?.map(player => {
+                                const existingPlayer = existingMatch.Visitante?.Player?.find(p => p.ID === player.ID);
                                 return existingPlayer ? { ...player, Dorsal: existingPlayer.Dorsal, status: existingPlayer.status } : player;
-                            })
+                            }) || []
                         }
                     };
                 }
-
+        
                 return newMatch;
             });
-
+        
             return newMatches;
         },
+        
         addActionToPlayer: (state, action) => {
             const { partidoId, actionData } = action.payload;
             const match = state.find(match => match.ID === partidoId);

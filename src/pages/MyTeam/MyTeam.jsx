@@ -23,6 +23,8 @@ import useStatsTeam from '../../hooks/useStatsTeam.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
+import useNameAndShieldTeams from '../../hooks/useNameAndShieldTeam.js';
+import { useEquipos } from '../../hooks/useEquipos.js';
 
 const MyTeam = () => {
     const { user } = useAuth();
@@ -51,6 +53,7 @@ const MyTeam = () => {
     const [loading, setLoading] = useState(true);
 
     const id_zona = miEquipo?.id_zona;
+    const { escudosEquipos } = useEquipos();
 
     useEffect(() => {
         // Función para obtener datos
@@ -99,10 +102,10 @@ const MyTeam = () => {
         <>
             <MyTeamTitleContainer>
                 <MyTeamInfo>
-                    <img src={`${URLImages}${miEquipo.img}`} alt="" />
+                    <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`} alt="" />
                     <MyTeamName>
                         <h2>{miEquipo.nombre}</h2>
-                        <h3>{miEquipo.division}</h3>
+                        <h3>{zonaFiltrada?.nombre_categoria}</h3>
                     </MyTeamName>
                 </MyTeamInfo>
             </MyTeamTitleContainer>

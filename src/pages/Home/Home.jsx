@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPosicionesTemporada, getZonas } from '../../utils/dataFetchers';
+import { getPosicionesTemporada, getSanciones, getZonas } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
-import { dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data';
+import { dataPosicionesTemporadaColumns, dataSancionesColumns } from '../../components/Stats/Data/Data';
 import useFetchMatches from '../../hooks/useFetchMatches';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import useMessageWelcome from '../../hooks/useMessageWelcome.js';
 import { StatsNull } from '../Stats/StatsStyles.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
+import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones.jsx';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -26,29 +27,37 @@ const Home = () => {
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === user?.id_equipo);
     const id_zona = miEquipo?.id_zona;
 
+    const filterCondition = useCallback(
+        (partido) => miEquipo && partido.division === miEquipo.division,
+        [miEquipo]
+    );
+
     // Custom hooks
-    useFetchMatches((partido) => miEquipo && partido.division === miEquipo.division);
+    // useFetchMatches(filterCondition);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
     const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(user.id_equipo);
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
+    const [sanciones, setSanciones] = useState(null);
 
-    // Fetch a información de zonas
+    // Fetch information about zonas
     useEffect(() => {
-        if (id_zona) {
+        if (miEquipo && id_zona) {
             getPosicionesTemporada(id_zona)
                 .then((data) => setPosiciones(data))
-                .catch((error) => console.error('Error en la petición', error));
-        } else {
-            console.error('ID de zona no definido');
+                .catch((error) => console.error('Error en la petición de posiciones:', error));
         }
-    }, [id_zona]);
+    }, [id_zona, miEquipo]);
 
     useEffect(() => {
         getZonas()
             .then((data) => setZonas(data))
-            .catch((error) => console.error('Error fetching temporadas:', error));
+            .catch((error) => console.error('Error fetching zonas:', error));
+
+        getSanciones()
+            .then((data) => setSanciones(data))
+            .catch((error) => console.error('Error fetching sanciones:', error));
     }, []);
 
     const zonasFiltradas = zonas.find((z) => z.id_zona === id_zona);
@@ -100,6 +109,15 @@ const Home = () => {
                                 data={posiciones}
                                 zona={zonasFiltradas}
                                 dataColumns={dataPosicionesTemporadaColumns}
+                            />
+                        </Section>
+                    )}
+                    {sanciones && (
+                        <Section>
+                            <h2>Sanciones</h2>
+                            <TableSanciones
+                                data={sanciones}
+                                dataColumns={dataSancionesColumns}
                             />
                         </Section>
                     )}

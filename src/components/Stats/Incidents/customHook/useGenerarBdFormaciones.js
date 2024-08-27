@@ -8,7 +8,7 @@ const useGenerarBdFormaciones = (idPartido) => {
         const jugadoresMap = new Map();
     
         // Initialize players with default stats
-        team.Player.forEach(jugador => {
+        team.Player?.forEach(jugador => {
             if (jugador.Dorsal) {
                 jugadoresMap.set(jugador.ID, {
                     id_partido: idPartido,
@@ -23,7 +23,7 @@ const useGenerarBdFormaciones = (idPartido) => {
         });
     
         // Process actions and update player stats
-        team.Player.forEach(jugador => {
+        team.Player?.forEach(jugador => {
             if (jugador.Actions) {
                 jugador.Actions.forEach(action => {
                     const jugadorData = jugadoresMap.get(jugador.ID);

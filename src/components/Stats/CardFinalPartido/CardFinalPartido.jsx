@@ -34,7 +34,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             const visitante = [];
 
             // Procesamos goles para el equipo local
-            matchCorrecto?.Local.Player.forEach(player => {
+            matchCorrecto?.Local.Player?.forEach(player => {
                 if (player.Actions) {
                     player.Actions.forEach(action => {
                         if (action.Type === 'Gol') {
@@ -55,7 +55,7 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             });
 
             // Procesamos goles para el equipo visitante
-            matchCorrecto?.Visitante.Player.forEach(player => {
+            matchCorrecto?.Visitante.Player?.forEach(player => {
                 if (player.Actions) {
                     player.Actions.forEach(action => {
                         if (action.Type === 'Gol') {

@@ -18,8 +18,9 @@ import { Toaster, toast } from 'react-hot-toast';
 import { IoIosStarOutline } from "react-icons/io";
 import { IoIosStar } from "react-icons/io";
 import { URLImages } from '../../utils/utils';
+import useNameAndShieldTeams from '../../hooks/useNameAndShieldTeam';
 
-const FormacionesPlanilla = ({ idPartido, formaciones }) => {
+const FormacionesPlanilla = ({ idPartido }) => {
     const dispatch = useDispatch();
     const [activeButton, setActiveButton] = useState('local');
     const initialState = useSelector((state) => state.match) || [];
@@ -37,17 +38,7 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
     const matchCorrecto = matchState.find((match) => match.ID === idPartido);
     const currentTeam = activeButton === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
 
-    //Cargar escudos y nombres de los equipos
-    const equipos = useSelector((state) => state.equipos.data);
-    const escudosEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.img : null;
-    };
-    
-    const nombreEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.nombre : null;
-    };
+    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
     const handleButtonClick = (buttonType) => {
         setActiveButton(buttonType);
@@ -146,23 +137,23 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
     return (
         <FormacionesPlanillaWrapper>
             <FormacionesPlanillaHeader>
-                <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={`${nombreEquipos(partido.id_equipoLocal)}`} />
+                <img src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} alt={`${getNombreEquipo(partido.id_equipoLocal)}`} />
                 <h3>Formaciones</h3>
-                <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={`${nombreEquipos(partido.id_equipoVisita)}`} />
+                <img src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} alt={`${getNombreEquipo(partido.id_equipoVisita)}`} />
             </FormacionesPlanillaHeader>
             <FormacionesPlanillaTitle>
                 <PlanillaButtons
                     className={`local ${activeButton === 'local' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('local')}
                 >
-                    {nombreEquipos(partido.id_equipoLocal)}
+                    {getNombreEquipo(partido.id_equipoLocal)}
                 </PlanillaButtons>
                 
                 <PlanillaButtons
                     className={`visitante ${activeButton === 'visitante' ? 'active' : ''}`}
                     onClick={() => handleButtonClick('visitante')}
                 >
-                    {nombreEquipos(partido.id_equipoVisita)}
+                    {getNombreEquipo(partido.id_equipoVisita)}
                 </PlanillaButtons>
             </FormacionesPlanillaTitle>
             <AlignmentDivider />
@@ -178,7 +169,7 @@ const FormacionesPlanilla = ({ idPartido, formaciones }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentTeam && currentTeam.Player.map(player => (
+                    {currentTeam && currentTeam.Player?.map(player => (
                         <tr 
                             key={player.ID} 
                             className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}

@@ -12,7 +12,7 @@ import StatsOldMatches from '../../components/Stats/StatsOldMatches/StatsOldMatc
 import useMatchOlds from '../../hooks/useMatchOlds';
 import HistoryBeetwenTeams from '../../components/Stats/HistoryBeetwenTeams/HistoryBeetwenTeams';
 import MatchsBetweenTeams from '../../components/Stats/MatchsBetweenTeams/MatchsBetweenTeams';
-import { getFormaciones, getIndicencias } from '../../utils/dataFetchers';
+import { getFormaciones, getIndicencias, traerPlantelesPartido } from '../../utils/dataFetchers';
 import { formacionesHelper } from './helpers';
 
 const MatchStats = () => {
@@ -20,47 +20,58 @@ const MatchStats = () => {
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
 
-    const [formaciones, setFormaciones] = useState(null);
+    const [formaciones, setFormaciones] = useState([]);
     const [incidencias, setIncidencias] = useState(null);
     const [activeTab, setActiveTab] = useState('Previa');
+    const [loading, setLoading] = useState(true);
 
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find(p => p.id_partido === partidoId);
     const jugadores = useSelector((state) => state.jugadores.data);
 
-    //CUSTOM HOOK
     const { partidosJugados, partidosEntreEquipos } = useMatchOlds(partido?.id_equipoLocal, partido?.id_equipoVisita);
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [partidoId]);
 
-    //Fetch a formaciones e incidencias
     useEffect(() => {
         const fetchData = async () => {
             if (partidoId) {
+                setLoading(true);
                 try {
-                    const formacionesData = await getFormaciones(partidoId);
-                    setFormaciones(formacionesData || []);
-
-                    const incidenciasData = await getIndicencias(partidoId);
-                    setIncidencias(incidenciasData || []);
+                    let formacionesData = [];
+                    if (partido.estado === 'F') {
+                        formacionesData = await getFormaciones(partidoId);
+                        setIncidencias(await getIndicencias(partidoId));
+                    } else {
+                        const plantelesData = await traerPlantelesPartido(partidoId);
+                        // Asegúrate de que plantelesData sea un array
+                        formacionesData = Array.isArray(plantelesData) ? plantelesData : [];
+                    }
+                    setFormaciones(formacionesHelper(formacionesData, partido.id_equipoLocal, partido.id_equipoVisita));
                 } catch (error) {
                     console.error('Error fetching data', error);
+                } finally {
+                    setLoading(false);
                 }
             }
-        }
+        };
         fetchData();
-    }, [partidoId]);
-
-    const localTeamId = partido.id_equipoLocal;
-    const visitingTeamId = partido.id_equipoVisita;
+    }, [partidoId, partido?.estado]);
     
-    const formacionesConNombreApellido = formacionesHelper(formaciones, localTeamId, visitingTeamId);
-    console.log(partidoId);
-        
+    const localTeamId = partido?.id_equipoLocal;
+    const visitingTeamId = partido?.id_equipoVisita;
 
-    if (!formaciones || !incidencias || !partido) {
+    if (loading) {
+        return (
+            <SpinerContainer>
+                <TailSpin width='40' height='40' color='#2AD174' />
+            </SpinerContainer>
+        );
+    }
+
+    if (!partido) {
         return (
             <SpinerContainer>
                 <TailSpin width='40' height='40' color='#2AD174' />
@@ -83,16 +94,16 @@ const MatchStats = () => {
 
                 {activeTab === 'Previa' && (
                     <>
-                        <Alignment formaciones={formacionesConNombreApellido} jugadores={jugadores} partido={partido} />
-                        {partido.estado === 'F' &&<Incidents incidentes={incidencias} formaciones={formacionesConNombreApellido} partidoId={partidoId} />}
-                        <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId}/>
+                        <Alignment formaciones={formaciones} jugadores={jugadores} partido={partido} />
+                        {partido.estado === 'F' && <Incidents incidentes={incidencias} formaciones={formaciones} partidoId={partidoId} />}
+                        <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />
                     </>
                 )}
 
                 {activeTab === 'Cara a cara' && (
                     <>
-                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId}/>
-                        <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId}/>
+                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
+                        <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
                     </>
                 )}
             </MatchStatsWrapper>

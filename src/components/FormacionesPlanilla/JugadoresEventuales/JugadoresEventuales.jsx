@@ -6,10 +6,11 @@ import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfir
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-import { toast } from 'react-hot-toast';
+import { toast, LoaderIcon } from 'react-hot-toast';
 import Axios from 'axios';
 import { URL } from '../../../utils/utils';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
+import { verificarJugadorEventual } from '../../../utils/dataFetchers';
 
 const JugadoresEventuales = () => {
     const dispatch = useDispatch();
@@ -29,7 +30,8 @@ const JugadoresEventuales = () => {
     const [surNameValue, setSurNameValue] = useState('');
     const [maxQuantityPlayers, setMaxQuantityPlayers] = useState(true);
     const [bdEventual, setBdEventual] = useState([]);
-
+    const [loading, setLoading] = useState();
+    
     const handleInputChange = (value) => {
         if (/^\d{0,3}$/.test(value) || value === '') {
             setDorsalValue(value);
@@ -76,8 +78,11 @@ const JugadoresEventuales = () => {
             setSurNameValue('');
         }
     }, [dataJugadorEventual]);
-
-    const searchDorsal = (dorsal, dni, eventual) => {        
+    
+    const searchDorsal = async (dorsal, dni, eventual) => {    
+        const id_categoria = matchCorrecto.id_categoria;  
+        const id_equipo = matchCorrecto.id_equipo;
+        
         if (!equipoCorrecto) return false;
 
         const players = isEnabledEdit
@@ -88,8 +93,15 @@ const JugadoresEventuales = () => {
 
         const foundByDorsal = players.some(player => player.Dorsal === dorsal);
         const foundByDNI = players.some(player => player.DNI === dni);
-        const foundByDNIForTeams = jugadores.some(player => player.dni === dni && player.eventual === 'N')
+        let foundByDNIForTeams = false;
 
+        try {
+            const data = await verificarJugadorEventual(dni, id_categoria, id_equipo)
+            foundByDNIForTeams = data.found;
+        } catch (error) {
+            console.error('Error al verificar el jugador eventual:', error);
+        }
+        
         if (foundByDorsal && foundByDNI) {
             return '1';
         } else if (foundByDorsal) {
@@ -103,7 +115,7 @@ const JugadoresEventuales = () => {
 
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
-            const eventualPlayersCounts = equipoCorrecto.Player.filter(player => player.eventual === 'S').length;
+            const eventualPlayersCounts = equipoCorrecto.Player?.filter(player => player.eventual === 'S').length;
             setMaxQuantityPlayers(eventualPlayersCounts < 4);
         }
     };
@@ -170,14 +182,24 @@ const JugadoresEventuales = () => {
         return true;
     };
 
-    
-    
-    const handleNext = () => {
+    const generateId = () => {
+        // Genera un número aleatorio de hasta 4 dígitos (puedes ajustar el rango según sea necesario)
+        const randomNumber = Math.floor(Math.random() * 10000);
+        
+        // Convierte el número en una cadena con ceros a la izquierda
+        const formattedNumber = randomNumber.toString().padStart(4, '0');
+        
+        // Añade el prefijo '015' y convierte la cadena resultante a número
+        return parseInt(`015${formattedNumber}`, 10);
+    };
+
+    const handleNext =  async () => {
+        setLoading(true);
         if (isAnyValueEmpty()) {
             toast.error('Todos los campos son obligatorios');
             return;
         }
-        const repeatType = searchDorsal(dorsalValue, dniValue, dataJugadorEventual);
+        const repeatType = await searchDorsal(dorsalValue, dniValue, dataJugadorEventual);
         const isEditing = isEnabledEdit;
 
         if (maxQuantityPlayers || isEditing) {
@@ -206,7 +228,7 @@ const JugadoresEventuales = () => {
                         };
                     } else {
                         newPlayer = {
-                            ID: parseInt((Math.random() * 10000).toFixed(0)),
+                            ID: generateId(),
                             Nombre: `${nameValue} ${surNameValue}`,
                             DNI: dniValue,
                             Dorsal: dorsalValue,
@@ -218,7 +240,8 @@ const JugadoresEventuales = () => {
                     dispatch(setDisabledStateInfoPlayerEvent());
                     dispatch(toggleHiddenPlayerEvent());
                     toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
-    
+                    setLoading(false);
+
                     // Limpiamos inputs
                     setDorsalValue('');
                     setDniValue('');
@@ -226,12 +249,15 @@ const JugadoresEventuales = () => {
                     setSurNameValue('');
                     break;
                 case '1':
+                    setLoading(false);
                     toast.error('DNI y Dorsal ya existentes');
                     break;
                 case '2':
+                    setLoading(false);
                     toast.error('Dorsal existente');
                     break;
                 case '3':
+                    setLoading(false);
                     toast.error('DNI existente');
                     break;
                 default:
@@ -339,7 +365,7 @@ const JugadoresEventuales = () => {
                             </TitleInputContainer>
                         </ActionsContainer>
                         <ActionNext onClick={handleNext}>
-                            {isEnabledEdit ? 'Actualizar' : 'Añadir'}
+                            {loading ? <LoaderIcon /> : (isEnabledEdit ? 'Actualizar' : 'Añadir')}
                         </ActionNext>
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>

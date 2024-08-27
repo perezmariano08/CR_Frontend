@@ -44,3 +44,11 @@ export const dataAmarillasTemporadaColumns = [
     {field: 'nombre_completo', header: "Nombre"},
     {field: 'Amarillas', header: "A"},
 ]
+
+export const dataSancionesColumns = [
+    {field: 'jugador', header: "Nombre"},
+    {field: 'categoria', header: "Categoria"},
+    {field: 'fechas', header: "Fechas"},
+    {field: 'fechas_restantes', header: "Fechas restantes"},
+    {field: 'multa', header: "Multa"},
+]

@@ -44,13 +44,13 @@ const CardPartido = ({ partido, rol }) => {
 
     // !ESTO VUELA
     useEffect(() => {
-        if (match) {
+        if (match && match.Local && match.Local.Player && match.Visitante && match.Visitante.Player) {
             const golesLocal = match.Local.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
             const golesVisita = match.Visitante.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
-
+    
             let localGoals = 0;
             let visitGoals = 0;
-
+    
             golesLocal.forEach(player => {
                 player.Actions.forEach(action => {
                     if (action.Type === 'Gol') {
@@ -74,11 +74,12 @@ const CardPartido = ({ partido, rol }) => {
                     }
                 });
             });
-
+    
             setGoalLocal(localGoals);
             setGoalVisit(visitGoals);
         }
     }, [match]);
+    
 
     const formatTime = (time) => {
         if (!time) return '00:00';

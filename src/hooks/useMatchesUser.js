@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPartidos } from "../redux/ServicesApi/partidosSlice";
 import { fetchEquipos } from "../redux/ServicesApi/equiposSlice";
-
+import { debounce } from 'lodash';
 
 const useMatchesUser = (idEquipo) => {
     const dispatch = useDispatch();
@@ -12,10 +12,15 @@ const useMatchesUser = (idEquipo) => {
 
     const [fechaActual, setFechaActual] = useState(null);
     
+    // Evitar múltiples despachos seguidos
+    const fetchPartidosEquipos = useCallback(debounce(() => {
+        dispatch(fetchPartidos());
+        dispatch(fetchEquipos());
+    }, 500), [dispatch]);
+
     useEffect(() => {
-        dispatch(fetchPartidos())
-        dispatch(fetchEquipos())
-    }, [])
+        fetchPartidosEquipos();
+    }, [fetchPartidosEquipos]);
 
     useEffect(() => {
         if (partidos.length > 0 && miEquipo) {

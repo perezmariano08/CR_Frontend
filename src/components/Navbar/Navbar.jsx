@@ -14,9 +14,9 @@ export const Navbar = () => {
         <NavbarContainerStyled>
             <NavbarWrapper>
                 <img src={logoCR} alt="Logo Copa Relampago" />
-                <ContainerNoti onClick={() => dispatch(toggleHiddenNotis())}>
+                {/* <ContainerNoti onClick={() => dispatch(toggleHiddenNotis())}>
                     <IoIosNotifications />
-                </ContainerNoti>
+                </ContainerNoti> */}
             </NavbarWrapper>
             <Notifications/>
         </NavbarContainerStyled>

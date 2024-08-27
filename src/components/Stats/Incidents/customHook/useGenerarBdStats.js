@@ -6,7 +6,7 @@ const useGenerarBdStats = (idPartido) => {
 
     const generarBdGoles = (team, idPartido) => {
         const goles = [];
-        team.Player.forEach(jugador => {
+        team.Player?.forEach(jugador => {
             if (jugador.Actions) {
                 jugador.Actions.forEach(action => {
                     if (action.Type === 'Gol') {
@@ -34,7 +34,7 @@ const useGenerarBdStats = (idPartido) => {
         // Crear un mapa para llevar el conteo de las amarillas por jugador
         const amarillasPorJugador = new Map();
     
-        team.Player.forEach(jugador => {
+        team.Player?.forEach(jugador => {
             if (jugador.Actions) {
                 jugador.Actions.forEach(accion => {
                     if (accion.Type === 'Roja') {
@@ -81,7 +81,7 @@ const useGenerarBdStats = (idPartido) => {
 
     const generarBdAmarillas = (team, idPartido) => {
         const amarillas = [];
-        team.Player.forEach(jugador => {
+        team.Player?.forEach(jugador => {
             if (jugador.Actions) {
                 jugador.Actions.forEach(accion => {
                     if (accion.Type === 'Amarilla') {
@@ -103,7 +103,7 @@ const useGenerarBdStats = (idPartido) => {
     
     const generarBdAsistencias = (team, idPartido) => {
         const asistencias = [];
-        team.Player.forEach(jugador => {
+        team.Player?.forEach(jugador => {
             if (jugador.Actions) {
                 jugador.Actions.forEach(accion => {
                     if (accion.Type === 'Gol' && accion.Detail.withAssist) {
