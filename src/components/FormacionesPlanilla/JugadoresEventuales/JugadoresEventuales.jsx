@@ -44,23 +44,18 @@ const JugadoresEventuales = () => {
         }
     };
 
-    const capitalizeFirstLetter = (string) => {
-        if (!string) return '';
-        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-    };
-
     const handleInputName = (value) => {
-        if (/^[a-zA-Z]*$/.test(value) || value === '') {
-            setNameValue(capitalizeFirstLetter(value));
+        if (/^[a-zA-Z\s]*$/.test(value) || value === '') {
+            setNameValue(value);
         }
     };
-
+    
     const handleInputSurName = (value) => {
-        if (/^[a-zA-Z]*$/.test(value) || value === '') {
-            setSurNameValue(capitalizeFirstLetter(value));
+        if (/^[a-zA-Z\s]*$/.test(value) || value === '') {
+            setSurNameValue(value);
         }
     };
-
+    
     const isAnyValueEmpty = () => {
         return !dorsalValue?.trim() || !dniValue?.trim() || !nameValue?.trim() || !surNameValue?.trim();
     };
@@ -193,13 +188,66 @@ const JugadoresEventuales = () => {
         return parseInt(`015${formattedNumber}`, 10);
     };
 
+    const validateFields = () => {
+        // Trim the input values
+        const trimmedName = nameValue.trim();
+        const trimmedSurName = surNameValue.trim();
+        const trimmedDni = dniValue.trim();
+        const trimmedDorsal = dorsalValue.trim();
+    
+        // Validate DNI (must be 8 digits)
+        if (!/^\d{8}$/.test(trimmedDni)) {
+            toast.error('El DNI debe tener 8 dígitos.');
+            return false;
+        }
+    
+        // Validate Dorsal (must be up to 3 digits)
+        if (!/^\d{1,3}$/.test(trimmedDorsal)) {
+            toast.error('El dorsal debe ser de hasta 3 dígitos.');
+            return false;
+        }
+    
+        // Check if name and surname are non-empty
+        if (!trimmedName || !trimmedSurName) {
+            toast.error('Nombre y Apellido no pueden estar vacíos.');
+            return false;
+        }
+    
+        // Check if name and surname have valid characters
+        if (!/^[a-zA-Z\s]+$/.test(trimmedName) || !/^[a-zA-Z\s]+$/.test(trimmedSurName)) {
+            toast.error('Nombre y Apellido solo pueden contener letras y espacios.');
+            return false;
+        }
+    
+        return true;
+    };
+    
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    };
+
     const handleNext =  async () => {
         setLoading(true);
+
         if (isAnyValueEmpty()) {
             toast.error('Todos los campos son obligatorios');
+            setLoading(false);
             return;
         }
-        const repeatType = await searchDorsal(dorsalValue, dniValue, dataJugadorEventual);
+
+        const trimmedDorsal = dorsalValue.trim();
+        const trimmedDni = dniValue.trim();
+        const trimmedName = capitalizeFirstLetter(nameValue.trim());
+        const trimmedSurName = capitalizeFirstLetter(surNameValue.trim());
+
+        // Validate the fields
+        if (!validateFields()) {
+            setLoading(false);
+            return;
+        }
+
+        const repeatType = await searchDorsal(trimmedDorsal, trimmedDni, dataJugadorEventual);
         const isEditing = isEnabledEdit;
 
         if (maxQuantityPlayers || isEditing) {
@@ -214,28 +262,29 @@ const JugadoresEventuales = () => {
                         break;
                     }
     
-                    let jugadorExistente = bdEventual.find(jugador => jugador.dni === dniValue);
+                    let jugadorExistente = bdEventual.find(jugador => jugador.dni === trimmedDni);
                     let newPlayer;
     
                     if (jugadorExistente) {
                         newPlayer = {
                             ID: jugadorExistente.id_jugador,
                             Nombre: `${jugadorExistente.nombre} ${jugadorExistente.apellido}`,
-                            DNI: jugadorExistente.dni,
-                            Dorsal: dorsalValue,
+                            DNI: trimmedDni,
+                            Dorsal: trimmedDorsal,
                             status: true,
                             eventual: 'S',
                         };
                     } else {
                         newPlayer = {
                             ID: generateId(),
-                            Nombre: `${nameValue} ${surNameValue}`,
-                            DNI: dniValue,
-                            Dorsal: dorsalValue,
+                            Nombre: `${trimmedName} ${trimmedSurName}`,
+                            DNI: trimmedDni,
+                            Dorsal: trimmedDorsal,
                             status: true,
                             eventual: 'S',
                         };
                     }
+
                     dispatch(addEventualPlayer({ idPartido: idPartido, teamId: idCurrentTeam, player: newPlayer }));
                     dispatch(setDisabledStateInfoPlayerEvent());
                     dispatch(toggleHiddenPlayerEvent());
@@ -300,7 +349,6 @@ const JugadoresEventuales = () => {
         }
     };
     
-
     return (
         <>
             {!hiddenPlayer && (

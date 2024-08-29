@@ -70,17 +70,14 @@ const ModalConfirmation = () => {
                     if (jugadorDestacado) {
                         // Ejecutar updateJugadores primero
                         await updateJugadores();
+                        await updateMatch(),
+                        await insertFormaciones(),
+                        await insertRojas(),
+                        await insertGoles(),
+                        await insertAmarillas(),
+                        await insertAsistencias(),
+                        await updateSancionados()
                         
-                        // Luego ejecutar las demás operaciones
-                        await Promise.all([
-                            updateMatch(),
-                            insertFormaciones(),
-                            insertGoles(),
-                            insertRojas(),
-                            insertAmarillas(),
-                            insertAsistencias(),
-                            updateSancionados()
-                        ]);
                         dispatch(toggleStateMatch(idPartido));
                         dispatch(toggleHiddenModal());
                         dispatch(handleBestPlayerOfTheMatch(null)); //Borrar jugador destacado

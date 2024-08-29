@@ -99,7 +99,7 @@ const Stats = () => {
     };
 
     const getColumnsForFilter = () => getColumns(filtroActivo);
-    
+
     return (
         <StatsContainerStyled className='container'>
             <StatsWrapper className='wrapper'>
@@ -164,7 +164,7 @@ const Stats = () => {
                 )}
 
                 {/* Renderizado por Zona */}
-                {!loading && zonaSeleccionada && filtroActivo === 'Fixture' && <Fixture zona={zonasFiltradas?.[0]} />}
+                {!loading && zonaSeleccionada && filtroActivo === 'Fixture' && <Fixture zona={zonasFiltradas?.[0]} categoria={zonasFiltradas?.[0].id_categoria}/>}
                 {!loading && zonaSeleccionada && filtroActivo === 'Posiciones' && (
                     zonasFiltradas?.map(zona => (
                         <TablePosiciones 
@@ -178,7 +178,7 @@ const Stats = () => {
 
                 {/* Renderizado por Categoría */}
                 {!loading && zonaSeleccionada && filtroActivo !== 'Fixture' && filtroActivo !== 'Posiciones' && (
-                    <TableTeam data={estadisticaZona} dataColumns={getColumnsForFilter()} zona={zonasFiltradas?.[0]} />
+                    <TableTeam data={estadisticaZona} dataColumns={getColumnsForFilter()} zona={zonasFiltradas?.[0]}/>
                 )}
             </StatsWrapper>
         </StatsContainerStyled>
