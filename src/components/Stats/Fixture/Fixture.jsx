@@ -8,13 +8,13 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { useNavigate } from 'react-router-dom';
 
-const Fixture = ({ zona }) => {
+const Fixture = ({ zona, categoria }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const partidos = useSelector((state) => state.partidos.data);
 
     const [fechaActual, setFechaActual] = useState(1);
-
+    
     useEffect(() => {
         const fetchData = async () => {
             dispatch(fetchEquipos());
@@ -31,7 +31,7 @@ const Fixture = ({ zona }) => {
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(teamIds);
 
     // Filtra partidosTemporada y cantidadFechas después de haber cargado los datos
-    const partidosTemporada = partidos.filter((p) => p.id_zona === zona?.id_zona);
+    const partidosTemporada = categoria !== 3 ? partidos.filter((p) => p.id_zona === zona?.id_zona) : partidos.filter((p) => p.id_categoria === zona?.id_categoria)
     const cantidadFechas = [...new Set(partidosTemporada.map((p) => p.jornada))].sort((a, b) => a - b);
     const partidosFecha = partidosTemporada.filter((p) => p.jornada === fechaActual);
 
@@ -56,7 +56,7 @@ const Fixture = ({ zona }) => {
     const handleStatsOfTheMatch = (id) => {
         navigate(`/stats-match?id=${id}`);
     }
-
+    
     return (
         <FixtureWrapper>
             {partidosTemporada.length > 0 ? (
@@ -102,6 +102,10 @@ const Fixture = ({ zona }) => {
                                     partido.estado === 'F' ? (
                                         <>
                                             <h5>{`${partido.goles_local}-${partido.goles_visita}`}</h5>
+                                        </>
+                                    ) : partido.estado === 'S' ? (
+                                        <>
+                                            <h5 className="susp">Postergado</h5>
                                         </>
                                     ) : (
                                         <>
