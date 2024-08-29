@@ -23,7 +23,6 @@ import useStatsTeam from '../../hooks/useStatsTeam.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
-import useNameAndShieldTeams from '../../hooks/useNameAndShieldTeam.js';
 import { useEquipos } from '../../hooks/useEquipos.js';
 
 const MyTeam = () => {
