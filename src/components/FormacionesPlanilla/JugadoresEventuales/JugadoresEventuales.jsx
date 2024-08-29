@@ -111,7 +111,7 @@ const JugadoresEventuales = () => {
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
             const eventualPlayersCounts = equipoCorrecto.Player?.filter(player => player.eventual === 'S').length;
-            setMaxQuantityPlayers(eventualPlayersCounts < 4);
+            setMaxQuantityPlayers(eventualPlayersCounts < 5);
         }
     };
 
