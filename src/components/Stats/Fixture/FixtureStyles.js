@@ -116,6 +116,10 @@ export const FixtureMatchInfo = styled.div`
         font-weight: 400;
         color: var(--green);
     }
+    .susp {
+        color: var(--yellow);
+        font-size: 12px;
+    }
 `;
 
 export const FixtureTitleDivider = styled.div`

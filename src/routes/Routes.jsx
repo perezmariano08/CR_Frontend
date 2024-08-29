@@ -43,6 +43,7 @@ import CategoriasConfig from '../pages/Administrador/Categorias/CategoriasConfig
 import CategoriasFormato from '../pages/Administrador/Categorias/CategoriasFormato';
 import CategoriasEquiposDetalle from '../pages/Administrador/Categorias/CategoriasEquiposDetalle';
 import CategoriasFixturePartido from '../pages/Administrador/Categorias/CategoriasFixturePartido';
+import CategoriasPosiciones from '../pages/User/Categorias/CategoriasPosiciones';
 
 const Routes = () => {
     return (
@@ -103,6 +104,9 @@ const Routes = () => {
                             <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} />
                             <Route path='/more' element={<LayoutAux> <More/> </LayoutAux>} />
                             <Route path='/stats-match' element={<LayoutPrivate> <MatchStats/> </LayoutPrivate>} />
+
+                            <Route path='/categoria/posiciones/:id_page' element={<LayoutPrivate> <CategoriasPosiciones/> </LayoutPrivate>} />
+
                         </Route>
                     </Route>
 

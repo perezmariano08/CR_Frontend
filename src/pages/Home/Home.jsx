@@ -56,11 +56,16 @@ const Home = () => {
             .catch((error) => console.error('Error fetching zonas:', error));
 
         getSanciones()
-            .then((data) => setSanciones(data))
+            .then((data) => sancionesActivas(data))
             .catch((error) => console.error('Error fetching sanciones:', error));
     }, []);
 
     const zonasFiltradas = zonas.find((z) => z.id_zona === id_zona);
+
+    const sancionesActivas = (sanciones) => {
+        const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
+        setSanciones(sancionesFiltradas);
+    }
     
     return (
         <>
