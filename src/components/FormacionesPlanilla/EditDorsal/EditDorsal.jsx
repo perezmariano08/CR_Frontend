@@ -77,7 +77,7 @@ const EditDorsal = () => {
                             <p>Volver</p>
                         </ActionBack>
                         <ActionTitle>
-                            <h3>Asignar dorsal al jugador {playerNameSelected}</h3>
+                            <h3>Asignar dorsal al jugador <span style={{ color: 'var(--green)', fontWeight: '600' }}>{playerNameSelected}</span></h3>
                             <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer>
