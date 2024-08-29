@@ -141,5 +141,53 @@ export const FixtureFechas = styled.div`
     }
 `
 
+export const TituloPartidoDetalle = styled.div`
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    background-color: var(--gray-400);
+    padding: 20px 0;
+    align-items: center;
+    gap: 30px;
+    border-radius: 20px;
+`
+
+export const TituloPartidoEquipo = styled.div`
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    img {
+        width: 50px;
+    }
+`
+
+export const TituloPartidoResultado = styled.div`
+    font-size: 30px;
+    font-weight: 800;
+    gap: 10px;
+    display: flex;
+`
+
+export const FormacionesPartido = styled.div`
+    display: flex;
+    gap: 20px;
+`
+
+export const FormacionEquipo = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+`
+
+export const FormacionEquipoImg = styled.div`
+    display: flex;
+    gap: 5px;
+    img {
+        width: 20px;
+    }
+`
+
 
 

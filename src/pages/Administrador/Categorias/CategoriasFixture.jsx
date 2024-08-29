@@ -324,7 +324,7 @@ const CategoriasFixture = () => {
                             selection={false}
                             sortable={false}
                             id_={'id_partido'}
-                            urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                            urlClick={`/admin/categorias/fixture/${edicionFiltrada.id_edicion}/detalle/`}
                             rowClickLink
                         />
                     </>

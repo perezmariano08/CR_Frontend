@@ -11,4 +11,12 @@ export const dataPartidosColumns = [
     // { field: 'descripcion', header: 'Descripcion', sortable: true },
 ];
 
+export const dataFormacionesPartidoColumns = [
+    { field: 'acciones', header: '', sortable: true },
+    { field: 'dorsal', header: '#', sortable: true },
+    { field: 'id_jugador', header: 'Jugador', sortable: true },
+    { field: 'dni', header: 'DNI', sortable: true },
+    // { field: 'descripcion', header: 'Descripcion', sortable: true },
+];
+
 export const dataPartidos = []

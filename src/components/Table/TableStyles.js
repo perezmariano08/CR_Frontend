@@ -17,13 +17,13 @@ export const TableContainerStyled = styled(DataTable)`
         text-overflow: ellipsis; /* Muestra puntos suspensivos si el contenido desborda */
         padding: 15px 20px; /* Espaciado interno de las celdas */
         min-width: fit-content;
-        background-color: var(--gray-300);
+        background-color: var(--gray-400);
         /* user-select: none; */
     }
     th {
         color: var(--gray-200);
         border: none;
-        border-bottom: 1px solid var(--gray-200);
+        border-bottom: 1px solid var(--gray-300);
         text-transform: uppercase;
         &.p-sortable-column .p-column-header-content {
             gap: 10px;
@@ -43,10 +43,10 @@ export const TableContainerStyled = styled(DataTable)`
         width: fit-content;
         height: 100%;
         border: none;
-        border-bottom: 1px solid var(--gray-200);
+        border-bottom: 1px solid var(--gray-300);
     }
     tbody tr {
-        border-bottom: 1px solid var(--gray-200) !important;
+        border-bottom: 1px solid var(--gray-300) !important;
     }
 
     tbody tr:last-child td {
