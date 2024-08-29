@@ -4,10 +4,15 @@ import styled from "styled-components";
 export const MenuBottomContainerStyled = styled.footer`
     width: 100%;
     padding: 0 10px 20px 10px;
+    height: 90px;
     position: fixed;
     bottom: 0;
     display: flex;
     justify-content: center;
+    display: none;
+    @media (max-width: 968px) {
+        display: flex;
+    }
 `;
 
 export const MenuBottomWrapper = styled.div`

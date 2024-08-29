@@ -2,7 +2,7 @@ import { DataTable } from "primereact/datatable";
 import styled from "styled-components";
 
 export const TableTeamWrapper = styled(DataTable)`
-    background: var(--gray-300) !important;
+    background: var(--gray-400) !important;
     width: 100%;
     border-collapse: collapse;
     overflow: hidden;
@@ -35,7 +35,7 @@ export const TableTeamWrapper = styled(DataTable)`
 
     td, th {
         padding: 0 15px 10px 25px;
-        background: var(--gray-300) !important;
+        background: var(--gray-400) !important;
         border: none;
         min-width: 30px;
         font-size: 14px;
@@ -56,6 +56,7 @@ export const TableTeamWrapper = styled(DataTable)`
     .p-paginator {
         width: 100%;
         display: flex;
+        background-color: var(--gray-400);
         color: var(--white) !important;
         gap: 20px;
         padding: 10px 15px;
@@ -104,7 +105,7 @@ export const TableTeamWrapper = styled(DataTable)`
 
     // Estilos del dropdown de filas por página
     .p-dropdown {
-        background: var(--gray-300) !important;
+        background: var(--gray-400) !important;
         color: var(--gray-200) !important;
         border: none;
         border-radius: 4px;

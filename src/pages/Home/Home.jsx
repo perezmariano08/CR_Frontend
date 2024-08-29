@@ -1,19 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper } from './HomeStyles';
+import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosicionesTemporada, getSanciones, getZonas } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
-import { dataPosicionesTemporadaColumns, dataSancionesColumns } from '../../components/Stats/Data/Data';
+import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../components/Stats/Data/Data';
 import useFetchMatches from '../../hooks/useFetchMatches';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import useMessageWelcome from '../../hooks/useMessageWelcome.js';
 import { StatsNull } from '../Stats/StatsStyles.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones.jsx';
+import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, MenuCategoriasTitulo } from '../../components/Content/ContentStyles.js';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -69,66 +70,123 @@ const Home = () => {
     
     return (
         <>
-            <HomeContainerStyled className='container'>
-                <HomeWrapper className='wrapper'>
-                    <Section>
-                        <h2>{proximoPartido ? 'Próximo partido' : 'Último partido'}</h2>
-                        {partidoAMostrar ? (
-                            <CardPartido
-                                rol={user.id_rol}
-                                partido={partidoAMostrar}
-                            />
-                        ) : (
-                            <StatsNull>
-                                <p>No hay partidos programados para tu equipo.</p>
-                            </StatsNull>
-                        )}
-                    </Section>
-                    <Section>
-                        {fechaActual && partidosFecha.length > 0 ? (
-                            <>
-                                <h2>{`Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`}</h2>
-                                <CardsMatchesContainer>
-                                    <CardsMatchesWrapper>
-                                        {partidosFecha
-                                            .map((p) => (
-                                                <CardPartido
-                                                    key={p.id_partido}
-                                                    rol={user.id_rol}
-                                                    partido={p}
-                                                />
-                                            ))}
-                                    </CardsMatchesWrapper>
-                                </CardsMatchesContainer>
-                            </>
-                        ) : (
-                            <StatsNull>
-                                <p>No hay partidos disponibles para esta fecha.</p>
-                            </StatsNull>
-                        )}
-                    </Section>
-                    {posiciones && zonasFiltradas && (
+            <HomeContainerStyled>
+                <HomeWrapper>
+                    <HomeLeftWrapper>
+                        <MenuCategoriasContainer>
+                        <MenuCategoriasTitulo>
+                            <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png"/>
+                            Clausura 2024
+                        </MenuCategoriasTitulo>
+                        <MenuCategoriasDivider>
+                            <span>CATEGORIA LIBRE</span>
+                            <div/>
+                        </MenuCategoriasDivider>
+                        <MenuCategoriasItem to={'/categoria/posiciones/1'}>
+                            Serie A
+                        </MenuCategoriasItem>
+                        <MenuCategoriasItem to={'/categoria/posiciones/2'}>
+                            Serie B
+                        </MenuCategoriasItem>
+                        <MenuCategoriasItem to={'/categoria/posiciones/3'}>
+                            Serie C
+                        </MenuCategoriasItem>
+                        <MenuCategoriasItem to={'/categoria/posiciones/4'}>
+                            Serie D
+                        </MenuCategoriasItem>
+                        <MenuCategoriasDivider>
+                            <span>CATEGORIA SUB 19</span>
+                            <div/>
+                        </MenuCategoriasDivider>
+                        <MenuCategoriasItem to={'/categoria/posiciones/5'}>
+                            Serie A
+                        </MenuCategoriasItem>
+                        <MenuCategoriasItem to={'/categoria/posiciones/6'}>
+                            Serie B
+                        </MenuCategoriasItem>
+                        <MenuCategoriasDivider>
+                            <span>FEMENINO</span>
+                            <div/>
+                        </MenuCategoriasDivider>
+                        <MenuCategoriasItem to={'/categoria/posiciones/7'}>
+                            Intermedias
+                        </MenuCategoriasItem>
+                        <MenuCategoriasItem to={'/categoria/posiciones/8'}>
+                            Principiantes
+                        </MenuCategoriasItem>
+                    </MenuCategoriasContainer>
+                    </HomeLeftWrapper>
+                    <HomeMediumWrapper>
                         <Section>
-                            <h2>Tabla de Posiciones</h2>
-                            <TablePosiciones
-                                data={posiciones}
-                                zona={zonasFiltradas}
-                                dataColumns={dataPosicionesTemporadaColumns}
-                            />
+                            <h2>{proximoPartido ? 'Próximo partido' : 'Último partido'}</h2>
+                            {partidoAMostrar ? (
+                                <CardPartido
+                                    rol={user.id_rol}
+                                    partido={partidoAMostrar}
+                                />
+                            ) : (
+                                <StatsNull>
+                                    <p>No hay partidos programados para tu equipo.</p>
+                                </StatsNull>
+                            )}
                         </Section>
-                    )}
-                    {sanciones && (
                         <Section>
-                            <h2>Sanciones</h2>
-                            <TableSanciones
-                                data={sanciones}
-                                dataColumns={dataSancionesColumns}
-                            />
+                            {fechaActual && partidosFecha.length > 0 ? (
+                                <>
+                                    <h2>{`Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`}</h2>
+                                    <CardsMatchesContainer>
+                                        <CardsMatchesWrapper>
+                                            {partidosFecha
+                                                .map((p) => (
+                                                    <CardPartido
+                                                        key={p.id_partido}
+                                                        rol={user.id_rol}
+                                                        partido={p}
+                                                    />
+                                                ))}
+                                        </CardsMatchesWrapper>
+                                    </CardsMatchesContainer>
+                                </>
+                            ) : (
+                                <StatsNull>
+                                    <p>No hay partidos disponibles para esta fecha.</p>
+                                </StatsNull>
+                            )}
                         </Section>
-                    )}
+                        {posiciones && zonasFiltradas && (
+                            <Section>
+                                <h2>Tabla de Posiciones</h2>
+                                <TablePosiciones
+                                    data={posiciones}
+                                    zona={zonasFiltradas}
+                                    dataColumns={dataPosicionesTemporadaColumns}
+                                />
+                            </Section>
+                        )}
+                        {sanciones && (
+                            <Section>
+                                <h2>Sanciones</h2>
+                                <TableSanciones
+                                    data={sanciones}
+                                    dataColumns={dataSancionesColumns}
+                                />
+                            </Section>
+                        )}
+                    </HomeMediumWrapper>
+                    <HomeRightWrapper>
+                        {posiciones && zonasFiltradas && (
+                            <Section>
+                                <h2>Tabla de Posiciones</h2>
+                                <TablePosiciones
+                                    data={posiciones}
+                                    zona={zonasFiltradas}
+                                    dataColumns={dataPosicionesTemporadaColumnsMinus}
+                                />
+                            </Section>
+                        )}
+                    </HomeRightWrapper>
                 </HomeWrapper>
             </HomeContainerStyled>
-            <Toaster />
         </>
     );
 };

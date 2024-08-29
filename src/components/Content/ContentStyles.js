@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { NavLink } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
 export const ContentContainerStyled = styled(motion.div)`
@@ -191,3 +192,284 @@ export const FormacionEquipoImg = styled.div`
 
 
 
+export const ContentUserContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    @media (max-width: 968px) {
+        font-size: 14px;
+    }
+`;
+
+export const ContentUserWrapper= styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1260px;
+    padding: 40px 30px;
+    width: 100%;
+    @media (max-width: 968px) {
+        padding: 20px 15px;
+    }
+`;
+
+export const ContentUserTituloContainerStyled = styled.div`
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    width: 100%;
+    overflow: hidden;
+`;
+
+export const ContentUserTituloContainer = styled.div`
+    display: flex;
+    background-color: var(--gray-400);
+    padding: 20px 32px;
+    width: 100%;
+`;
+
+
+export const TituloContainer = styled.div`
+    display: flex;
+    gap: 15px;
+
+    img {
+        width: 40px;
+    }
+`;
+
+export const TituloText = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h1 {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    p {
+        color: #a8a8a8;
+        font-size: 12px;
+    }
+`;
+
+export const ContentUserMenuTitulo = styled.div`
+    display: flex;
+    width: 100%;
+    background-color: var(--gray-400);
+    padding: 0 32px;
+    @media (max-width: 968px) {
+        padding: 0 20px;
+    }
+`;
+
+export const ContentMenuLink = styled.ul`
+    display: flex;
+    gap: 30px;
+    a {
+        position: relative;
+        color: #a8a8a8;
+        text-decoration: none;
+        padding: 16px 0;
+        padding-bottom: 18px;
+        overflow: hidden;
+        transition: all .1s ease-in-out;
+
+        &:hover {
+            opacity: 0.8;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--green);
+            border-radius: 0 0px 20px 20px;
+            transition: all 0.2s ease;
+        }
+
+        &.active::after {
+            animation: ${underlineAnimation} 0.3s forwards;
+        }
+
+        &.active {
+            color: var(--white);
+        }
+    }
+`;
+
+export const ContentPageWrapper = styled.ul`
+    width: 100%;
+    border-radius: 20px;
+    background-color: var(--gray-400);
+    overflow: hidden;
+`;
+
+export const ContentUserSubMenuTitulo = styled(ContentUserMenuTitulo)`
+    border-bottom: 1px solid var(--gray-300);
+`;
+
+
+export const ContentJornadasFixture = styled.div`
+    width: 100%;
+    padding: 16px 32px;
+    @media (max-width: 968px) {
+        padding: 12px 20px;
+    }
+`;
+
+export const JornadasFixtureWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    svg {
+        color: var(--green);
+        cursor: pointer;
+    }
+`;
+
+export const JornadasFixtureDia = styled.div`
+    width: 100%;
+    padding: 16px 32px;
+    background-color: var(--gray-300);
+    @media (max-width: 968px) {
+        padding: 12px 20px;
+    }
+`;
+
+export const JornadasFixtureZona = styled.div`
+    width: 100%;
+    padding: 16px 32px;
+    font-size: 14px;
+    color: #a8a8a8;
+    @media (max-width: 968px) {
+        padding: 12px 20px;
+    }
+`;
+
+export const JornadasFixturePartido = styled.div`
+    display: flex;
+    width: 100%;
+    padding: 16px 32px;
+    justify-content: center;
+    gap: 20px;
+    @media (max-width: 968px) {
+        padding: 12px 20px;
+    }
+`;
+
+
+export const JornadasFixturePartidoEquipo = styled.div`
+    display: flex;
+    gap: 10px;
+    min-width: 200px;
+    width: 100%;
+    justify-content: end;
+    align-items: center;
+    &.visita {
+        justify-content: start;
+    }
+    img {
+        width: 20px;
+    }
+
+    @media (max-width: 968px) {
+        min-width: 0;
+    }
+`;
+
+export const JornadasFixtureResultado = styled.div`
+    min-width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 18px;
+
+    &.hora {
+        font-weight: 500;
+        color: #a8a8a8;
+        font-size: 16px;
+
+    }
+`;
+
+export const MenuCategoriasContainer = styled.div`
+    background-color: var(--gray-400);
+    min-width: 250px;
+    border-radius: 20px;
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+`;
+
+export const MenuCategoriasItem = styled(NavLink)`
+    background-color: var(--gray-400);
+    padding: 12px 20px;
+    width: 100%;
+    cursor: pointer;
+    color: var(--white);
+
+    &:hover {
+        background-color: var(--gray-300);
+    }
+`;
+
+export const MenuCategoriasDivider = styled.div`
+    display: flex;
+    align-items: center;
+    color: var(--green);
+    padding: 10px 20px;
+    gap: 20px;
+    span {
+        width: 100%;
+    }
+    div {
+        height: 1px;
+        background-color: var(--green);
+    }
+`;
+
+export const MenuCategoriasTitulo = styled.div`
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    gap: 10px;
+    font-weight: 700;
+
+    img {
+        width: 20px;
+    }
+`;
+
+export const MenuPosicionesContainer = styled.div`
+    width: 100%;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--gray-300);
+    @media (max-width: 968px) {
+        padding: 12px 20px;
+    }
+`;
+
+export const MenuPosicionesItemFilter = styled.div`
+    background-color: var(--white);
+    border: 1px solid var(--white);
+    color: black;
+    border-radius: 20px;
+    padding: 6px 12px;
+    width: fit-content;
+    cursor: pointer;
+    font-weight: 600;
+`;
+
+export const TablePosicionesContainer = styled.div`
+    width: 100%;
+    padding: 16px 32px;
+`;

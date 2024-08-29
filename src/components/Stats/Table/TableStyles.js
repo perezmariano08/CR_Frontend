@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const TableContainerStyled = styled.div`
     display: flex;
     flex-direction: column;
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     border-radius: 20px;
     overflow: hidden;
     padding: 20px 0;
@@ -34,14 +34,12 @@ export const TableTitle = styled.div`
 export const TableTitleDivider = styled.div`
     height: 1px;
     width: 100%;
-    background-color: var(--gray-200);
+    background-color: var(--gray-300);
 `
 
 export const TableWrapper = styled(DataTable)`
-    background: var(--gray-300) !important;
     width: 100%;
     border-collapse: collapse;
-    overflow: hidden;
     
     .p-column-header-content {
         display: flex;
@@ -68,7 +66,7 @@ export const TableWrapper = styled(DataTable)`
 
     td, th {
         padding: 0 0 10px 0;
-        background: var(--gray-300) !important;
+        background: var(--gray-400) !important;
         border: none;
         text-align: center;
         min-width: 30px
@@ -81,10 +79,6 @@ export const TableWrapper = styled(DataTable)`
     thead tr:first-child th:first-child .p-column-header-content {
         justify-content: start;
         padding-left: 17px;
-    }
-
-    thead tr:first-child th:nth-child(2) .p-column-header-content {
-        justify-content: start;
     }
 
     tbody tr td .pos {
