@@ -42,6 +42,7 @@ import CategoriasFixture from '../pages/Administrador/Categorias/CategoriasFixtu
 import CategoriasConfig from '../pages/Administrador/Categorias/CategoriasConfig';
 import CategoriasFormato from '../pages/Administrador/Categorias/CategoriasFormato';
 import CategoriasEquiposDetalle from '../pages/Administrador/Categorias/CategoriasEquiposDetalle';
+import CategoriasFixturePartido from '../pages/Administrador/Categorias/CategoriasFixturePartido';
 import CategoriasPosiciones from '../pages/User/Categorias/CategoriasPosiciones';
 
 const Routes = () => {
@@ -77,6 +78,7 @@ const Routes = () => {
                             <Route path='/admin/ediciones/config/:id_page' element={<LayoutAdmin> <EdicionesConfig/> </LayoutAdmin>} />
                             <Route path='/admin/categorias/resumen/:id_page' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
                             <Route path='/admin/categorias/fixture/:id_page' element={<LayoutAdmin> <CategoriasFixture /> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/fixture/:id_page/detalle/:id_page' element={<LayoutAdmin> <CategoriasFixturePartido /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/equipos/:id_page' element={<LayoutAdmin> <CategoriasEquipos /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/equipos/:id_page/detalle/:id_page' element={<LayoutAdmin> <CategoriasEquiposDetalle /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/config/:id_page' element={<LayoutAdmin> <CategoriasConfig /> </LayoutAdmin>} />

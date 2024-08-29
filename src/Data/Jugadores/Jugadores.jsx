@@ -12,5 +12,6 @@ export const dataPlantelesColumns = [
     { field: 'dni', header: 'DNI' },
     { field: 'jugador', header: 'Jugador' },
     { field: 'posicion', header: 'Posición' },
-    { field: 'estado', header: 'Estado' }
+    { field: 'estado', header: 'Estado' },
+    { field: 'pj', header: 'PJ' },
 ];

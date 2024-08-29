@@ -72,9 +72,14 @@ const CategoriasEquiposDetalle = () => {
     const [fileData, setFileData] = useState(null);
     // Referencia del input
     const fileInputRef = useRef(null);
+    const { 
+        isCreateModalOpen, openCreateModal, closeCreateModal, 
+        isDeleteModalOpen, openDeleteModal, closeDeleteModal,
+        isUpdateModalOpen, openUpdateModal, closeUpdateModal,
+    } = useModalsCrud();
 
     // Manejo del form
-    const [formState, handleFormChange, resetForm] = useForm({ 
+    const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
         id_edicion: categoriaFiltrada.id_edicion,
         id_categoria: equipoFiltrado.id_categoria,
         dni_jugador: '',
@@ -98,7 +103,7 @@ const CategoriasEquiposDetalle = () => {
                     }}>
                     <IoTrashOutline />
                 </Button>
-                <Button bg={"import"} onClick={() => formState.id_jugador === categoria.id_jugador}>
+                <Button bg={"import"} onClick={() => editarJugador(categoria.id_jugador)}>
                     <IoPencil />
                 </Button>
             </AccionesBodyTemplate>
@@ -132,6 +137,18 @@ const CategoriasEquiposDetalle = () => {
         )
     }));
 
+    const editarJugador = (id_jugador) => {
+        const jugadorAEditar = jugadoresList.find((jugador) => jugador.id_jugador === id_jugador)
+        if (jugadorAEditar) {
+            setFormState({
+                dni_jugador: jugadorAEditar.dni,
+                nombre_jugador: jugadorAEditar.nombre,
+                apellido_jugador: jugadorAEditar.apellido,
+                posicion_jugador: jugadorAEditar.posicion,
+            });
+            openUpdateModal()
+        }
+    }
     
     const ListaBuenaFeEquipo = planteles.filter((plantel) => 
         plantel.id_equipo == id_page &&
@@ -146,15 +163,8 @@ const CategoriasEquiposDetalle = () => {
         plantel.id_edicion === categoriaFiltrada.id_edicion &&
         plantel.eventual === 'S'
     )
-        
     
-
     
-    const { 
-        isCreateModalOpen, openCreateModal, closeCreateModal, 
-        isDeleteModalOpen, openDeleteModal, closeDeleteModal
-    } = useModalsCrud();
-
     const [isDniConfirmationOpen, setIsDniConfirmationOpen] = useState(false);
     const [confirmDni, setConfirmDni] = useState(false);
     const handleDniConfirmation = async (confirm) => {
@@ -249,6 +259,26 @@ const CategoriasEquiposDetalle = () => {
         } finally {
             closeDeleteModal()
         }
+    };
+
+    // ACTUALIZAR
+    const [idEditar, setidEditar] = useState(null) 
+
+    const editarEquipo = (id_equipo) => {
+        openUpdateModal()
+        setidEditar(id_equipo)
+    }
+    const { actualizar, isUpdating } = useCrud(
+        `${URL}/user/actualizar-categoria-equipo`, fetchEquipos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+    );
+
+    const actualizarDato = async () => {
+        const data = { 
+            id_categoriaNueva: formStateCategoria.id_categoria,
+            id_equipo: idEditar,
+        }
+        await actualizar(data);
+        closeUpdateModal()
     };
 
     const handleFileChange = async (event) => {
@@ -348,7 +378,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchPlanteles());
         dispatch(fetchJugadores());
     }, [dispatch]);
-    
+        
     return (
         <Content>
             <MenuContentTop>
@@ -405,10 +435,12 @@ const CategoriasEquiposDetalle = () => {
                         <Table
                             data={ListaBuenaFeEquipo}
                             dataColumns={dataPlantelesColumns}
-                            arrayName={'Planteles'}
-                            id_={'id_jugador'}
                             paginator={false}
+                            selection={false}
                             sortable={false}
+                            id_={'id_jugador'}
+                            // urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                            // rowClickLink
                         />
                         {
                             EventualesEquipo.length > 0 && (
@@ -420,9 +452,10 @@ const CategoriasEquiposDetalle = () => {
                                         arrayName={'Planteles'}
                                         paginator={false}
                                         selection={false}
+                                        sortable={false}
                                         id_={'id_jugador'}
-                                        urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
-                                        rowClickLink
+                                        // urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                                        // rowClickLink
                                     />
                                 </>
                             )
@@ -636,6 +669,87 @@ const CategoriasEquiposDetalle = () => {
                         }
                     />
                     <Overlay onClick={closeImportModal} />
+                </>
+            }
+            {
+                isUpdateModalOpen && <>
+                    <ModalCreate initial={{ opacity: 0 }}
+                        animate={{ opacity: isUpdateModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Editar jugador`}
+                        onClickClose={closeUpdateModal}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeUpdateModal}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdating}>
+                                    {isUpdating ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                            Actualizando
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Actualizar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                            <>
+                                <ModalFormInputContainer>
+                                    DNI
+                                    <Input 
+                                        name='dni_jugador'
+                                        type='text' 
+                                        placeholder="Escriba el DNI..."
+                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                        value={formState.dni_jugador}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Nombre
+                                    <Input 
+                                        name='nombre_jugador'
+                                        type='text' 
+                                        placeholder="Escriba el nombre..." 
+                                        icon={<PiUser className='icon-input'/>} 
+                                        value={formState.nombre_jugador}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Apellido
+                                    <Input 
+                                        name='apellido_jugador'
+                                        type='text' 
+                                        placeholder="Escriba el apellido..."
+                                        icon={<PiUser className='icon-input'/>} 
+                                        value={formState.apellido_jugador}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Posición
+                                    <Input 
+                                        name='posicion_jugador'
+                                        type='text' 
+                                        placeholder="Escriba la posicion..." 
+                                        icon={<TbPlayFootball className='icon-input'/>} 
+                                        value={formState.posicion_jugador}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeUpdateModal} />
                 </>
             }
         </Content>

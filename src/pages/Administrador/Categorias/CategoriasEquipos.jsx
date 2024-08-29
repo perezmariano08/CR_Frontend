@@ -1,26 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Content from '../../../components/Content/Content';
-import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
-import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
 import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
-import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
-import { ContentNavWrapper, ContentTitle, MenuContentTop } from '../../../components/Content/ContentStyles';
+import { ContentNavWrapper, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
+import { ModalFormInputContainer  } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
 import { URL, URLImages } from '../../../utils/utils';
-import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
+import { LoaderIcon, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import useForm from '../../../hooks/useForm';
-import { TbPlayFootball } from 'react-icons/tb';
 import Select from '../../../components/Select/Select';
 
 import { BsCalendar2Event } from "react-icons/bs";
@@ -69,22 +65,10 @@ const CategoriasEquipos = () => {
     } = useModalsCrud();
 
     // Constantes del modulo
-    const articuloSingular = "el"
-    const articuloPlural = "los"
+
     const id = "id_equipo"
-    const plural = "ediciones"
-    const singular = "edicion"
-    const get = "get-anios"
-    const create = "crear-anio"
-    const importar = "importar-anios"
-    const eliminar = "delete-anio"
 
-    useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
-    }, []);
-
+    
 
     // CREAR
     const { crear, isSaving } = useCrud(
@@ -161,13 +145,12 @@ const CategoriasEquipos = () => {
         closeUpdateModal()
     };
     
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_page)
+    const categoriaEquiposs = equiposList.filter((equipo) => equipo.id_categoria == id_page)
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const equipoSeleccionado = equiposList.find((equipo) => equipo.id_equipo == idEliminar)
 
-
     // Agregar acciones a la tabla
-    const categoriasEquiposLink = categoriaEquipos.map(categoria => ({
+    const categoriasEquiposLink = categoriaEquiposs.map(categoria => ({
         ...categoria,
         eliminar: (
             <Button bg={"danger"} onClick={() => eliminarEquipo(categoria.id_equipo)}>
@@ -192,6 +175,11 @@ const CategoriasEquipos = () => {
         )
     }));
     
+useEffect(() => {
+        dispatch(fetchEdiciones());
+        dispatch(fetchCategorias());
+        dispatch(fetchEquipos())
+    }, []);
 
     return (
         <Content>
@@ -206,7 +194,7 @@ const CategoriasEquipos = () => {
                 <li><NavLink to={`/admin/categorias/resumen/${id_page}`}>Resumen</NavLink></li>
                 <li><NavLink to={`/admin/categorias/formato/${id_page}`}>Formato</NavLink></li>
                 <li><NavLink to={`/admin/categorias/fixture/${id_page}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
+                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquiposs.length})</NavLink></li>
                 <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
             </ContentNavWrapper>
             <Button bg="success" color="white" onClick={openCreateModal}>
@@ -214,7 +202,7 @@ const CategoriasEquipos = () => {
                 <p>Agregar equipo</p>
             </Button>
             {
-                categoriaEquipos.length > 0 ? (
+                categoriaEquiposs.length > 0 ? (
                     <>
                         <Table
                             data={categoriasEquiposLink}

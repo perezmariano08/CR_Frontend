@@ -2,14 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Axios from 'axios';
 import { URL } from '../../utils/utils';
 
-export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async (_, { getState }) => {
-    const { equipos } = getState();
-    if (equipos.data.length > 0) {
-        return equipos.data;
-    }
+export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async () => {
     const response = await Axios.get(`${URL}/user/get-equipos`);
     return response.data;
 });
+
 
 const equiposSlice = createSlice({
     name: 'equipos',
