@@ -12,7 +12,7 @@ export const dataPlantelColumns = [
 ]
 
 export const dataPosicionesTemporadaColumns = [
-    {field: 'pos', header: "#"},
+    // {field: 'pos', header: "#"},
     {field: 'nombre', header: "Equipo"},
     {field: 'PTS', header: "PTS"},
     {field: 'PJ', header: "PJ"},
@@ -21,6 +21,14 @@ export const dataPosicionesTemporadaColumns = [
     {field: 'PP', header: "PP"},
     {field: 'GF', header: "GF"},
     {field: 'GC', header: "GC"},
+    {field: 'DIF', header: "DIF"}
+];
+
+export const dataPosicionesTemporadaColumnsMinus = [
+    {field: 'posicion', header: "#"},
+    {field: 'nombre', header: "Equipo"},
+    {field: 'PTS', header: "PTS"},
+    {field: 'PJ', header: "PJ"},
     {field: 'DIF', header: "DIF"}
 ];
 

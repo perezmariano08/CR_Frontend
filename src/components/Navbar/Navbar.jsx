@@ -1,5 +1,5 @@
 import React from 'react'
-import { ContainerNoti, NavbarContainerStyled, NavbarWrapper } from './NavbarStyles'
+import { ContainerNoti, NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper } from './NavbarStyles'
 import logoCR from "/Logos/logoCopaRelampago.png"
 import { IoIosNotifications } from "react-icons/io";
 import Notifications from './Notifications/Notifications';
@@ -13,7 +13,14 @@ export const Navbar = () => {
     return (
         <NavbarContainerStyled>
             <NavbarWrapper>
-                <img src={logoCR} alt="Logo Copa Relampago" />
+                <NavbarLogo to={'/'}>
+                    <img src={logoCR} alt="Logo Copa Relampago" />
+                </NavbarLogo>
+                
+                <NavbarList>
+                    <li><a href="">Inicio</a></li>
+                    <li><a href="">Mi equipo</a></li>
+                </NavbarList>
                 {/* <ContainerNoti onClick={() => dispatch(toggleHiddenNotis())}>
                     <IoIosNotifications />
                 </ContainerNoti> */}

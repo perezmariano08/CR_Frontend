@@ -1,35 +1,40 @@
 import styled from 'styled-components';
 
 export const HomeContainerStyled = styled.div`
-    /* General styles */
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     gap: 40px;
     width: 100%;
-    max-width: 1200px; /* Ajusta este valor si necesitas un ancho máximo */
-    margin: 0 auto; /* Centra horizontalmente el contenedor */
-
-    /* Estilos para pantallas de 600px o más */
-    @media (min-width: 600px) {
-        /* Centrar todo el contenido dentro de la pantalla */
-        align-items: center;
-    }
 `;
 
 export const HomeWrapper = styled.div`
-    flex-direction: column;
     gap: 40px;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    display: flex;
+    align-items: start;
+    max-width: 1260px;
+    padding: 40px 30px;
+`;
 
-    /* Estilos para pantallas de 600px o más */
-    @media (min-width: 600px) {
-        /* Centrar el contenedor dentro de su contenedor padre */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+export const HomeLeftWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    gap: 40px;
+`;
+
+export const HomeMediumWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    gap: 40px;
+`;
+
+export const HomeRightWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    gap: 40px;
 `;
 
 export const CardsMatchesContainer = styled.div`
