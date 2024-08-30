@@ -15,6 +15,7 @@ import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones
 import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, MenuCategoriasTitulo } from '../../components/Content/ContentStyles.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
+import { URLImages } from '../../utils/utils.js';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -71,7 +72,7 @@ const Home = () => {
                     <HomeLeftWrapper>
                         <MenuCategoriasContainer>
                         <MenuCategoriasTitulo>
-                            <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png"/>
+                            <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
                             Clausura 2024
                         </MenuCategoriasTitulo>
                         <MenuCategoriasDivider>
