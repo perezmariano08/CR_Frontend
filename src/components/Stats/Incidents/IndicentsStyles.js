@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const IndicentsWrapper = styled.div`
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     padding: 20px;
     display: flex;
     flex-direction: column;

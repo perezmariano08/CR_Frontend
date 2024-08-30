@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ButtonsContainer, CronometroContainer, CronometroH1, CronometroWrapper } from "./CronometroStyles";
+import { ButtonsContainer, CronometroH1, CronometroWrapper } from "./CronometroStyles";
 import { HiArrowPath, HiMiniPauseCircle, HiMiniPlayCircle } from "react-icons/hi2";
 import { useSelector } from "react-redux";
 
@@ -71,7 +71,6 @@ function Cronometro() {
   }, [matchState]);
 
   return (
-    <CronometroContainer>
       <CronometroWrapper>
         <CronometroH1>{timeFormat(diff)}</CronometroH1>
         <ButtonsContainer>
@@ -91,7 +90,6 @@ function Cronometro() {
           )}
         </ButtonsContainer>
       </CronometroWrapper>
-    </CronometroContainer>
   );
 }
 

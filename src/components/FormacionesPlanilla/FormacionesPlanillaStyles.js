@@ -2,7 +2,7 @@ import { color } from "framer-motion";
 import styled from "styled-components";
 
 export const FormacionesPlanillaWrapper = styled.div`
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -10,6 +10,7 @@ export const FormacionesPlanillaWrapper = styled.div`
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
+    width: 100%;
 `
 export const FormacionesPlanillaTitle = styled.div`
     display: flex;
@@ -53,7 +54,7 @@ export const PlanillaButtons = styled.button`
     }
 `;
 export const TablePlanillaWrapper = styled.table`
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     width: 100%;
     border-collapse: collapse;
     display: flex;

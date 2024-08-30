@@ -48,6 +48,7 @@ import UserCategoriasFixture from '../pages/User/Categorias/UserCategoriasFixtur
 import UserCategoriasGoleadores from '../pages/User/Categorias/UserCategoriasGoleadores';
 import UserCategoriasAsistentes from '../pages/User/Categorias/UserCategoriasAsistentes';
 import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExpulsados';
+import UserCategorias from '../pages/User/Categorias/UserCategorias';
 
 const Routes = () => {
     return (
@@ -117,6 +118,9 @@ const Routes = () => {
                             <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
 
                             <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} />
+
+                            <Route path='/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
+
 
                         </Route>
                     </Route>

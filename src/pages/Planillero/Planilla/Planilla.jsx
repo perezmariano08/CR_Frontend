@@ -63,7 +63,7 @@ const Planilla = () => {
                 {
                     matchCorrecto.estado !== 'F' && (
                     <InputDescContainer>
-                        <p>Descripcion del partido</p>
+                        <p>Observaciones del partido</p>
                         <InputLong id="description" name="description" placeholder="Escriba su descripcion aqui..." type="textarea" value={descripcion} onChange={handleChange} />
                     </InputDescContainer>
                     )

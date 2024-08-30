@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const CardOldMatchesWrapper = styled.div`
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -9,6 +9,7 @@ export const CardOldMatchesWrapper = styled.div`
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
+    width: 100%;
 `
 
 export const CardOldMatchesItem = styled.div`

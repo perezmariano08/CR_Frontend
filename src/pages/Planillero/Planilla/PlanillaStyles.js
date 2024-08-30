@@ -2,6 +2,10 @@ import styled from "styled-components";
 
 export const PlanillaContainerStyled = styled.div`
     padding-top: 100px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
 `
 export const ButtonContainer = styled.div`
     display: flex;
@@ -41,7 +45,7 @@ export const InputDescContainer = styled.div`
     justify-content: start;
     width: 100%;
     gap: 10px;
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     padding: 20px;
     border-radius: 15px;
 `
