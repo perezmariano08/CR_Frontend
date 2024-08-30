@@ -79,7 +79,7 @@ const CardOldMatches = ({ partidos, equipo }) => {
                                             {`${golesLocal}-${golesVisitante}`}
                                         </MatchesItemResult>
                                         <MatchesItemTeam className='visit'>
-                                            <img src={`${URLImages}${escudosEquipos(equipoLocalData.id_equipo)}`} alt={equipoLocalData.nombre}/>
+                                            <img src={`${URLImages}${escudosEquipos(equipoVisitanteData.id_equipo)}`} alt={equipoVisitanteData.nombre}/>
                                             <p>{equipoVisitanteData.nombre}</p>
                                         </MatchesItemTeam>
                                     </MatchesItemTeams>

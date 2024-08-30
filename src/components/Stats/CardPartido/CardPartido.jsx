@@ -6,8 +6,10 @@ import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 import { URLImages } from '../../../utils/utils.js';
 import { getZonas } from '../../../utils/dataFetchers.js';
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
+import { useAuth } from '../../../Auth/AuthContext.jsx';
 
 const CardPartido = ({ partido, rol }) => {
+    const { idMyTeam } = useAuth();
     const matches = useSelector((state) => state.match);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -124,7 +126,7 @@ const CardPartido = ({ partido, rol }) => {
                         alt={`${getNombreEquipo(partido.id_equipoLocal)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoLocal)}}
                     />
-                    <h4>{getNombreEquipo(partido.id_equipoLocal)}</h4>
+                    <h4 className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{getNombreEquipo(partido.id_equipoLocal)}</h4>
                 </CardPartidoTeam>
 
                 <CardPartidoInfo>
@@ -152,7 +154,7 @@ const CardPartido = ({ partido, rol }) => {
                         alt={`${getNombreEquipo(partido.id_equipoVisita)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoVisita)}}
                     />
-                    <h4>{getNombreEquipo(partido.id_equipoVisita)}</h4>
+                    <h4 className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{getNombreEquipo(partido.id_equipoVisita)}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>
             {rol === 2 ? (

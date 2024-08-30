@@ -332,6 +332,10 @@ export const JornadasFixtureWrapper = styled.div`
         color: var(--green);
         cursor: pointer;
     }
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 `;
 
 export const JornadasFixtureDia = styled.div`
@@ -361,6 +365,12 @@ export const JornadasFixturePartido = styled.div`
     gap: 20px;
     @media (max-width: 968px) {
         padding: 12px 20px;
+    }
+    cursor: pointer;
+    transition: all ease .2s;
+    
+    &:hover {
+        background-color: var(--gray-300);
     }
 `;
 
@@ -416,6 +426,7 @@ export const MenuCategoriasItem = styled(NavLink)`
     width: 100%;
     cursor: pointer;
     color: var(--white);
+    transition: all ease .2s;
 
     &:hover {
         background-color: var(--gray-300);

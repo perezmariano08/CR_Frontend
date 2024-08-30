@@ -45,6 +45,9 @@ import CategoriasEquiposDetalle from '../pages/Administrador/Categorias/Categori
 import CategoriasFixturePartido from '../pages/Administrador/Categorias/CategoriasFixturePartido';
 import UserCategoriasPosiciones from '../pages/User/Categorias/UserCategoriasPosiciones';
 import UserCategoriasFixture from '../pages/User/Categorias/UserCategoriasFixture';
+import UserCategoriasGoleadores from '../pages/User/Categorias/UserCategoriasGoleadores';
+import UserCategoriasAsistentes from '../pages/User/Categorias/UserCategoriasAsistentes';
+import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExpulsados';
 
 const Routes = () => {
     return (
@@ -108,6 +111,12 @@ const Routes = () => {
 
                             <Route path='/categoria/posiciones/:id_page' element={<LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} />
                             <Route path='/categoria/fixture/:id_page' element={<LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} />
+
+                            <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
+
+                            <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
+
+                            <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} />
 
                         </Route>
                     </Route>

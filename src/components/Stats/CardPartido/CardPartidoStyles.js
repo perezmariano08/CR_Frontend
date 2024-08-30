@@ -53,6 +53,10 @@ export const CardPartidoTeam = styled.div`
         min-height: 24px;
         text-align: center;
     }
+
+    .miEquipo {
+        color: var(--green);
+    }
 `
 export const CardPartidoInfo = styled.div`
     display: flex;
@@ -127,7 +131,7 @@ export const CardPartidoGoalsColumn = styled.div`
         width:100%;
     }
 
-    &.visita {
+    .visita {
         text-align: start;
     }
 `

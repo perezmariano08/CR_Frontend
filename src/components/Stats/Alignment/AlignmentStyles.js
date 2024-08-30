@@ -9,6 +9,7 @@ export const AlignmentWrapper = styled.div`
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
+    width: 100%;
 `
 export const AlignmentDivider = styled.div`
     height: 1px;
