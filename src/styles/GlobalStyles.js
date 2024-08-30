@@ -2,7 +2,7 @@ import { createGlobalStyle } from "styled-components"
 
 export const GlobalStyles = createGlobalStyle`
     :root {
-        --red: #B31312;
+        --red: #EF4444;
         --green: #2AD174;
         --green-opacity: rgba(42, 209, 116, 0.2);;
         /* Gray Scale */
@@ -14,6 +14,8 @@ export const GlobalStyles = createGlobalStyle`
         --black: #121212;
         --yellow: #E2B000;
 
+        --green-win: #00985F;
+        
         --success: #22C55E;
         --danger: #EF4444;
         --import: #6366F1;

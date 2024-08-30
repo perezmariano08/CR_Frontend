@@ -11,104 +11,116 @@ import { SpinerContainer } from '../../../Auth/SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
 
 const UserCategoriasPosiciones = () => {
-    const dispatch = useDispatch();
-    const { id_page } = useParams();
-    const id_categoria = parseInt(id_page);
+  const dispatch = useDispatch();
+  const { id_page } = useParams();
+  const id_categoria = parseInt(id_page);
 
-    const categorias = useSelector((state) => state.categorias.data);
-    const ediciones = useSelector((state) => state.ediciones.data);
+  const categorias = useSelector((state) => state.categorias.data);
+  const ediciones = useSelector((state) => state.ediciones.data);
 
-    const categoriaFiltrada = useMemo(() => categorias.find((c) => c.id_categoria === id_categoria), [categorias, id_categoria]);
-    const edicionFiltrada = useMemo(() => ediciones.find((e) => e.id_edicion === categoriaFiltrada?.id_edicion), [ediciones, categoriaFiltrada]);
+  const categoriaFiltrada = useMemo(() => categorias.find((c) => c.id_categoria === id_categoria), [categorias, id_categoria]);
+  const edicionFiltrada = useMemo(() => ediciones.find((e) => e.id_edicion === categoriaFiltrada?.id_edicion), [ediciones, categoriaFiltrada]);
 
-    const [posiciones, setPosiciones] = useState(null);
-    const [zonas, setZonas] = useState([]);
-    const [isLoading, setIsLoading] = useState(true)
+  const [posicionesPorZona, setPosicionesPorZona] = useState([]);
+  const [zonas, setZonas] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-      if (posiciones) {
-          setIsLoading(false); // Cambia el estado cuando los datos están disponibles
-      }
-  }, [posiciones]);
+  useEffect(() => {
+    if (!ediciones.length) {
+      dispatch(fetchEdiciones());
+    }
+  }, [dispatch, ediciones.length]);
 
-    useEffect(() => {
-      if (!ediciones.length) {
-        dispatch(fetchEdiciones())
-      }
-    }, [dispatch, ediciones.length])
+  useEffect(() => {
+    if (!categorias.length) {
+      dispatch(fetchCategorias());
+    }
+    if (!zonas.length) {
+      getZonas()
+        .then((data) => setZonas(data))
+        .catch((error) => console.error('Error fetching zonas:', error));
+    }
+  }, [dispatch, categorias.length, zonas.length]);
 
-    useEffect(() => {
-        if (!categorias.length) {
-            dispatch(fetchCategorias());
-          }
-        if (!zonas.length) {
-            getZonas()
-                .then((data) => setZonas(data))
-                .catch((error) => console.error('Error fetching zonas:', error));
+  useEffect(() => {
+    const fetchPosiciones = async () => {
+      if (zonas.length > 0) {
+        const zonasFiltradas = zonas.filter((z) => z.id_categoria === id_categoria);
+        const posicionesPromises = zonasFiltradas.map((zona) =>
+          getPosicionesTemporada(zona.id_zona).then((data) => ({
+            id_zona: zona.id_zona,
+            data
+          }))
+        );
+        try {
+          const posicionesData = await Promise.all(posicionesPromises);
+          setPosicionesPorZona(posicionesData);
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error fetching posiciones:', error);
         }
-    }, [dispatch, categorias.length, zonas.length]);
+      }
+    };
 
-    const zonaFiltrada = useMemo(() => zonas.find((z) => z.id_categoria === id_categoria), [zonas, id_categoria]);
+    fetchPosiciones();
+  }, [zonas, id_categoria]);
 
-    useEffect(() => {
-        if (zonaFiltrada?.id_zona) {
-            getPosicionesTemporada(zonaFiltrada.id_zona)
-                .then((data) => setPosiciones(data))
-                .catch((error) => console.error('Error en la petición de posiciones:', error));
-        }
-    }, [zonaFiltrada]);
+  const getNombreZona = (id) => {
+    const zonaFiltrada = zonas.find((z) => z.id_zona === id);
+    return zonaFiltrada?.nombre_zona || '';
+  }
 
-    return (
-      <ContentUserContainer>
-        <ContentUserWrapper>
-          <ContentUserTituloContainerStyled>
-            <ContentUserTituloContainer>
-              <TituloContainer>
-                <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png" />
-                <TituloText>
-                  <h1>{categoriaFiltrada?.nombre}</h1>
-                  <p>{`${edicionFiltrada?.nombre} ${edicionFiltrada?.temporada}`}</p>
-                </TituloText>
-              </TituloContainer>
-            </ContentUserTituloContainer>
-            <ContentUserMenuTitulo>
-              <ContentMenuLink >
-                <NavLink to={`/categoria/posiciones/${id_categoria}`}>
-                  Posiciones
-                </NavLink>
-                <NavLink to={`/categoria/fixture/${id_categoria}`}>
-                  Fixture
-                </NavLink>
-                <NavLink to={`/categoria/estadisticas/goleadores/${id_categoria}`}>
-                    Estadísticas
-                </NavLink>
-              </ContentMenuLink>
-            </ContentUserMenuTitulo>
-          </ContentUserTituloContainerStyled>
-          <ContentPageWrapper>
-            <MenuPosicionesContainer>
-              <MenuPosicionesItemFilter>
-                Liguilla
-              </MenuPosicionesItemFilter>
-            </MenuPosicionesContainer>
-            <TablePosicionesContainer>
-            {
-              posiciones ? (
-                <TablePosicionesRoutes 
-                  data={posiciones}
+  return (
+    <ContentUserContainer>
+      <ContentUserWrapper>
+        <ContentUserTituloContainerStyled>
+          <ContentUserTituloContainer>
+            <TituloContainer>
+              <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png" />
+              <TituloText>
+                <h1>{categoriaFiltrada?.nombre}</h1>
+                <p>{`${edicionFiltrada?.nombre} ${edicionFiltrada?.temporada}`}</p>
+              </TituloText>
+            </TituloContainer>
+          </ContentUserTituloContainer>
+          <ContentUserMenuTitulo>
+            <ContentMenuLink>
+              <NavLink to={`/categoria/posiciones/${id_categoria}`}>
+                Posiciones
+              </NavLink>
+              <NavLink to={`/categoria/fixture/${id_categoria}`}>
+                Fixture
+              </NavLink>
+              <NavLink to={`/categoria/estadisticas/goleadores/${id_categoria}`}>
+                Estadísticas
+              </NavLink>
+            </ContentMenuLink>
+          </ContentUserMenuTitulo>
+        </ContentUserTituloContainerStyled>
+        {isLoading ? (
+          <SpinerContainer>
+            <TailSpin width='40' height='40' color='#2AD174' />
+          </SpinerContainer>
+        ) : (
+          posicionesPorZona.map(({ id_zona, data }) => (
+            <ContentPageWrapper key={id_zona}>
+              <MenuPosicionesContainer>
+                <MenuPosicionesItemFilter>
+                  {getNombreZona(id_zona)}
+                </MenuPosicionesItemFilter>
+              </MenuPosicionesContainer>
+              <TablePosicionesContainer>
+                <TablePosicionesRoutes
+                  data={data}
                   dataColumns={dataPosicionesTemporadaColumns}
-                /> 
-              ) : isLoading ? (
-                <SpinerContainer>
-                  <TailSpin width='40' height='40' color='#2AD174' />
-                </SpinerContainer>
-              ) : null
-            }
-            </TablePosicionesContainer>
-          </ContentPageWrapper>
-        </ContentUserWrapper> 
-      </ContentUserContainer>
-    );
+                />
+              </TablePosicionesContainer>
+            </ContentPageWrapper>
+          ))
+        )}
+      </ContentUserWrapper>
+    </ContentUserContainer>
+  );
 }
 
 export default UserCategoriasPosiciones;

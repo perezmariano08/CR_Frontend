@@ -14,7 +14,7 @@ export const resultOfTheMatch = (partido, idEquipo) => {
 
 export const getResultColor = (result) => {
     switch (result) {
-        case 'win': return 'var(--green)';
+        case 'win': return 'var(--green-win)';
         case 'loss': return 'var(--red)';
         case 'draw': return 'var(--gray-200)';
     }
