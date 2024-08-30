@@ -69,7 +69,7 @@ const matchesSlice = createSlice({
                 // Count eventual players in the team
                 const eventualPlayersCounts = team.Player.filter((p) => p.eventual === 'S').length;
         
-                if (eventualPlayersCounts <= 4) {
+                if (eventualPlayersCounts <= 5) {
                     // Check if the player already exists by DNI or Dorsal
                     const existingPlayerIndex = team.Player.findIndex((p) => p.DNI === player.DNI || p.Dorsal === player.Dorsal);
         

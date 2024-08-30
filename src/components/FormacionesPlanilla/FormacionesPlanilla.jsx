@@ -88,7 +88,7 @@ const FormacionesPlanilla = ({ idPartido }) => {
             dispatch(setNamePlayerSelected(player.Nombre));
             dispatch(toggleHiddenDorsal());
         } else {
-            toast.error('El partido ya ha sido cargado en la base de datos');
+            toast.error('No puedes editar con el partido cargado');
         }
     };
     

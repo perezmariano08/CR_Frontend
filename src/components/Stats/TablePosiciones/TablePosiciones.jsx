@@ -17,15 +17,19 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
         return <StatsNull>No hay datos disponibles.</StatsNull>;
     }
 
-    const body = rowData => {
+    const body = (rowData) => {
         if (rowData.pos === 1) {
-            return <div className="pos green">{rowData.pos}</div>
-        } else if ( rowData.pos > 1 && rowData.pos < 4 ) {
-            return <div className="pos orange">{rowData.pos}</div>
-        } else if ( rowData.pos > 3 && rowData.pos < 7 ) {
-            return <div className="pos red">{rowData.pos}</div>
+            return <div className="pos green">{rowData.pos}</div>;
+        } else if (rowData.pos > 1 && rowData.pos < 4) {
+            return <div className="pos orange">{rowData.pos}</div>;
+        } else if (rowData.pos > 3 && rowData.pos < 7) {
+            return <div className="pos red">{rowData.pos}</div>;
+        } else {
+            // Para posiciones mayores a 6, o puedes aplicar un estilo por defecto.
+            return <div className="pos">{rowData.pos}</div>;
         }
     };
+    
 
     //SACAR
     const escudosEquipos = (idEquipo) => {
