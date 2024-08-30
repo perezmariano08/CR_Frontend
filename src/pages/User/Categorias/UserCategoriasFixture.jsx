@@ -3,10 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import {
+    ArrowJornadasFixture,
     ContentJornadasFixture, ContentMenuLink, ContentPageWrapper,
     ContentUserContainer, ContentUserMenuTitulo, ContentUserSubMenuTitulo,
     ContentUserTituloContainer, ContentUserTituloContainerStyled,
-    ContentUserWrapper, JornadasFixtureDia, JornadasFixturePartido,
+    ContentUserWrapper, JornadasEmpty, JornadasFixtureDia, JornadasFixturePartido,
     JornadasFixturePartidoEquipo, JornadasFixtureResultado, JornadasFixtureWrapper,
     JornadasFixtureZona, TituloContainer, TituloText
 } from '../../../components/Content/ContentStyles';
@@ -120,7 +121,13 @@ const UserCategoriasFixture = () => {
                         </ContentUserMenuTitulo>
                     </ContentUserTituloContainerStyled>
                     <ContentPageWrapper>
-                        <ContentUserSubMenuTitulo>
+                        {
+                            partidosCategoria.length === 0 ? (
+                                <JornadasEmpty>No se encontraron partidos</JornadasEmpty>
+                            )
+                            : (
+                                <>
+                                    <ContentUserSubMenuTitulo>
                             <ContentMenuLink>
                                 <NavLink to={`/categoria/fixture/${id_categoria}`}>
                                     Liguilla
@@ -131,16 +138,22 @@ const UserCategoriasFixture = () => {
                             </ContentMenuLink>
                         </ContentUserSubMenuTitulo>
                         <ContentJornadasFixture>
+                            
                             <JornadasFixtureWrapper>
-                                <AiOutlineLeft
+                                <ArrowJornadasFixture
                                     onClick={handlePreviousJornada}
                                     style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) > 0 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) > 0 ? 1 : 0.5 }}
-                                />
+                                >
+                                    <AiOutlineLeft />
+                                </ArrowJornadasFixture>
+                                
                                 Fecha {jornadaActual}
-                                <AiOutlineRight
+                                <ArrowJornadasFixture
                                     onClick={handleNextJornada}
                                     style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 1 : 0.5 }}
-                                />
+                                >
+                                    <AiOutlineRight />
+                                </ArrowJornadasFixture>
                             </JornadasFixtureWrapper>
                         </ContentJornadasFixture>
 
@@ -169,7 +182,7 @@ const UserCategoriasFixture = () => {
                                                     {partido.estado === 'F'
                                                     ? `${partido.goles_local} - ${partido.goles_visita}`
                                                     : partido.estado === 'S'
-                                                        ? <span style={{ fontSize: '12px', color:'var(--red)' }}>Postergado</span>
+                                                        ? <span style={{ fontSize: '10px', color:'#a8a8a8' }}>POSTERGADO</span>
                                                         : formatHour(partido.hora)}
                                                 </JornadasFixtureResultado>
                                                 <JornadasFixturePartidoEquipo className='visita'>
@@ -182,7 +195,7 @@ const UserCategoriasFixture = () => {
                                 ))
                             ) : (
                                 partidosCategoria.map((partido) => (
-                                    <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
+                                    <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)} className={partido.estado === 'S' ? 'suspendido' : ''}>
                                         <JornadasFixturePartidoEquipo>
                                             {nombresEquipos(partido.id_equipoLocal)}
                                             <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
@@ -191,7 +204,7 @@ const UserCategoriasFixture = () => {
                                             {partido.estado === 'F'
                                                 ? `${partido.goles_local} - ${partido.goles_visita}`
                                                 : partido.estado === 'S'
-                                                    ? <span style={{ fontSize: '12px', color:'var(--red)' }}>Postergado</span>
+                                                    ? <span style={{ fontSize: '10px', color:'#a8a8a8' }}>POSTERGADO</span>
                                                     : formatHour(partido.hora)}
                                         </JornadasFixtureResultado>
                                         <JornadasFixturePartidoEquipo className='visita'>
@@ -202,6 +215,10 @@ const UserCategoriasFixture = () => {
                                 ))
                             )
                         )}
+                                </>
+                            )
+                        }  
+                        
                     </ContentPageWrapper>
                 </ContentUserWrapper>
             </ContentUserContainer>

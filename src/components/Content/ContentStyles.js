@@ -327,14 +327,30 @@ export const JornadasFixtureWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    user-select: none;
+`;
+
+export const ArrowJornadasFixture = styled.div`
+    height: 25px;
+    width: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--gray-300);
+    }
 
     svg {
         color: var(--green);
-        cursor: pointer;
     }
+
     &.disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        background-color: antiquewhite;
     }
 `;
 
@@ -342,6 +358,15 @@ export const JornadasFixtureDia = styled.div`
     width: 100%;
     padding: 16px 32px;
     background-color: var(--gray-300);
+    @media (max-width: 968px) {
+        padding: 12px 20px;
+    }
+`;
+
+export const JornadasEmpty = styled.div`
+    width: 100%;
+    padding: 16px 32px;
+    background-color: var(--gray-400);
     @media (max-width: 968px) {
         padding: 12px 20px;
     }
@@ -372,6 +397,10 @@ export const JornadasFixturePartido = styled.div`
     &:hover {
         background-color: var(--gray-300);
     }
+
+    &.suspendido {
+        background-color: var(--black);
+    }
 `;
 
 
@@ -395,7 +424,7 @@ export const JornadasFixturePartidoEquipo = styled.div`
 `;
 
 export const JornadasFixtureResultado = styled.div`
-    min-width: 50px;
+    min-width: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -407,7 +436,6 @@ export const JornadasFixtureResultado = styled.div`
         font-weight: 500;
         color: #a8a8a8;
         font-size: 16px;
-
     }
 `;
 
