@@ -5,8 +5,11 @@ import { URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import { useNavigate } from 'react-router-dom';
+import { SpinerContainer } from '../../../Auth/SpinerStyles';
+import { TailSpin } from 'react-loader-spinner';
 
-const TablePosicionesRoutes = ({ data, zona, dataColumns }) => {
+const TablePosicionesRoutes = ({ data, dataColumns }) => {
+
     const equipos = useSelector((state) => state.equipos.data);
     const navigate = useNavigate();
 

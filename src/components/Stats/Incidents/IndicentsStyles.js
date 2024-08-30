@@ -9,6 +9,7 @@ export const IndicentsWrapper = styled.div`
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
+    width: 100%;
 `
 export const IndicentsContainer = styled.div`
     display: flex;

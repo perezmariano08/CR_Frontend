@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     const [userRole, setUserRole] = useState(null);
     const [userName, setUserName] = useState(null);
     const [user, setUser] = useState(null);
+    const [idMyTeam, setIdMyTeam] = useState(null);
     const [showWelcomeToast, setShowWelcomeToast] = useState(false);
 
     useEffect(() => {
@@ -36,6 +37,7 @@ export const AuthProvider = ({ children }) => {
                     setUserRole(response.data.usuario.id_rol);
                     setUserName(response.data.usuario.nombre);
                     setUserId(response.data.usuario.id_usuario);
+                    setIdMyTeam(response.data.usuario.id_equipo)
                     setUser(response.data.usuario);
                     setShowWelcomeToast(true);
                 }
@@ -61,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, userId, userRole, userName, user, showWelcomeToast, setShowWelcomeToast, setIsAuthenticated }}>
+        <AuthContext.Provider value={{ isAuthenticated, userId, userRole, userName, user, idMyTeam, showWelcomeToast, setShowWelcomeToast, setIsAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

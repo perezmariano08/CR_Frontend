@@ -2,12 +2,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useParams } from 'react-router-dom';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
+import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { ContentMenuLink, ContentPageWrapper, ContentUserContainer, ContentUserMenuTitulo, ContentUserTituloContainer, ContentUserTituloContainerStyled, ContentUserWrapper, MenuPosicionesContainer, MenuPosicionesItemFilter, TablePosicionesContainer, TituloContainer, TituloText } from '../../../components/Content/ContentStyles';
-import TablePosiciones from '../../../components/Stats/TablePosiciones/TablePosiciones';
-import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataPosicionesTemporadaColumns } from '../../../components/Stats/Data/Data';
 import TablePosicionesRoutes from '../../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
 import { getPosicionesTemporada, getZonas } from '../../../utils/dataFetchers';
+import { SpinerContainer } from '../../../Auth/SpinerStyles';
+import { TailSpin } from 'react-loader-spinner';
 
 const UserCategoriasPosiciones = () => {
     const dispatch = useDispatch();
@@ -22,11 +23,24 @@ const UserCategoriasPosiciones = () => {
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+      if (posiciones) {
+          setIsLoading(false); // Cambia el estado cuando los datos están disponibles
+      }
+  }, [posiciones]);
+
+    useEffect(() => {
+      if (!ediciones.length) {
+        dispatch(fetchEdiciones())
+      }
+    }, [dispatch, ediciones.length])
 
     useEffect(() => {
         if (!categorias.length) {
             dispatch(fetchCategorias());
-        }
+          }
         if (!zonas.length) {
             getZonas()
                 .then((data) => setZonas(data))
@@ -65,6 +79,9 @@ const UserCategoriasPosiciones = () => {
                 <NavLink to={`/categoria/fixture/${id_categoria}`}>
                   Fixture
                 </NavLink>
+                <NavLink to={`/categoria/estadisticas/goleadores/${id_categoria}`}>
+                    Estadísticas
+                </NavLink>
               </ContentMenuLink>
             </ContentUserMenuTitulo>
           </ContentUserTituloContainerStyled>
@@ -75,10 +92,18 @@ const UserCategoriasPosiciones = () => {
               </MenuPosicionesItemFilter>
             </MenuPosicionesContainer>
             <TablePosicionesContainer>
-              <TablePosicionesRoutes 
-                data={posiciones}
-                dataColumns={dataPosicionesTemporadaColumns}
-              /> 
+            {
+              posiciones ? (
+                <TablePosicionesRoutes 
+                  data={posiciones}
+                  dataColumns={dataPosicionesTemporadaColumns}
+                /> 
+              ) : isLoading ? (
+                <SpinerContainer>
+                  <TailSpin width='40' height='40' color='#2AD174' />
+                </SpinerContainer>
+              ) : null
+            }
             </TablePosicionesContainer>
           </ContentPageWrapper>
         </ContentUserWrapper> 

@@ -2,13 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
-import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosicionesTemporada, getSanciones, getZonas } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../components/Stats/Data/Data';
-import useFetchMatches from '../../hooks/useFetchMatches';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import useMessageWelcome from '../../hooks/useMessageWelcome.js';
 import { StatsNull } from '../Stats/StatsStyles.js';
@@ -18,25 +16,20 @@ import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, Men
 
 const Home = () => {
     const dispatch = useDispatch();
-    const { user, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
+    const { userRole, idMyTeam, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
     
     useEffect(() => {
         dispatch(fetchEquipos());
     }, [dispatch]);
 
     const equipos = useSelector((state) => state.equipos.data);
-    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === user?.id_equipo);
+    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
     const id_zona = miEquipo?.id_zona;
-
-    const filterCondition = useCallback(
-        (partido) => miEquipo && partido.division === miEquipo.division,
-        [miEquipo]
-    );
 
     // Custom hooks
     // useFetchMatches(filterCondition);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
-    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(user.id_equipo);
+    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(idMyTeam);
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
@@ -121,7 +114,7 @@ const Home = () => {
                             <h2>{proximoPartido ? 'Próximo partido' : 'Último partido'}</h2>
                             {partidoAMostrar ? (
                                 <CardPartido
-                                    rol={user.id_rol}
+                                    rol={userRole}
                                     partido={partidoAMostrar}
                                 />
                             ) : (
@@ -140,7 +133,7 @@ const Home = () => {
                                                 .map((p) => (
                                                     <CardPartido
                                                         key={p.id_partido}
-                                                        rol={user.id_rol}
+                                                        rol={userRole}
                                                         partido={p}
                                                     />
                                                 ))}

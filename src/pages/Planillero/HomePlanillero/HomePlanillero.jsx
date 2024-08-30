@@ -12,22 +12,22 @@ import useFetchMatches from '../../../hooks/useFetchMatches';
 import useMessageWelcome from '../../../hooks/useMessageWelcome';
 
 const HomePlanillero = () => {
-    const { user, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
+    const { userId, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
     const partidos = useSelector((state) => state.partidos.data);
     const loadingPartidos = useSelector((state) => state.partidos.loading);
 
     const [showAll, setShowAll] = useState(false);
 
     //Custom Hooks
-    useFetchMatches((partidos) => partidos.id_planillero === user.id_usuario);
+    useFetchMatches((partidos) => partidos.id_planillero === userId);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
     const partidosPendientes = partidos
-        .filter((partido) => partido.id_planillero === user.id_usuario && partido.estado === 'P')
+        .filter((partido) => partido.id_planillero === userId && partido.estado === 'P')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosNoPendientes = partidos
-        .filter((partido) => partido.id_planillero === user.id_usuario && partido.estado !== 'P')
+        .filter((partido) => partido.id_planillero === userId && partido.estado !== 'P')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosFiltrados = [...partidosPendientes, ...partidosNoPendientes];
@@ -62,7 +62,7 @@ const HomePlanillero = () => {
                         </SpinerContainer>
                     ) : (
                         partidosFiltrados.slice(0, showAll ? partidosFiltrados.length : 3).map((partido) => (
-                            <CardPartido key={partido.id_partido} rol={user.id_rol} partido={partido} />
+                            <CardPartido key={partido.id_partido} rol={userId} partido={partido} />
                         ))
                     )}
                 </Section>

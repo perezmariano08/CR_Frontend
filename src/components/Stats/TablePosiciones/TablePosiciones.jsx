@@ -5,10 +5,13 @@ import { URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../Auth/AuthContext';
 
 const TablePosiciones = ({ data, zona, dataColumns }) => {
+    const { idMyTeam } = useAuth();
     const equipos = useSelector((state) => state.equipos.data);
     const navigate = useNavigate();
+
     if (!zona) {
         return null;
     }
@@ -25,21 +28,17 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
         } else if (rowData.pos > 3 && rowData.pos < 7) {
             return <div className="pos red">{rowData.pos}</div>;
         } else {
-            // Para posiciones mayores a 6, o puedes aplicar un estilo por defecto.
             return <div className="pos">{rowData.pos}</div>;
         }
     };
-    
 
-    //SACAR
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
         return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
     };
 
-    //SACAR
-    const equipoBodyTemplate = (rowData, field) => (
-        <div className="team" style={{minWidth: '140px', cursor: 'pointer'}} 
+    const equipoBodyTemplate = (rowData) => (
+        <div className="team" style={{ minWidth: '140px', cursor: 'pointer' }} 
             onClick={() => verPaginaEquipo(rowData.id_equipo)}
         >
             <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.equipo}/>
@@ -53,6 +52,13 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
 
+    // Aquí defines la clase para resaltar la fila de tu equipo
+    const rowClassName = (rowData) => {
+        return {
+            'my-team-row': rowData.id_equipo === idMyTeam // Aplica la clase si el id del equipo coincide con el de tu equipo
+        };
+    }
+
     return (
         <TableContainerStyled>
             <TableTitle>
@@ -62,8 +68,9 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
             <TableTitleDivider/>
             <TableWrapper
                 value={data}
-                    emptyMessage="No hay datos disponibles"
-                >
+                emptyMessage="No hay datos disponibles"
+                rowClassName={rowClassName}  // Aplica la función de clase de fila
+            >
                 {dataColumns.map((col) => (
                 <Column
                     key={col.field}
@@ -100,4 +107,4 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
     )
 }
 
-export default TablePosiciones
+export default TablePosiciones;

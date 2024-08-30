@@ -144,7 +144,10 @@ export const TableWrapper = styled(DataTable)`
         color: red;
     }
 
-    
+    .my-team-row {
+        color: var(--green); /* Un color verde claro de fondo */
+    }
+
 `
 export const TableFoot = styled.div`
     display: flex;
