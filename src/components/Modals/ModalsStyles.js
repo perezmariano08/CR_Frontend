@@ -100,3 +100,49 @@ export const ModalMessage = styled.div`
         font-size: 40px;
     }
 `
+
+export const ModalSettingsUserWrapper = styled.div`
+    position: absolute;
+    right: 30px;
+    flex-direction: column;
+    top: calc(100% + 20px);
+    display: flex;
+    border-radius: 20px;
+    background-color: var(--gray-300);
+    min-width: 250px;
+    font-size: 18px;
+    user-select: none;
+    overflow: hidden;
+    @media (max-width: 600px) {
+        width: 100%;
+        min-width: 0;
+        left: 0;
+        border-radius: 0;
+        top: 40px;
+    }
+`
+
+export const ModalSettingsItem = styled.div`
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid var(--gray-400);
+
+    img {
+        width: 20px;
+    }
+
+    &:hover {
+        text-decoration: underline;
+
+        svg {
+            color: var(--danger);
+        }
+    }
+
+    @media (max-width: 600px) {
+        width: 100%;
+        min-width: 0;
+    }
+`

@@ -14,20 +14,25 @@ const MenuBottom = () => {
           <h4>MI EQUIPO</h4>
         </MenuBottomItem>
         
-        <MenuBottomItem to={'/stats'}>
+        {/* <MenuBottomItem to={'/stats'}>
           <HiAdjustmentsVertical/>
           <h4>ESTADISTICAS</h4>
+        </MenuBottomItem> */}
+
+        <MenuBottomItem to={'/stats'}>
+          <HiAdjustmentsVertical/>
+          <h4>CATEGORIAS</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/news'}>
+        {/* <MenuBottomItem to={'/news'}>
           <HiMiniTableCells/>
           <h4>NOTICIAS</h4>
-        </MenuBottomItem>
+        </MenuBottomItem> */}
 
-        <MenuBottomItem to={'/more'}>
+        {/* <MenuBottomItem to={'/more'}>
           <HiBars3BottomRight/>
           <h4>MÁS</h4>
-        </MenuBottomItem>
+        </MenuBottomItem> */}
       </MenuBottomWrapper>
     </MenuBottomContainerStyled>
   )
