@@ -24,12 +24,11 @@ export const NavbarWrapper = styled.div`
     width: 100%;
     max-width: 1260px;
     height: 100%;
-
+    position: relative;
     
 
     @media (max-width: 968px) {
         padding: 0 15px;
-        justify-content: center;
     }
 `
 
@@ -56,6 +55,7 @@ export const ContainerNoti = styled.button`
 
 export const NavbarList = styled.ul`
     display: flex;
+    align-items: center;
     gap: 30px;
 
     li a {
@@ -65,6 +65,13 @@ export const NavbarList = styled.ul`
     }
 
     @media (max-width: 968px) {
-        display: none;
+        
+        li {
+            display: none;
+        }
+    }
+
+    svg {
+        cursor: pointer;
     }
 `
