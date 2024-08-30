@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
@@ -13,6 +13,8 @@ import { StatsNull } from '../Stats/StatsStyles.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones.jsx';
 import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, MenuCategoriasTitulo } from '../../components/Content/ContentStyles.js';
+import { SpinerContainer } from '../../Auth/SpinerStyles.js';
+import { TailSpin } from 'react-loader-spinner';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -34,6 +36,7 @@ const Home = () => {
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     // Fetch information about zonas
     useEffect(() => {
@@ -167,15 +170,18 @@ const Home = () => {
                         )}
                     </HomeMediumWrapper>
                     <HomeRightWrapper>
-                        {posiciones && zonasFiltradas && (
+                        {posiciones && zonasFiltradas ? (
                             <Section>
-                                <h2>Tabla de Posiciones</h2>
                                 <TablePosiciones
                                     data={posiciones}
                                     zona={zonasFiltradas}
                                     dataColumns={dataPosicionesTemporadaColumnsMinus}
                                 />
                             </Section>
+                        ) : (
+                            <SpinerContainer>
+                                <TailSpin width='40' height='40' color='#2AD174' />
+                            </SpinerContainer>
                         )}
                     </HomeRightWrapper>
                 </HomeWrapper>

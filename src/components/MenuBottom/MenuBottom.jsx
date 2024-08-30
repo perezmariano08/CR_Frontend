@@ -1,6 +1,8 @@
 import React from 'react'
 import { MenuBottomContainerStyled, MenuBottomItem, MenuBottomWrapper } from './MenuBottomStyles'
 import { HiHome, HiOutlineUserGroup, HiAdjustmentsVertical, HiBars3BottomRight, HiMiniTableCells} from 'react-icons/hi2'
+import { FaTrophy } from "react-icons/fa";
+
 const MenuBottom = () => {
   return (
     <MenuBottomContainerStyled>
@@ -9,6 +11,12 @@ const MenuBottom = () => {
           <HiHome/>
           <h4>HOME</h4>
         </MenuBottomItem>
+
+        <MenuBottomItem to={'/categorias'}>
+          <FaTrophy />
+          <h4>CATEGORIAS</h4>
+        </MenuBottomItem>
+
         <MenuBottomItem to={'/my-team'}>
           <HiOutlineUserGroup/>
           <h4>MI EQUIPO</h4>
@@ -18,11 +26,6 @@ const MenuBottom = () => {
           <HiAdjustmentsVertical/>
           <h4>ESTADISTICAS</h4>
         </MenuBottomItem> */}
-
-        <MenuBottomItem to={'/stats'}>
-          <HiAdjustmentsVertical/>
-          <h4>CATEGORIAS</h4>
-        </MenuBottomItem>
 
         {/* <MenuBottomItem to={'/news'}>
           <HiMiniTableCells/>

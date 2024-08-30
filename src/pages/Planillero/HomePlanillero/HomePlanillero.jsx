@@ -12,7 +12,7 @@ import useFetchMatches from '../../../hooks/useFetchMatches';
 import useMessageWelcome from '../../../hooks/useMessageWelcome';
 
 const HomePlanillero = () => {
-    const { userId, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
+    const { userRole, userId, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
     const partidos = useSelector((state) => state.partidos.data);
     const loadingPartidos = useSelector((state) => state.partidos.loading);
 
@@ -62,7 +62,7 @@ const HomePlanillero = () => {
                         </SpinerContainer>
                     ) : (
                         partidosFiltrados.slice(0, showAll ? partidosFiltrados.length : 3).map((partido) => (
-                            <CardPartido key={partido.id_partido} rol={userId} partido={partido} />
+                            <CardPartido key={partido.id_partido} rol={userRole} partido={partido} />
                         ))
                     )}
                 </Section>
