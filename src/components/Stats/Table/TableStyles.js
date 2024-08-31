@@ -78,7 +78,10 @@ export const TableWrapper = styled(DataTable)`
 
     thead tr:first-child th:first-child .p-column-header-content {
         justify-content: start;
-        padding-left: 17px;
+    }
+
+    thead tr:first-child th:nth-child(2) .p-column-header-content {
+        justify-content: start;
     }
 
     tbody tr td .pos {
@@ -92,7 +95,7 @@ export const TableWrapper = styled(DataTable)`
         &.orange {
             border-left: 2px solid orange ;
         }
-        padding-left: 15px;
+        
     }
     
     tbody tr td{

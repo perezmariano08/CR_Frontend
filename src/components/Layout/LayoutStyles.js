@@ -39,5 +39,6 @@ export const Footer = styled.span`
     @media (max-width: 968px) {
         font-size: 12px;
         padding-bottom: 120px;
+        padding-top: 20px;
     }
 `

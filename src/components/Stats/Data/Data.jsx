@@ -12,7 +12,7 @@ export const dataPlantelColumns = [
 ]
 
 export const dataPosicionesTemporadaColumns = [
-    // {field: 'pos', header: "#"},
+    {field: 'pos', header: "#"},
     {field: 'nombre', header: "Equipo"},
     {field: 'PTS', header: "PTS"},
     {field: 'PJ', header: "PJ"},

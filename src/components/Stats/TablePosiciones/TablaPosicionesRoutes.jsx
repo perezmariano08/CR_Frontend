@@ -15,13 +15,13 @@ const TablePosicionesRoutes = ({ data, dataColumns }) => {
 
     const body = rowData => {
         if (rowData.pos === 1) {
-            return <div className="pos green">{rowData.pos}</div>
+            return <div className="pos ">{rowData.pos}</div>
         }
         if ( rowData.pos > 1 && rowData.pos < 4 ) {
-            return <div className="pos orange">{rowData.pos}</div>
+            return <div className="pos ">{rowData.pos}</div>
         } 
         if ( rowData.pos > 3 && rowData.pos < 7 ) {
-            return <div className="pos red">{rowData.pos}</div>
+            return <div className="pos ">{rowData.pos}</div>
         } 
 
         return <div className="pos ">{rowData.pos}</div>
@@ -63,7 +63,8 @@ const TablePosicionesRoutes = ({ data, dataColumns }) => {
                     body={
                         col.field === 'pos'
                         ? body
-                        : col.field === 'nombre'
+                        : 
+                        col.field === 'nombre'
                         ? equipoBodyTemplate
                         : null
                     }
