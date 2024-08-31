@@ -30,7 +30,7 @@ const Home = () => {
 
     // Custom hooks
     // useFetchMatches(filterCondition);
-    useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
+    // useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
     const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(idMyTeam);
 
     const [posiciones, setPosiciones] = useState(null);

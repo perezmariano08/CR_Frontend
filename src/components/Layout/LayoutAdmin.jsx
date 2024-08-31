@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import Aside from '../Aside/Aside'
-import { LayoutAdminContainerStyled } from './LayoutStyles'
+import { Footer, LayoutAdminContainerStyled } from './LayoutStyles'
 import { useLocation } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 
@@ -16,6 +16,7 @@ const Layout = ({children, className}) => {
             <LayoutAdminContainerStyled>
                 {children}
             </LayoutAdminContainerStyled>
+            <Footer>© 2024 Copa Relámpago. Todos los derechos reservados. Sistema en versión beta</Footer>
         </>
         
     )

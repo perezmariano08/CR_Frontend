@@ -224,8 +224,8 @@ const CreateAccount = () => {
 
             <LoginWrapperInfo>
                 <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
-                <span>novedades</span>
-                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+                <span>Únete a la Competencia</span>
+                <h3>Crea tu cuenta para seguir a tus equipos favoritos, ver resultados y disfrutar de toda la emoción de Copa Relámpago. ¡Forma parte del torneo! </h3>
             </LoginWrapperInfo>
             <Toaster />
         </CreateAccountContainerStyled>

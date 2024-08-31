@@ -131,7 +131,7 @@ export const CardPartidoGoalsColumn = styled.div`
         width:100%;
     }
 
-    .visita {
+    &.visita {
         text-align: start;
     }
 `

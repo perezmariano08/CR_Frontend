@@ -60,6 +60,12 @@ export const LoginWrapperInfo = styled.div`
         z-index: 2;
     }
 
+    h3 {
+        font-size: 25px;
+        font-weight: 400px;
+        z-index: 2;
+    }
+
     @media (max-width: 1200px) {
         padding: 0 50px;
     }

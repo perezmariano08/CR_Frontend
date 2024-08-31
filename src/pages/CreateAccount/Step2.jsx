@@ -135,8 +135,8 @@ const Step2 = () => {
         <CreateAccountContainerStyled>
             <LoginWrapperInfo>
                 <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
-                <span>novedades</span>
-                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+                <span>Protege tu cuenta</span>
+                <h3>Crea una contraseña segura para mantener tu cuenta protegida y acceder fácilmente a toda la información de la Copa Relámpago. ¡Tu seguridad es nuestra prioridad!</h3>
             </LoginWrapperInfo>
             <CreateAccountWrapper>
                 <CreateAccountData>

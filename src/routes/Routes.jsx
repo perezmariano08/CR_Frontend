@@ -28,7 +28,7 @@ import Equipos from '../pages/Administrador/Equipos/Equipos'
 import Partidos from '../pages/Administrador/Partidos/Partidos'
 import Admin from '../pages/Administrador/Admin/Admin'
 import ProtectedRoute from '../Auth/ProtectedRoute';
-import { AuthProvider } from '../Auth/AuthContext';
+import { AuthProvider, useAuth } from '../Auth/AuthContext';
 import PrivateLayoutPlanillero from '../components/Layout/LayoutPlanillero';
 import MorePlanillero from '../pages/More/MorePlanillero';
 import Divisiones from '../pages/Administrador/Divisiones/Divisiones';
@@ -51,6 +51,9 @@ import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExp
 import UserCategorias from '../pages/User/Categorias/UserCategorias';
 
 const Routes = () => {
+
+    const { userRole } = useAuth();
+    
     return (
         <AuthProvider>
             <BrowserRouter>
@@ -95,11 +98,54 @@ const Routes = () => {
                         <Route element={<ProtectedRoute roles={[2]} />}>
                             <Route path='/planillero' element={<PrivateLayoutPlanillero> <HomePlanillero/> </PrivateLayoutPlanillero>} />
                             <Route path='/planillero/planilla' element={<PrivateLayoutPlanillero> <Planilla/> </PrivateLayoutPlanillero>} />
-                            <Route path='/planiller/stats' element={<PrivateLayoutPlanillero> <Stats/> </PrivateLayoutPlanillero>} />
+                            <Route path='/planiller/categorias' element={<PrivateLayoutPlanillero> <UserCategorias/> </PrivateLayoutPlanillero>} />
                             <Route path='/planiller/more' element={<PrivateLayoutPlanillero> <MorePlanillero/> </PrivateLayoutPlanillero>} />
+
+                            {/* <Route path='/planiller/stats' element={<PrivateLayoutPlanillero> <Stats/> </PrivateLayoutPlanillero>} /> */}
                             {/* <Route path='/my-team' element={<PrivateLayoutPlanillero> <MyTeam/> </PrivateLayoutPlanillero>} />
                             <Route path='/stats-match' element={<PrivateLayoutPlanillero> <MatchStats/> </PrivateLayoutPlanillero>} /> */}
                         </Route>
+
+                        {/* Rutas compartidas entre roles 2 y 3 */}
+                    {/* Rutas compartidas entre roles 2 y 3 */}
+                    <Route element={<ProtectedRoute roles={[2, 3]} />}>
+                        <Route 
+                            path='/categoria/estadisticas/goleadores/:id_page' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <UserCategoriasGoleadores/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} 
+                        />
+                        <Route 
+                            path='/categoria/estadisticas/asistentes/:id_page' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <UserCategoriasAsistentes/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} 
+                        />
+                        <Route 
+                            path='/categoria/estadisticas/expulsados/:id_page' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <UserCategoriasExpulsados/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} 
+                        />
+                        <Route 
+                            path='/categoria/posiciones/:id_page' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <UserCategoriasPosiciones/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} 
+                        />
+                        <Route 
+                            path='/categoria/fixture/:id_page' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <UserCategoriasFixture/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} 
+                        />
+                        <Route 
+                            path='/categorias' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <UserCategorias/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <UserCategorias/> </LayoutPrivate>} 
+                        />
+                    </Route>
 
                         {/* Rutas del usuario */}
                         <Route element={<ProtectedRoute roles={[3]} />}>
@@ -110,16 +156,11 @@ const Routes = () => {
                             <Route path='/more' element={<LayoutAux> <More/> </LayoutAux>} />
                             <Route path='/stats-match' element={<LayoutPrivate> <MatchStats/> </LayoutPrivate>} />
 
-                            <Route path='/categoria/posiciones/:id_page' element={<LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} />
-                            <Route path='/categoria/fixture/:id_page' element={<LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} />
 
-                            <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
-
+                            {/* <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
                             <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
+                            <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} /> */}
 
-                            <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} />
-
-                            <Route path='/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
 
 
                         </Route>

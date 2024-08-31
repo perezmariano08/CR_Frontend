@@ -1,6 +1,8 @@
 import React from 'react'
 import { MenuBottomContainerStyled, MenuBottomItem, MenuBottomWrapper } from './MenuBottomStyles'
 import { HiHome, HiBars3BottomRight, HiAdjustmentsVertical} from 'react-icons/hi2'
+import { FaTrophy } from "react-icons/fa";
+
 const MenuBottomPlanillero = () => {
   return (
     <MenuBottomContainerStyled>
@@ -10,15 +12,16 @@ const MenuBottomPlanillero = () => {
           <h4>HOME</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/planiller/stats'}>
-          <HiAdjustmentsVertical/>
-          <h4>ESTADISTICAS</h4>
+        <MenuBottomItem to={'/planiller/categorias'}>
+          <FaTrophy/>
+          <h4>CATEGORÍAS</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/planiller/more'}>
+        {/* <MenuBottomItem to={'/planiller/more'}>
           <HiBars3BottomRight/>
           <h4>MÁS</h4>
-        </MenuBottomItem>
+        </MenuBottomItem> */}
+
       </MenuBottomWrapper>
     </MenuBottomContainerStyled>
   )
