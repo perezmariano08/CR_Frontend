@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const CronometroWrapper = styled.div`
-    top: 60px;
+    top: 40px;
     background: black;
     width: 150px;
     padding: 30px 20px;

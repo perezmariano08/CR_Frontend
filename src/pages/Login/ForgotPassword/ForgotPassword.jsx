@@ -153,8 +153,8 @@ const ForgotPassword = () => {
             </CreateAccountWrapper>
             <LoginWrapperInfo>
                 <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
-                <span>novedades</span>
-                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+                <span>Recupera el Acceso</span>
+                <h3>Introduce tu dirección de correo electrónico para comenzar el proceso de recuperación de acceso. Te enviaremos las instrucciones necesarias para restablecer tu cuenta y seguir disfrutando de todo lo que Copa Relámpago tiene para ofrecerte</h3>
             </LoginWrapperInfo>
             <Toaster />
         </CreateAccountContainerStyled>

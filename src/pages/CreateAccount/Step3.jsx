@@ -100,8 +100,8 @@ const Step3 = () => {
             </CreateAccountWrapper>
             <LoginWrapperInfo>
                 <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
-                <span>novedades</span>
-                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+                <span>Elige tu Equipo Favorito</span>
+                <h3>Selecciona tu equipo favorito para recibir todas las actualizaciones, resultados y noticias directamente en tu perfil. ¡Mantente al día con todo lo que ocurre en la Copa Relámpago!</h3>
             </LoginWrapperInfo>
             <Toaster />
         </CreateAccountContainerStyled>

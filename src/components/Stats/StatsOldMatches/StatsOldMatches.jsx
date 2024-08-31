@@ -5,6 +5,7 @@ import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { URLImages } from '../../../utils/utils';
 import { getResultColor, resultOfTheMatch } from './helper';
 import { useNavigate } from 'react-router-dom';
+import { useEquipos } from '../../../hooks/useEquipos';
 
 const StatsOldMatches = ({ partidosPorEquipo, idLocal, idVisita }) => {
     const navigate = useNavigate();
@@ -13,7 +14,7 @@ const StatsOldMatches = ({ partidosPorEquipo, idLocal, idVisita }) => {
     const partidosVisita = partidosPorEquipo.visita.filter((p) => p.estado === 'F');
     const ids = [idLocal, idVisita];
 
-    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(ids);
+    const { escudosEquipos, nombresEquipos } = useEquipos();
     
     const viewToStatsMatch = (id) => {
         navigate(`/stats-match?id=${id}`)
@@ -30,11 +31,11 @@ const StatsOldMatches = ({ partidosPorEquipo, idLocal, idVisita }) => {
                             const result = resultOfTheMatch(p, idLocal);
                             return (
                                 <OldMatchContainer key={p.id_partido} onClick={() => viewToStatsMatch(p.id_partido)}>
-                                    <img src={`${URLImages}/${getEscudoEquipo(p.id_equipoLocal)}`} alt={getNombreEquipo(p.id_equipoLocal)} />
+                                    <img src={`${URLImages}/${escudosEquipos(p.id_equipoLocal)}`} alt={nombresEquipos(p.id_equipoLocal)} />
                                     <OldMatchResultContainer style={{ backgroundColor: getResultColor(result) }}>
                                         {p.goles_local} - {p.goles_visita}
                                     </OldMatchResultContainer>
-                                    <img src={`${URLImages}/${getEscudoEquipo(p.id_equipoVisita)}`} alt={getNombreEquipo(p.id_equipoVisita)} />
+                                    <img src={`${URLImages}/${escudosEquipos(p.id_equipoVisita)}`} alt={nombresEquipos(p.id_equipoVisita)} />
                                 </OldMatchContainer>
                             );
                         })
@@ -46,11 +47,11 @@ const StatsOldMatches = ({ partidosPorEquipo, idLocal, idVisita }) => {
                             const result = resultOfTheMatch(p, idVisita);
                             return (
                                 <OldMatchContainer key={p.id_partido} onClick={() => viewToStatsMatch(p.id_partido)}>
-                                    <img src={`${URLImages}/${getEscudoEquipo(p.id_equipoLocal)}`} alt={getNombreEquipo(p.id_equipoLocal)} />
+                                    <img src={`${URLImages}/${escudosEquipos(p.id_equipoLocal)}`} alt={nombresEquipos(p.id_equipoLocal)} />
                                     <OldMatchResultContainer style={{ backgroundColor: getResultColor(result) }}>
                                         {p.goles_local} - {p.goles_visita}
                                     </OldMatchResultContainer>
-                                    <img src={`${URLImages}/${getEscudoEquipo(p.id_equipoVisita)}`} alt={getNombreEquipo(p.id_equipoVisita)} />
+                                    <img src={`${URLImages}/${escudosEquipos(p.id_equipoVisita)}`} alt={nombresEquipos(p.id_equipoVisita)} />
                                 </OldMatchContainer>
                             );
                         })

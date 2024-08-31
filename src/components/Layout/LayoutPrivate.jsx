@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { PrivateLayoutContainerStyled } from '../Layout/LayoutStyles'
+import { Footer, PrivateLayoutContainerStyled } from '../Layout/LayoutStyles'
 import { Navbar } from '../Navbar/Navbar'
 import MenuBottom from '../MenuBottom/MenuBottom'
 import { useLocation } from 'react-router-dom'
@@ -19,6 +19,7 @@ const PrivateLayout = ({children}) => {
             }
         </PrivateLayoutContainerStyled>
         <MenuBottom/>
+        <Footer>© 2024 Copa Relámpago. Todos los derechos reservados. Sistema en versión beta</Footer>
     </>
   )
 }

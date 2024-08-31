@@ -88,7 +88,7 @@ const Login = () => {
             <LoginWrapperInfo>
                 <img src="./Logos/logoCopaRelampago.png" alt="Logo Copa Relampago" className='logo-cr' />
                 <span>novedades</span>
-                <h2>Seguimos innovando en CR para mejorar tus días!</h2>
+                <h2>¡Conocé la versión beta del nuevo sistema de CR!</h2>
             </LoginWrapperInfo>
             <LoginWrapperForm>
                 <img src="./Logos/CR-Logo.png" alt="Logo Copa Relampago" className='logo-cr' />
