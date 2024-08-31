@@ -14,6 +14,9 @@ export const HomeWrapper = styled.div`
     align-items: start;
     max-width: 1260px;
     padding: 40px 30px;
+    &.planilla {
+        flex-direction: column;
+    }
 `;
 
 export const HomeLeftWrapper = styled.div`

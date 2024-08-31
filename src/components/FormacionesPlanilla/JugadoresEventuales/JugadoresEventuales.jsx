@@ -116,8 +116,9 @@ const JugadoresEventuales = () => {
     };
 
     const traerPartidosEventuales = async () => {
+        const id_categoria = matchCorrecto.id_categoria;
         try {
-            const response = await Axios.get(`${URL}/user/get-partidos-eventuales`);
+            const response = await Axios.get(`${URL}/user/get-partidos-eventuales?id_categoria=${id_categoria}`);
             const data = response.data;
             setBdEventual(data);
         } catch (error) {
@@ -333,7 +334,7 @@ const JugadoresEventuales = () => {
     const jugadoresEventualesEquipo = bdEventual.filter((e) => {
         return e.id_equipo === equipoCorrecto?.id_equipo;
     });
-    
+
     const handlePlayerSelect = (event) => {
         const selectedPlayer = jugadoresEventualesEquipo.find(player => player.id_jugador == event.target.value);
         if (selectedPlayer) {
