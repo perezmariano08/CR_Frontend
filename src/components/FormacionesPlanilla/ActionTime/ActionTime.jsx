@@ -106,7 +106,7 @@ const ActionConfirmed = () => {
                                 placeholder={"ej: 00:00"}
                                 value={inputValue}
                                 onValueChange={handleInputChange}
-                                inputMode={'numeric'}
+                                numeric={true}
                             />
                         </ActionsContainer>
                         <ActionNext

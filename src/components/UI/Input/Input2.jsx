@@ -1,7 +1,7 @@
 import React from 'react';
 import { InputContainerStyled2, InputWrapper2 } from './InputSyles';
 
-const Input2 = ({ placeholder, children, type = "text", value, onChange, onValueChange, ref }) => {
+const Input2 = ({ placeholder, children, type = "text", value, onChange, onValueChange, ref, numeric = false }) => {
     const handleChange = (e) => {
         if (onChange) {
             onChange(e);
@@ -19,6 +19,7 @@ const Input2 = ({ placeholder, children, type = "text", value, onChange, onValue
                 placeholder={placeholder}
                 value={value}
                 onChange={handleChange}
+                inputMode={numeric ? "numeric" : "text"}
             />
         </InputContainerStyled2>
     );
