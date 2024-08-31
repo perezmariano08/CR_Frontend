@@ -49,7 +49,7 @@ const HomePlanillero = () => {
 
     return (
         <HomePlanilleroContainer>
-            <HomeWrapper>
+            <HomeWrapper className='planilla'>
                 <Section>
                     {partidosFiltrados && partidosFiltrados.length > 0 ? (
                         <h2>Mis Partidos</h2>

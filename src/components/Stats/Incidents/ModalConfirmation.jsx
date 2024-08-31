@@ -110,7 +110,7 @@ const ModalConfirmation = () => {
             modalTitle = '¿Estás seguro que quieres finalizar el partido?';
             break;
         case 'matchPush':
-            modalTitle = '¿Estás seguro que quieres enviar el partido? No podrás tener ningún acceso a la información del partido';
+            modalTitle = '¿Estás seguro que quieres enviar el partido? No podras editar una vez finalizado';
             break;
         default:
             modalTitle = '';
