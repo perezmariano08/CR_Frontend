@@ -65,17 +65,35 @@ export const CardsMatchesWrapper = styled.div`
     }
 `;
 
-export const ViewMore = styled.div`
+export const ViewMoreWrapper = styled.div`
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+`;
 
-    & a {
-        color: var(--gray-200);
+export const ViewMore = styled.a`
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    justify-content: center;
+    background-color: var(--green);
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all .1s ease-in-out;
+    cursor: pointer;
+    color: var(--black);
+
+    &.menos {
+        background-color: transparent;
+        border: 1px solid var(--white);
+        color: var(--white);
     }
-    
-    & a:hover {
-        color: var(--gray-300);
+    &:hover {
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        width: 100%;
     }
 `;

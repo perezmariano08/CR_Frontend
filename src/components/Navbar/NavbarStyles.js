@@ -11,6 +11,7 @@ export const NavbarContainerStyled = styled.header`
     top: 0;
     border-bottom: 1px solid black;
     z-index: 1000;
+    user-select: none;
     @media (max-width: 968px) {
         height: 40px;
     }

@@ -11,6 +11,7 @@ import {
     JornadasFixtureZona, TituloContainer, TituloText
 } from '../../../components/Content/ContentStyles';
 import useGetStatsHandler from '../../../hooks/useGetStatsHandler';
+import { URLImages } from '../../../utils/utils';
 
 const UserCategoriasAsistentes = () => {
     const dispatch = useDispatch();
@@ -43,7 +44,8 @@ const UserCategoriasAsistentes = () => {
                     <ContentUserTituloContainerStyled>
                         <ContentUserTituloContainer>
                             <TituloContainer>
-                                <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png" alt="" />
+                                <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
+
                                 <TituloText>
                                     <h1>{categoriaFiltrada?.nombre}</h1>
                                     <p>{`${edicionFiltrada?.nombre} ${edicionFiltrada?.temporada}`}</p>

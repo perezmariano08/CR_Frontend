@@ -79,17 +79,18 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
                     sortable
                     style={{ width: 'auto' }}
                     body={
-                        col.field === 'pos'
-                        ? body
-                        : col.field === 'nombre'
+                        // col.field === 'pos'
+                        // ? body
+                        //: 
+                        col.field === 'nombre'
                         ? equipoBodyTemplate
                         : null
                     }
                 />
             ))}
             </TableWrapper>
-            <TableTitleDivider/>
-            <TableFoot>
+            {/* <TableTitleDivider/> */}
+            {/* <TableFoot>
                 <TableFootItem>
                     <div className='one'></div>
                     <h3>Copa Oro</h3>
@@ -102,7 +103,7 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
                     <div className='three'></div>
                     <h3>Copa Bronce</h3>
                 </TableFootItem>
-            </TableFoot>
+            </TableFoot> */}
         </TableContainerStyled>
     )
 }

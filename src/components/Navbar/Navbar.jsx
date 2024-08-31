@@ -24,7 +24,6 @@ export const Navbar = () => {
                     </NavbarLogo>
                     <NavbarList>
                         <li><NavLink to={'/'}>Inicio</NavLink></li>
-                        <li><NavLink to={'/'}>Mi equipo</NavLink></li>
                         <IoMdSettings onClick={() => toggleModalSettings()}/>
                     </NavbarList>
                     

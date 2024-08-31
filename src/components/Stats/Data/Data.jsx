@@ -25,7 +25,7 @@ export const dataPosicionesTemporadaColumns = [
 ];
 
 export const dataPosicionesTemporadaColumnsMinus = [
-    {field: 'posicion', header: "#"},
+    {field: 'pos', header: "#"},
     {field: 'nombre', header: "Equipo"},
     {field: 'PTS', header: "PTS"},
     {field: 'PJ', header: "PJ"},
@@ -58,5 +58,5 @@ export const dataSancionesColumns = [
     {field: 'categoria', header: "Categoria"},
     {field: 'fechas', header: "Fechas"},
     {field: 'fechas_restantes', header: "Fechas restantes"},
-    {field: 'multa', header: "Multa"},
+    // {field: 'multa', header: "Multa"},
 ]

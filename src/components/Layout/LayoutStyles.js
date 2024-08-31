@@ -8,9 +8,9 @@ export const LayoutContainerStyled = styled.main`
 export const PrivateLayoutContainerStyled = styled.main`
     width: 100%;
     
-    @media (max-width: 968px) {
+    /* @media (max-width: 968px) {
         padding-bottom: 90px;
-    }
+    } */
 `
 export const LayoutAuxContainerStyled = styled.main`
     width: 100%;
@@ -30,9 +30,14 @@ export const Footer = styled.span`
     justify-content: center;
     width: 100%;
     color: var(--gray-200);
-    padding: 0px 0 35px 0;
+    /* padding: 0px 0 35px 0; */
+    height: 60px;
+    font-size: 14px;
+    padding: 0 20px;
+    text-align: center;
 
     @media (max-width: 968px) {
-        font-size: 14px;
+        font-size: 12px;
+        padding-bottom: 120px;
     }
 `

@@ -9,6 +9,7 @@ import TablePosicionesRoutes from '../../../components/Stats/TablePosiciones/Tab
 import { getPosicionesTemporada, getZonas } from '../../../utils/dataFetchers';
 import { SpinerContainer } from '../../../Auth/SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
+import { URLImages } from '../../../utils/utils';
 
 const UserCategoriasPosiciones = () => {
   const dispatch = useDispatch();
@@ -76,7 +77,7 @@ const UserCategoriasPosiciones = () => {
         <ContentUserTituloContainerStyled>
           <ContentUserTituloContainer>
             <TituloContainer>
-              <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png" />
+              <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
               <TituloText>
                 <h1>{categoriaFiltrada?.nombre}</h1>
                 <p>{`${edicionFiltrada?.nombre} ${edicionFiltrada?.temporada}`}</p>

@@ -150,16 +150,6 @@ const Home = () => {
                                 </StatsNull>
                             )}
                         </Section>
-                        {posiciones && zonasFiltradas && (
-                            <Section>
-                                <h2>Tabla de Posiciones</h2>
-                                <TablePosiciones
-                                    data={posiciones}
-                                    zona={zonasFiltradas}
-                                    dataColumns={dataPosicionesTemporadaColumns}
-                                />
-                            </Section>
-                        )}
                         {sanciones && (
                             <Section>
                                 <h2>Sanciones</h2>

@@ -3,6 +3,7 @@ import {
     ContentUserContainer,
     ContentUserWrapper, MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, MenuCategoriasTitulo, TituloContainer, TituloText
 } from '../../../components/Content/ContentStyles';
+import { URLImages } from '../../../utils/utils';
 
 const UserCategorias = () => {
 
@@ -12,7 +13,7 @@ const UserCategorias = () => {
                 <ContentUserWrapper>
                 <MenuCategoriasContainer>
                         <MenuCategoriasTitulo>
-                            <img src="https:/coparelampago.com/uploads/CR/logo-clausura-2024.png"/>
+                            <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
                             Clausura 2024
                         </MenuCategoriasTitulo>
                         <MenuCategoriasDivider>

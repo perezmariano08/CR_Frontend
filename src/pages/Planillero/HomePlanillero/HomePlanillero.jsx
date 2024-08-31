@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HomeWrapper, ViewMore } from '../../Home/HomeStyles';
+import { HomeWrapper, ViewMore, ViewMoreWrapper } from '../../Home/HomeStyles';
 import Section from '../../../components/Section/Section';
 import { HomePlanilleroContainer } from './HomePlanilleroStyles';
 import CardPartido from '../../../components/Stats/CardPartido/CardPartido';
@@ -67,11 +67,12 @@ const HomePlanillero = () => {
                     )}
                 </Section>
                 {partidosFiltrados.length > 3 && (
-                    <ViewMore>
-                        <a href="" onClick={(e) => handleViewMore(e, !showAll)}>
+                    <ViewMoreWrapper>
+                        <ViewMore href="" onClick={(e) => handleViewMore(e, !showAll)} className={showAll ? 'menos' : 'mas'}>
                             {showAll ? 'Ver menos' : 'Ver más'}
-                        </a>
-                    </ViewMore>
+                        </ViewMore>
+                    </ViewMoreWrapper>
+                    
                 )}
             </HomeWrapper>
             <Toaster />
