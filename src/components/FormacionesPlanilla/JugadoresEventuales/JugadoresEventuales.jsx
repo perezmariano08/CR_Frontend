@@ -386,6 +386,7 @@ const JugadoresEventuales = () => {
                                     value={dorsalValue}
                                     onValueChange={handleInputChange}
                                     placeholder={'Ingrese el Dorsal'}
+                                    numeric={true}
                                 />
                             </TitleInputContainer>
                             <TitleInputContainer>
@@ -394,6 +395,7 @@ const JugadoresEventuales = () => {
                                     value={dniValue}
                                     onValueChange={handleInputChangeDni}
                                     placeholder={'Ingrese el DNI'}
+                                    numeric={true}
                                 />
                             </TitleInputContainer>
                             <TitleInputContainer>

@@ -75,4 +75,8 @@ export const NavbarList = styled.ul`
     svg {
         cursor: pointer;
     }
+
+    .active {
+        color: var(--green);
+    }
 `

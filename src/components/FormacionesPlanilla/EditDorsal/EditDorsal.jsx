@@ -94,7 +94,7 @@ const EditDorsal = () => {
                                 placeholder={"ej: 10"}
                                 value={dorsalValue}
                                 onValueChange={handleInputChange}
-                                inputMode={'numeric'}
+                                numeric={true}
                             />
                         </ActionsContainer>
                         <ActionNext

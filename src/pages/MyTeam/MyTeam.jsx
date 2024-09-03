@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { 
-    MyTeamTitleContainer, 
-    MyTeamInfo, 
-    MyTeamName, 
-    MyTeamContainerStyled, 
-    MyTeamWrapper, 
     MyTeamMatches, 
     MyTeamMatchesItem, 
-    MyTeamMatchesDivisor 
+    MyTeamMatchesDivisor, 
+    MyTeamSectionTop,
+    MyTeamSection
 } from './MyTeamStyles';
 import Section from '../../components/Section/Section';
 import TableTeam from '../../components/Stats/TableTeam/TableTeam.jsx';
@@ -17,13 +14,16 @@ import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { URLImages } from '../../utils/utils';
 import { dataPlantelColumns, dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
-import { useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { getJugadoresEquipo, getPosicionesTemporada, getZonas } from '../../utils/dataFetchers.js';
 import useStatsTeam from '../../hooks/useStatsTeam.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
 import { useEquipos } from '../../hooks/useEquipos.js';
+import { ContentMenuLink, ContentUserContainer, ContentUserMenuTitulo, ContentUserTituloContainer, ContentUserTituloContainerStyled, ContentUserWrapper, TablePosicionesContainer, TituloContainer, TituloText } from '../../components/Content/ContentStyles.js';
+import useMatchesUser from '../../hooks/useMatchesUser.js';
+import CardPartido from '../../components/Stats/CardPartido/CardPartido.jsx';
 
 const MyTeam = () => {
     const { user } = useAuth();
@@ -89,6 +89,8 @@ const MyTeam = () => {
         [zonas, id_zona]
     );
 
+    const {partidoAMostrar, proximoPartido} = useMatchesUser(miEquipo.id_equipo);
+
     if (!miEquipo) {
         return (
             <SpinerContainer>
@@ -99,42 +101,66 @@ const MyTeam = () => {
 
     return (
         <>
-            <MyTeamTitleContainer>
-                <MyTeamInfo>
-                    <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`} alt="" />
-                    <MyTeamName>
-                        <h2>{miEquipo.nombre}</h2>
-                        <h3>{zonaFiltrada?.nombre_categoria}</h3>
-                    </MyTeamName>
-                </MyTeamInfo>
-            </MyTeamTitleContainer>
-            <MyTeamContainerStyled className='container'>
-                <MyTeamWrapper className='wrapper'>
-                    <Section>
-                        <h2>Estadísticas</h2>
-                        <MyTeamMatches>
-                            <MyTeamMatchesItem className='pj'>
-                                <h4>{partidosMiEquipo.length}</h4>
-                                <MyTeamMatchesDivisor/>
-                                <h5>PJ</h5>
-                            </MyTeamMatchesItem>
-                            <MyTeamMatchesItem className='pg'>
-                                <h4>{cantVictorias}</h4>
-                                <MyTeamMatchesDivisor/>
-                                <h5>PG</h5>
-                            </MyTeamMatchesItem>
-                            <MyTeamMatchesItem className='pp'>
-                                <h4>{cantDerrotas}</h4>
-                                <MyTeamMatchesDivisor/>
-                                <h5>PP</h5>
-                            </MyTeamMatchesItem>
-                            <MyTeamMatchesItem className='pe'>
-                                <h4>{cantEmpates}</h4>
-                                <MyTeamMatchesDivisor/>
-                                <h5>PE</h5>
-                            </MyTeamMatchesItem>
-                        </MyTeamMatches>
-                    </Section>
+            <ContentUserContainer>
+                <ContentUserWrapper>
+                <ContentUserTituloContainerStyled>
+                        <ContentUserTituloContainer>
+                            <TituloContainer>
+                                <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`}/>
+                                <TituloText>
+                                    <h1>{miEquipo?.nombre}</h1>
+                                    <p>{`${zonaFiltrada?.nombre_zona}`}</p>
+                                </TituloText>
+                            </TituloContainer>
+                        </ContentUserTituloContainer>
+                        <ContentUserMenuTitulo>
+                        <ContentMenuLink>
+                            <NavLink to={`/my-team`}>
+                                Resumen
+                            </NavLink>
+                            {/* <NavLink to={`/my-team/partidos`}>
+                                Partidos
+                            </NavLink> */}
+                            </ContentMenuLink>
+                        </ContentUserMenuTitulo>
+                    </ContentUserTituloContainerStyled>
+
+                    <MyTeamSectionTop>
+                        {
+                            proximoPartido && (
+                                <Section>
+                                    <h2>Próximo partido</h2>
+                                    <CardPartido partido={partidoAMostrar}/>
+                                </Section>
+                            )
+                        }
+
+                        <MyTeamSection>
+                            <h2>Estadísticas</h2>
+                            <MyTeamMatches>
+                                <MyTeamMatchesItem className='pj'>
+                                    <h4>{partidosMiEquipo.length}</h4>
+                                    <MyTeamMatchesDivisor/>
+                                    <h5>PJ</h5>
+                                </MyTeamMatchesItem>
+                                <MyTeamMatchesItem className='pg'>
+                                    <h4>{cantVictorias}</h4>
+                                    <MyTeamMatchesDivisor/>
+                                    <h5>PG</h5>
+                                </MyTeamMatchesItem>
+                                <MyTeamMatchesItem className='pp'>
+                                    <h4>{cantDerrotas}</h4>
+                                    <MyTeamMatchesDivisor/>
+                                    <h5>PP</h5>
+                                </MyTeamMatchesItem>
+                                <MyTeamMatchesItem className='pe'>
+                                    <h4>{cantEmpates}</h4>
+                                    <MyTeamMatchesDivisor/>
+                                    <h5>PE</h5>
+                                </MyTeamMatchesItem>
+                            </MyTeamMatches>
+                        </MyTeamSection>
+                    </MyTeamSectionTop>
 
                     <Section>
                         <h2>Plantel</h2>
@@ -157,8 +183,8 @@ const MyTeam = () => {
                     <Section>
                         <CardOldMatches partidos={partidosMiEquipo} equipo={miEquipo}/>
                     </Section>
-                </MyTeamWrapper>
-            </MyTeamContainerStyled>
+                </ContentUserWrapper>
+            </ContentUserContainer>
         </>
     );
 }

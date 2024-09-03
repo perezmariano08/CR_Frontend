@@ -66,6 +66,10 @@ export const MyTeamMatches = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    background-color: var(--gray-400);
+    border-radius: 20px;
+    min-width: 85%;
+    padding: 34px 20px;
 `
 export const MyTeamMatchesItem = styled.div`
     display: flex;
@@ -106,3 +110,32 @@ export const MyTeamMatchesDivisor = styled.div`
     height: 1px;
     width: 100%;
 `
+export const MyTeamSectionTop = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+
+    @media (max-width: 968px) {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 15px;
+    }
+`
+export const MyTeamSection = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: start;
+
+    h2 { 
+        font-size: 16px;
+        line-height: 16px;
+        font-weight: 600;
+    }
+
+`;

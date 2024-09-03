@@ -40,8 +40,11 @@ export const OldMatchContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* gap: 25px; */
-    width: 70%;
+    width: 50%;
+
+    @media (max-width: 610px) {
+        width: 80%;
+    }
 
     img {
         width: 30px;

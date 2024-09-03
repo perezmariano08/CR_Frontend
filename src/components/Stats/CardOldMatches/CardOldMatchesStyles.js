@@ -7,17 +7,27 @@ export const CardOldMatchesWrapper = styled.div`
     flex-direction: column;
     gap: 20px;
     align-items: center;
+    justify-content: center;
     border-radius: 20px;
-    min-width: 85%;
     width: 100%;
+
+    @media (max-width: 780px) {
+        min-width: 85%;
+        width: 100%;
+    }
+
+    &.myteam {
+        width: 50%;
+    }
 `
 
 export const CardOldMatchesItem = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 100%;
-    gap: 10px;
+    gap: 5px;
     cursor: pointer;
 `
 
@@ -43,27 +53,31 @@ export const MatchesItemTeams = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 20px; /* Space between teams and result */
+    gap: 30px;
 `
 
 export const MatchesItemTeam = styled.div`
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: start;
     gap: 8px;
-    max-width: 30%; /* Adjusted to ensure proper spacing */
+    width: 30%;
+
     text-align: center;
     img {
         width: 30px;
     }
     p {
         font-size: 12px;
-        width: 100%;
+    }
+
+    &.local {
+        justify-content: end;
     }
 `
 
 export const MatchesItemResult = styled.div`
-    padding: 5px 8px;
+    padding: 7px 5px;
     font-size: 16px;
     font-weight: 400;
     border-radius: 10px;
@@ -71,6 +85,6 @@ export const MatchesItemResult = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 20%; /* Fixed width to ensure result is centered */
-    min-width: 60px; /* Ensures a minimum width for visibility */
+    max-width: 20%;
+    width: 20%;
 `
