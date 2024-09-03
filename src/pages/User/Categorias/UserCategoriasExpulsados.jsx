@@ -12,6 +12,8 @@ import {
 } from '../../../components/Content/ContentStyles';
 import useGetStatsHandler from '../../../hooks/useGetStatsHandler';
 import { URLImages } from '../../../utils/utils';
+import TablaEstadisticas from '../../../components/TablaEstadisticas/TablaEstadisticas';
+import { LoaderIcon } from 'react-hot-toast';
 
 const UserCategoriasExpulsados = () => {
     const dispatch = useDispatch();
@@ -33,9 +35,18 @@ const UserCategoriasExpulsados = () => {
 
     useEffect(() => {
         if (categoriaFiltrada) {
-            getEstadisticasZonaHandler();
+            getEstadisticasZonaHandler().finally(() => setLoading(false)); // Ocultar el loader una vez que se obtienen las estadísticas
         }
-    }, []);
+    }, [categoriaFiltrada, getEstadisticasZonaHandler]);
+
+    const DataColumnsExpulsados = [
+        {
+            field: 'nombre_completo', header: "jugador"
+        },
+        {
+            field: 'Rojas', header: "Rojas"
+        }
+    ]
     
     return (
         <>
@@ -82,6 +93,17 @@ const UserCategoriasExpulsados = () => {
                             </NavLink>
                         </ContentMenuLink>
                         </ContentUserSubMenuTitulo>
+                        {loading ? (
+                            <div style={{width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 0'}}>
+                                <LoaderIcon />
+                            </div>
+                            
+                        ) : (
+                            <TablaEstadisticas
+                                data={estadisticaZona}
+                                dataColumns={DataColumnsExpulsados}
+                            />
+                        )}
                     </ContentPageWrapper>
                 </ContentUserWrapper>
             </ContentUserContainer>

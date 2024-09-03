@@ -12,6 +12,8 @@ import {
 } from '../../../components/Content/ContentStyles';
 import useGetStatsHandler from '../../../hooks/useGetStatsHandler';
 import { URLImages } from '../../../utils/utils';
+import TablaEstadisticas from '../../../components/TablaEstadisticas/TablaEstadisticas';
+import { LoaderIcon } from 'react-hot-toast';
 
 const UserCategoriasAsistentes = () => {
     const dispatch = useDispatch();
@@ -33,10 +35,18 @@ const UserCategoriasAsistentes = () => {
 
     useEffect(() => {
         if (categoriaFiltrada) {
-            getEstadisticasZonaHandler();
+            getEstadisticasZonaHandler().finally(() => setLoading(false)); // Ocultar el loader una vez que se obtienen las estadísticas
         }
-    }, []);
+    }, [categoriaFiltrada, getEstadisticasZonaHandler]);
 
+    const DataColumnsAsistencias = [
+        {
+            field: 'nombre_completo', header: "jugador"
+        },
+        {
+            field: 'Asistencias', header: "Asistencias"
+        }
+    ]
     return (
         <>
             <ContentUserContainer>
@@ -82,6 +92,17 @@ const UserCategoriasAsistentes = () => {
                             </NavLink>
                         </ContentMenuLink>
                     </ContentUserSubMenuTitulo>
+                    {loading ? (
+                        <div style={{width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 0'}}>
+                            <LoaderIcon />
+                        </div>
+                        
+                    ) : (
+                        <TablaEstadisticas
+                            data={estadisticaZona}
+                            dataColumns={DataColumnsAsistencias}
+                        />
+                    )}
                     </ContentPageWrapper>
                 </ContentUserWrapper>
             </ContentUserContainer>

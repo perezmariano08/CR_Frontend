@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 export const ModalContainerStyled = styled(motion.div)`
@@ -122,13 +123,13 @@ export const ModalSettingsUserWrapper = styled.div`
     }
 `
 
-export const ModalSettingsItem = styled.div`
+export const ModalSettingsItem = styled(NavLink)`
     display: flex;
     cursor: pointer;
     justify-content: space-between;
     padding: 20px;
     border-bottom: 1px solid var(--gray-400);
-
+    color: var(--white);
     img {
         width: 20px;
     }

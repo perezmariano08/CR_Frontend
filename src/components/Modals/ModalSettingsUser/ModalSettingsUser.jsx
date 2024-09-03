@@ -49,9 +49,8 @@ const ModalSettingsUser = ({closeModal }) => {
 
     return (
         <ModalSettingsUserWrapper>
-            <ModalSettingsItem>
+            <ModalSettingsItem to={'/mi-perfil'} onClick={closeModal}>
                 Perfil
-                <img src={`${URLImages}${imgUsuarios(userId)}`} />
             </ModalSettingsItem>
             <ModalSettingsItem onClick={closeSesion}>
                 Cerrar sesión

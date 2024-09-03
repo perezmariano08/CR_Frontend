@@ -49,6 +49,7 @@ import UserCategoriasGoleadores from '../pages/User/Categorias/UserCategoriasGol
 import UserCategoriasAsistentes from '../pages/User/Categorias/UserCategoriasAsistentes';
 import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExpulsados';
 import UserCategorias from '../pages/User/Categorias/UserCategorias';
+import Perfil from '../pages/User/Perfil/Perfil';
 
 const Routes = () => {
 
@@ -144,6 +145,12 @@ const Routes = () => {
                             element={userRole === 2 ? 
                                 <PrivateLayoutPlanillero> <UserCategorias/> </PrivateLayoutPlanillero> : 
                                 <LayoutPrivate> <UserCategorias/> </LayoutPrivate>} 
+                        />
+                        <Route 
+                            path='/mi-perfil' 
+                            element={userRole === 2 ? 
+                                <PrivateLayoutPlanillero> <Perfil/> </PrivateLayoutPlanillero> : 
+                                <LayoutPrivate> <Perfil/> </LayoutPrivate>} 
                         />
                     </Route>
 

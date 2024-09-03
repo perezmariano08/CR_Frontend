@@ -3,15 +3,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import {
-    ContentJornadasFixture, ContentMenuLink, ContentPageWrapper,
+    ContentMenuLink, ContentPageWrapper,
     ContentUserContainer, ContentUserMenuTitulo, ContentUserSubMenuTitulo,
     ContentUserTituloContainer, ContentUserTituloContainerStyled,
-    ContentUserWrapper, JornadasFixtureDia, JornadasFixturePartido,
-    JornadasFixturePartidoEquipo, JornadasFixtureResultado, JornadasFixtureWrapper,
-    JornadasFixtureZona, TituloContainer, TituloText
+    ContentUserWrapper, TituloContainer, TituloText
 } from '../../../components/Content/ContentStyles';
 import useGetStatsHandler from '../../../hooks/useGetStatsHandler';
 import { URLImages } from '../../../utils/utils';
+import { DataTable } from 'primereact/datatable';
+import TablaEstadisticas from '../../../components/TablaEstadisticas/TablaEstadisticas';
+import { JugadorBodyTemplate } from '../../../components/TablaEstadisticas/TablaEstadisticasStyles';
+import { LoaderIcon } from 'react-hot-toast';
+import { LiaFutbol } from 'react-icons/lia';
 
 const UserCategoriasGoleadores = () => {
     const dispatch = useDispatch();
@@ -30,12 +33,24 @@ const UserCategoriasGoleadores = () => {
     }, [dispatch]);
 
     const { estadisticaZona, getEstadisticasZonaHandler } = useGetStatsHandler(categoriaFiltrada.id_categoria, 'Goleadores');
-
+    console.log(estadisticaZona);
+    
     useEffect(() => {
         if (categoriaFiltrada) {
-            getEstadisticasZonaHandler();
+            getEstadisticasZonaHandler().finally(() => setLoading(false)); // Ocultar el loader una vez que se obtienen las estadísticas
         }
-    }, []);
+    }, [categoriaFiltrada, getEstadisticasZonaHandler]);
+
+    const DataColumnsGoleadores = [
+        {
+            field: 'nombre_completo', header: "jugador"
+        },
+        {
+            field: 'G', 
+            header: 'Goles'
+        }
+        
+    ]
 
     return (
         <>
@@ -81,6 +96,17 @@ const UserCategoriasGoleadores = () => {
                             </NavLink>
                         </ContentMenuLink>
                     </ContentUserSubMenuTitulo>
+                    {loading ? (
+                        <div style={{width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 0'}}>
+                            <LoaderIcon />
+                        </div>
+                        
+                    ) : (
+                        <TablaEstadisticas
+                            data={estadisticaZona}
+                            dataColumns={DataColumnsGoleadores}
+                        />
+                    )}
                     </ContentPageWrapper>
                 </ContentUserWrapper>
             </ContentUserContainer>
