@@ -49,6 +49,7 @@ import UserCategoriasGoleadores from '../pages/User/Categorias/UserCategoriasGol
 import UserCategoriasAsistentes from '../pages/User/Categorias/UserCategoriasAsistentes';
 import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExpulsados';
 import UserCategorias from '../pages/User/Categorias/UserCategorias';
+import MyTeamPartidos from '../pages/MyTeam/MyTeamPartidos';
 
 const Routes = () => {
 
@@ -151,17 +152,14 @@ const Routes = () => {
                         <Route element={<ProtectedRoute roles={[3]} />}>
                             <Route path='/' element={<LayoutPrivate> <Home/> </LayoutPrivate>} />
                             <Route path='/my-team' element={<LayoutPrivate> <MyTeam/> </LayoutPrivate>} />
+                            <Route path='/my-team/partidos' element={<LayoutPrivate> <MyTeamPartidos/> </LayoutPrivate>} />
                             <Route path='/stats' element={<LayoutPrivate> <Stats/> </LayoutPrivate>} />
                             <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} />
                             <Route path='/more' element={<LayoutAux> <More/> </LayoutAux>} />
                             <Route path='/stats-match' element={<LayoutPrivate> <MatchStats/> </LayoutPrivate>} />
-
-
                             {/* <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
                             <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
                             <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} /> */}
-
-
 
                         </Route>
                     </Route>

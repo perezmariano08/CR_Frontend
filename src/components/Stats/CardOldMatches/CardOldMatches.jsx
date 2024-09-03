@@ -36,14 +36,14 @@ const CardOldMatches = ({ partidos, equipo }) => {
     }
 
     return (
-        <CardOldMatchesWrapper>
+        <CardOldMatchesWrapper className='myteam'>
             <h3>Últimos partidos</h3>
             <AlignmentDivider />
             {
                 partidos.length === 0 ? (
                     <div>No hay partidos disponibles</div>
                 ) : (
-                    partidos.map((partido) => {
+                    partidos.slice(0,3).map((partido) => {
                         // Verifica si el equipo es el local
                         const esLocal = partido.id_equipoLocal === equipo.id_equipo;
 
@@ -71,7 +71,7 @@ const CardOldMatches = ({ partidos, equipo }) => {
                                         <p className='fecha'>{`Fecha ${partido.jornada} ${partido.nombre_edicion}`}</p>
                                     </MatchesItemDescription>
                                     <MatchesItemTeams>
-                                        <MatchesItemTeam>
+                                        <MatchesItemTeam className='local'>
                                             <p>{equipoLocalData.nombre}</p>
                                             <img src={`${URLImages}${escudosEquipos(equipoLocalData.id_equipo)}`} alt={equipoLocalData.nombre}/>
                                         </MatchesItemTeam>

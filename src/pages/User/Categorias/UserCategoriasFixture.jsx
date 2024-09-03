@@ -58,10 +58,11 @@ const UserCategoriasFixture = () => {
 
     useEffect(() => {
         const jornadas = Array.from(new Set(partidos.filter(p => p.id_categoria === id_categoria).map(p => p.jornada)));
+        jornadas.sort((a, b) => a - b); // Ordena las jornadas en orden ascendente
         setJornadasDisponibles(jornadas);
-        setJornadaActual(jornadas[0] || 1); // Set the first available jornada as default
+        setJornadaActual(jornadas[0] || 1); // Establece la primera jornada disponible como predeterminada
     }, [partidos, id_categoria]);
-
+    
     const partidosCategoria = partidos.filter((p) => p.id_categoria === categoriaFiltrada.id_categoria && p.jornada === jornadaActual);
 
     const { escudosEquipos, nombresEquipos } = useEquipos();

@@ -103,7 +103,11 @@ const MatchStats = () => {
                 {activeTab === 'Cara a cara' && (
                     <>
                         <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
-                        <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
+                        {
+                            partidosEntreEquipos.length > 0 && (
+                                <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
+                            )
+                        }
                     </>
                 )}
             </MatchStatsWrapper>

@@ -20,7 +20,7 @@ const MatchsBetweenTeams = ({ partidosEntreEquipos, idLocal, idVisita }) => {
                                 <p className='fecha'>{`Fecha ${p.jornada} ${p.nombre_edicion}`}</p>
                             </MatchesItemDescription>
                             <MatchesItemTeams>
-                                <MatchesItemTeam>
+                                <MatchesItemTeam className='local'>
                                     <p>{getNombreEquipo(idLocal)}</p>
                                     <img src={`${URLImages}/${getEscudoEquipo(idLocal)}`} alt={getNombreEquipo(idLocal)} />
                                 </MatchesItemTeam>
@@ -28,8 +28,8 @@ const MatchsBetweenTeams = ({ partidosEntreEquipos, idLocal, idVisita }) => {
                                     <p>{p.goles_local}-{p.goles_visita}</p>
                                 </MatchesItemResult>
                                 <MatchesItemTeam>
-                                    <p>{getNombreEquipo(idVisita)}</p>
                                     <img src={`${URLImages}/${getEscudoEquipo(idVisita)}`} alt={getNombreEquipo(idVisita)} />
+                                    <p>{getNombreEquipo(idVisita)}</p>
                                 </MatchesItemTeam>
                             </MatchesItemTeams>
                         </CardOldMatchesItem>
