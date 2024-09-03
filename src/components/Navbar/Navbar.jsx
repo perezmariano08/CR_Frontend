@@ -1,17 +1,15 @@
 import React, { useState } from 'react'
-import { ContainerNoti, NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper } from './NavbarStyles'
+import { NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper } from './NavbarStyles'
 import logoCR from "/Logos/logoCopaRelampago.png"
-import { IoIosNotifications, IoMdSettings } from "react-icons/io";
+import { IoMdSettings } from "react-icons/io";
 import Notifications from './Notifications/Notifications';
-
-import { useDispatch } from 'react-redux';
-import { toggleHiddenNotis } from '../../redux/Notis/notisSlice';
 import ModalSettingsUser from '../Modals/ModalSettingsUser/ModalSettingsUser';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../Auth/AuthContext';
 
 export const Navbar = () => {
-    const dispatch = useDispatch()
     const [isOpenModalSettings, setModalSettings] = useState(false)
+
     const toggleModalSettings = () => {
         setModalSettings(!isOpenModalSettings)
     }
@@ -24,6 +22,7 @@ export const Navbar = () => {
                     </NavbarLogo>
                     <NavbarList>
                         <li><NavLink to={'/'}>Inicio</NavLink></li>
+                        <li><NavLink to={'/categorias'}>Categorias</NavLink></li>
                         <IoMdSettings onClick={() => toggleModalSettings()}/>
                     </NavbarList>
                     
