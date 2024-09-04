@@ -66,7 +66,7 @@ const Step3 = () => {
         dispatch(fetchEquipos());
     }, [dispatch]);
 
-    const equiposFiltrados = equiposList.filter((e) => e.id_categoria !== null)
+    const equiposFiltrados = equiposList?.filter((e) => e.id_categoria !== null)
 
     return (
         <CreateAccountContainerStyled>

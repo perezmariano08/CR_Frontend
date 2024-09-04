@@ -30,7 +30,7 @@ const CreateAccount = () => {
             const response = await axios.post(`${URL}/auth/check-email`, { email, bandera });
             const emailExists = response.status === 200;
             setEmailExists(emailExists);
-            console.log(emailExists);
+
             return emailExists;
         } catch (error) {
             console.error("Error en la solicitud HTTP:", error);
