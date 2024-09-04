@@ -15,7 +15,8 @@ import { ButtonLogin, LoginWrapperInfo } from '../Login/LoginStyles';
 
 const Step3 = () => {
     const equiposList = useSelector((state) => state.equipos.data)
-    // const equiposFiltrados = Array.isArray(equiposList) ? equiposList.filter((e) => e?.id_categoria !== null) : [];
+    // Filtra los equipos para excluir aquellos con id_categoria nulo
+    const equiposFiltrados = equiposList.filter(equipo => equipo.id_categoria !== null);
 
     const [teamSelected, setTeamSelected] = useState(0);
     const [handleError, setHandleError] = useState(false)
@@ -83,7 +84,7 @@ const Step3 = () => {
                             <InputContainer>
                                 <Select
                                     onChange={handleSetTeamSelected}
-                                    data={equiposList}
+                                    data={equiposFiltrados}
                                     id_="id_equipo"
                                     placeholder='Seleccionar equipo'
                                     icon={<IoShieldHalf className='icon-select' />}
