@@ -44,5 +44,41 @@ export const PerfilMisDatos = styled.div`
     width: 50%;
     flex-direction: column;
     gap: 30px;
-    align-items: center;
+    align-items: end;
+
+`
+export const ButtonContainer = styled.div`
+    width: 50%;
+
+    button {
+        width: 100%;
+        display: flex;
+        padding: 10.5px 17.5px;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: var(--green);
+        height: fit-content;
+        border-radius: 10px;
+        cursor: pointer;
+        user-select: none;
+        color: ${({ color }) => `var(--${color})`};
+        border: 1px solid ${({ border }) => `var(--${border})`};
+        background: var(--green);
+        transition: all .1s ease-in-out;
+
+    &:hover {
+        opacity: .9;
+        @media (maxwidth: 768px) {
+            opacity: 1;
+        }
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        opacity: .5;
+    }
+    }
 `

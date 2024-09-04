@@ -9,7 +9,7 @@ import { useAuth } from '../../Auth/AuthContext';
 
 export const Navbar = () => {
     const [isOpenModalSettings, setModalSettings] = useState(false)
-
+    const { userRole } = useAuth();
     const toggleModalSettings = () => {
         setModalSettings(!isOpenModalSettings)
     }
@@ -23,6 +23,7 @@ export const Navbar = () => {
                     <NavbarList>
                         <li><NavLink to={'/'}>Inicio</NavLink></li>
                         <li><NavLink to={'/categorias'}>Categorias</NavLink></li>
+                        {userRole === 3 && <li><NavLink to={'/my-team'}>Mi Equipo</NavLink></li>}
                         <IoMdSettings onClick={() => toggleModalSettings()}/>
                     </NavbarList>
                     

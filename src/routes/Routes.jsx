@@ -50,6 +50,7 @@ import UserCategoriasAsistentes from '../pages/User/Categorias/UserCategoriasAsi
 import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExpulsados';
 import UserCategorias from '../pages/User/Categorias/UserCategorias';
 import Perfil from '../pages/User/Perfil/Perfil';
+import ConfirmEmailChange from '../pages/User/Verificar/ConfirmEmailChange';
 
 const Routes = () => {
 
@@ -66,6 +67,7 @@ const Routes = () => {
                     <Route path='/create-password' element={<Layout> <Step2/> </Layout>} />
                     <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} />
                     <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} />
+                    <Route path='/confirm-email-change' element={<Layout> <ConfirmEmailChange/> </Layout>} />
 
                     {/* Rutas Privadas */}
                     <Route element={<ProtectedRoute />}>
