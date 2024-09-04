@@ -45,7 +45,9 @@ export const PerfilMisDatos = styled.div`
     flex-direction: column;
     gap: 30px;
     align-items: end;
-
+    @media (max-width: 968px) {
+        width: 100%;
+    }
 `
 export const ButtonContainer = styled.div`
     width: 50%;

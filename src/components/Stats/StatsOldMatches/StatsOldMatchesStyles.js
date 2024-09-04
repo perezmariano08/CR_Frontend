@@ -14,15 +14,15 @@ export const StatsOldMatchesWrapper = styled.div`
 export const StatsOldMatchesContainer = styled.div`
     display: flex;
     align-items: start;
-    /* justify-content: start; */
+    justify-content: center;
+    gap: 30px;
     width: 100%;
 `
 
 export const LocalContainer = styled.div`
     display: flex;
-    flex-direction: column;
-    align-items: start;
-    justify-content: center;
+    align-items: center;
+    justify-content: start;
     width: 100%;
     gap: 20px;
 `
@@ -39,13 +39,8 @@ export const OldMatchContainer = styled.div`
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 50%;
-
-    @media (max-width: 610px) {
-        width: 80%;
-    }
-
+    justify-content: center;
+    gap: 10px;
     img {
         width: 30px;
     }
@@ -55,7 +50,7 @@ export const OldMatchResultContainer = styled.div`
     align-items: center;
     justify-content: center;
     background-color: red;
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 5px;
-    width: 40%;
+    min-width: 75px;
 `

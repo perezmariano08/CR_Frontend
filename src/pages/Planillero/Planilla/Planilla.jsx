@@ -117,7 +117,6 @@ const Planilla = () => {
                 <JugadoresEventuales />
                 <ModalConfirmation />
             </MatchStatsWrapper>
-            <Toaster />
         </PlanillaContainerStyled>
     );
 }
