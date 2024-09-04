@@ -25,6 +25,11 @@ export const CreateAccountWrapper = styled.div`
     p a {
         color: var(--green);
     }
+
+    @media (max-width: 700px) {
+        padding: 50px 30px;
+
+    }
 `
 
 export const CreateAccountData = styled.div`

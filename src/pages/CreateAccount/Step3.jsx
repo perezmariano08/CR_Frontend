@@ -16,6 +16,8 @@ import { ButtonLogin, LoginWrapperInfo } from '../Login/LoginStyles';
 
 const Step3 = () => {
     const equiposList = useSelector((state) => state.equipos.data)
+    const equiposFiltrados = Array.isArray(equiposList) ? equiposList.filter((e) => e?.id_categoria !== null) : [];
+    
     const [teamSelected, setTeamSelected] = useState(0);
     const [handleError, setHandleError] = useState(false)
     const [loading, setLoading] = useState(false);
@@ -66,7 +68,6 @@ const Step3 = () => {
         dispatch(fetchEquipos());
     }, [dispatch]);
 
-    const equiposFiltrados = equiposList?.filter((e) => e.id_categoria !== null)
 
     return (
         <CreateAccountContainerStyled>
