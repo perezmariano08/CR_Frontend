@@ -4,6 +4,9 @@ import styled from "styled-components";
 export const TablaEstadisticasWrapper = styled(DataTable)`
     background-color: transparent;
     padding: 20px 32px;
+    @media (max-width: 968px) {
+        padding: 20px;
+    }
     tr {
         background-color: inherit;
         padding: 20px 0;

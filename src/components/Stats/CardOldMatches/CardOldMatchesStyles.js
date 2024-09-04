@@ -16,9 +16,6 @@ export const CardOldMatchesWrapper = styled.div`
         width: 100%;
     }
 
-    &.myteam {
-        width: 50%;
-    }
 `
 
 export const CardOldMatchesItem = styled.div`
@@ -53,7 +50,7 @@ export const MatchesItemTeams = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 30px;
+    gap: 20px;
 `
 
 export const MatchesItemTeam = styled.div`
@@ -63,7 +60,7 @@ export const MatchesItemTeam = styled.div`
     gap: 8px;
     width: 30%;
 
-    text-align: center;
+    text-align: start;
     img {
         width: 30px;
     }
@@ -73,6 +70,7 @@ export const MatchesItemTeam = styled.div`
 
     &.local {
         justify-content: end;
+        text-align: end;
     }
 `
 

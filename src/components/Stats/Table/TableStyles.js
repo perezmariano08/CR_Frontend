@@ -77,7 +77,7 @@ export const TableWrapper = styled(DataTable)`
     }
 
     thead tr:first-child th:first-child .p-column-header-content {
-        justify-content: start;
+        justify-content: center;
     }
 
     thead tr:first-child th:nth-child(2) .p-column-header-content {

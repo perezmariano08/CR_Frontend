@@ -361,6 +361,9 @@ export const JornadasFixtureDia = styled.div`
     @media (max-width: 968px) {
         padding: 12px 20px;
     }
+    @media (max-width: 568px) {
+        font-size: 12px;
+    }
 `;
 
 export const JornadasEmpty = styled.div`
@@ -411,8 +414,10 @@ export const JornadasFixturePartidoEquipo = styled.div`
     width: 100%;
     justify-content: end;
     align-items: center;
+    text-align: end;
     &.visita {
         justify-content: start;
+        text-align: start;
     }
     img {
         width: 20px;
@@ -420,6 +425,9 @@ export const JornadasFixturePartidoEquipo = styled.div`
 
     @media (max-width: 968px) {
         min-width: 0;
+    }
+    @media (max-width: 568px) {
+        font-size: 12px;
     }
 `;
 
@@ -435,6 +443,13 @@ export const JornadasFixtureResultado = styled.div`
     &.hora {
         font-weight: 500;
         color: #a8a8a8;
+        font-size: 16px;
+        @media (max-width: 568px) {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 568px) {
         font-size: 16px;
     }
 `;

@@ -33,7 +33,6 @@ const UserCategoriasGoleadores = () => {
     }, [dispatch]);
 
     const { estadisticaZona, getEstadisticasZonaHandler } = useGetStatsHandler(categoriaFiltrada.id_categoria, 'Goleadores');
-    console.log(estadisticaZona);
     
     useEffect(() => {
         if (categoriaFiltrada) {

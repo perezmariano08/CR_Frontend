@@ -8,36 +8,60 @@ export const HomeContainerStyled = styled.div`
 `;
 
 export const HomeWrapper = styled.div`
-    gap: 40px;
     width: 100%;
     display: flex;
     align-items: start;
+    justify-content: space-between;
     max-width: 1260px;
     padding: 40px 30px;
     &.planilla {
         flex-direction: column;
+    }
+    @media (max-width: 1160px) {
+        gap: 20px;
+    }  
+
+    @media (max-width: 568px) {
+        padding: 20px;
     }
 `;
 
 export const HomeLeftWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 300px;
+    min-width: 20%;
     gap: 40px;
+    @media (max-width: 1160px) {
+        width: 30%;
+    }  
+    @media (max-width: 968px) {
+        display: none;
+    }  
 `;
 
 export const HomeMediumWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    max-width: 500px;
+    max-width: 50%;
     gap: 40px;
+    @media (max-width: 1160px) {
+        width: 70%;
+        max-width: 100%;
+    }  
+
+    @media (max-width: 968px) {
+        width: 100%;
+    }  
 `;
 
 export const HomeRightWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 300px;
+    min-width: 20%;
     gap: 40px;
+    @media (max-width: 1160px) {
+        display: none;
+    } 
 `;
 
 export const CardsMatchesContainer = styled.div`

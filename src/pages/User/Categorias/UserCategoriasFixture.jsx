@@ -93,6 +93,15 @@ const UserCategoriasFixture = () => {
         navigate(`/stats-match?id=${id}`);
     };
 
+    const meses = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio", 
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
+    
+    const nombreMes = (numeroMes) => {
+    return meses[numeroMes - 1]; // Restar 1 porque los índices del array empiezan en 0
+    };
+
     return (
         <>
             <ContentUserContainer>
@@ -133,9 +142,6 @@ const UserCategoriasFixture = () => {
                                 <NavLink to={`/categoria/fixture/${id_categoria}`}>
                                     Liguilla
                                 </NavLink>
-                                <NavLink to={'/'}>
-                                    Fase 2
-                                </NavLink>
                             </ContentMenuLink>
                         </ContentUserSubMenuTitulo>
                         <ContentJornadasFixture>
@@ -160,7 +166,7 @@ const UserCategoriasFixture = () => {
 
                         {partidosCategoria.length !== 0 && (
                             <JornadasFixtureDia>
-                                {partidosCategoria[0]?.dia_nombre}, {partidosCategoria[0]?.dia_numero} de {partidosCategoria[0]?.mes} de {partidosCategoria[0]?.año}
+                                {partidosCategoria[0]?.dia_nombre}, {partidosCategoria[0]?.dia_numero} de {nombreMes(partidosCategoria[0]?.mes)} de {partidosCategoria[0]?.año}
                             </JornadasFixtureDia>
                         )}
 
