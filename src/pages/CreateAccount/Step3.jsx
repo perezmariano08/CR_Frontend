@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { CreateAccountContainerStyled, CreateAccountData, CreateAccountInputs, CreateAccountWrapper, InputContainer } from './CreateAccountStyles'
 import Select from '../../components/Select/Select'
 import { IoShieldHalf } from "react-icons/io5";
-import { ButtonSubmit } from '../../components/UI/Button/ButtonStyles'
 import { useDispatch, useSelector } from 'react-redux';
 import { setNewUserTeamFavorite } from '../../redux/user/userSlice';
 import axios from 'axios';
@@ -16,8 +15,8 @@ import { ButtonLogin, LoginWrapperInfo } from '../Login/LoginStyles';
 
 const Step3 = () => {
     const equiposList = useSelector((state) => state.equipos.data)
-    const equiposFiltrados = Array.isArray(equiposList) ? equiposList.filter((e) => e?.id_categoria !== null) : [];
-    
+    // const equiposFiltrados = Array.isArray(equiposList) ? equiposList.filter((e) => e?.id_categoria !== null) : [];
+
     const [teamSelected, setTeamSelected] = useState(0);
     const [handleError, setHandleError] = useState(false)
     const [loading, setLoading] = useState(false);
@@ -85,7 +84,7 @@ const Step3 = () => {
                             <InputContainer>
                                 <Select
                                     onChange={handleSetTeamSelected}
-                                    data={equiposFiltrados}
+                                    data={equiposList}
                                     id_="id_equipo"
                                     placeholder='Seleccionar equipo'
                                     icon={<IoShieldHalf className='icon-select' />}
