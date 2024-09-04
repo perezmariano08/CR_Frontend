@@ -76,6 +76,10 @@ export const ModalFormInputContainer = styled.div`
             color: var(--green);
         }
     }
+
+    .error {
+        color: var(--red);
+    }
 `
 
 export const ModalFormInputImg = styled.div`
@@ -145,5 +149,46 @@ export const ModalSettingsItem = styled(NavLink)`
     @media (max-width: 600px) {
         width: 100%;
         min-width: 0;
+    }
+`
+export const SelectPerfil = styled.select`
+    background-color: var(--gray-300);
+    border-radius: 10px;
+    border: 1px solid var(--gray-300); 
+    color: var(--white);
+    width: 100%;
+    padding: 10px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    /* appearance: none; */
+    border-radius: 6px;
+    outline-color: transparent;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+
+    &:focus {
+        outline: 0 none;
+        outline-offset: 0;
+        box-shadow: 0 0 0 1px var(--green);
+        border-color: var(--green);
+
+        ~ .icon-input {
+            color: var(--green);
+        }
+    }
+
+    &.error {
+        outline: 0 none;
+        outline-offset: 0;
+        box-shadow: 0 0  0 var(--red);
+        border-color: var(--red);
+
+        ~ .icon-input {
+            color: var(--red);
+        }
+    }
+
+    &::placeholder {
+        color: var(--gray-200);
     }
 `

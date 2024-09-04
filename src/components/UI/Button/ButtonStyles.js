@@ -26,7 +26,9 @@ export const ButtonWrapper = styled(motion(NavLink))`
             opacity: 1;
         }
     }
-`
+
+
+    `
 
 export const ButtonSubmit = styled.button`
     width: 100%;
@@ -52,5 +54,10 @@ export const ButtonSubmit = styled.button`
         @media (maxwidth: 768px) {
             opacity: 1;
         }
+    }
+
+    &.disabled {
+        cursor: not-allowed;
+        opacity: .5;
     }
 `

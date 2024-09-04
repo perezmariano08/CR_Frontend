@@ -27,7 +27,9 @@ const Step3 = () => {
     const createAccount = async ({apellido, clave, dni, email, equipoFav, fechaNacimiento, nombre, telefono}) => {
         try {
             setLoading(true);
-            toast.success('Se le ha enviado un email para verificar su cuenta');
+            setTimeout(() => {
+                toast.success('Se le ha enviado un email para verificar su cuenta');
+            }, (1500));
             const response = await axios.post(`${URL}/auth/crear-cuenta`, {apellido, clave, dni, email, equipoFav, fechaNacimiento, nombre, telefono});
             if (response.status === 200) {
                 // Esperar 3 segundos antes de redirigir
@@ -64,6 +66,8 @@ const Step3 = () => {
         dispatch(fetchEquipos());
     }, [dispatch]);
 
+    const equiposFiltrados = equiposList.filter((e) => e.id_categoria !== null)
+
     return (
         <CreateAccountContainerStyled>
             <CreateAccountWrapper>
@@ -80,7 +84,7 @@ const Step3 = () => {
                             <InputContainer>
                                 <Select
                                     onChange={handleSetTeamSelected}
-                                    data={equiposList}
+                                    data={equiposFiltrados}
                                     id_="id_equipo"
                                     placeholder='Seleccionar equipo'
                                     icon={<IoShieldHalf className='icon-select' />}
