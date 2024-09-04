@@ -305,6 +305,15 @@ export const GlobalStyles = createGlobalStyle`
     ::-webkit-scrollbar-thumb:hover {
         background: var(--gray-500); /* Color del pulgar al pasar el ratón por encima */
     }
-
+    
+    /* En un archivo CSS separado o dentro de un componente styled-components */
+    .p-calendar input {
+        font-size: 14px;
+    }
+    .p-calendar input::placeholder {
+        color: var(--gray-200); /* Cambia este color al que prefieras */
+        font-size: 14px;
+    }
 `
+
 
