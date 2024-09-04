@@ -64,9 +64,8 @@ const Step3 = () => {
     }
 
     useEffect(() => {
-        dispatch(fetchEquipos());
+            dispatch(fetchEquipos());
     }, [dispatch]);
-
 
     return (
         <CreateAccountContainerStyled>
