@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper, SelectTeamContainer } from './NavbarStyles'
+import { NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper, SelectTeamContainer, TeamContainer } from './NavbarStyles'
 import logoCR from "/Logos/logoCopaRelampago.png"
 import { IoShieldHalf } from "react-icons/io5";
 import Notifications from './Notifications/Notifications';
 import ModalSettingsUser from '../Modals/ModalSettingsUser/ModalSettingsUser';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { FaUserCircle } from "react-icons/fa";
-import { useAuth } from '../../Auth/AuthContext';
 import Select from '../Select/Select';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice';
@@ -17,8 +16,6 @@ import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice';
 export const Navbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-    const { userRole } = useAuth();
 
     const { escudosEquipos } = useEquipos();
     const equiposList = useSelector((state) => state.equipos.data)
@@ -55,15 +52,17 @@ export const Navbar = () => {
                         <li><NavLink to={'/'}>Inicio</NavLink></li>
                         <li><NavLink to={'/categorias'}>Categorias</NavLink></li>
                         <li><NavLink to={'/my-team'}>Mi Equipo</NavLink></li>
-                        <img src={`${URLImages}/${escudosEquipos(teamSelected)}`} alt="" />
-                        <Select
-                            onChange={handleSetTeamSelected}
-                            data={equiposFiltrados}
-                            id_="id_equipo"
-                            placeholder='Seleccionar equipo'
-                            icon={<IoShieldHalf className='icon-select' />}
-                            value={teamSelected}
-                        />
+                        <TeamContainer>
+                            <img src={`${URLImages}/${escudosEquipos(teamSelected)}`} alt="" />
+                            <Select
+                                onChange={handleSetTeamSelected}
+                                data={equiposFiltrados}
+                                id_="id_equipo"
+                                placeholder='Seleccionar equipo'
+                                icon={<IoShieldHalf className='icon-select' />}
+                                value={teamSelected}
+                            />
+                        </TeamContainer>
                         <FaUserCircle onClick={openLogin}/>
                     </NavbarList>
                     {

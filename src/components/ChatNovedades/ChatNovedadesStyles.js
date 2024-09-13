@@ -26,7 +26,12 @@ export const ChatWrapper = styled.div`
   right: 20px;
   transition: bottom 0.4s ease-in-out, background-color 0.3s ease-in-out;
   z-index: 101;
-
+  @media (max-width: 968px) {
+      right: 10px;
+      bottom: 22px;
+      width: ${({ small }) => (small ? "40px" : "60px")};
+      height: ${({ small }) => (small ? "40px" : "60px")};
+    }
   img {
     width: ${({ small }) => (small ? "20px" : "40px")};
   }

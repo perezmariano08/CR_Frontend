@@ -118,7 +118,7 @@ const Planilla = () => {
                 )}
     
                 {/* Botones al final */}
-                {matchCorrecto.estado !== 'F' && (
+                {matchCorrecto.estado === 'P' && (
                     <ButtonContainer>
                         {partido.matchState === null && (
                             <ButtonMatch 
@@ -168,6 +168,7 @@ const Planilla = () => {
             <JugadoresEventuales />
             <ModalConfirmation />
             <ModalSuspenderPartido partido={matchCorrecto}/>
+            
         </PlanillaContainerStyled>
     );
 }

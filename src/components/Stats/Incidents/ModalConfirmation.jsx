@@ -22,7 +22,7 @@ const ModalConfirmation = () => {
     const actionToDelete = useSelector((state) => state.planillero.actionToDelete);
     const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
     const infoDelete = useSelector((state) => state.planillero.infoDelete);
-    const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.jugador_destacado);
+    const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.mvp);
     
     const [loading, setLoading] = useState(false);
 
@@ -45,7 +45,8 @@ const ModalConfirmation = () => {
         updateSancionados,
         insertDreamTeam 
     } = useOperationMatch(bd_jugadores_eventuales, bd_partido, bd_formaciones, bd_goles, bd_rojas, bd_amarillas, bd_asistencias, bd_dreamTeam)
-
+    console.log(jugadorDestacado);
+    
     const handleModalConfirm = async () => {
         try {
             setLoading(true);
