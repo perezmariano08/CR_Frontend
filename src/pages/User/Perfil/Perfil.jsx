@@ -114,11 +114,11 @@ const Perfil = () => {
         <PerfilContainer>
             <PerfilWrapper>
                 <PerfilContentWrapper>
-                    <h2>Mi equipo favorito</h2>
+                    {/* <h2>Mi equipo favorito</h2>
                     <PerfilMiEquipo>
                         <img src={`${URLImages}${escudosEquipos(user.id_equipo)}`} alt="Escudo equipo" />
                         {nombresEquipos(user.id_equipo)}
-                    </PerfilMiEquipo>
+                    </PerfilMiEquipo> */}
                     <h2>Mis datos</h2>
                     <PerfilMisDatos>
                         {/* <ModalFormInputContainer>
