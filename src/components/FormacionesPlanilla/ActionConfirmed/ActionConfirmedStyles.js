@@ -11,9 +11,10 @@ export const ActionConfirmedContainer = styled.div`
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
-`
+    `
 export const ActionConfirmedWrapper = styled.div`
-    width: 60%;
+    max-width: 700px;
+    width: 80%;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -41,7 +42,7 @@ export const ActionsContainer = styled.div`
     gap: 15px;
 
     &.large {
-        width:100%;
+        width: 100%;
     }
 `
 
@@ -169,6 +170,14 @@ export const TitleInputContainer = styled.div`
     cursor: not-allowed;
     }
 `
+
+export const InputLoaderContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+`
+
 export const SelectEventual = styled.select`
     background-color: var(--gray-300);
     border: none;

@@ -30,7 +30,7 @@ const TableSanciones = memo(({ data, dataColumns }) => {
         <TableContainerStyled>
             <TableTitle>
                 <h3>{nombreTorneo}</h3>
-                <p>Tribunal de diciplina</p>
+                <p>Tribunal de disciplina</p>
             </TableTitle>
             <TableTitleDivider />
             <TableTeamWrapper

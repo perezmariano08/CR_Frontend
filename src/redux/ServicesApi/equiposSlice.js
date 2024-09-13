@@ -7,7 +7,6 @@ export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async () =>
     return response.data;
 });
 
-
 const equiposSlice = createSlice({
     name: 'equipos',
     initialState: {

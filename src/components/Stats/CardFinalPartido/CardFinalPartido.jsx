@@ -3,6 +3,7 @@ import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTea
 import { HiLifebuoy } from "react-icons/hi2";
 import { useSelector } from 'react-redux';
 import { URLImages } from '../../../utils/utils';
+import { useEquipos } from '../../../hooks/useEquipos';
 
 const CardFinalPartido = ({ idPartido, incidencias }) => {
     const partidos = useSelector((state) => state.partidos.data);
@@ -11,23 +12,12 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     const matchCorrecto = match.find(p => p.ID === idPartido);
     const equipos = useSelector((state) => state.equipos.data);
 
-    //SACAR
-    const escudosEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
-    };
-
-    //SACAR
-    const nombreEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
-        return equipo ? equipo.nombre : 'Unknown Team';
-    };
+    const { nombresEquipos, escudosEquipos } = useEquipos();
 
     // Manejo local de goles
     const [localGoals, setLocalGoals] = useState([]);
     const [visitGoals, setVisitGoals] = useState([]);
 
-    //SACAR
     useEffect(() => {
         if (partido?.estado !== 'F' && matchCorrecto) {
             const local = [];
@@ -82,7 +72,6 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
     }, [matchCorrecto, partido]);
 
     // Manejo en la nube de goles
-    // !SACAR
     const procesarGoles = (incidencias) => {
         if (!incidencias || !partido) return { local: [], visita: [] };
 
@@ -139,12 +128,12 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
             </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
-                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombreEquipos(partido.id_equipoLocal)} />
-                    <h4>{nombreEquipos(partido.id_equipoLocal)}</h4>
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+                    <h4>{nombresEquipos(partido.id_equipoLocal)}</h4>
                 </CardPartidoTeam>
                 <CardPartidoInfo>
                     {
-                        partido.estado === 'F' ? (
+                        partido.estado === 'F' || partido.estado === 'S' ? (
                             <h4>{partido.goles_local}-{partido.goles_visita}</h4>
                         ) : (   
                             <h4>{localGoals.length}-{visitGoals.length}</h4>
@@ -154,49 +143,59 @@ const CardFinalPartido = ({ idPartido, incidencias }) => {
                         <span>Por comenzar</span>
                     ) : matchCorrecto?.matchState === 'isStarted' ? (
                         <span>En curso</span>
-                    ) : partido.estado === 'F' &&(
+                    ) : partido.estado === 'F' ? (
                         <span>Final</span>
+                    ) : partido.estado === 'S' && (
+                        <span>Suspendido</span>
                     )}
                 </CardPartidoInfo>
                 <CardPartidoTeam>
-                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombreEquipos(partido.id_equipoVisita)} />
-                    <h4>{nombreEquipos(partido.id_equipoVisita)}</h4>
+                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
+                    <h4>{nombresEquipos(partido.id_equipoVisita)}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>
             <CardPartidoDivider />
             <CardPartidoGoalsContainer>
-                <CardPartidoGoalsColumn>
-                    {partido.estado !== 'F' && localGoals.length > 0 ? (
-                        localGoals.map((gol, index) => (
-                            <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
-                        ))
-                    ) : (
-                        golesNube.local.length > 0 ? (
-                            golesNube.local.map((gol, index) => (
-                                <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
+            {partido.estado === 'S' ? (
+                <h5>{partido.descripcion && <p>{partido.descripcion}</p>}</h5>
+            ) : partido.estado === 'A' ? ( // Nueva condición para el estado 'A'
+                <h5>Partido postergado</h5> // Mostrar mensaje de partido postergado
+            ) : (
+                <>
+                    <CardPartidoGoalsColumn>
+                        {partido.estado !== 'F' && localGoals.length > 0 ? (
+                            localGoals.map((gol, index) => (
+                                <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
                             ))
                         ) : (
-                            <h5></h5>
-                        )
-                    )}
-                </CardPartidoGoalsColumn>
-                <HiLifebuoy />
-                <CardPartidoGoalsColumn className='visita'>
-                    {partido.estado !== 'F' && visitGoals.length > 0 ? (
-                        visitGoals.map((gol, index) => (
-                            <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
-                        ))
-                    ) : (
-                        golesNube.visita.length > 0 ? (
-                            golesNube.visita.map((gol, index) => (
-                                <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
+                            golesNube.local.length > 0 ? (
+                                golesNube.local.map((gol, index) => (
+                                    <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
+                                ))
+                            ) : (
+                                <h5></h5>
+                            )
+                        )}
+                    </CardPartidoGoalsColumn>
+                    <HiLifebuoy />
+                    <CardPartidoGoalsColumn className='visita'>
+                        {partido.estado !== 'F' && visitGoals.length > 0 ? (
+                            visitGoals.map((gol, index) => (
+                                <h5 key={index}>{gol.nombre} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
                             ))
                         ) : (
-                            <h5></h5>
-                        )
-                    )}
-                </CardPartidoGoalsColumn>
-            </CardPartidoGoalsContainer>
+                            golesNube.visita.length > 0 ? (
+                                golesNube.visita.map((gol, index) => (
+                                    <h5 key={index}>{gol.nombre} {gol.apellido} {gol.penal ? '(p)' : null} {gol.enContra ? '(ec)' : null}</h5>
+                                ))
+                            ) : (
+                                <h5></h5>
+                            )
+                        )}
+                    </CardPartidoGoalsColumn>
+                </>
+            )}
+        </CardPartidoGoalsContainer>
         </CardPartidoWrapper>
     );
 };

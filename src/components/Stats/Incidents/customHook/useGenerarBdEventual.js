@@ -7,10 +7,11 @@ const useGenerarBdEventual = (idPartido) => {
     
     const matchState = useSelector((state) => state.match);
     const match = matchState.find((match) => match.ID === idPartido);
-
+    const id_categoria = parseInt(match.id_categoria);
+    
     useEffect(() => {
         const fetchPartidosEventuales = async () => {
-            const eventuales = await traerPartidosEventuales();
+            const eventuales = await traerPartidosEventuales(id_categoria);
             setBdEventual(eventuales);
         };
 

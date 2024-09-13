@@ -22,9 +22,12 @@ export const SelectContainerStyled = styled.div`
         color: var(--gray-100);
     }
 
-    /* Estilo cuando el select está en foco */
     select:focus ~ .icon-select {
-        color: var(--green); /* Cambia el color del ícono al estar en foco */
+        color: var(--green);
+    }
+
+    &.planilla {
+        width: 60%;
     }
 `
 export const SelectWrapper = styled.select`

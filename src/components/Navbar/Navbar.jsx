@@ -1,18 +1,49 @@
-import React, { useState } from 'react'
-import { NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper } from './NavbarStyles'
+import React, { useEffect, useState } from 'react'
+import { NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper, SelectTeamContainer } from './NavbarStyles'
 import logoCR from "/Logos/logoCopaRelampago.png"
-import { IoMdSettings } from "react-icons/io";
+import { IoShieldHalf } from "react-icons/io5";
 import Notifications from './Notifications/Notifications';
 import ModalSettingsUser from '../Modals/ModalSettingsUser/ModalSettingsUser';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from '../../Auth/AuthContext';
+import Select from '../Select/Select';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice';
+import { useEquipos } from '../../hooks/useEquipos';
+import { URL, URLImages } from '../../utils/utils';
+import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice';
 
 export const Navbar = () => {
-    const [isOpenModalSettings, setModalSettings] = useState(false)
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const { userRole } = useAuth();
+
+    const { escudosEquipos } = useEquipos();
+    const equiposList = useSelector((state) => state.equipos.data)
+    const equiposFiltrados = equiposList.filter(equipo => equipo.id_categoria !== null);
+    const teamSelected = useSelector((state) => state.newUser.equipoSeleccionado)
+    const [isOpenModalSettings, setModalSettings] = useState(false)
+    // const [teamSelected, setTeamSelected] = useState(1);
+
     const toggleModalSettings = () => {
         setModalSettings(!isOpenModalSettings)
     }
+
+    const openLogin = () => {
+        navigate('/login')
+    }
+
+    const handleSetTeamSelected = (e) => {
+        // setTeamSelected(parseInt(e.target.value));
+        dispatch(setNuevoEquipoSeleccionado(parseInt(e.target.value)))
+    }
+
+    useEffect(() => {
+        dispatch(fetchEquipos());
+    }, [dispatch]);
+    
     return (
         <>
             <NavbarContainerStyled>
@@ -23,19 +54,24 @@ export const Navbar = () => {
                     <NavbarList>
                         <li><NavLink to={'/'}>Inicio</NavLink></li>
                         <li><NavLink to={'/categorias'}>Categorias</NavLink></li>
-                        {userRole === 3 && <li><NavLink to={'/my-team'}>Mi Equipo</NavLink></li>}
-                        <IoMdSettings onClick={() => toggleModalSettings()}/>
+                        <li><NavLink to={'/my-team'}>Mi Equipo</NavLink></li>
+                        <img src={`${URLImages}/${escudosEquipos(teamSelected)}`} alt="" />
+                        <Select
+                            onChange={handleSetTeamSelected}
+                            data={equiposFiltrados}
+                            id_="id_equipo"
+                            placeholder='Seleccionar equipo'
+                            icon={<IoShieldHalf className='icon-select' />}
+                            value={teamSelected}
+                        />
+                        <FaUserCircle onClick={openLogin}/>
                     </NavbarList>
-                    
-                    {/* <ContainerNoti onClick={() => dispatch(toggleHiddenNotis())}>
-                        <IoIosNotifications />
-                    </ContainerNoti> */}
-                    
                     {
                         isOpenModalSettings && (
                             <ModalSettingsUser closeModal={toggleModalSettings} />
                         )
                     }
+
                 </NavbarWrapper>
                 <Notifications/>
             </NavbarContainerStyled>

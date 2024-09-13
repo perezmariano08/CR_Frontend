@@ -30,8 +30,8 @@ const FormacionesPlanilla = ({ idPartido }) => {
     const [playerName, setPlayerName] = useState('');
     const [selectedPlayerId, setSelectedPlayerId] = useState(''); 
 
-    const selectedStar = useSelector((state) => state.planillero.timeMatch.jugador_destacado)
-    // Consumo del slice que a su vez consume la base de datos
+    const selectedStar = useSelector((state) => state.planillero.timeMatch.jugador_destacado || [])
+
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find((partido) => partido.id_partido === idPartido);
     const matchState = useSelector((state) => state.match);
@@ -115,16 +115,30 @@ const FormacionesPlanilla = ({ idPartido }) => {
     const handleStar = (player) => {
         if (matchCorrecto.matchState === null || matchCorrecto.matchState === 'matchPush') {
             if (matchCorrecto.matchState === null) {
-                toast.error('Debe comenzar el partido para asignar el MVP')
+                toast.error('Debe comenzar el partido para asignar el MVP');
             } else {
-                toast.error('El partido ya fue cargado en la base de datos')
+                toast.error('El partido ya fue cargado en la base de datos');
             }
-            return
+            return;
         }
-        const newSelectedStar = selectedStar === player.ID ? null : player.ID;
-        dispatch(handleBestPlayerOfTheMatch(newSelectedStar));
-    };
 
+        const alreadySelected = selectedStar.some(jugador => jugador.id_jugador === player.ID);
+    
+        let newSelectedStars;
+        if (alreadySelected) {
+            newSelectedStars = selectedStar.filter(jugador => jugador.id_jugador !== player.ID);
+        } else {
+            const newPlayer = {
+                id_jugador: player.ID,
+                id_equipo: currentTeam.id_equipo,
+                nombre_jugador: player.Nombre
+            };
+            newSelectedStars = [...selectedStar, newPlayer];
+        }
+        
+        dispatch(handleBestPlayerOfTheMatch(newSelectedStars));
+    };
+    
     useEffect(() => {
         const selectedTeam = matchCorrecto.Local;
         if (!initialized && selectedTeam) {
@@ -189,24 +203,26 @@ const FormacionesPlanilla = ({ idPartido }) => {
                             <td className='text nombre'>{player.Nombre}</td>
                             </div>
                             <td className='tdActions'>
-                                <HiMiniPencil
-                                    className='edit'
-                                    onClick={() => handleEditDorsal(player)}
+                            <HiMiniPencil
+                                className='edit'
+                                onClick={() => handleEditDorsal(player)}
+                            />
+                            {selectedStar.some((p) => p.id_jugador === player.ID) ? (
+                                <IoIosStar 
+                                    className={player.Dorsal ? 'star' : 'disabled'}
+                                    onClick={() => handleStar(player)} 
                                 />
-                                {
-                                    selectedStar === player.ID ? (
-                                        <IoIosStar className={player.Dorsal ? 'star' : 'disabled'} 
-                                        onClick={() => handleStar(player)} />
-                                    ) : (
-                                        <IoIosStarOutline className={player.Dorsal ? 'star' : 'disabled'} 
-                                        onClick={() => handleStar(player)} />
-                                    )
-                                }
-                                <HiOutlineXCircle
-                                    className={`delete ${(!player.Dorsal) ? 'disabled' : ''}`}
-                                    onClick={() => DeleteDorsalPlayer(idPartido, currentTeam.id_equipo, player.ID, player.Dorsal)}
+                            ) : (
+                                <IoIosStarOutline 
+                                    className={player.Dorsal ? 'star' : 'disabled'}
+                                    onClick={() => handleStar(player)} 
                                 />
-                            </td>
+                            )}
+                            <HiOutlineXCircle
+                                className={`delete ${!player.Dorsal ? 'disabled' : ''}`}
+                                onClick={() => DeleteDorsalPlayer(idPartido, currentTeam.id_equipo, player.ID, player.Dorsal)}
+                            />
+                        </td>
                         </tr>
                     ))}
                 </tbody>

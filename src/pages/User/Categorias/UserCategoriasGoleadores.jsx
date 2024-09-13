@@ -10,11 +10,10 @@ import {
 } from '../../../components/Content/ContentStyles';
 import useGetStatsHandler from '../../../hooks/useGetStatsHandler';
 import { URLImages } from '../../../utils/utils';
-import { DataTable } from 'primereact/datatable';
 import TablaEstadisticas from '../../../components/TablaEstadisticas/TablaEstadisticas';
-import { JugadorBodyTemplate } from '../../../components/TablaEstadisticas/TablaEstadisticasStyles';
+import { HiArrowLeft } from "react-icons/hi";
 import { LoaderIcon } from 'react-hot-toast';
-import { LiaFutbol } from 'react-icons/lia';
+import UseNavegador from './UseNavegador';
 
 const UserCategoriasGoleadores = () => {
     const dispatch = useDispatch();
@@ -25,6 +24,9 @@ const UserCategoriasGoleadores = () => {
 
     const categoriaFiltrada = categorias.find((c) => c.id_categoria === id_categoria);
     const edicionFiltrada = ediciones.find((e) => e.id_edicion === categoriaFiltrada.id_edicion);
+
+    const { GoToCategorias } = UseNavegador();
+
 
     const [loading, setLoading] = useState(true);
 
@@ -58,6 +60,7 @@ const UserCategoriasGoleadores = () => {
                     <ContentUserTituloContainerStyled>
                         <ContentUserTituloContainer>
                             <TituloContainer>
+                                <HiArrowLeft onClick={() => GoToCategorias('/categorias')}/>
                                 <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
                                 <TituloText>
                                     <h1>{categoriaFiltrada?.nombre}</h1>

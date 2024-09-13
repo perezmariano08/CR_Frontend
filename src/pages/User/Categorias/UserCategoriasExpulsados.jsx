@@ -14,6 +14,8 @@ import useGetStatsHandler from '../../../hooks/useGetStatsHandler';
 import { URLImages } from '../../../utils/utils';
 import TablaEstadisticas from '../../../components/TablaEstadisticas/TablaEstadisticas';
 import { LoaderIcon } from 'react-hot-toast';
+import { HiArrowLeft } from "react-icons/hi";
+import UseNavegador from './UseNavegador';
 
 const UserCategoriasExpulsados = () => {
     const dispatch = useDispatch();
@@ -24,6 +26,9 @@ const UserCategoriasExpulsados = () => {
 
     const categoriaFiltrada = categorias.find((c) => c.id_categoria === id_categoria);
     const edicionFiltrada = ediciones.find((e) => e.id_edicion === categoriaFiltrada.id_edicion);
+
+    const { GoToCategorias } = UseNavegador();
+
 
     const [loading, setLoading] = useState(true);
 
@@ -55,8 +60,8 @@ const UserCategoriasExpulsados = () => {
                     <ContentUserTituloContainerStyled>
                         <ContentUserTituloContainer>
                             <TituloContainer>
+                                <HiArrowLeft onClick={() => GoToCategorias('/categorias')}/>
                                 <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
-
                                 <TituloText>
                                     <h1>{categoriaFiltrada?.nombre}</h1>
                                     <p>{`${edicionFiltrada?.nombre} ${edicionFiltrada?.temporada}`}</p>

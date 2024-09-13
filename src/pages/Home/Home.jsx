@@ -4,7 +4,7 @@ import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWr
 import Section from '../../components/Section/Section';
 import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPosicionesTemporada, getSanciones, getZonas } from '../../utils/dataFetchers';
+import { getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
 import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
 import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../components/Stats/Data/Data';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
@@ -19,8 +19,9 @@ import { URLImages } from '../../utils/utils.js';
 
 const Home = () => {
     const dispatch = useDispatch();
-    const { userRole, idMyTeam, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
-    
+    // const { userRole, userName, showWelcomeToast, setShowWelcomeToast } = useAuth();
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
+    const userRole = 3
     useEffect(() => {
         dispatch(fetchEquipos());
     }, [dispatch]);
@@ -64,7 +65,7 @@ const Home = () => {
         const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
         setSanciones(sancionesFiltradas);
     }
-    
+
     return (
         <>
             <HomeContainerStyled>
@@ -163,6 +164,7 @@ const Home = () => {
                     <HomeRightWrapper>
                         {posiciones && zonasFiltradas ? (
                             <Section>
+                                <h2>Posiciones</h2>
                                 <TablePosiciones
                                     data={posiciones}
                                     zona={zonasFiltradas}

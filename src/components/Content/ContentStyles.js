@@ -231,10 +231,16 @@ export const ContentUserTituloContainer = styled.div`
 
 export const TituloContainer = styled.div`
     display: flex;
+    align-items: center;
     gap: 15px;
 
     img {
         width: 40px;
+    }
+
+    svg {
+        cursor: pointer;
+        color: var(--green);
     }
 `;
 
