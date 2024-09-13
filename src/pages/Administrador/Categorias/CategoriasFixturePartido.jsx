@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Content from '../../../components/Content/Content';
-import { ContentNavWrapper, FormacionEquipo, FormacionEquipoImg, FormacionesPartido, MenuContentTop, TituloPartidoDetalle, TituloPartidoEquipo, TituloPartidoResultado } from '../../../components/Content/ContentStyles';
+import { ContentNavWrapper, EmptyFormacionEquipo, FormacionEquipo, FormacionEquipoImg, FormacionesPartido, MenuContentTop, TituloPartidoDetalle, TituloPartidoEquipo, TituloPartidoResultado } from '../../../components/Content/ContentStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
@@ -13,11 +13,14 @@ import { AccionesBodyTemplate } from '../../../components/Table/TableStyles';
 import Button from '../../../components/Button/Button';
 import { IoPencil, IoTrashOutline } from 'react-icons/io5';
 import { FiPlus } from 'react-icons/fi';
+import { useEquipos } from '../../../hooks/useEquipos';
+import { URLImages } from '../../../utils/utils';
 
 const CategoriasFixturePartido = () => {
     const dispatch = useDispatch();
     const { id_page } = useParams(); // Obtenemos el id desde la URL
 
+    const { escudosEquipos, nombresEquipos } = useEquipos();
     const [formaciones, setFormaciones] = useState([]);
     const partidosList = useSelector((state) => state.partidos.data);
     const partidoFiltrado = partidosList.find(partido => partido.id_partido == id_page);
@@ -112,29 +115,32 @@ const CategoriasFixturePartido = () => {
             <TituloPartidoDetalle>
                 <TituloPartidoEquipo>
                     {equiposList.find((equipo => equipo.id_equipo === partidoFiltrado.id_equipoLocal)).nombre}
-                    <img src="https://coparelampago.com/uploads/Equipos/team-default.png" alt="" srcset="" />
+                    <img src={`${URLImages}${escudosEquipos(partidoFiltrado.id_equipoLocal)}`} alt={nombresEquipos(partidoFiltrado.id_equipoLocal)} />
                 </TituloPartidoEquipo>
                 <TituloPartidoResultado>
                     {`${partidoFiltrado.goles_local} - ${partidoFiltrado.goles_visita}`}
                 </TituloPartidoResultado>
                 <TituloPartidoEquipo>
-                    <img src="https://coparelampago.com/uploads/Equipos/team-default.png" alt="" srcset="" />
+                    <img src={`${URLImages}${escudosEquipos(partidoFiltrado.id_equipoVisita)}`} alt={nombresEquipos(partidoFiltrado.id_equipoVisita)} />
                     {equiposList.find((equipo => equipo.id_equipo === partidoFiltrado.id_equipoVisita)).nombre}
                 </TituloPartidoEquipo>
             </TituloPartidoDetalle>
             <FormacionesPartido>
                 <FormacionEquipo>
                     <FormacionEquipoImg>
-                        <img src="https://coparelampago.com/uploads/Equipos/team-default.png" alt="" srcset="" />
+                        <img src={`${URLImages}${escudosEquipos(partidoFiltrado.id_equipoLocal)}`} alt={nombresEquipos(partidoFiltrado.id_equipoLocal)} />
                         {equiposList.find((equipo => equipo.id_equipo === partidoFiltrado.id_equipoLocal)).nombre}
                     </FormacionEquipoImg>
-                    <Table
-                        data={formacionesLocal}
-                        dataColumns={dataFormacionesPartidoColumns}
-                        paginator={false}
-                        selection={false}
-                        sortable={false}
-                    />
+                    {
+                        formacionesLocal.length > 0 ? <Table
+                            data={formacionesLocal}
+                            dataColumns={dataFormacionesPartidoColumns}
+                            paginator={false}
+                            selection={false}
+                            sortable={false}
+                        /> : <EmptyFormacionEquipo>No hay formación disponible</EmptyFormacionEquipo>
+                    }
+                    
                     <Button bg={"success"} onClick={''}>
                         <FiPlus />
                         Agregar jugador
@@ -142,17 +148,18 @@ const CategoriasFixturePartido = () => {
                 </FormacionEquipo>
                 <FormacionEquipo>
                     <FormacionEquipoImg>
-                        <img src="https://coparelampago.com/uploads/Equipos/team-default.png" alt="" srcset="" />
+                        <img src={`${URLImages}${escudosEquipos(partidoFiltrado.id_equipoVisita)}`} alt={nombresEquipos(partidoFiltrado.id_equipoVisita)} />
                         {equiposList.find((equipo => equipo.id_equipo === partidoFiltrado.id_equipoVisita)).nombre}
                     </FormacionEquipoImg>
-                    
-                    <Table
-                        data={formacionesVisita}
-                        dataColumns={dataFormacionesPartidoColumns}
-                        paginator={false}
-                        selection={false}
-                        sortable={false}
-                    />
+                    {
+                        formacionesVisita.length > 0 ? <Table
+                            data={formacionesVisita}
+                            dataColumns={dataFormacionesPartidoColumns}
+                            paginator={false}
+                            selection={false}
+                            sortable={false}
+                        /> : <EmptyFormacionEquipo>No hay formación disponible</EmptyFormacionEquipo>
+                    }
                     <Button bg={"success"} onClick={''}>
                         <FiPlus />
                         Agregar jugador

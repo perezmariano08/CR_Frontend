@@ -37,6 +37,7 @@ import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
+import CategoriasMenuNav from './CategoriasMenuNav';
 
 const CategoriasFormato = () => {
     const dispatch = useDispatch();
@@ -136,15 +137,8 @@ const CategoriasFormato = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <ContentNavWrapper>
-                <li><NavLink to={`/admin/categorias/resumen/${id_page}`}>Resumen</NavLink></li>
-                <li><NavLink to={`/admin/categorias/formato/${id_page}`}>Formato</NavLink></li>
-                <li><NavLink to={`/admin/categorias/fixture/${id_page}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
-                <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
-            </ContentNavWrapper>
-            
-            <p>FORMATO DE LA CATEGORIA</p>
+            <CategoriasMenuNav id_categoria={id_page}/>
+            <p>EN PRODUCCIÓN</p>
         </Content>
     );
 };

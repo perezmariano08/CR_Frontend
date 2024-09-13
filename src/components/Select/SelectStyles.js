@@ -52,6 +52,13 @@ export const SelectWrapper = styled.select`
         color: var(--green); /* Cambia el color del ícono al estar en foco */
     }
 
+    &:disabled {
+        color: var(--gray-200);
+        background-color: var(--gray-500);
+        cursor: not-allowed;
+        transition: all .2s ease-in-out;
+    }
+
     option {
         background-color: var(--gray-500);
         color: var(--white);

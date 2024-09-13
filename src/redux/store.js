@@ -24,6 +24,7 @@ import expulsadosReducer from "./ServicesApi/expulsadosSlice"
 import asideReducer from "./Aside/asideSlice"; // Importa tu nuevo slice
 import edicionesReducer from "./ServicesApi/edicionesSlice"
 import plantelesReducer from "./ServicesApi/plantelesSlice"
+import zonasReducer from "./ServicesApi/zonasSlice"
 
 const reducers = combineReducers({
     notis: notisReducer,
@@ -45,7 +46,8 @@ const reducers = combineReducers({
     expulsados: expulsadosReducer,
     aside: asideReducer, 
     ediciones: edicionesReducer,
-    planteles: plantelesReducer
+    planteles: plantelesReducer,
+    zonas: zonasReducer
 });
 
 const persistConfig = {

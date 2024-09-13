@@ -266,7 +266,9 @@ export const EstadoBodyTemplate = styled.div`
     display: flex;
     gap: 2px;
     align-items: center;
+    justify-content: center;
     width: fit-content;
+    min-width: 80px;
     font-size: 13px;
     padding: 2px 10px;
     border-radius: 10px;

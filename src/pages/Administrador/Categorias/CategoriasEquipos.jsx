@@ -16,6 +16,7 @@ import { LoaderIcon, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
+import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 import useForm from '../../../hooks/useForm';
 import Select from '../../../components/Select/Select';
 
@@ -28,18 +29,23 @@ import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import { CategoriaEquiposEmpty } from './categoriasStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { EquipoBodyTemplate } from '../../../components/Table/TableStyles';
+import CategoriasMenuNav from './CategoriasMenuNav';
 
 const CategoriasEquipos = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
+    const navigate = useNavigate()
+    const dispatch = useDispatch();
+    const { id_page } = useParams(); // Obtenemos el id desde la URL
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const equiposList = useSelector((state) => state.equipos.data);
     const jugadoresList = useSelector((state) => state.jugadores.data);
-    const navigate = useNavigate()
-    const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
+
+    const temporadas = useSelector((state) => state.temporadas.data);
+    const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_page)
+    
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_page);
     const categoriasSelect = categoriasList.filter((categoria) => categoria.id_edicion == categoriaFiltrada.id_edicion && categoria.id_categoria !== categoriaFiltrada.id_categoria )
 
@@ -150,35 +156,43 @@ const CategoriasEquipos = () => {
     const equipoSeleccionado = equiposList.find((equipo) => equipo.id_equipo == idEliminar)
 
     // Agregar acciones a la tabla
-    const categoriasEquiposLink = categoriaEquiposs.map(categoria => ({
-        ...categoria,
+    const categoriasEquiposLink = equiposTemporada.map(equipo => ({
+        ...equipo,
         eliminar: (
-            <Button bg={"danger"} onClick={() => eliminarEquipo(categoria.id_equipo)}>
+            <Button bg={"danger"} onClick={() => eliminarEquipo(equipo.id_equipo)}>
                 <IoTrashOutline />
             </Button>
         ),
         actualizar: categoriasSelect.length > 0 ? (
-            <Button bg={"import"} onClick={() => editarEquipo(categoria.id_equipo)}>
+            <Button bg={"import"} onClick={() => editarEquipo(equipo.id_equipo)}>
                 Cambiar categoria
             </Button>
         ) : null,
         asignar: (
-            <Button bg={"import"} onClick={() => navigate(`/admin/categorias/formato/${categoriaFiltrada.id_categoria}`)}>
+            <Button bg={"import"} onClick={() => navigate(`/admin/categorias/formato/${equipo.id_categoria}`)}>
                 Asignar
             </Button>
         ),
         equipo: (
             <EquipoBodyTemplate>
-                <img src={`${URLImages}${escudosEquipos(categoria.id_equipo)}`} alt={nombresEquipos(categoria.id_equipo)} />
-                <span>{nombresEquipos(categoria.id_equipo)}</span>
+                <img src={`${URLImages}${escudosEquipos(equipo.id_equipo)}`} alt={nombresEquipos(equipo.id_equipo)} />
+                <span>{nombresEquipos(equipo.id_equipo)}</span>
             </EquipoBodyTemplate>
-        )
+        ),
+        jugadores_con_dni: 
+            equipo.jugadores_con_dni === 1 ? (
+                `${equipo.jugadores_con_dni} jugador`
+            ) : `${equipo.jugadores_con_dni} jugadores`,
+        jugadores_sin_dni: equipo.jugadores_sin_dni === 1 ? (
+            `${equipo.jugadores_sin_dni} jugador`
+        ) : `${equipo.jugadores_sin_dni} jugadores`,
     }));
     
 useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos())
+        dispatch(fetchTemporadas())
     }, []);
 
     return (
@@ -190,13 +204,7 @@ useEffect(() => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <ContentNavWrapper>
-                <li><NavLink to={`/admin/categorias/resumen/${id_page}`}>Resumen</NavLink></li>
-                <li><NavLink to={`/admin/categorias/formato/${id_page}`}>Formato</NavLink></li>
-                <li><NavLink to={`/admin/categorias/fixture/${id_page}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquiposs.length})</NavLink></li>
-                <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
-            </ContentNavWrapper>
+            <CategoriasMenuNav id_categoria={id_page}/>
             <Button bg="success" color="white" onClick={openCreateModal}>
                 <FiPlus />
                 <p>Agregar equipo</p>

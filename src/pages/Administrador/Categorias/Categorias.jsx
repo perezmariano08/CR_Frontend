@@ -37,6 +37,9 @@ import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
+import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import CategoriasMenuNav from './CategoriasMenuNav';
+import { EquiposDetalle, ResumenItemDescripcion, ResumenItemsContainer, ResumenItemTitulo, ResumenItemWrapper } from './categoriasStyles';
 
 const Categorias = () => {
     const dispatch = useDispatch();
@@ -72,12 +75,21 @@ const Categorias = () => {
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
-    const equiposList = useSelector((state) => state.equipos.data);
+    const planteles = useSelector((state) => state.planteles.data);
+    const jugadoresCategoria = planteles.filter((p) => p.id_categoria == id_page)
+
+    const partidos = useSelector((state) => state.partidos.data);
+    const partidosCategoria = partidos.filter((p) => p.id_categoria == id_page)
+    
+    
+    const temporadas = useSelector((state) => state.temporadas.data);
+    const equiposCategoria = temporadas.filter((t) => t.id_categoria == id_page)
     
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
+        dispatch(fetchTemporadas());
     }, []);
 
 
@@ -124,7 +136,6 @@ const Categorias = () => {
         link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
     }));
 
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_page)
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     
     return (
@@ -136,20 +147,56 @@ const Categorias = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <ContentNavWrapper>
-                <li><NavLink to={`/admin/categorias/resumen/${id_page}`}>Resumen</NavLink></li>
-                <li><NavLink to={`/admin/categorias/formato/${id_page}`}>Formato</NavLink></li>
-                <li><NavLink to={`/admin/categorias/fixture/${id_page}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
-                <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
-            </ContentNavWrapper>
+            <CategoriasMenuNav id_categoria={id_page} />
+            <ResumenItemsContainer>
+                <ResumenItemWrapper>
+                    <ResumenItemTitulo>
+                        <p>Estado de Categoria</p>
+                        <span>HABILITADO</span>
+                    </ResumenItemTitulo>
+                    <ResumenItemDescripcion>
+                        {
+                            partidosCategoria.filter((p) => p.estado === "F").length
+                        }
+                        /
+                        {
+                            partidosCategoria.length
+                        }
+                    </ResumenItemDescripcion>
+                </ResumenItemWrapper>
+                <ResumenItemWrapper>
+                    <ResumenItemTitulo>
+                        equipos
+                        <IoShieldHalf />
+                    </ResumenItemTitulo>
+                    <ResumenItemDescripcion>
+                        <EquiposDetalle>
+                            <h3>{equiposCategoria.length}</h3>
+                            <p>Total</p>
+                        </EquiposDetalle>
+                        <EquiposDetalle>
+                            <h3>{equiposCategoria.filter((e) => e.id_zona === null).length}</h3>
+                            <p>Sin vacante</p>
+                        </EquiposDetalle>
+                        <NavLink to={`/admin/categorias/equipos/${id_page}`}>
+                            Ir a equipos
+                        </NavLink>
+                    </ResumenItemDescripcion>
+                </ResumenItemWrapper>
+                <ResumenItemWrapper>
+                    <ResumenItemTitulo>
+                        jugadores
+                        <IoShieldHalf />
+                    </ResumenItemTitulo>
+                    <ResumenItemDescripcion>
+                        <EquiposDetalle>
+                            <h3>{jugadoresCategoria.length}</h3>
+                            <p>Total</p>
+                        </EquiposDetalle>
+                    </ResumenItemDescripcion>
+                </ResumenItemWrapper>
+            </ResumenItemsContainer>
             
-            <p>PONER ESTADISTICAS DE ESA CATEGORIA, POR EJ</p>
-            <p>PARTIDOS JUGADOS</p>
-            <p>VACANTES DE LAS ZONAS</p>
-            <p>EQUIPOS EN LAS ZONAS</p>
-            <p>JUGADORES</p>
-            <p>LO QUE SE NOS OCURRA</p>
         </Content>
     );
 };
