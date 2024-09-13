@@ -7,10 +7,8 @@ import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
 import { toast, LoaderIcon } from 'react-hot-toast';
-import Axios from 'axios';
-import { URL } from '../../../utils/utils';
-import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
-import { verificarJugadorEventual } from '../../../utils/dataFetchers';
+import userJugadorEventualStates from '../../../hooks/userJugadorEventualStates';
+import useJugadorEventual from '../../../hooks/useJugadorEventual';
 
 const JugadoresEventuales = () => {
     const dispatch = useDispatch();
@@ -19,47 +17,46 @@ const JugadoresEventuales = () => {
     const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
     const matchState = useSelector((state) => state.match);
     const dataJugadorEventual = useSelector((state) => state.planillero.playerEventData);
-    const jugadores = useSelector((state) => state.jugadores.data)
     const isEnabledEdit = useSelector((state) => state.planillero.playerEventData.state);
     const matchCorrecto = matchState.find((match) => match.ID === idPartido);
     const equipoCorrecto = matchCorrecto?.Local.id_equipo === idCurrentTeam ? matchCorrecto.Local : matchCorrecto.Visitante;
 
-    const [dorsalValue, setDorsalValue] = useState('');
-    const [dniValue, setDniValue] = useState('');
-    const [nameValue, setNameValue] = useState('');
-    const [surNameValue, setSurNameValue] = useState('');
-    const [maxQuantityPlayers, setMaxQuantityPlayers] = useState(true);
-    const [bdEventual, setBdEventual] = useState([]);
     const [loading, setLoading] = useState();
-    
-    const handleInputChange = (value) => {
-        if (/^\d{0,3}$/.test(value) || value === '') {
-            setDorsalValue(value);
-        }
-    };
+    const [loadingDni, setLoadingDni] = useState(false);
+    const [foundPlayer, setFoundPlayer] = useState({});
+    const [isDisabled, setIsDisabled] = useState(false);
+    const [selectedPlayer, setSelectedPlayer] = useState('');
+    const [originalDni, setOriginalDni] = useState('');
 
-    const handleInputChangeDni = (value) => {
-        if (/^\d{0,8}$/.test(value) || value === '') {
-            setDniValue(value);
-        }
-    };
+    const {
+        dorsalValue,
+        setDorsalValue,
+        dniValue,
+        setDniValue,
+        nameValue,
+        setNameValue,
+        surNameValue,
+        setSurNameValue,
+        handleInputChange,
+        handleInputChangeDni,
+        handleInputName,
+        handleInputSurName,
+        isAnyValueEmpty,
+        validateFields,
+        capitalizeFirstLetter
+    } = userJugadorEventualStates();
+    
+    const {
+        generateId,
+        searchDorsal,
+        checkMaxPlayersQuantity,
+        verificarJugador,
+        jugadoresEventualesEquipo,
+        maxQuantityPlayers,
+        bdEventual,
+        checkPlayerExists,
+    } = useJugadorEventual();
 
-    const handleInputName = (value) => {
-        if (/^[a-zA-Z\s]*$/.test(value) || value === '') {
-            setNameValue(value);
-        }
-    };
-    
-    const handleInputSurName = (value) => {
-        if (/^[a-zA-Z\s]*$/.test(value) || value === '') {
-            setSurNameValue(value);
-        }
-    };
-    
-    const isAnyValueEmpty = () => {
-        return !dorsalValue?.trim() || !dniValue?.trim() || !nameValue?.trim() || !surNameValue?.trim();
-    };
-    
     useEffect(() => {
         if (dataJugadorEventual && isEnabledEdit) {
             setDorsalValue(dataJugadorEventual.dorsal);
@@ -74,198 +71,55 @@ const JugadoresEventuales = () => {
         }
     }, [dataJugadorEventual]);
     
-    const searchDorsal = async (dorsal, dni, eventual) => {    
-        const id_categoria = matchCorrecto.id_categoria;  
-        const id_equipo = matchCorrecto.id_equipo;
-        
-        if (!equipoCorrecto) return false;
-
-        const players = isEnabledEdit
-            ? equipoCorrecto.Player.filter(player => {
-                return !eventual || player.Dorsal !== eventual.dorsal || player.DNI !== eventual.dni;
-            })
-            : equipoCorrecto.Player;
-
-        const foundByDorsal = players.some(player => player.Dorsal === dorsal);
-        const foundByDNI = players.some(player => player.DNI === dni);
-        let foundByDNIForTeams = false;
-
-        try {
-            const data = await verificarJugadorEventual(dni, id_categoria, id_equipo)
-            foundByDNIForTeams = data.found;
-        } catch (error) {
-            console.error('Error al verificar el jugador eventual:', error);
-        }
-        
-        if (foundByDorsal && foundByDNI) {
-            return '1';
-        } else if (foundByDorsal) {
-            return '2';
-        } else if (foundByDNI || foundByDNIForTeams) {
-            return '3';
-        } else {
-            return false;
-        }
-    };
-
-    const checkMaxPlayersQuantity = () => {
-        if (equipoCorrecto) {
-            const eventualPlayersCounts = equipoCorrecto.Player?.filter(player => player.eventual === 'S').length;
-            setMaxQuantityPlayers(eventualPlayersCounts < 5);
-        }
-    };
-
-    const traerPartidosEventuales = async () => {
-        const id_categoria = matchCorrecto.id_categoria;
-        try {
-            const response = await Axios.get(`${URL}/user/get-partidos-eventuales?id_categoria=${id_categoria}`);
-            const data = response.data;
-            setBdEventual(data);
-        } catch (error) {
-            console.error('Error en la petición', error);
-        }
-    };
-
-    useEffect(() => {
-        dispatch(fetchJugadores());
-    }, []);
-    
-    useEffect(() => {
-        traerPartidosEventuales();
-    }, []);
-    
-    const verificarJugador = (dni) => {
-        // Verificar si el DNI ya existe en jugadores regulares (no eventuales) del equipo actual
-        const jugadorExistenteRegular = jugadores.find(
-            (jugador) => jugador.DNI === dni && jugador.eventual === 'N'
-        );
-    
-        if (jugadorExistenteRegular) {
-            toast.error('El jugador ya existe en jugadores regulares (no eventuales) del equipo actual');
-            return false;
-        }
-    
-        // Verificar si el DNI ya ha sido agregado como eventual en el equipo contrario en el mismo partido
-        const equipoContrario = matchCorrecto.Local.id_equipo === idCurrentTeam
-            ? matchCorrecto.Visitante
-            : matchCorrecto.Local;
-    
-        const jugadorExistenteEnOtroEquipo = equipoContrario.Player.find(
-            (jugador) => jugador.DNI === dni && jugador.eventual === 'S'
-        );
-    
-        if (jugadorExistenteEnOtroEquipo) {
-            toast.error('El jugador eventual ya está registrado en el equipo rival');
-            return false;
-        }
-    
-        // Verificar si el jugador tiene menos de 3 partidos eventuales jugados en la temporada actual
-        const jugadorEventualEnTemporada = bdEventual.filter((j) => 
-            j.dni === dni && j.id_equipo === idCurrentTeam
-        );
-        
-        if (jugadorEventualEnTemporada.length >= 3) {
-            toast.error('El jugador ya jugo sus 3 partidos correspondientes como eventual');
-            return false;
-        }
-
-        if (jugadorEventualEnTemporada.length === 2) {
-            toast('Ultimo partido como eventual para este jugador', {
-                icon: `⚠️`,
-                duration: 4000,
-            });
-        }
-        return true;
-    };
-
-    const generateId = () => {
-        // Genera un número aleatorio de hasta 4 dígitos (puedes ajustar el rango según sea necesario)
-        const randomNumber = Math.floor(Math.random() * 10000);
-        
-        // Convierte el número en una cadena con ceros a la izquierda
-        const formattedNumber = randomNumber.toString().padStart(4, '0');
-        
-        // Añade el prefijo '015' y convierte la cadena resultante a número
-        return parseInt(`015${formattedNumber}`, 10);
-    };
-
-    const validateFields = () => {
-        // Trim the input values
-        const trimmedName = nameValue.trim();
-        const trimmedSurName = surNameValue.trim();
-        const trimmedDni = dniValue.trim();
-        const trimmedDorsal = dorsalValue.trim();
-    
-        // Validate DNI (must be 8 digits)
-        if (!/^\d{8}$/.test(trimmedDni)) {
-            toast.error('El DNI debe tener 8 dígitos.');
-            return false;
-        }
-    
-        // Validate Dorsal (must be up to 3 digits)
-        if (!/^\d{1,3}$/.test(trimmedDorsal)) {
-            toast.error('El dorsal debe ser de hasta 3 dígitos.');
-            return false;
-        }
-    
-        // Check if name and surname are non-empty
-        if (!trimmedName || !trimmedSurName) {
-            toast.error('Nombre y Apellido no pueden estar vacíos.');
-            return false;
-        }
-    
-        // Check if name and surname have valid characters
-        if (!/^[a-zA-Z\s]+$/.test(trimmedName) || !/^[a-zA-Z\s]+$/.test(trimmedSurName)) {
-            toast.error('Nombre y Apellido solo pueden contener letras y espacios.');
-            return false;
-        }
-    
-        return true;
-    };
-    
-    const capitalizeFirstLetter = (string) => {
-        if (!string) return '';
-        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-    };
-
-    const handleNext =  async () => {
+    const handleNext = async () => {
         setLoading(true);
-
+    
         if (isAnyValueEmpty()) {
             toast.error('Todos los campos son obligatorios');
             setLoading(false);
             return;
         }
-
+    
         const trimmedDorsal = dorsalValue.trim();
         const trimmedDni = dniValue.trim();
         const trimmedName = capitalizeFirstLetter(nameValue.trim());
         const trimmedSurName = capitalizeFirstLetter(surNameValue.trim());
-
+    
         // Validate the fields
         if (!validateFields()) {
             setLoading(false);
             return;
         }
-
+    
         const repeatType = await searchDorsal(trimmedDorsal, trimmedDni, dataJugadorEventual);
         const isEditing = isEnabledEdit;
-
+    
         if (maxQuantityPlayers || isEditing) {
             switch (repeatType) {
                 case false:
-                    const jugadorApto = verificarJugador(dniValue);
+                    const jugadorApto = await verificarJugador(trimmedDni);
+                    
                     if (!jugadorApto) {
                         setDorsalValue('');
                         setDniValue('');
                         setNameValue('');
                         setSurNameValue('');
-                        break;
+                        setLoading(false);
+                        return;
                     }
-    
-                    let jugadorExistente = bdEventual.find(jugador => jugador.dni === trimmedDni);
+                    
+                    //! Corroborar ambos casos!! 
+                    let eventualExistente = bdEventual.find(jugador => jugador.dni === trimmedDni)
+                    let regularExistente = foundPlayer.found && !foundPlayer.matchCategory ? foundPlayer.jugador : null
+
+                    if (eventualExistente?.sancionado === 'S' || regularExistente?.sancionado === 'S')  {
+                        setLoading(false);
+                        return toast.error('El jugador esta sancionado')
+                    }
+                    
+                    let jugadorExistente = eventualExistente ? eventualExistente : regularExistente;
                     let newPlayer;
-    
+                    
                     if (jugadorExistente) {
                         newPlayer = {
                             ID: jugadorExistente.id_jugador,
@@ -285,13 +139,13 @@ const JugadoresEventuales = () => {
                             eventual: 'S',
                         };
                     }
-
+                    
                     dispatch(addEventualPlayer({ idPartido: idPartido, teamId: idCurrentTeam, player: newPlayer }));
                     dispatch(setDisabledStateInfoPlayerEvent());
                     dispatch(toggleHiddenPlayerEvent());
                     toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
                     setLoading(false);
-
+    
                     // Limpiamos inputs
                     setDorsalValue('');
                     setDniValue('');
@@ -321,7 +175,7 @@ const JugadoresEventuales = () => {
             setSurNameValue('');
         }
     };
-
+    
     useEffect(() => {
         checkMaxPlayersQuantity();
     }, [equipoCorrecto]);
@@ -331,25 +185,65 @@ const JugadoresEventuales = () => {
         dispatch(toggleHiddenPlayerEvent());
     };
     
-    const jugadoresEventualesEquipo = bdEventual.filter((e) => {
-        return e.id_equipo === equipoCorrecto?.id_equipo;
-    });
-
+    // Función que maneja la selección de un jugador en el Select
     const handlePlayerSelect = (event) => {
-        const selectedPlayer = jugadoresEventualesEquipo.find(player => player.id_jugador == event.target.value);
+        const selectedPlayerId = event.target.value;
+        setSelectedPlayer(selectedPlayerId); // Guardamos la selección del jugador
+        const selectedPlayer = jugadoresEventualesEquipo.find(player => player.id_jugador == selectedPlayerId);
+        
         if (selectedPlayer) {
             setNameValue(selectedPlayer.nombre || '');
             setSurNameValue(selectedPlayer.apellido || '');
             setDniValue(selectedPlayer.dni || '');
             setDorsalValue(selectedPlayer.dorsal || '');
+            setIsDisabled(true); // Bloqueamos los campos de nombre y apellido
         } else {
             setDorsalValue('');
             setDniValue('');
             setNameValue('');
             setSurNameValue('');
+            setIsDisabled(false); // Desbloqueamos si no hay selección
         }
     };
-    
+
+    const handleDniBlur = async () => {
+        if (dniValue.trim()) {
+            setLoadingDni(true);
+            try {
+                const playerExists = await checkPlayerExists(dniValue.trim(), parseInt(equipoCorrecto.id_equipo));
+                console.log(playerExists);
+                
+                if (playerExists.found) {
+                    setIsDisabled(true);
+                    if (playerExists.matchCategory) {
+                        setFoundPlayer(playerExists);
+                        setNameValue(playerExists.jugador.nombre);
+                        setSurNameValue(playerExists.jugador.apellido);
+                        toast.error('El jugador ya existe en esta categoría');
+                    } else {
+                        setFoundPlayer(playerExists);
+                        setNameValue(playerExists.jugador.nombre);
+                        setSurNameValue(playerExists.jugador.apellido);
+                    }
+                } else {
+                    setIsDisabled(false);
+                    setFoundPlayer({});
+                }
+            } catch (error) {
+                console.error('Error checking player:', error);
+            }
+            setLoadingDni(false);
+        }
+    };
+
+    // Función que maneja el cambio de DNI
+    const handleDniChange = (value) => {
+        handleInputChangeDni(value);
+        setIsDisabled(false); // Desbloquear campos de nombre y apellido si se modifica el DNI
+        setFoundPlayer({});
+        setSelectedPlayer(''); // Volvemos a la posición inicial del Select
+    };
+
     return (
         <>
             {!hiddenPlayer && (
@@ -393,30 +287,43 @@ const JugadoresEventuales = () => {
                                 <p>DNI</p>
                                 <Input2
                                     value={dniValue}
-                                    onValueChange={handleInputChangeDni}
+                                    onValueChange={handleDniChange}
                                     placeholder={'Ingrese el DNI'}
+                                    onBlur={handleDniBlur}
                                     numeric={true}
+                                    loading={loadingDni}
+                                    error={foundPlayer.matchCategory} // Condición de error cuando exista un problema con el jugador
+                                    success={!foundPlayer.matchCategory} // Condición de éxito si no hay problema con el jugador
                                 />
                             </TitleInputContainer>
                             <TitleInputContainer>
-                                <p>Nombre</p>
-                                <Input2
-                                    value={nameValue}
-                                    onValueChange={handleInputName}
-                                    placeholder={'Ingrese el Nombre'}
-                                />
-                            </TitleInputContainer>
-                            <TitleInputContainer>
-                                <p>Apellido</p>
-                                <Input2
-                                    value={surNameValue}
-                                    onValueChange={handleInputSurName}
-                                    placeholder={'Ingrese el Apellido'}
-                                />
-                            </TitleInputContainer>
+                            <p>Nombre</p>
+                            <Input2
+                                label="Nombre"
+                                value={nameValue}
+                                onValueChange={handleInputName}
+                                placeholder={'Ingrese el nombre'}
+                                disabled={isDisabled}
+                                // success={foundPlayer ? !foundPlayer.matchCategory : ''}
+                            />
+                        </TitleInputContainer>
+                        <TitleInputContainer>
+                            <p>Apellido</p>
+                            <Input2
+                                label="Apellido"
+                                value={surNameValue}
+                                onValueChange={handleInputSurName}
+                                placeholder={'Ingrese el apellido'}
+                                disabled={isDisabled}
+                                // success={foundPlayer ? !foundPlayer.matchCategory : ''}
+                            />
+                        </TitleInputContainer>
                         </ActionsContainer>
-                        <ActionNext onClick={handleNext}>
-                            {loading ? <LoaderIcon /> : (isEnabledEdit ? 'Actualizar' : 'Añadir')}
+                        <ActionNext
+                            onClick={handleNext}
+                            className={foundPlayer.matchCategory || loading ? 'disabled' : '' || loadingDni ? 'disabled' : ''}
+                        >
+                            {loading ? <LoaderIcon /> : 'Siguiente'}
                         </ActionNext>
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>

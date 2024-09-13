@@ -14,6 +14,7 @@ export const CronometroWrapper = styled.div`
     border-radius: 0 0 20px 20px;
     position: fixed;
     width: auto;
+    z-index: 100;
 
     button {
         border: none;
@@ -25,6 +26,10 @@ export const CronometroWrapper = styled.div`
         justify-content: center;
         border-radius: 10px;
         font-size: 25px;
+    }
+
+    @media (min-width: 968px) {
+        top: 60px;
     }
 `
 export const CronometroH1 = styled.h1`

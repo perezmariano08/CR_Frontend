@@ -22,13 +22,17 @@ const INITIAL_STATE = {
     forgotPasssword: {
         resend: false,
         counter: 0,
-    }
+    },
+    equipoSeleccionado: 1,
 };
 
 const userSlice = createSlice({
     name: "user",
     initialState: INITIAL_STATE,
     reducers: {
+        setNuevoEquipoSeleccionado: (state, action) => {
+            state.equipoSeleccionado = action.payload;
+        },
         setCurrentUser: (state, action) => {
             return {
                 ...state,
@@ -69,6 +73,6 @@ const userSlice = createSlice({
     },
 });
 
-export const { setCurrentUser, toggleHiddenMenu, setNewUser, setNewUserPassword, setNewUserTeamFavorite, setLogCurrentUser, handleResendPassword, setCounter} = userSlice.actions;
+export const {setNuevoEquipoSeleccionado, setCurrentUser, toggleHiddenMenu, setNewUser, setNewUserPassword, setNewUserTeamFavorite, setLogCurrentUser, handleResendPassword, setCounter} = userSlice.actions;
 
 export default userSlice.reducer;

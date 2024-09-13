@@ -79,6 +79,14 @@ export const InputContainerStyled = styled.div`
         color: var(--danger);
     }
 `
+export const LoaderIconWrapper = styled.div`
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+`;
 
 export const InputWrapper = styled.input`
     background-color: var(--gray-300);
@@ -144,12 +152,23 @@ export const InputWrapper2 = styled.input`
     padding: 8px;
     width: 60%;
     
-    &.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-    cursor: not-allowed;
+    ${({ disabled }) => disabled && `
+        opacity: 0.5;
+        pointer-events: none;
+        cursor: not-allowed;
+    `}
+
+    &.error {
+        border-color: var(--red);
+        box-shadow: 0 0 0 1px var(--red);
     }
-`
+
+    &.success {
+        border-color: var(--green);
+        box-shadow: 0 0 0 1px var(--green);
+    }
+`;
+
 export const InputAreaWrapper = styled.textarea`
     background-color: var(--gray-400);
     border-radius: 10px;

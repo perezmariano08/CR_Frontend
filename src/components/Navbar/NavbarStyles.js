@@ -13,7 +13,7 @@ export const NavbarContainerStyled = styled.header`
     z-index: 1000;
     user-select: none;
     @media (max-width: 968px) {
-        height: 40px;
+        height: 50px;
     }
 `
 
@@ -79,4 +79,16 @@ export const NavbarList = styled.ul`
     .active {
         color: var(--green);
     }
+
+    img {
+        width: 30px;
+    }
+`
+
+export const SelectTeamContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    /* padding: 20px; */
 `

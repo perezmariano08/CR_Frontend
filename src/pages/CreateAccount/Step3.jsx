@@ -30,8 +30,8 @@ const Step3 = () => {
         try {
             setLoading(true);
             setTimeout(() => {
-                toast.success('Se le ha enviado un email para verificar su cuenta');
-            }, (1500));
+                toast.success('Se le ha enviado un email para verificar su cuenta, puede demorar unos minutos.');
+            }, (2000));
             const response = await axios.post(`${URL}/auth/crear-cuenta`, {apellido, clave, dni, email, equipoFav, fechaNacimiento, nombre, telefono});
             if (response.status === 200) {
                 // Esperar 3 segundos antes de redirigir

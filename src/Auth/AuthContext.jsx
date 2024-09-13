@@ -37,22 +37,27 @@ export const AuthProvider = ({ children }) => {
                     setUserRole(response.data.usuario.id_rol);
                     setUserName(response.data.usuario.nombre);
                     setUserId(response.data.usuario.id_usuario);
-                    setIdMyTeam(response.data.usuario.id_equipo)
+                    setIdMyTeam(response.data.usuario.id_equipo);
                     setUser(response.data.usuario);
-                    setShowWelcomeToast(true);
                 }
             } catch (error) {
                 setIsAuthenticated(false);
                 setUserRole(null);
                 setUserName(null);
                 setUser(null);
-                setShowWelcomeToast(false);
             } finally {
                 setLoading(false);
             }
         };
         checkAuth();
     }, []);
+
+    // Efecto que se ejecuta solo cuando el usuario cambia (por ejemplo, cuando se loguea)
+    useEffect(() => {
+        if (userName && userId) {
+            setShowWelcomeToast(true); // Solo se ejecuta si hay un nombre y un ID de usuario (usuario autenticado)
+        }
+    }, [userName, userId]); // Dependemos de estos valores
 
     if (loading) {
         return (
@@ -63,7 +68,17 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, userId, userRole, userName, user, idMyTeam, showWelcomeToast, setShowWelcomeToast, setIsAuthenticated }}>
+        <AuthContext.Provider value={{
+            isAuthenticated,
+            userId,
+            userRole,
+            userName,
+            user,
+            idMyTeam,
+            showWelcomeToast,
+            setShowWelcomeToast,
+            setIsAuthenticated,
+        }}>
             {children}
         </AuthContext.Provider>
     );

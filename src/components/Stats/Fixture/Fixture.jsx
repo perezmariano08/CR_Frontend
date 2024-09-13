@@ -103,7 +103,7 @@ const Fixture = ({ zona, categoria }) => {
                                         <>
                                             <h5>{`${partido.goles_local}-${partido.goles_visita}`}</h5>
                                         </>
-                                    ) : partido.estado === 'S' ? (
+                                    ) : partido.estado === 'A' ? (
                                         <>
                                             <h5 className="susp">Postergado</h5>
                                         </>

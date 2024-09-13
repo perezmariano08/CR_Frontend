@@ -19,8 +19,9 @@ const Perfil = () => {
     const dispatch = useDispatch();
     const { user } = useAuth();
     const equipos = useSelector((state) => state.equipos.data);
+    const token = localStorage.getItem('token')
 
-    const { escudosEquipos, nombresEquipos } = useEquipos();
+    const { escudosEquipos, nombresEquipos } = useEquipos();    
 
     const initialFormState = {
         nombre_usuario: user.nombre || '',
@@ -89,7 +90,11 @@ const Perfil = () => {
             id_equipo: parseInt(teamSelected)
         };
         try {
-            const response = await axios.post(`${URL}/user/update-perfil`, userProfileData);
+            const response = await axios.post(`${URL}/user/update-perfil`, userProfileData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             toast.success('Perfil actualizado con éxito');
             if (formState.email_usuario !== user.email) {
                 toast.success('Se ha enviado un email de verificación a tu nuevo correo');
@@ -116,7 +121,7 @@ const Perfil = () => {
                     </PerfilMiEquipo>
                     <h2>Mis datos</h2>
                     <PerfilMisDatos>
-                        <ModalFormInputContainer>
+                        {/* <ModalFormInputContainer>
                             Cambiar equipo favorito
                             <Select
                                 onChange={handleSelectChange}
@@ -126,7 +131,7 @@ const Perfil = () => {
                                 icon={<IoShieldHalf className='icon-select' />}
                                 value={teamSelected}
                             />
-                        </ModalFormInputContainer>
+                        </ModalFormInputContainer> */}
                         <ModalFormInputContainer>
                             Nombre/s
                             <Input

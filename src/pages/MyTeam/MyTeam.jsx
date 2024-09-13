@@ -30,12 +30,13 @@ const MyTeam = () => {
     const location = useLocation();
     const dispatch = useDispatch();
 
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
 
     const searchParams = new URLSearchParams(location.search);
     const equipoIdFromParams = parseInt(searchParams.get('idEquipo'));
 
-    const equipoId = equipoIdFromParams || user.id_equipo;
+    const equipoId = equipoIdFromParams || idMyTeam;
 
     const miEquipo = useMemo(() => equipos.find((equipo) => equipo.id_equipo === equipoId), [equipos, equipoId]);
     

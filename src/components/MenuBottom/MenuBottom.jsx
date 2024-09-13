@@ -4,6 +4,8 @@ import { HiHome, HiOutlineUserGroup, HiAdjustmentsVertical, HiBars3BottomRight, 
 import { FaTrophy } from "react-icons/fa";
 
 const MenuBottom = () => {
+
+  
   return (
     <MenuBottomContainerStyled>
       <MenuBottomWrapper>

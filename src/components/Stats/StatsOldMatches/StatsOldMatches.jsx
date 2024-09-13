@@ -1,7 +1,6 @@
 import React from 'react';
 import { LocalContainer, OldMatchContainer, OldMatchResultContainer, StatsOldMatchesContainer, StatsOldMatchesWrapper, VisitaContainer } from './StatsOldMatchesStyles';
 import { AlignmentDivider } from '../Alignment/AlignmentStyles';
-import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { URLImages } from '../../../utils/utils';
 import { getResultColor, resultOfTheMatch } from './helper';
 import { useNavigate } from 'react-router-dom';
@@ -10,12 +9,12 @@ import { useEquipos } from '../../../hooks/useEquipos';
 const StatsOldMatches = ({ partidosPorEquipo, idLocal, idVisita }) => {
     const navigate = useNavigate();
 
-    const partidosLocal = partidosPorEquipo.local.filter((p) => p.estado === 'F');
-    const partidosVisita = partidosPorEquipo.visita.filter((p) => p.estado === 'F');
-    const ids = [idLocal, idVisita];
+    // Filtrar partidos finalizados y tomar los últimos 5 para cada equipo
+    const partidosLocal = partidosPorEquipo.local.filter((p) => p.estado === 'F').slice(-5);
+    const partidosVisita = partidosPorEquipo.visita.filter((p) => p.estado === 'F').slice(-5);
 
     const { escudosEquipos, nombresEquipos } = useEquipos();
-    
+
     const viewToStatsMatch = (id) => {
         navigate(`/stats-match?id=${id}`)
     }
