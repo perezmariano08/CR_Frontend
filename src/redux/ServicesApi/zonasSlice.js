@@ -4,40 +4,40 @@ import Axios from 'axios';
 import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los años
-export const fetchTemporadas = createAsyncThunk('temporadas/fetchTemporadas', async () => {
-    const response = await Axios.get(`${URL}/user/get-temporadas`);
+export const fetchZonas = createAsyncThunk('zonas/fetchZonas', async () => {
+    const response = await Axios.get(`${URL}/user/get-zonas`);
     return response.data;
 });
 
-const temporadasSlice = createSlice({
-    name: 'temporadas',
+const zonasSlice = createSlice({
+    name: 'zonas',
     initialState: {
         loading: false,
         data: [],
         error: '',
     },
     reducers: {
-        setTemporadas: (state, action) => {
+        setZonas: (state, action) => {
             state.data = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchTemporadas.pending, (state) => {
+            .addCase(fetchZonas.pending, (state) => {
                 state.loading = true;
                 state.error = '';
             })
-            .addCase(fetchTemporadas.fulfilled, (state, action) => {
+            .addCase(fetchZonas.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = action.payload;
             })
-            .addCase(fetchTemporadas.rejected, (state, action) => {
+            .addCase(fetchZonas.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             });
     }
 });
 
-export const { setTemporadas } = temporadasSlice.actions;
+export const { setZonas } = zonasSlice.actions;
 
-export default temporadasSlice.reducer;
+export default zonasSlice.reducer;

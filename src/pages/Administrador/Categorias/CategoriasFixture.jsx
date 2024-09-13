@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
-import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
-import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
-import { IoPencil, IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
+import { IoList, IoPencil, IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import { LuDownload, LuFlagTriangleRight, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
-import { ContentNavWrapper, ContentTitle, FixtureFechas, FixtureFechasWrapper, MenuContentTop } from '../../../components/Content/ContentStyles';
+import { ContentNavWrapper, ContentTitle, FixtureButtons, FixtureFechas, FixtureFechasWrapper, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
@@ -28,10 +26,11 @@ import { CategoriasEdicionEmpty, TablasTemporadaContainer, TablaTemporada } from
 import useForm from '../../../hooks/useForm';
 import { TbPlayFootball } from 'react-icons/tb';
 import Select from '../../../components/Select/Select';
+import { BiMessageDetail, BiSolidEdit } from "react-icons/bi";
 
 import { TbNumber } from "react-icons/tb";
 import { BsCalendar2Event } from "react-icons/bs";
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
@@ -41,26 +40,52 @@ import { dataPartidosColumns } from '../../../Data/Partidos/Partidos';
 import { LiaAngleLeftSolid, LiaAngleRightSolid } from "react-icons/lia";
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
-import { EquipoBodyTemplate, ResultadoBodyTemplate } from '../../../components/Table/TableStyles';
+import { EquipoBodyTemplate, EstadoBodyTemplate, ResultadoBodyTemplate } from '../../../components/Table/TableStyles';
+import { convertirFecha, formatHour, formatPartidoDateTime } from '../../../utils/formatDateTime';
+import CategoriasMenuNav from './CategoriasMenuNav';
+import { Calendar } from 'primereact/calendar';
+import InputCalendar from '../../../components/UI/Input/InputCalendar';
+import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
+import { estadoPartidos } from '../../../Data/Estados/Estados';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
     const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const [searchParams] = useSearchParams(); // Lee los parámetros de búsqueda
+
+  // Obtén el valor del parámetro jornada
+    const jornada = parseInt(searchParams.get('jornada'));
+
+    const navigate = useNavigate()
     const { escudosEquipos, nombresEquipos } = useEquipos();
     
     // Manejo del form
-    const [formState, handleFormChange, resetForm] = useForm({ 
+    const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
         id_edicion: id_page,
-        nombre_categoria: '',
-        genero: 'M',
-        tipo_futbol: 7,
-        duracion_tiempo: '',
-        duracion_entretiempo: '',
+        equipo_local: '',
+        equipo_visita: '',
+        jornada: '',
+        dia: '',
+        hora: '',
+        cancha: '',
+        arbitro: '',
+        planillero: '',
+        zona: '',
+        id_partido: '',
+        estado: ''
     });
-    const isFormEmpty = !formState.nombre_categoria.trim();
+    // const isFormEmpty = !formState.nombre_categoria.trim();
 
     // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
-    const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModalsCrud();
+    const { 
+        isCreateModalOpen, openCreateModal, closeCreateModal,
+        isDescripcionModalOpen, openDescripcionModal, closeDescripcionModal,
+        isUpdateModalOpen, openUpdateModal, closeUpdateModal,
+        isDeleteModalOpen, openDeleteModal, closeDeleteModal
+    } = useModalsCrud();
+    const [descripcion, setIsDescripcion] = useState(false);
+
+
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
      // Estado de los botones que realizan una accion en la base de datos
     const [isImporting, setIsImporting] = useState(false);
@@ -88,44 +113,134 @@ const CategoriasFixture = () => {
     const categoriasList = useSelector((state) => state.categorias.data);
     const partidosList = useSelector((state) => state.partidos.data);
     const equiposList = useSelector((state) => state.equipos.data);
+    const zonas = useSelector((state) => state.zonas.data);
     
+    const usuarios = useSelector((state) => state.usuarios.data);
+    const planilleros = usuarios.filter((u) => u.id_rol === 2)
+
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
         dispatch(fetchPartidos());
+        dispatch(fetchZonas());
     }, []);
 
+    // ACTUALIZAR
+    const [idEditar, setidEditar] = useState(null) 
+
+    const editarPartido = (id_partido) => {
+        const partidoAEditar = partidosCategoria.find((partido) => partido.id_partido === id_partido)
+        if (partidoAEditar) {
+            setFormState({
+                equipo_local: partidoAEditar.id_equipoLocal,
+                equipo_visita: partidoAEditar.id_equipoVisita,
+                jornada: partidoAEditar.jornada,
+                dia: partidoAEditar.dia,
+                hora: partidoAEditar.hora,
+                cancha: partidoAEditar.cancha,
+                arbitro: partidoAEditar.arbitro,
+                estado: partidoAEditar.estado,
+                planillero: partidoAEditar.id_planillero,
+                zona: partidoAEditar.id_zona,
+                id_partido: partidoAEditar.id_partido
+            });
+            openUpdateModal()
+        }
+    }
+
+    // const isFormChanges = 
+    //     formState.nombre_categoria !== categoriaFiltrada.nombre ||
+    //     formState.genero != categoriaFiltrada.genero ||
+    //     formState.tipo_futbol != categoriaFiltrada.tipo_futbol ||
+    //     formState.duracion_tiempo != categoriaFiltrada.duracion_tiempo ||
+    //     formState.duracion_entretiempo != categoriaFiltrada.duracion_entretiempo
+        
+    // Función de actualización en el cliente
+    const { actualizar, isUpdating } = useCrud(
+        `${URL}/user/actualizar-partido`, fetchPartidos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+    );
+
+const actualizarDato = async () => {
+    // Convertir la fecha a formato YYYY-MM-DD si es necesario
+    const diaPartido = formState.dia ? new Date(formState.dia).toLocaleDateString('en-CA') : '';
+
+    const data = { 
+        id_equipoLocal: formState.equipo_local, 
+        id_equipoVisita: formState.equipo_visita, 
+        jornada: formState.jornada, 
+        dia: diaPartido, 
+        hora: formState.hora,
+        cancha: formState.cancha,
+        arbitro: formState.arbitro,
+        id_planillero: formState.planillero,
+        id_edicion: edicionFiltrada.id_edicion,
+        id_categoria: categoriaFiltrada.id_categoria,
+        id_zona: formState.zona,
+        id_partido: formState.id_partido
+    };
+
+    try {
+        await actualizar(data);
+        closeUpdateModal();
+        resetForm()
+    } catch (error) {
+        console.error('Error al actualizar el dato:', error);
+    }
+};
+
+    const [id_partidoEliminar, setIdPartidoEliminar] = useState(null);
+    // ELIMINAR
+    const { eliminarPorId, isDeleting } = useCrud(
+        `${URL}/user/eliminar-partido`, fetchPartidos, 'Registro eliminado correctamente.', "Error al eliminar el registro."
+    );
+
+    const eliminarRegistros = async () => {
+        try {
+            await eliminarPorId(id_partidoEliminar);
+        } catch (error) {
+            console.error("Error eliminando partido:", error);
+        } finally {
+            closeDeleteModal()
+        }
+    };
 
     // CREAR
     const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-categoria`, fetchCategorias, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/user/crear-partido`, fetchPartidos, 'Registro creado correctamente.', "Error al crear el registro."
     );
 
     const agregarRegistro = async () => {
-        if (!formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo) {
+        const diaPartido = formState.dia ?new Date(formState.dia).toISOString().split('T')[0] : ''
+        
+        if (
+            !formState.equipo_local || 
+            !formState.equipo_visita || 
+            !formState.jornada ||
+            !formState.dia ||
+            !formState.hora
+        ) {
             toast.error("Completá los campos.");
             return;
         }
 
-        if (formState.duracion_tiempo < 4 ) {
-            toast.error("La duración de cada tiempo debe tener al menos 5.");
+        if (formState.equipo_local === formState.equipo_visita) {
+            toast.error("No se puede crear un partido con los mismos equipos.");
             return;
         }
-
-        if (categoriasList.some(a => a.nombre === formState.nombre_categoria.trim() && a.id_edicion == formState.id_edicion)) {
-            toast.error(`La categoría ya existe en esta edición.`);
-            return;
-        }
-        
         
         const data = {
-            id_edicion: formState.id_edicion,
-            nombre: formState.nombre_categoria.trim(),
-            genero: formState.genero,
-            tipo_futbol: formState.tipo_futbol,
-            duracion_tiempo: formState.duracion_tiempo,
-            duracion_entretiempo: formState.duracion_entretiempo
+            id_equipoLocal: formState.equipo_local, 
+            id_equipoVisita: formState.equipo_visita, 
+            jornada: formState.jornada, 
+            dia: diaPartido, 
+            hora: formState.hora, 
+            cancha: formState.cancha ? formState.cancha : "Cancha a conf.", 
+            arbitro: formState.arbitro ? formState.arbitro : null, 
+            id_planillero: formState.planillero ? formState.planillero : null,
+            id_edicion: edicionFiltrada.id_edicion,
+            id_categoria: categoriaFiltrada.id_categoria,
+            id_zona: formState.zona
         };
         
         await crear(data);
@@ -155,22 +270,28 @@ const CategoriasFixture = () => {
         if (fileData) {
                 // Mapea los nombres de los equipos a sus respectivos IDs
                 const nuevosDatos = fileData.map(row => {
-                    const equipoLocal = equiposList.find(equipo => equipo.nombre === row.equipoLocal);
-                    const equipoVisita = equiposList.find(equipo => equipo.nombre === row.equipoVisita);
-    
-                    if (!equipoLocal || !equipoVisita) {
-                        throw new Error(`No se encontraron equipos para uno o ambos nombres: ${row.equipoLocal}, ${row.equipoVisita}`);
+                    const equipoLocal = equiposList.find(equipo => equipo.nombre === row.equipoLocal.trim());
+                    const equipoVisita = equiposList.find(equipo => equipo.nombre === row.equipoVisita.trim());
+
+                    // Validación para mostrar errores específicos
+                    if (!equipoLocal) {
+                        toast.error(`No se encontró el equipo: ${row.equipoLocal.trim()}. Revise su archivo`);
+                    }
+                    if (!equipoVisita) {
+                        toast.error(`No se encontró el equipo: ${row.equipoVisita.trim()}. Revise su archivo`);
                     }
     
                     return {
                         ...row,
+                        dia: convertirFecha(row.dia),
                         id_equipoLocal: equipoLocal.id_equipo,
                         id_equipoVisita: equipoVisita.id_equipo,
                         id_categoria: id_page,
+                        id_edicion: edicionFiltrada.id_edicion,
+                        id_zona: formState.zona
                     };
                 });
-    
-                console.log(nuevosDatos);
+                
                 setIsImporting(true); 
                 // Aquí puedes continuar con la importación de los datos
                 Axios.post(`${URL}/user/importar-partidos`, nuevosDatos)
@@ -200,19 +321,27 @@ const CategoriasFixture = () => {
         link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
     }));
 
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_page)
+    const equiposCategoria = equiposList.filter((equipo) => equipo.id_categoria == id_page);
+    
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_page)
+    const zonasFiltradas = zonas.filter((z) => z.id_categoria == categoriaFiltrada.id_categoria)
     // Agregar acciones a la tabla
         const partidosListLink = partidosCategoria.map(partido => ({
             ...partido,
             acciones: (
                 <div style={{display: "flex", gap: "10px"}}>
-                    <Button bg={"danger"} onClick={() => ''}>
+                    <Button bg={"danger"} onClick={() => {
+                        setIdPartidoEliminar(partido.id_partido)
+                        openDeleteModal()
+                    }}>
                         <IoTrashOutline />
                     </Button>
-                    <Button bg={"import"} onClick={() => ''}>
-                        <IoPencil />
+                    <Button bg={"import"} onClick={() => editarPartido(partido.id_partido)}>
+                        <BiSolidEdit />
+                    </Button>
+                    <Button bg={"export"} onClick={() => abrirDescripcion(partido.descripcion)}>
+                        <BiMessageDetail />
                     </Button>
                 </div>
             ),
@@ -228,34 +357,48 @@ const CategoriasFixture = () => {
                     <span>{nombresEquipos(partido.id_equipoVisita)}</span>
                 </EquipoBodyTemplate>
             ),
+            estado: (
+                <>
+                    {partido.estado === 'F' && (
+                        <EstadoBodyTemplate $bg={"success"}>FINALIZADO</EstadoBodyTemplate>
+                    )}
+                    {partido.estado === 'P' && (
+                        <EstadoBodyTemplate $bg={"import"}>PROGRAMADO</EstadoBodyTemplate>
+                    )}
+                    {partido.estado === 'S' && (
+                        <EstadoBodyTemplate $bg={"danger"}>SUSPENDIDO</EstadoBodyTemplate>
+                    )}
+                </>
+            ),
             resultado: (
                 <ResultadoBodyTemplate>
                     <span>{partido.goles_local}</span>
                     <span>-</span>
                     <span>{partido.goles_visita}</span>
                 </ResultadoBodyTemplate>
+            ),
+            dia: (
+                formatPartidoDateTime(partido.dia)
+            ),
+            hora: (
+                formatHour(partido.hora)
             )
         }));
-    // Agrupar partidos por fecha
-    const partidosPorFecha = partidosListLink.reduce((acc, partido) => {
-        const fecha = partido.jornada; // Asumiendo que `partido.fecha` contiene la fecha del partido
-        if (!acc[fecha]) acc[fecha] = [];
-        acc[fecha].push(partido);
-        return acc;
-    }, {});
 
-    const fechas = Object.keys(partidosPorFecha);
-
+    // Filtrar partidos por fecha
+    const partidosJornada = partidosListLink.filter((p) => p.jornada === jornada)
+    
     // Estado para manejar la fecha seleccionada
-    const [fechaSeleccionada, setFechaSeleccionada] = useState(fechas[0]);
+    const [fechaSeleccionada, setFechaSeleccionada] = useState(jornada);
 
     // Navegar entre fechas
     const cambiarFecha = (direccion) => {
-        const indexActual = fechas.indexOf(fechaSeleccionada);
-        if (direccion === 'anterior' && indexActual > 0) {
-            setFechaSeleccionada(fechas[indexActual - 1]);
-        } else if (direccion === 'siguiente' && indexActual < fechas.length - 1) {
-            setFechaSeleccionada(fechas[indexActual + 1]);
+        // const indexActual = fechas.indexOf(fechaSeleccionada);
+        if (direccion === 'anterior') {
+            navigate(`/admin/categorias/fixture/${id_page}?jornada=${jornada - 1}`)
+        } else if (direccion === 'siguiente') {
+            navigate(`/admin/categorias/fixture/${id_page}?jornada=${jornada + 1}`)
+            // setFechaSeleccionada(jornadaInt + 1);
         }
     };
 
@@ -272,7 +415,10 @@ const CategoriasFixture = () => {
         setFileData(null); // Restablece los datos del archivo
     };
 
-
+    const abrirDescripcion = (mensaje) => {
+        openDescripcionModal()
+        mensaje ? setIsDescripcion(mensaje) : setIsDescripcion("No hay descripción del partido")
+    }
     return (
         <Content>
             <MenuContentTop>
@@ -282,23 +428,17 @@ const CategoriasFixture = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <ContentNavWrapper>
-                <li><NavLink to={`/admin/categorias/resumen/${id_page}`}>Resumen</NavLink></li>
-                <li><NavLink to={`/admin/categorias/formato/${id_page}`}>Formato</NavLink></li>
-                <li><NavLink to={`/admin/categorias/fixture/${id_page}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${id_page}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
-                <li><NavLink to={`/admin/categorias/config/${id_page}`}>Configuración</NavLink></li>
-            </ContentNavWrapper>
+            <CategoriasMenuNav id_categoria={id_page}/>
             {
                 partidosCategoria.length > 0 ? (
                     <>
                         <FixtureFechasWrapper>
                             <FixtureFechas>
-                                <Button onClick={() => cambiarFecha('anterior')} disabled={fechas.indexOf(fechaSeleccionada) === 0}>
+                                <Button onClick={() => cambiarFecha('anterior')} disabled={jornada - 1 === 0}>
                                     <LiaAngleLeftSolid  />
                                 </Button>
-                                <span>Fecha {fechaSeleccionada}</span>
-                                <Button onClick={() => cambiarFecha('siguiente')} disabled={fechas.indexOf(fechaSeleccionada) === fechas.length - 1}>
+                                <span>Fecha {jornada}</span>
+                                <Button onClick={() => cambiarFecha('siguiente')} disabled={partidosListLink.filter((p) => p.jornada === jornada + 1).length === 0}>
                                     <LiaAngleRightSolid  />
                                 </Button>
                             </FixtureFechas>
@@ -312,13 +452,21 @@ const CategoriasFixture = () => {
                                     onChange={handleFileChange}
                                 />
                             </label>
-                            <Button bg="import" color="white" onClick={openImportModal}>
-                                <LuUpload />
-                                <p>Importar fechas</p>
-                            </Button>
+                            <FixtureButtons>
+                                <Button bg="success" color="white" onClick={openCreateModal}>
+                                    <FiPlus />
+                                    <p>Crear partido</p>
+                                </Button>
+                                <Button bg="import" color="white" onClick={openImportModal}>
+                                    <LuUpload />
+                                    <p>Importar fechas</p>
+                                </Button>
+                            </FixtureButtons>
+                            
                         </FixtureFechasWrapper>
-                        <Table
-                            data={partidosPorFecha[fechaSeleccionada]}
+                        {
+                            partidosJornada.length > 0 ? <Table
+                            data={partidosJornada}
                             dataColumns={dataPartidosColumns}
                             paginator={false}
                             selection={false}
@@ -326,7 +474,9 @@ const CategoriasFixture = () => {
                             id_={'id_partido'}
                             urlClick={`/admin/categorias/fixture/${edicionFiltrada.id_edicion}/detalle/`}
                             rowClickLink
-                        />
+                        /> : <p>No se encontraron partidos para esta jornada.</p>
+                        }
+                        
                     </>
                 ) : (
                     <>
@@ -350,6 +500,153 @@ const CategoriasFixture = () => {
                 )
             }
             {
+                isCreateModalOpen && <>
+                    <ModalCreate initial={{ opacity: 0 }}
+                        animate={{ opacity: isCreateModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Agregar equipo`}
+                        onClickClose={closeCreateModal}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeCreateModal}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} onClick={agregarRegistro} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Guardar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                            <>
+                                <ModalFormInputContainer>
+                                    Zona
+                                    <Select 
+                                        name={'zona'}
+                                        data={zonasFiltradas}
+                                        placeholder={'Seleccionar zona'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_zona"}
+                                        column='nombre_zona'
+                                        value={formState.zona}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo Local
+                                    <Select 
+                                        name={'equipo_local'}
+                                        data={equiposCategoria}
+                                        placeholder={'Seleccionar equipo'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_equipo"}
+                                        column='nombre'
+                                        value={formState.equipo_local}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo Visitante
+                                    <Select 
+                                        name={'equipo_visita'}
+                                        data={equiposCategoria}
+                                        placeholder={'Seleccionar equipo'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_equipo"}
+                                        column='nombre'
+                                        value={formState.equipo_visita}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Jornada
+                                    <Input 
+                                        name='jornada'
+                                        type='number' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.jornada}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Día
+                                    <InputCalendar
+                                        name='dia'
+                                        placeholder="Seleccione fecha" 
+                                        value={formState.dia}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Hora
+                                    <Input 
+                                        name='hora'
+                                        type='time' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.hora}
+                                        onChange={handleFormChange}
+                                        
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Cancha
+                                    <Input 
+                                        name='cancha'
+                                        type='text' 
+                                        placeholder="Ejemplo: Cancha 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.cancha}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Arbitro
+                                    <Input 
+                                        name='arbitro'
+                                        type='text' 
+                                        placeholder="Nombre" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.arbitro}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Planillero
+                                    <Select 
+                                        name={'planillero'}
+                                        data={planilleros}
+                                        placeholder={'Seleccionar planillero'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_usuario"}
+                                        column='usuario'
+                                        value={formState.planillero}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeCreateModal} />
+                </>
+            }
+            {
                 isImportModalOpen && <>
                     <ModalImport initial={{ opacity: 0 }}
                         animate={{ opacity: isImportModalOpen ? 1 : 0 }}
@@ -359,6 +656,24 @@ const CategoriasFixture = () => {
                         message={`${articuloPlural} ${plural}`}
                         onClickClose={closeImportModal}
                         fileName={fileName}
+                        exampleFile={"/ejemplo_partidos.csv"}
+                        nombreEjemplo={'partidos'}
+                        select={
+                            <ModalFormInputContainer>
+                                Zona
+                                <Select 
+                                    name={'zona'}
+                                    data={zonasFiltradas}
+                                    placeholder={'Seleccionar zona'}
+                                    icon={<IoShieldHalf className='icon-select'/>}
+                                    id_={"id_zona"}
+                                    column='nombre_zona'
+                                    value={formState.zona}
+                                    onChange={handleFormChange}
+                                >
+                                </Select>
+                            </ModalFormInputContainer>
+                        }
                         buttons={
                             <>
                                 {fileName ? (
@@ -372,7 +687,7 @@ const CategoriasFixture = () => {
                                         <p>Seleccionar</p>
                                     </Button>
                                 )}
-                                <Button color={"success"} onClick={handleFileImport} disabled={!fileName}>
+                                <Button color={"success"} onClick={handleFileImport} disabled={!fileName || !formState.zona}>
                                     {isImporting ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
@@ -390,6 +705,236 @@ const CategoriasFixture = () => {
                     />
                     <Overlay onClick={closeImportModal} />
                 </>
+            }
+            {
+                isDescripcionModalOpen && <>
+                    <ModalCreate 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: isDescripcionModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Descripción del partido`}
+                        onClickClose={closeDescripcionModal}
+                        texto={descripcion}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeDescripcionModal}>
+                                    <IoClose />
+                                    Cerrar
+                                </Button>
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeDescripcionModal} />
+                </>
+            }
+            {
+                isUpdateModalOpen && <>
+                    <ModalCreate initial={{ opacity: 0 }}
+                        animate={{ opacity: isUpdateModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Editar partido`}
+                        onClickClose={() => {
+                            closeUpdateModal()
+                            resetForm()
+                        }}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={() => {
+                                    closeUpdateModal()
+                                    resetForm()
+                                }}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdating}>
+                                    {isUpdating ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                            Actualizando
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Actualizar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                            <>
+                                <ModalFormInputContainer>
+                                    Zona
+                                    <Select 
+                                        name={'zona'}
+                                        data={zonasFiltradas}
+                                        placeholder={'Seleccionar zona'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_zona"}
+                                        column='nombre_zona'
+                                        value={formState.zona}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo Local
+                                    <Select 
+                                        name={'equipo_local'}
+                                        data={equiposCategoria}
+                                        placeholder={'Seleccionar equipo'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_equipo"}
+                                        column='nombre'
+                                        value={formState.equipo_local}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Equipo Visitante
+                                    <Select 
+                                        name={'equipo_visita'}
+                                        data={equiposCategoria}
+                                        placeholder={'Seleccionar equipo'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_equipo"}
+                                        column='nombre'
+                                        value={formState.equipo_visita}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Jornada
+                                    <Input 
+                                        name='jornada'
+                                        type='number' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.jornada}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Establecer nuevo día
+                                    <InputCalendar
+                                        name='dia'
+                                        placeholder="Seleccione fecha" 
+                                        value={formState.dia}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Hora
+                                    <Input 
+                                        name='hora'
+                                        type='time' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.hora}
+                                        onChange={handleFormChange}
+                                        
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Cancha
+                                    <Input 
+                                        name='cancha'
+                                        type='text' 
+                                        placeholder="Ejemplo: Cancha 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.cancha}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Arbitro
+                                    <Input 
+                                        name='arbitro'
+                                        type='text' 
+                                        placeholder="Nombre" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.arbitro}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Planillero
+                                    <Select 
+                                        name={'planillero'}
+                                        data={planilleros}
+                                        placeholder={'Seleccionar planillero'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_usuario"}
+                                        column='usuario'
+                                        value={formState.planillero}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Planillero
+                                    <Select 
+                                        name={'estado'}
+                                        data={estadoPartidos}
+                                        placeholder={'Seleccionar estado'}
+                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        id_={"id_estado"}
+                                        column='nombre'
+                                        value={formState.estado}
+                                        onChange={handleFormChange}
+                                    >
+                                    </Select>
+                                </ModalFormInputContainer>
+                            </>
+                        }
+                    />
+                    <Overlay onClick={() => {
+                        closeUpdateModal()
+                        resetForm()
+                    }} />
+                </>
+            }
+            {
+                isDeleteModalOpen && (
+                    <>
+                        <ModalDelete
+                            text={
+                            `¿Estas seguro que quieres eliminar la categoria ${categoriaFiltrada.nombre}?`}
+                            animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            onClickClose={closeDeleteModal}
+                            title={`Eliminar edición ${categoriaFiltrada.nombre}?`}
+                            buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeDeleteModal}>
+                                    <IoClose />
+                                    No
+                                </Button>
+                                <Button color={"success"} onClick={eliminarRegistros} disabled={isDeleting}>
+                                    {isDeleting ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                            Eliminando
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Si
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                            }  
+                        />
+                        <Overlay onClick={closeDeleteModal}/>
+                    </>
+                    
+                )
             }
         </Content>
     );

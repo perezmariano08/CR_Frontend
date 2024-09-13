@@ -95,6 +95,19 @@ export const ModalButtons = styled.div`
     justify-content: end;
 `
 
+export const ModalExample = styled.a`
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    align-items: center;
+    color: var(--green);
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
 export const ModalMessage = styled.div`
     display: flex;
     gap: 20px;

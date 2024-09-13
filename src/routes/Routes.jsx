@@ -88,7 +88,7 @@ const Routes = () => {
                             <Route path='/admin/ediciones/categorias/:id_page' element={<LayoutAdmin> <EdicionesCategorias/> </LayoutAdmin>} />
                             <Route path='/admin/ediciones/config/:id_page' element={<LayoutAdmin> <EdicionesConfig/> </LayoutAdmin>} />
                             <Route path='/admin/categorias/resumen/:id_page' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
-                            <Route path='/admin/categorias/fixture/:id_page' element={<LayoutAdmin> <CategoriasFixture /> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/fixture/:id_page/' element={<LayoutAdmin> <CategoriasFixture /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/fixture/:id_page/detalle/:id_page' element={<LayoutAdmin> <CategoriasFixturePartido /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/equipos/:id_page' element={<LayoutAdmin> <CategoriasEquipos /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/equipos/:id_page/detalle/:id_page' element={<LayoutAdmin> <CategoriasEquiposDetalle /> </LayoutAdmin>} />

@@ -56,7 +56,7 @@ export const ContentNavWrapper = styled.ul`
             height: 2.5px;
             background-color: var(--green);
             border-radius: 0 0px 20px 20px;
-            transition: all 0.2s ease;
+            transition: all 0.1s ease;
         }
 
         &.active::after {
@@ -142,6 +142,12 @@ export const FixtureFechas = styled.div`
     }
 `
 
+export const FixtureButtons = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`
+
 export const TituloPartidoDetalle = styled.div`
     display: flex;
     justify-content: center;
@@ -180,6 +186,14 @@ export const FormacionEquipo = styled.div`
     flex-direction: column;
     gap: 20px;
     width: 100%;
+`
+
+export const EmptyFormacionEquipo = styled.div`
+    display: flex;
+    width: 100%;
+    background-color: var(--gray-400);
+    padding: 15px 20px;
+    border-radius: 20px;
 `
 
 export const FormacionEquipoImg = styled.div`

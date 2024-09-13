@@ -4,10 +4,12 @@ export const dataPartidosColumns = [
     { field: 'resultado', header: '', sortable: false},
     { field: 'id_equipoVisita', header: 'Visitante', sortable: true },
     { field: 'dia', header: 'Dia', sortable: true },
+    { field: 'estado', header: 'Estado', sortable: true },
     { field: 'hora', header: 'Hora', sortable: true },
+    { field: 'planillero', header: 'Planillero', sortable: true },
     { field: 'cancha', header: 'Cancha', sortable: true },
     { field: 'arbitro', header: 'Árbitro', sortable: true },
-    { field: 'id_planillero', header: 'Planillero', sortable: true },
+    
     // { field: 'descripcion', header: 'Descripcion', sortable: true },
 ];
 

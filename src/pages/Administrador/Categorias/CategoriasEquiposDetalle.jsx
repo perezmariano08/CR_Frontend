@@ -44,6 +44,7 @@ import { AccionesBodyTemplate, EstadoBodyTemplate } from '../../../components/Ta
 import { PiIdentificationCardLight, PiUser } from 'react-icons/pi';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
+import CategoriasMenuNav from './CategoriasMenuNav';
 
 const CategoriasEquiposDetalle = () => {
     const dispatch = useDispatch()
@@ -388,13 +389,7 @@ const CategoriasEquiposDetalle = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <ContentNavWrapper>
-                <li><NavLink to={`/admin/categorias/resumen/${categoriaFiltrada.id_categoria}`}>Resumen</NavLink></li>
-                <li><NavLink to={`/admin/categorias/formato/${categoriaFiltrada.id_categoria}`}>Formato</NavLink></li>
-                <li><NavLink to={`/admin/categorias/fixture/${categoriaFiltrada.id_categoria}`}>Fixture</NavLink></li>
-                <li><NavLink to={`/admin/categorias/equipos/${categoriaFiltrada.id_categoria}`}>Equipos ({categoriaEquipos.length})</NavLink></li>
-                <li><NavLink to={`/admin/categorias/config/${categoriaFiltrada.id_categoria}`}>Configuración</NavLink></li>
-            </ContentNavWrapper>
+            <CategoriasMenuNav id_categoria={id_page}/>
             <EquipoDetalleInfo>
                 <EquipoWrapper>
                     <img src={`${URLImages}${escudosEquipos(equipoFiltrado.id_equipo)}`} alt={equipoFiltrado.nombre} />

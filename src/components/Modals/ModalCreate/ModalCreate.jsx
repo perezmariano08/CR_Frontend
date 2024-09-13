@@ -2,7 +2,7 @@ import React from 'react'
 import { ModalButtons, ModalContainerStyled, ModalForm, ModalHeader } from '../ModalsStyles'
 import { IoClose } from "react-icons/io5";
 
-const ModalCreate = ({ title, buttons, form, onClickClose, initial, animate, exit, transition}) => {
+const ModalCreate = ({ title, buttons, form, onClickClose, initial, animate, exit, transition, texto}) => {
     return (
         <ModalContainerStyled
             initial={initial}
@@ -14,9 +14,14 @@ const ModalCreate = ({ title, buttons, form, onClickClose, initial, animate, exi
                 <p>{title}</p>
                 <IoClose onClick={onClickClose}/>
             </ModalHeader>
-            <ModalForm>
-                {form}
-            </ModalForm>
+            {
+                form && (
+                    <ModalForm>
+                        {form}
+                    </ModalForm>
+                )
+            }
+            {texto}
             <ModalButtons>
                 {buttons}
             </ModalButtons>

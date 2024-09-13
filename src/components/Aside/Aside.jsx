@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchUsuarios } from '../../redux/ServicesApi/usuariosSlice';
 import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice';
-import { BiBlock } from "react-icons/bi";
+import { BiBlock, BiSearch } from "react-icons/bi";
 import { HiOutlineTrophy } from "react-icons/hi2";
 
 
@@ -75,23 +75,31 @@ const Aside = ({className}) => {
                             <HiOutlineTrophy />
                             <p>Ediciones</p>
                         </NavLinkItem>
-                        <NavLinkItem to={"/admin/equipos"}>
+                        {/* <NavLinkItem to={"/admin/equipos"}>
                             <IoShieldHalf />
                             <p>Equipos</p>
-                        </NavLinkItem>
-                        <NavLinkItem to={"/admin/usuarios"}>
+                        </NavLinkItem> */}
+                        {/* <NavLinkItem to={"/admin/usuarios"}>
                             <LiaFutbol />
                             <p>Usuarios</p>
-                        </NavLinkItem>
-                        <NavLinkItem to={"/admin/jugadores"}>
+                        </NavLinkItem> */}
+                        {/* <NavLinkItem to={"/admin/jugadores"}>
                             <TbShirtSport />
                             <p>Jugadores</p>
-                        </NavLinkItem>
-                        <NavLinkItem to={"/admin/partidos"}>
+                        </NavLinkItem> */}
+                        {/* <NavLinkItem to={"/admin/partidos"}>
                             <TbCalendarEvent />
                             <p>Partidos</p>
+                        </NavLinkItem> */}
+                        <NavLinkItem to={'/admin/sanciones/expulsados'}>
+                            <BiBlock />
+                            <p>Sanciones</p>
                         </NavLinkItem>
-                        <MenuItem>
+                        <NavLinkItem to={'/'}>
+                            <BiSearch />
+                            <p>Buscador</p>
+                        </NavLinkItem>
+                        {/* <MenuItem>
                             <motion.div style={{ display: 'flex', alignItems: 'center' }}>
                                 <NavLinkItem onClick={toggleSubMenuSanciones} className="custom-navlink">
                                     <BiBlock />
@@ -122,7 +130,7 @@ const Aside = ({className}) => {
                                     </motion.div> 
                                 )}
                             </AnimatePresence>
-                        </MenuItem>
+                        </MenuItem> */}
                     </AsideMenu>
                 </AsideMenuWrapper>
             </AsideContainerStyled>
