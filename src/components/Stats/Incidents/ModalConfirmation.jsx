@@ -45,8 +45,7 @@ const ModalConfirmation = () => {
         updateSancionados,
         insertDreamTeam 
     } = useOperationMatch(bd_jugadores_eventuales, bd_partido, bd_formaciones, bd_goles, bd_rojas, bd_amarillas, bd_asistencias, bd_dreamTeam)
-    console.log(jugadorDestacado);
-    
+
     const handleModalConfirm = async () => {
         try {
             setLoading(true);
