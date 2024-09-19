@@ -211,7 +211,6 @@ const JugadoresEventuales = () => {
             setLoadingDni(true);
             try {
                 const playerExists = await checkPlayerExists(dniValue.trim(), parseInt(equipoCorrecto.id_equipo));
-                console.log(playerExists);
                 
                 if (playerExists.found) {
                     setIsDisabled(true);

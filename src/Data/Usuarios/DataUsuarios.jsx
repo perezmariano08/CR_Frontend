@@ -6,7 +6,7 @@ export const dataUsuariosColumns = [
     { field: 'nacimiento', header: 'Nacimiento' },
     { field: 'telefono', header: 'Telefono' },
     { field: 'email', header: 'Email' },
-    { field: 'equipo', header: 'Equipo favorito' },
+    // { field: 'equipo', header: 'Equipo favorito' },
     { field: 'fecha_creacion', header: 'Creacion' },
     { field: 'fecha_actualizacion', header: 'Actualizacion' }
 ];

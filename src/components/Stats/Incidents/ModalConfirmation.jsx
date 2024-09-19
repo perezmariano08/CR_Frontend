@@ -100,6 +100,9 @@ const ModalConfirmation = () => {
             console.error('Error: ', error)
         } finally {
             setLoading(false);
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000)
         }
 };
     

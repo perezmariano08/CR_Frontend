@@ -24,6 +24,9 @@ import Select from '../../../components/Select/Select.jsx';
 import { useDispatch } from 'react-redux';
 import { handleMvpSlice } from '../../../redux/Planillero/planilleroSlice.js';
 import PenaltyOption from '../../../components/PenaltyOption/PenaltyOption.jsx';
+import { FaCloudArrowUp } from "react-icons/fa6";
+import { ImCross } from "react-icons/im";
+import { FaPlay, FaRegStopCircle  } from "react-icons/fa";
 
 const Planilla = () => {
     const dispatch = useDispatch();
@@ -82,8 +85,14 @@ const Planilla = () => {
                         )}
     
                         {matchCorrecto.estado !== 'F' && (
+                            <FormacionesPlanilla idPartido={partidoId} />
+                        )}
+                        
+                        {/* Mostrar incidencias siempre que el partido no esté suspendido */}
+                        <Incidents incidentes={bdIncidencias} formaciones={formacionesConNombreApellido} partidoId={partidoId} />
+
+                        {matchCorrecto.estado !== 'F' && (
                             <>
-                                <FormacionesPlanilla idPartido={partidoId} />
                                 <SelectContainerStyled>
                                     <h3>Seleccionar <span>MVP</span></h3>
                                     <Select
@@ -97,7 +106,9 @@ const Planilla = () => {
                                         planilla={true}
                                     />
                                 </SelectContainerStyled>
+                                
                                 <PenaltyOption partido={matchCorrecto} />
+
                                 <InputDescContainer>
                                     <p>Observaciones del partido</p>
                                     <InputLong 
@@ -109,11 +120,8 @@ const Planilla = () => {
                                         onChange={handleChange} 
                                     />
                                 </InputDescContainer>
-                            </>
+                            </>                      
                         )}
-    
-                        {/* Mostrar incidencias siempre que el partido no esté suspendido */}
-                        <Incidents incidentes={bdIncidencias} formaciones={formacionesConNombreApellido} partidoId={partidoId} />
                     </>
                 )}
     
@@ -127,32 +135,30 @@ const Planilla = () => {
                                     handleToastStartMatch();
                                     handleStartMatch();
                                 }}>
+                                <FaPlay />
                                 Comenzar Partido
                             </ButtonMatch>
                         )}
                         {partido.matchState === 'isFinish' && (
-                            <>
-                                <ButtonMatch className='finish' onClick={handleStartMatch}>
-                                    Partido Finalizado
-                                </ButtonMatch>
-    
                                 <ButtonMatch onClick={pushInfoMatch}>
-                                    Enviar información
+                                    <FaCloudArrowUp />
+                                    Subir partido
                                 </ButtonMatch>
-                            </>
                         )}
                         {partido.matchState === 'isStarted' && (
                             <ButtonMatch onClick={handleStartMatch}>
+                                <FaRegStopCircle />
                                 Finalizar Partido
                             </ButtonMatch>
                         )}
                         {partido.matchState === 'matchPush' && (
-                            <ButtonMatch className='finish' onClick={handleStartMatch}>
+                            <ButtonMatch className='finish'>
                                 Partido cargado
                             </ButtonMatch>
                         )}
                         {partido.matchState !== 'matchPush' && (
                             <ButtonMatch className='suspender' onClick={suspenderPartido}>
+                                <ImCross />
                                 Suspender Partido
                             </ButtonMatch>
                         )}

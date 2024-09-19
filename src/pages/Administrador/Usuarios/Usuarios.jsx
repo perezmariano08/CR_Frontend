@@ -31,10 +31,12 @@ import { dataEstadosAI } from '../../../Data/Estados/Estados';
 import { AiOutlineCalendar } from 'react-icons/ai';
 import { LiaUserCogSolid, LiaUserEditSolid } from "react-icons/lia";
 import { MdOutlineImage } from 'react-icons/md';
+import InputCalendar from '../../../components/UI/Input/InputCalendar';
+import { HiMiniPaintBrush } from "react-icons/hi2";
 
 const Usuarios = () => {
     const dispatch = useDispatch();
-
+    const token = localStorage.getItem('token'); // Obtener el token
     // Constantes del modulo
     const articuloSingular = "el"
     const articuloPlural = "los"
@@ -73,6 +75,7 @@ const Usuarios = () => {
     const [email, setEmail] = useState("");
     const [equipo, setEquipo] = useState("");
     const [estado, setEstado] = useState("");
+    const [clave, setClave] = useState();
     const [img, setImg] = useState("");
     const [id_usuario, setIdUsuario] = useState("");
 
@@ -142,7 +145,11 @@ const Usuarios = () => {
         if (selectedRows.length > 0) {
             setIsSaving(true);
             const deletePromises = selectedRows.map(row => 
-                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_usuario })
+                Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_usuario }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
             );
     
             toast.promise(
@@ -182,34 +189,42 @@ const Usuarios = () => {
             nombre != "" &&
             apellido != "" &&
             nacimiento != "" &&
+            telefono != "" &&
             email != "" &&
-            estado != "" &&
-            equipo != "" 
+            clave != "" &&
+            rol != ""
         ){
             setIsSaving(true);
             try {
                 // Despacha fetchUsuarios para obtener los datos existentes
                 const response = await dispatch(fetchUsuarios()).unwrap();
-                const datosExistentes = response.data;
+                const datosExistentes = response                
                 const datoExiste = datosExistentes.some(a => a.dni === dni);
                 if (datoExiste) {
                     toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
+                    setIsSaving(false)
                 } else {
+                    const fechaNacimiento = nacimiento;
                     Axios.post(`${URL}/auth/${create}`, {
                         dni,
                         nombre,
                         apellido,
-                        nacimiento,
+                        fechaNacimiento,
+                        telefono,
                         email,
-                        estado
+                        clave,
+                        rol
                     }).then(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente.`);
                         dispatch(fetchUsuarios());
                         closeCreateModal();
                         setNombre("");
                         setDescripcion("");
                         setIsSaving(false)
                     });
+                    setIsSaving(false)
+                    setTimeout(() => {
+                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente. Se envio un mail de confirmacion al usuario para activar la cuenta`);
+                    }, 3000) 
                 }
             } catch (error) {
                 setIsSaving(false)
@@ -270,10 +285,13 @@ const Usuarios = () => {
                     email,
                     telefono,
                     id_rol: rol,
-                    id_equipo: equipo,
                     estado,
                     img: imageUrl,
                     id_usuario
+                },  {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 }
             );
             if (response.status === 200) {
@@ -320,7 +338,17 @@ const Usuarios = () => {
     };
 
     // Funciones que manejan el estado de los modales (Apertura y cierre)
-    const openCreateModal = () => setIsCreateModalOpen(true);
+    const openCreateModal = () => {
+        setDni("")
+        setNombre("")
+        setApellido("")
+        setEmail("")
+        setTelefono("")
+        setNacimiento("")
+        setClave("")
+        setRol("")
+        setIsCreateModalOpen(true);}
+
     const closeCreateModal = () => setIsCreateModalOpen(false);
     const openDeleteModal = () => setIsDeleteModalOpen(true);
     const closeDeleteModal = () => setIsDeleteModalOpen(false);
@@ -343,7 +371,6 @@ const Usuarios = () => {
         setPreviewImage("")
         setIsEditModalOpen(false);
     }
-
 
     const cancelFileSelection = () => {
         setFileName(""); // Restablece el nombre del archivo
@@ -411,16 +438,16 @@ const Usuarios = () => {
             <ContentTitle>{plural.charAt(0).toUpperCase() + plural.slice(1)}</ContentTitle>
             <ActionsCrud>
                 <ActionsCrudButtons>
-                    {/* <Button bg="success" color="white" onClick={openCreateModal}>
+                    <Button bg="success" color="white" onClick={openCreateModal}>
                         <FiPlus />
                         <p>Nuevo</p>
-                    </Button> */}
+                    </Button>
                     <Button bg="danger" color="white" onClick={openDeleteModal} disabled={selectedRows.length === 0}>
                         <IoTrashOutline />
                         <p>Eliminar</p>
                     </Button>
                     <Button bg="import" color="white" onClick={editRow} disabled={selectedRows.length > 1 || selectedRows.length === 0}>
-                        <IoTrashOutline />
+                        <HiMiniPaintBrush />
                         <p>Editar</p>
                     </Button>
                 </ActionsCrudButtons>
@@ -464,57 +491,121 @@ const Usuarios = () => {
                         }
                         form={
                             <>
-                                <ModalFormInputContainer>
-                                    DNI
-                                    <Input type='text' placeholder="Escriba el DNI..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Nombre
-                                    <Input 
-                                        type='text'
-                                        placeholder="Escriba el nombre..."
-                                        icon={<PiUser className='icon-input'/>} 
-                                    />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Fecha de Nacimiento
-                                    <Input type='text' placeholder="Escriba aqui..." 
-                                    icon={<AiOutlineCalendar className='icon-input'/>} />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Email
-                                    <Input type='text' placeholder="Escriba aqui..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Contraseña
-                                    <Input type='text' placeholder="Escriba aqui..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Confirmar contraseña
-                                    <Input type='text' placeholder="Escriba aqui..." />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Estado
-                                    <Select 
-                                        data={
-                                            [
-                                                {estado: "Activo"},
-                                                {estado: "No Activo"}
-                                            ]
-                                        }
-                                        placeholder={"Seleccionar estado"}
-                                        column='estado'
-                                    >
-                                    </Select>
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Equipo favorito
-                                    <Select 
-                                        data={equiposList}
-                                        placeholder="Seleccionar equipo"
-                                    >
-                                    </Select>
-                                </ModalFormInputContainer>
+<ModalFormInputContainer>
+    DNI
+    <Input 
+        type='text' 
+        placeholder="Escriba el DNI..." 
+        value={dni}
+        onChange={(event) => {
+            const value = event.target.value;
+            // Validar que solo sean números
+            if (/^\d*$/.test(value)) {
+                setDni(value);
+            }
+        }}
+        icon={<PiIdentificationCardLight className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Nombre
+    <Input 
+        type='text' 
+        placeholder="Escriba el nombre..." 
+        value={nombre}
+        onChange={(event) => {
+            const value = event.target.value;
+            // Validar que solo sean letras
+            if (/^[a-zA-Z\s]*$/.test(value)) {
+                setNombre(value);
+            }
+        }}
+        icon={<PiUser className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Apellido
+    <Input 
+        type='text' 
+        placeholder="Escriba el apellido..." 
+        value={apellido}
+        onChange={(event) => {
+            const value = event.target.value;
+            // Validar que solo sean letras
+            if (/^[a-zA-Z\s]*$/.test(value)) {
+                setApellido(value);
+            }
+        }}
+        icon={<PiUser className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Fecha de Nacimiento
+    <InputCalendar 
+        type='text' 
+        placeholder="Escriba aqui..." 
+        value={nacimiento}
+        onChange={(event) => { setNacimiento(event.target.value)}}
+        icon={<AiOutlineCalendar className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Email
+    <Input 
+        type='text' 
+        placeholder="Escriba aqui..." 
+        value={email}
+        onChange={(event) => { 
+            const value = event.target.value;
+                setEmail(value);
+        }}
+        icon={<PiEnvelope className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Telefono
+    <Input 
+        type='text' 
+        placeholder="Escriba aqui..." 
+        value={telefono}
+        onChange={(event) => {
+            const value = event.target.value;
+            // Validar que solo sean números
+            if (/^\d*$/.test(value)) {
+                setTelefono(value);
+            }
+        }}
+        icon={<PiPhone className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Clave
+    <Input 
+        type='password'  // Cambia el tipo de campo a "password"
+        placeholder="Escriba aqui..." 
+        value={clave}
+        onChange={(event) => { setClave(event.target.value)}} 
+        icon={<PiPhone className='icon-input'/>} 
+    />
+</ModalFormInputContainer>
+
+<ModalFormInputContainer>
+    Rol
+    <Select 
+        data={rolesList}
+        placeholder="Seleccionar rol"
+        value={rol}
+        icon={<IoShieldHalf className='icon-select' />}
+        onChange={(event) => { setRol(event.target.value)}}
+        id_={"id_rol"}
+    />
+</ModalFormInputContainer>
                             </>
                         }
                     />
@@ -713,7 +804,7 @@ const Usuarios = () => {
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
-                                <ModalFormInputContainer>
+                                {/* <ModalFormInputContainer>
                                     Equipo
                                     <Select 
                                         data={equiposList}
@@ -724,7 +815,7 @@ const Usuarios = () => {
                                         id_={"id_equipo"}
                                     >
                                     </Select>
-                                </ModalFormInputContainer>
+                                </ModalFormInputContainer> */}
                                 <ModalFormInputContainer>
                                     Estado
                                     <Select 
@@ -733,7 +824,7 @@ const Usuarios = () => {
                                         value={estado}
                                         onChange={(event) => { setEstado(event.target.value)}}
                                         id_={'id_estado'}
-                                        icon={<LiaUserEditSolid className='icon-select' />                                        }
+                                        icon={<LiaUserEditSolid className='icon-select' /> }
                                     >
                                     </Select>
                                 </ModalFormInputContainer>

@@ -255,3 +255,19 @@ export const NavToHomeContainer = styled.div`
         color: var(--green);
     }
 `
+
+export const SolicitarCuentaContainer = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    a {
+        color: var(--green);
+    }
+
+    span {
+        font-size: 12px;
+    }
+`

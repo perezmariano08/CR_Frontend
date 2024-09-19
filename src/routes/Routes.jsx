@@ -68,11 +68,11 @@ const Routes = () => {
                         <Route path='/' element={<LayoutPrivate> <Home/> </LayoutPrivate>} />
                         <Route path='/my-team' element={<LayoutPrivate> <MyTeam/> </LayoutPrivate>} />
                         <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} />
-
-                        {/* <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} />
-                        <Route path='/create-password' element={<Layout> <Step2/> </Layout>} /> */}
+                        <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} />
+                        {/* <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} /> */}
+                        <Route path='/create-password' element={<Layout> <Step2/> </Layout>} />
+                        
                         {/* <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} /> */}
-                        {/* <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} /> */}
                         {/* <Route path='/confirm-email-change' element={<Layout> <ConfirmEmailChange/> </Layout>} /> */}
                         {/* <Route path='/my-team/partidos' element={<LayoutPrivate> <MyTeamPartidos/> </LayoutPrivate>} /> */}
                         {/* <Route path='/stats' element={<LayoutPrivate> <Stats/> </LayoutPrivate>} /> */}

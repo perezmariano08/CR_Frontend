@@ -9,7 +9,7 @@ import {
 import Input from '../../components/UI/Input/Input';
 import { AiOutlineLock } from 'react-icons/ai';
 import { ButtonSubmit } from '../../components/UI/Button/ButtonStyles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setNewUserPassword } from '../../redux/user/userSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -24,11 +24,10 @@ const Step2 = () => {
 
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
-
     const [passwordError, setPasswordError] = useState('');
     const [repeatPasswordError, setRepeatPasswordError] = useState('');
     const [redirecting, setRedirecting] = useState(false); // Estado de redirección
-
+    const [loading, setLoading] = useState(false);
     // Recovery
     const [recoveryPassword, setRecoveryPassword] = useState(false);
     const [token, setToken] = useState('');
@@ -106,6 +105,28 @@ const Step2 = () => {
         }
     };
     
+    const nuevoUsuario = useSelector((state) => state.newUser.newUser);
+    console.log(nuevoUsuario);
+    
+    const createAccount = async ({apellido, clave, dni, email, fechaNacimiento, nombre, telefono}) => {
+        try {
+            setLoading(true);
+            setTimeout(() => {
+                toast.success('Su cuenta esta en estado de revision');
+            }, (2300));
+            const response = await axios.post(`${URL}/auth/crear-cuenta`, {apellido, clave, dni, email, fechaNacimiento, nombre, telefono});
+            if (response.status === 200) {
+                // Esperar 3 segundos antes de redirigir
+                setTimeout(() => {
+                    setLoading(false);
+                    navigate('/login');
+                }, 2500);
+            } 
+        } catch (error) {
+            console.error('Error en la solicitud HTTP:', error);
+            toast.error('Error al registrar la cuenta');
+        }
+    };
 
     const handleNextStep3 = () => {
         if (passwordError || repeatPasswordError || password === '') {
@@ -115,13 +136,18 @@ const Step2 = () => {
 
         if (password === repeatPassword && password !== '') {
             const convertPassword = password.trim();
+            //ACA SI ES CREACION DE CUENTA
             if (!recoveryPassword) {
+
                 dispatch(setNewUserPassword(convertPassword));
-                setRedirecting(true); // Activa el estado de redirección
-                setTimeout(() => {
-                    window.location.href = '/favorite-team';
-                }, 2000);
-            } else {
+                const usuario = {
+                    ...nuevoUsuario,
+                    clave: convertPassword
+                }
+                createAccount(usuario)
+                // setRedirecting(true);
+
+            } else { // Y ACA SI ES RECUPERACION DE CONTRASEÑA
                 if (token && convertPassword) {
                     sendNewPassword(convertPassword);
                 }
@@ -176,7 +202,7 @@ const Step2 = () => {
                         onClick={handleNextStep3}
                         disabled={redirecting} // Desactiva el botón durante la redirección
                     >
-                        {redirecting ? <LoaderIcon /> : 'Continuar'}
+                        {redirecting ? <LoaderIcon /> : 'Actualizar contraseña'}
                     </ButtonLogin>
                 </CreateAccountData>
             </CreateAccountWrapper>
