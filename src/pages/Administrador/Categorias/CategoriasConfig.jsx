@@ -29,21 +29,21 @@ import CategoriasMenuNav from './CategoriasMenuNav';
 const EdicionesConfig = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const { id_categoria } = useParams(); // Obtenemos el id desde la URL
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const equiposList = useSelector((state) => state.equipos.data);
 
     // Filtrar las categorías para excluir la categoría actual
-    const categoriasSinActual = categoriasList.filter(categoria => categoria.id_categoria != id_page);
-    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_page);
+    const categoriasSinActual = categoriasList.filter(categoria => categoria.id_categoria != id_categoria);
+    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_page)
+    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_categoria)
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
-        id_categoria: id_page,
+        id_categoria: id_categoria,
         nombre_categoria: categoriaFiltrada.nombre,
         genero: categoriaFiltrada.genero,
         tipo_futbol: categoriaFiltrada.tipo_futbol,
@@ -97,7 +97,7 @@ const EdicionesConfig = () => {
             tipo_futbol: formState.tipo_futbol,
             duracion_tiempo: formState.duracion_tiempo,
             duracion_entretiempo: formState.duracion_entretiempo,
-            id_categoria: id_page
+            id_categoria: id_categoria
         }
         await actualizar(data);
     };
@@ -109,7 +109,7 @@ const EdicionesConfig = () => {
 
     const eliminarRegistros = async () => {
         try {
-            await eliminarPorId(id_page);
+            await eliminarPorId(id_categoria);
         } catch (error) {
             console.error("Error eliminando años:", error);
         } finally {
@@ -127,7 +127,7 @@ const EdicionesConfig = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <CategoriasMenuNav id_categoria={id_page}/>
+            <CategoriasMenuNav id_categoria={id_categoria}/>
             <ConfigFormWrapper>
                 <h2>Configuración de la edición {categoriaFiltrada.nombre}</h2>
                 <ConfigForm>

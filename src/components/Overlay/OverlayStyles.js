@@ -12,6 +12,6 @@ export const OverlayStyled = styled.div`
     cursor: pointer;
 
     &:disabled {
-        cursor: not-allowed
+        pointer-events: none;
     }
 `

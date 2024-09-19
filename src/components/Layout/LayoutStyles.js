@@ -20,7 +20,6 @@ export const LayoutAuxContainerStyled = styled.main`
 export const LayoutAdminContainerStyled = styled.main`
     display: flex;
     width: 100%;
-
     height: 100vh;
 `
 

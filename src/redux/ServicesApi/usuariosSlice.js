@@ -5,12 +5,14 @@ import { URL } from '../../utils/utils';
 
 // Crear una acción asíncrona para obtener los usuarios
 export const fetchUsuarios = createAsyncThunk('usuarios/fetchUsuarios', async () => {
-    const token = localStorage.getItem('token'); // O donde guardes el token
-    const response = await Axios.get(`${URL}/admin/get-usuarios`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+    // const token = localStorage.getItem('token'); // O donde guardes el token
+    // const response = await Axios.get(`${URL}/admin/get-usuarios`, {
+    //     headers: {
+    //         'Authorization': `Bearer ${token}`
+    //     }
+    // });
+    // return response.data;
+    const response = await Axios.get(`${URL}/user/get-users`)
     return response.data;
 });
 

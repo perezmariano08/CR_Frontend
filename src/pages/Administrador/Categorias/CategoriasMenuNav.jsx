@@ -7,7 +7,7 @@ const CategoriasMenuNav = ({ id_categoria, children }) => {
     const temporadas = useSelector((state) => state.temporadas.data);
     // Filtrar temporadas para obtener las que pertenecen a la categoría actual
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria);
-
+    
     const partidos = useSelector((state) => state.partidos.data); // Suponiendo que tienes los partidos en el estado
     // Filtrar partidos para obtener los que pertenecen a la categoría actual
     const partidosCategoria = partidos.filter((partido) => partido.id_categoria == id_categoria);

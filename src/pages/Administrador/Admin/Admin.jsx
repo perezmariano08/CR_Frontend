@@ -6,12 +6,15 @@ import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice'
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice'
 import { fetchAños } from '../../../redux/ServicesApi/añosSlice'
 import { fetchTorneos } from '../../../redux/ServicesApi/torneosSlice'
+import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice.js'
 
 import { TbRectangleVerticalFilled, TbShirtSport, TbUser, TbUsers } from 'react-icons/tb'
 import { DashboardItemDivider, DashboardItemInfoWrapper, DashboardItemsWrapper, DashboardItemWrapper } from './AdminStyles.js'
 import { LiaFutbol } from 'react-icons/lia'
 import { IoShieldHalf } from 'react-icons/io5'
 import { NavLink } from 'react-router-dom'
+import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice.js'
+import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice.js'
 
 const Admin = () => {
     const dispatch = useDispatch()
@@ -26,11 +29,14 @@ const Admin = () => {
     const partidosFinalizados = partidosList.filter(partido => partido.estado === "F").length;
     
     useEffect(() => {
+        dispatch(fetchUsuarios());
         dispatch(fetchTemporadas());
         dispatch(fetchCategorias());
         dispatch(fetchSedes());
         dispatch(fetchAños());
         dispatch(fetchTorneos());
+        dispatch(fetchEquipos());
+        dispatch(fetchPartidos());
     }, []);
 
 

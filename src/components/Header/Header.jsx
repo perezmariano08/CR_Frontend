@@ -9,6 +9,7 @@ import axios from 'axios';
 import { IoIosLogOut } from "react-icons/io";
 import { URL, URLImages } from '../../utils/utils';
 import { setLogCurrentUser } from '../../redux/user/userSlice';
+import { fetchUsuarios } from '../../redux/ServicesApi/usuariosSlice';
 
 const Header = () => {
   const dispatch = useDispatch(); // Obtener el dispatcher
