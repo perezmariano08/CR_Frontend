@@ -9,7 +9,7 @@ import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
 import { useAuth } from '../../../Auth/AuthContext.jsx';
 
 const CardPartido = ({ partido, rol }) => {
-    const { idMyTeam } = useAuth();
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const matches = useSelector((state) => state.match);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -18,7 +18,6 @@ const CardPartido = ({ partido, rol }) => {
 
     const [zona, setZona] = useState([]);
 
-    //HOOK ESCUDOS Y NOMBRES
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
     useEffect(() => {
@@ -44,7 +43,6 @@ const CardPartido = ({ partido, rol }) => {
     const [goalLocal, setGoalLocal] = useState(0);
     const [goalVisit, setGoalVisit] = useState(0);
 
-    // !ESTO VUELA
     useEffect(() => {
         if (match && match.Local && match.Local.Player && match.Visitante && match.Visitante.Player) {
             const golesLocal = match.Local.Player.filter(player => player.Actions && player.Actions.some(action => action.Type === 'Gol'));
@@ -81,7 +79,6 @@ const CardPartido = ({ partido, rol }) => {
             setGoalVisit(visitGoals);
         }
     }, [match]);
-    
 
     const formatTime = (time) => {
         if (!time) return '00:00';
@@ -103,18 +100,19 @@ const CardPartido = ({ partido, rol }) => {
     const verPaginaEquipo = (idEquipo) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
-
+    
     return (
         <CardPartidoWrapper> 
             <CardPartidoTitles>                
                 <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
                 {partido.estado === 'F' ? (
                     <p>{formattedDate} {formattedTime} | Fecha {partido.jornada} - {partido.cancha}</p>
+                ) : partido.estado === 'S' ? (
+                    <p>{formattedDate} {formattedTime} | Partido suspendido</p>
                 ) : partido.estado === 'P' ? (
                     <p>Fecha {partido.jornada} - {partido.cancha}</p>
                 ) : (
                     <>
-                        <h5>{formattedTime}</h5>
                         <p>{formattedDate}</p>
                     </>
                 )}
@@ -130,15 +128,15 @@ const CardPartido = ({ partido, rol }) => {
                 </CardPartidoTeam>
 
                 <CardPartidoInfo>
-                    {partido.estado === 'F' || (match && (match.matchState === 'isStarted' || match.matchState === 'isFinish' || match.matchState === 'matchPush')) ? (
+                    {partido.estado === 'F' || partido.estado === 'S' || (match && (match.matchState === 'isStarted' || match.matchState === 'isFinish' || match.matchState === 'matchPush')) ? (
                         <>
-                            <h4>{partido.estado === 'F' ? `${partido.goles_local}-${partido.goles_visita}` : `${goalLocal}-${goalVisit}`}</h4>
-                            <span>{partido.estado === 'F' || match.matchState === 'isFinish' ? 'Final' : 'En curso'}</span>
+                            <h4>{partido.estado === 'F' || partido.estado === 'S' ? `${partido.goles_local}-${partido.goles_visita}` : `${goalLocal}-${goalVisit}`}</h4>
+                            <span>{partido.estado === 'F' ? 'Final' : partido.estado === 'S' ? 'Partido suspendido' : 'En curso'}</span>
                         </>
-                    ) : partido.estado === 'P' ? (
+                    ) : partido.estado === 'A' ? (
                         <>
                             <h5>{formattedTime}</h5>
-                            <p>{formattedDate}</p>
+                            <p>Partido postergado</p>
                         </>
                     ) : (
                         <>
@@ -147,6 +145,7 @@ const CardPartido = ({ partido, rol }) => {
                         </>
                     )}
                 </CardPartidoInfo>
+
 
                 <CardPartidoTeam>
                     <img 

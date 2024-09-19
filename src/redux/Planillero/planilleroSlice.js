@@ -26,6 +26,7 @@ const initialState = {
   },
   modal: {
     hidden: true,
+    hiddenSusp: true,
     modalState: null,
     dorsalDelete: null,
     idDorsalDelete: null,
@@ -54,12 +55,17 @@ const initialState = {
     matchState: null,
     idMatch: null,
     desc: null,
-    jugador_destacado: null
+    jugador_destacado: [],
+    mvp: null,
   },
   expulsadoData: {
     idJugador: null,
     tipo: null,
     descripcion: null,
+  },
+  penales: {
+    penal_local: null,
+    penal_visita: null
   }
 };
 
@@ -80,6 +86,9 @@ const planilleroSlice = createSlice({
     },
     handleBestPlayerOfTheMatch: (state, action) => {
       state.timeMatch.jugador_destacado = action.payload;
+    },
+    handleMvpSlice: (state, action) => {
+      state.timeMatch.mvp = action.payload;
     },
     toggleHiddenDorsal: (state) => {
       state.dorsal.hidden = !state.dorsal.hidden;
@@ -159,7 +168,10 @@ const planilleroSlice = createSlice({
     },
     toggleHiddenModal: (state) => {
       state.modal.hidden = !state.modal.hidden;
-    },    
+    },
+    toggleHiddenModalSuspender: (state) => {
+      state.modal.hiddenSusp = !state.modal.hiddenSusp;
+    },     
     setActionToDelete: (state, action) => {
       state.actionToDelete = action.payload;
     },
@@ -241,7 +253,12 @@ const planilleroSlice = createSlice({
     },
     setDescOfTheMatch: (state, action) => {
       state.timeMatch.desc = action.payload;
-    }
+    },
+    setPenales: (state, action) => {
+      const { penalLocal, penalVisita } = action.payload;
+      state.penales.penal_local = penalLocal;
+      state.penales.penal_visita = penalVisita;
+    },
   }
 });
 
@@ -285,7 +302,10 @@ export const {
   setDescOfTheMatch,
   handleBestPlayerOfTheMatch,
   setTipoExpulsion,
-  resetAssist
+  resetAssist,
+  handleMvpSlice,
+  setPenales,
+  toggleHiddenModalSuspender
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;

@@ -17,6 +17,8 @@ import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { getZonas } from '../../../utils/dataFetchers';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { URLImages } from '../../../utils/utils';
+import { HiArrowLeft } from "react-icons/hi";
+import UseNavegador from './UseNavegador';
 
 const UserCategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -26,9 +28,12 @@ const UserCategoriasFixture = () => {
     const partidos = useSelector((state) => state.partidos.data);
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
-
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const categoriaFiltrada = categorias.find((c) => c.id_categoria === id_categoria);
     const edicionFiltrada = ediciones.find((e) => e.id_edicion === categoriaFiltrada.id_edicion);
+
+    const { GoToCategorias } = UseNavegador();
+
 
     const [zonas, setZonas] = useState([]);
     const [jornadasDisponibles, setJornadasDisponibles] = useState([]);
@@ -60,10 +65,12 @@ const UserCategoriasFixture = () => {
         const jornadas = Array.from(new Set(partidos.filter(p => p.id_categoria === id_categoria).map(p => p.jornada)));
         jornadas.sort((a, b) => a - b); // Ordena las jornadas en orden ascendente
         setJornadasDisponibles(jornadas);
-        setJornadaActual(jornadas[0] || 1); // Establece la primera jornada disponible como predeterminada
+        setJornadaActual(jornadas[jornadas.length - 1] || 1); // Establece la última jornada disponible como predeterminada
     }, [partidos, id_categoria]);
     
-    const partidosCategoria = partidos.filter((p) => p.id_categoria === categoriaFiltrada.id_categoria && p.jornada === jornadaActual);
+    const partidosCategoria = partidos
+    .filter((p) => p.id_categoria === categoriaFiltrada.id_categoria && p.jornada === jornadaActual)
+    .sort((a, b) => a.hora.localeCompare(b.hora)); // Ordena por hora de menor a mayor
 
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
@@ -99,9 +106,18 @@ const UserCategoriasFixture = () => {
     ];
     
     const nombreMes = (numeroMes) => {
-    return meses[numeroMes - 1]; // Restar 1 porque los índices del array empiezan en 0
+    return meses[numeroMes - 1]; 
     };
 
+    const partidosPorFecha = partidosCategoria.reduce((acc, partido) => {
+        const fechaPartido = `${partido.dia_nombre}, ${partido.dia_numero} de ${nombreMes(partido.mes)} de ${partido.año}`;
+        if (!acc[fechaPartido]) {
+            acc[fechaPartido] = [];
+        }
+        acc[fechaPartido].push(partido);
+        return acc;
+    }, {});
+    
     return (
         <>
             <ContentUserContainer>
@@ -109,7 +125,8 @@ const UserCategoriasFixture = () => {
                     <ContentUserTituloContainerStyled>
                         <ContentUserTituloContainer>
                             <TituloContainer>
-                                <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
+                                <HiArrowLeft onClick={() => GoToCategorias('/categorias')} />
+                                <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`} />
                                 <TituloText>
                                     <h1>{categoriaFiltrada?.nombre}</h1>
                                     <p>{`${edicionFiltrada?.nombre} ${edicionFiltrada?.temporada}`}</p>
@@ -134,103 +151,105 @@ const UserCategoriasFixture = () => {
                         {
                             partidosCategoria.length === 0 ? (
                                 <JornadasEmpty>No se encontraron partidos</JornadasEmpty>
-                            )
-                            : (
+                            ) : (
                                 <>
                                     <ContentUserSubMenuTitulo>
-                            <ContentMenuLink>
-                                <NavLink to={`/categoria/fixture/${id_categoria}`}>
-                                    Liguilla
-                                </NavLink>
-                            </ContentMenuLink>
-                        </ContentUserSubMenuTitulo>
-                        <ContentJornadasFixture>
-                            
-                            <JornadasFixtureWrapper>
-                                <ArrowJornadasFixture
-                                    onClick={handlePreviousJornada}
-                                    style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) > 0 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) > 0 ? 1 : 0.5 }}
-                                >
-                                    <AiOutlineLeft />
-                                </ArrowJornadasFixture>
-                                
-                                Fecha {jornadaActual}
-                                <ArrowJornadasFixture
-                                    onClick={handleNextJornada}
-                                    style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 1 : 0.5 }}
-                                >
-                                    <AiOutlineRight />
-                                </ArrowJornadasFixture>
-                            </JornadasFixtureWrapper>
-                        </ContentJornadasFixture>
-
-                        {partidosCategoria.length !== 0 && (
-                            <JornadasFixtureDia>
-                                {partidosCategoria[0]?.dia_nombre}, {partidosCategoria[0]?.dia_numero} de {nombreMes(partidosCategoria[0]?.mes)} de {partidosCategoria[0]?.año}
-                            </JornadasFixtureDia>
-                        )}
-
-                        {partidosCategoria.length === 0 ? (
-                            <p style={{ textAlign: 'center' }}>No hay partidos disponibles para esta jornada.</p>
-                        ) : (
-                            zonasFiltradas.length > 1 ? (
-                                zonasFiltradas.map((zona) => (
-                                    <React.Fragment key={zona.id_zona}>
-                                        <JornadasFixtureZona>
-                                            {zona.nombre_zona}
-                                        </JornadasFixtureZona>
-                                        {partidosCategoria.filter(p => p.id_zona === zona.id_zona).map((partido) => (
-                                            <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
-                                                <JornadasFixturePartidoEquipo>
-                                                    {nombresEquipos(partido.id_equipoLocal)}
-                                                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
-                                                </JornadasFixturePartidoEquipo>
-                                                <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
-                                                    {partido.estado === 'F'
-                                                    ? `${partido.goles_local} - ${partido.goles_visita}`
-                                                    : partido.estado === 'S'
-                                                        ? <span style={{ fontSize: '10px', color:'#a8a8a8' }}>POSTERGADO</span>
-                                                        : formatHour(partido.hora)}
-                                                </JornadasFixtureResultado>
-                                                <JornadasFixturePartidoEquipo className='visita'>
-                                                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
-                                                    {nombresEquipos(partido.id_equipoVisita)}
-                                                </JornadasFixturePartidoEquipo>
-                                            </JornadasFixturePartido>
-                                        ))}
-                                    </React.Fragment>
-                                ))
-                            ) : (
-                                partidosCategoria.map((partido) => (
-                                    <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)} className={partido.estado === 'S' ? 'suspendido' : ''}>
-                                        <JornadasFixturePartidoEquipo>
-                                            {nombresEquipos(partido.id_equipoLocal)}
-                                            <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
-                                        </JornadasFixturePartidoEquipo>
-                                        <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
-                                            {partido.estado === 'F'
-                                                ? `${partido.goles_local} - ${partido.goles_visita}`
-                                                : partido.estado === 'S'
-                                                    ? <span style={{ fontSize: '10px', color:'#a8a8a8' }}>POSTERGADO</span>
-                                                    : formatHour(partido.hora)}
-                                        </JornadasFixtureResultado>
-                                        <JornadasFixturePartidoEquipo className='visita'>
-                                            <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
-                                            {nombresEquipos(partido.id_equipoVisita)}
-                                        </JornadasFixturePartidoEquipo>
-                                    </JornadasFixturePartido>
-                                ))
-                            )
-                        )}
+                                        <ContentMenuLink>
+                                            <NavLink to={`/categoria/fixture/${id_categoria}`}>
+                                                Liguilla
+                                            </NavLink>
+                                        </ContentMenuLink>
+                                    </ContentUserSubMenuTitulo>
+                                    <ContentJornadasFixture>
+                                        <JornadasFixtureWrapper>
+                                            <ArrowJornadasFixture
+                                                onClick={handlePreviousJornada}
+                                                style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) > 0 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) > 0 ? 1 : 0.5 }}
+                                            >
+                                                <AiOutlineLeft />
+                                            </ArrowJornadasFixture>
+    
+                                            Fecha {jornadaActual}
+                                            <ArrowJornadasFixture
+                                                onClick={handleNextJornada}
+                                                style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 1 : 0.5 }}
+                                            >
+                                                <AiOutlineRight />
+                                            </ArrowJornadasFixture>
+                                        </JornadasFixtureWrapper>
+                                    </ContentJornadasFixture>
+    
+                                    {Object.keys(partidosPorFecha).map((fecha, index) => (
+                                        <React.Fragment key={index}>
+                                            <JornadasFixtureDia>{fecha}</JornadasFixtureDia>
+                                            {zonasFiltradas.length > 1 ? (
+                                            zonasFiltradas.map((zona) => {
+                                                const partidosDeZona = partidosPorFecha[fecha].filter(p => p.id_zona === zona.id_zona);
+                                                
+                                                // Solo renderizamos si la zona tiene partidos
+                                                if (partidosDeZona.length > 0) {
+                                                    return (
+                                                        <React.Fragment key={zona.id_zona}>
+                                                            <JornadasFixtureZona>
+                                                                {zona.nombre_zona}
+                                                            </JornadasFixtureZona>
+                                                            {partidosDeZona.map((partido) => (
+                                                                <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
+                                                                    <JornadasFixturePartidoEquipo>
+                                                                    <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
+                                                                        <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+                                                                    </JornadasFixturePartidoEquipo>
+                                                                    <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
+                                                                        {partido.estado === 'F'
+                                                                            ? `${partido.goles_local} - ${partido.goles_visita}`
+                                                                            : partido.estado === 'A'
+                                                                                ? <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>
+                                                                                : formatHour(partido.hora)}
+                                                                    </JornadasFixtureResultado>
+                                                                    <JornadasFixturePartidoEquipo className='visita'>
+                                                                        <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
+                                                                        <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
+                                                                    </JornadasFixturePartidoEquipo>
+                                                                </JornadasFixturePartido>
+                                                            ))}
+                                                        </React.Fragment>
+                                                    );
+                                                } else {
+                                                    return null; // Si no hay partidos en esa zona, no renderizamos nada
+                                                }
+                                            })
+                                        ) : (
+                                            partidosPorFecha[fecha].map((partido) => (
+                                                <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)} className={partido.estado === 'A' ? 'suspendido' : ''}>
+                                                    <JornadasFixturePartidoEquipo>
+                                                        <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
+                                                        <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+                                                    </JornadasFixturePartidoEquipo>
+                                                    <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
+                                                        {partido.estado === 'F'
+                                                            ? `${partido.goles_local} - ${partido.goles_visita}`
+                                                            : partido.estado === 'A'
+                                                                ? <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>
+                                                                : formatHour(partido.hora)}
+                                                    </JornadasFixtureResultado>
+                                                    <JornadasFixturePartidoEquipo className='visita'>
+                                                        <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
+                                                        <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
+                                                    </JornadasFixturePartidoEquipo>
+                                                </JornadasFixturePartido>
+                                            ))
+                                        )}
+                                        </React.Fragment>
+                                    ))}
                                 </>
                             )
-                        }  
-                        
+                        }
                     </ContentPageWrapper>
                 </ContentUserWrapper>
             </ContentUserContainer>
         </>
     );
+    
 };
 
 export default UserCategoriasFixture;

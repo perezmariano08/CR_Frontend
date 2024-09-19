@@ -157,6 +157,10 @@ export const ModalSettingsItem = styled(NavLink)`
         svg {
             color: var(--danger);
         }
+
+        &.miperfil svg {
+            color: var(--green);
+        }
     }
 
     @media (max-width: 600px) {

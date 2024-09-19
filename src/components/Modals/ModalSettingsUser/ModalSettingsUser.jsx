@@ -4,6 +4,7 @@ import { IoIosLogOut } from 'react-icons/io'
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogCurrentUser } from '../../../redux/user/userSlice';
+import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from '../../../Auth/AuthContext';
 import { URL, URLImages } from '../../../utils/utils';
 
@@ -36,7 +37,7 @@ const ModalSettingsUser = ({closeModal }) => {
                 // Actualiza el estado de autenticación y redirige al usuario a la página de inicio de sesión
                 dispatch(setLogCurrentUser(false));
                 closeModal(); // Cerrar el modal después de cerrar sesión
-                window.location.href = '/login';
+                window.location.href = '/';
             } else {
                 // Maneja errores que no sean de autorización (401)
                 console.error('Error al cerrar sesión: ', response.statusText);
@@ -49,8 +50,9 @@ const ModalSettingsUser = ({closeModal }) => {
 
     return (
         <ModalSettingsUserWrapper>
-            <ModalSettingsItem to={'/mi-perfil'} onClick={closeModal}>
+            <ModalSettingsItem to={'/planillero/mi-perfil'} onClick={closeModal} className='miperfil'>
                 Perfil
+                <FaUserCircle/>
             </ModalSettingsItem>
             <ModalSettingsItem onClick={closeSesion}>
                 Cerrar sesión

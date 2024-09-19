@@ -3,22 +3,40 @@ import { Footer, PrivateLayoutContainerStyled } from '../Layout/LayoutStyles'
 import { Navbar } from '../Navbar/Navbar'
 import MenuBottom from '../MenuBottom/MenuBottom'
 import { useLocation } from 'react-router-dom'
+import { useAuth } from '../../Auth/AuthContext'
+import MenuBottomPlanillero from '../MenuBottom/MenuBottomPlanillero'
+import { NavbarPlanillero } from '../Navbar/NavbarPlanillero'
+import ChatNovedades from '../ChatNovedades/ChatNovedades'
 
 const PrivateLayout = ({children}) => {
   const { pathname } = useLocation();
+  const {userRole} = useAuth();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return (
-    <>
-        <Navbar/>
+    <>  
+      {
+        userRole === 2 ? (
+          <NavbarPlanillero/>
+        ) : (
+          <Navbar/>
+        )
+      }
         <PrivateLayoutContainerStyled>
             {
                 children
             }
         </PrivateLayoutContainerStyled>
-        <MenuBottom/>
+        <ChatNovedades/>
+        {
+          userRole === 2 ? (
+            <MenuBottomPlanillero/>
+          ) : (
+            <MenuBottom/>
+          )
+        }
         <Footer>© 2024 Copa Relámpago. Todos los derechos reservados. Sistema en versión beta</Footer>
     </>
   )

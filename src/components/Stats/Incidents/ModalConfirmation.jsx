@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
-import { toggleHiddenModal, handleBestPlayerOfTheMatch } from '../../../redux/Planillero/planilleroSlice';
+import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice } from '../../../redux/Planillero/planilleroSlice';
 import { deleteActionToPlayer, deleteTotalActionsToPlayer, toggleStateMatch } from '../../../redux/Matches/matchesSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import useBdPartido from './customHook/useBdPartido';
@@ -11,6 +11,7 @@ import useGenerarBdFormaciones from './customHook/useGenerarBdFormaciones';
 import useGenerarBdStats from './customHook/useGenerarBdStats';
 import useGenerarBdEventual from './customHook/useGenerarBdEventual';
 import useOperationMatch from './customHook/useOperationMatch';
+import useGenerarBdDreamTeam from './customHook/useGenerarBdDreamTeam';
 
 const ModalConfirmation = () => {
 
@@ -21,8 +22,8 @@ const ModalConfirmation = () => {
     const actionToDelete = useSelector((state) => state.planillero.actionToDelete);
     const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
     const infoDelete = useSelector((state) => state.planillero.infoDelete);
-    const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.jugador_destacado);
-
+    const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.mvp);
+    
     const [loading, setLoading] = useState(false);
 
     //Custom Hooks
@@ -30,7 +31,8 @@ const ModalConfirmation = () => {
     const {bd_formaciones} = useGenerarBdFormaciones(idPartido);
     const {bd_goles, bd_rojas, bd_amarillas, bd_asistencias} = useGenerarBdStats(idPartido)
     const {bd_jugadores_eventuales} = useGenerarBdEventual(idPartido);
-    
+    const {bd_dreamTeam} = useGenerarBdDreamTeam(idPartido);
+
     // Envío a la base de datos
     const { 
         updateJugadores, 
@@ -40,8 +42,9 @@ const ModalConfirmation = () => {
         insertRojas, 
         insertAmarillas, 
         insertAsistencias, 
-        updateSancionados 
-    } = useOperationMatch(bd_jugadores_eventuales, bd_partido, bd_formaciones, bd_goles, bd_rojas, bd_amarillas, bd_asistencias)
+        updateSancionados,
+        insertDreamTeam 
+    } = useOperationMatch(bd_jugadores_eventuales, bd_partido, bd_formaciones, bd_goles, bd_rojas, bd_amarillas, bd_asistencias, bd_dreamTeam)
 
     const handleModalConfirm = async () => {
         try {
@@ -76,11 +79,13 @@ const ModalConfirmation = () => {
                         await insertGoles(),
                         await insertAmarillas(),
                         await insertAsistencias(),
-                        await updateSancionados()
-                        
+                        await updateSancionados(),
+                        await insertDreamTeam(),
+
                         dispatch(toggleStateMatch(idPartido));
                         dispatch(toggleHiddenModal());
-                        dispatch(handleBestPlayerOfTheMatch(null)); //Borrar jugador destacado
+                        dispatch(handleBestPlayerOfTheMatch(null));
+                        dispatch(handleMvpSlice(null));
                         toast.success('Partido subido correctamente en la base de datos');
                     } else {
                         toast.error('Se debe seleccionar el MVP antes de finalizar');
@@ -95,6 +100,9 @@ const ModalConfirmation = () => {
             console.error('Error: ', error)
         } finally {
             setLoading(false);
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000)
         }
 };
     

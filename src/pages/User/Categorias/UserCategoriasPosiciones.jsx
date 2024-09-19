@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { ContentMenuLink, ContentPageWrapper, ContentUserContainer, ContentUserMenuTitulo, ContentUserTituloContainer, ContentUserTituloContainerStyled, ContentUserWrapper, MenuPosicionesContainer, MenuPosicionesItemFilter, TablePosicionesContainer, TituloContainer, TituloText } from '../../../components/Content/ContentStyles';
@@ -8,10 +8,13 @@ import { dataPosicionesTemporadaColumns } from '../../../components/Stats/Data/D
 import TablePosicionesRoutes from '../../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
 import { getPosicionesTemporada, getZonas } from '../../../utils/dataFetchers';
 import { SpinerContainer } from '../../../Auth/SpinerStyles';
+import { HiArrowLeft } from "react-icons/hi";
 import { TailSpin } from 'react-loader-spinner';
 import { URLImages } from '../../../utils/utils';
+import UseNavegador from './UseNavegador';
 
 const UserCategoriasPosiciones = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id_page } = useParams();
   const id_categoria = parseInt(id_page);
@@ -21,6 +24,8 @@ const UserCategoriasPosiciones = () => {
 
   const categoriaFiltrada = useMemo(() => categorias.find((c) => c.id_categoria === id_categoria), [categorias, id_categoria]);
   const edicionFiltrada = useMemo(() => ediciones.find((e) => e.id_edicion === categoriaFiltrada?.id_edicion), [ediciones, categoriaFiltrada]);
+
+  const { GoToCategorias } = UseNavegador();
 
   const [posicionesPorZona, setPosicionesPorZona] = useState([]);
   const [zonas, setZonas] = useState([]);
@@ -71,12 +76,14 @@ const UserCategoriasPosiciones = () => {
     return zonaFiltrada?.nombre_zona || '';
   }
 
+
   return (
     <ContentUserContainer>
       <ContentUserWrapper>
         <ContentUserTituloContainerStyled>
           <ContentUserTituloContainer>
             <TituloContainer>
+              <HiArrowLeft onClick={() => GoToCategorias('/categorias')}/>
               <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
               <TituloText>
                 <h1>{categoriaFiltrada?.nombre}</h1>

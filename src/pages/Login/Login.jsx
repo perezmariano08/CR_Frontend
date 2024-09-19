@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import axios from 'axios';
 import { URL } from '../../utils/utils';
 import Input from '../../components/UI/Input/Input';
 import { AiOutlineLock } from "react-icons/ai";
 import { PiIdentificationCardLight } from 'react-icons/pi';
-import { LoginContainerStyled, LoginWrapperUp, LoginDataContainer, LoginDataWrapper, LoginDataInputs, LoginDataPassword, ButtonLogin, LoginWrapperInfo, LoginWrapperForm, ActivInfoContainer } from "./LoginStyles";
+import { LoginContainerStyled, LoginWrapperUp, LoginDataContainer, LoginDataWrapper, LoginDataInputs, LoginDataPassword, ButtonLogin, LoginWrapperInfo, LoginWrapperForm, ActivInfoContainer, NavToHomeContainer, SolicitarCuentaContainer } from "./LoginStyles";
 import IsotipoCR from "/Logos/CR-Logo.png";
 import { useDispatch } from 'react-redux';
 import { setLogCurrentUser } from '../../redux/user/userSlice';
+import { HiArrowLeft } from "react-icons/hi";
 import { FaAngleRight } from 'react-icons/fa6';
 
 const Login = () => {
     axios.defaults.withCredentials = true;
     const location = useLocation();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(false);
     const [dniUser, setDniUser] = useState('');
@@ -49,11 +51,18 @@ const Login = () => {
         event.preventDefault();
         try {
             const response = await axios.post(`${URL}/auth/check-login`, { dni: dniUser, password: passUser });
+
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
                 dispatch(setLogCurrentUser(true));
-                window.location.href = '/';
+                if (response.data.id_rol) {
+                    if (response.data.id_rol === 2) {
+                        window.location.href = '/planillero';
+                    } else {
+                        window.location.href = '/admin/dashboard';
+                    }
+                }
             } else {
                 toast.error('Error durante el inicio de sesión');
                 setIsLoading(false);
@@ -61,10 +70,12 @@ const Login = () => {
         } catch (error) {
             // Aquí manejamos el error capturado
             if (error.response && error.response.status === 401) {
-                toast.error('Contraseña incorrecta');
+                toast.error('No autorizado');
             } else if (error.response && error.response.status === 403) {
                 toast.error('Debes activar la cuenta');
-            } else {
+            } else if (error.response && error.response.status === 405) {
+                toast.error('Contraseña incorrecta')
+            }else {
                 toast.error('Error al iniciar sesión');
             }
             console.error("Error en la solicitud HTTP:", error);
@@ -74,6 +85,10 @@ const Login = () => {
         }
     };
     
+    const NavToHome = () => {
+        navigate('/')
+    }
+
     useEffect(() => {
         if (isLoading) {
             setIsLoading(false);
@@ -91,6 +106,10 @@ const Login = () => {
                 <h2>¡Conocé la versión beta del nuevo sistema de CR!</h2>
             </LoginWrapperInfo>
             <LoginWrapperForm>
+            <NavToHomeContainer onClick={NavToHome}>
+                <HiArrowLeft/>
+                <p>Volver al Home</p>
+            </NavToHomeContainer>
                 <img src="./Logos/CR-Logo.png" alt="Logo Copa Relampago" className='logo-cr' />
                 <LoginDataContainer>
                     <LoginDataWrapper>
@@ -142,7 +161,7 @@ const Login = () => {
                             </>
                         )}
                     </ButtonLogin>
-                    <p>¿No tienes cuenta? <NavLink to={'/create-account'}>Registrate</NavLink></p>
+                    {/* <SolicitarCuentaContainer> <NavLink to={'/create-account'}>Solicitar cuenta</NavLink> <span>* Solo para personal administrativo *</span ></SolicitarCuentaContainer> */}
                 </LoginDataContainer>
                 <Toaster/>
             </LoginWrapperForm>

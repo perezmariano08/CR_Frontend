@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HomeWrapper, ViewMore, ViewMoreWrapper } from '../../Home/HomeStyles';
+import { HomeWrapper, TopContainer, ViewMore, ViewMoreWrapper } from '../../Home/HomeStyles';
 import Section from '../../../components/Section/Section';
 import { HomePlanilleroContainer } from './HomePlanilleroStyles';
 import CardPartido from '../../../components/Stats/CardPartido/CardPartido';
@@ -17,8 +17,9 @@ const HomePlanillero = () => {
     const loadingPartidos = useSelector((state) => state.partidos.loading);
 
     const [showAll, setShowAll] = useState(false);
+    const [isPending, setIsPending] = useState(true); 
 
-    //Custom Hooks
+    // Custom Hooks
     useFetchMatches((partidos) => partidos.id_planillero === userId);
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
@@ -26,11 +27,11 @@ const HomePlanillero = () => {
         .filter((partido) => partido.id_planillero === userId && partido.estado === 'P')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
-    const partidosNoPendientes = partidos
-        .filter((partido) => partido.id_planillero === userId && partido.estado !== 'P')
+    const partidosPlanillados = partidos
+        .filter((partido) => partido.id_planillero === userId && partido.estado === 'F')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
-    const partidosFiltrados = [...partidosPendientes, ...partidosNoPendientes];
+    const partidosFiltrados = isPending ? partidosPendientes : partidosPlanillados;
 
     useEffect(() => {
         if (!showAll) {
@@ -40,22 +41,28 @@ const HomePlanillero = () => {
 
     const handleViewMore = (e, accion) => {
         e.preventDefault();
-        if (accion) {
-            setShowAll(true);
-        } else {
-            setShowAll(false);
-        }   
+        setShowAll(accion);
     }
+
+    const handleToggleChange = () => {
+        setIsPending(!isPending); // Cambiar entre partidos pendientes y planillados
+    };
 
     return (
         <HomePlanilleroContainer>
             <HomeWrapper className='planilla'>
                 <Section>
-                    {partidosFiltrados && partidosFiltrados.length > 0 ? (
-                        <h2>Mis Partidos</h2>
-                    ) : (
-                        <h2>No tienes partidos cargados</h2>
-                    )}
+                    <TopContainer>
+                        <label className="toggle-switch">
+                            <input type="checkbox" onChange={handleToggleChange} checked={!isPending} />
+                            <span className="slider round"></span>
+                        </label>
+                        {partidosFiltrados && partidosFiltrados.length > 0 ? (
+                            <h2>{isPending ? 'Partidos Pendientes' : 'Partidos Planillados'}</h2>
+                        ) : (
+                            <h2>No tienes partidos cargados</h2>
+                        )}
+                    </TopContainer>
                     {loadingPartidos ? (
                         <SpinerContainer>
                             <TailSpin width='40' height='40' color='#2AD174' />
@@ -72,7 +79,6 @@ const HomePlanillero = () => {
                             {showAll ? 'Ver menos' : 'Ver más'}
                         </ViewMore>
                     </ViewMoreWrapper>
-                    
                 )}
             </HomeWrapper>
             <Toaster />

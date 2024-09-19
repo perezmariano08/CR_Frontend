@@ -238,3 +238,36 @@ export const ActivInfoContainer = styled.div`
         color: var(--green);
     }
 `
+export const NavToHomeContainer = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+    transition: all ease .2s;
+    color: var(--gray-200);
+
+    p {
+        font-size: 12px;
+    }
+
+    &:hover {
+        color: var(--green);
+    }
+`
+
+export const SolicitarCuentaContainer = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    a {
+        color: var(--green);
+    }
+
+    span {
+        font-size: 12px;
+    }
+`

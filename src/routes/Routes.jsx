@@ -29,7 +29,6 @@ import Partidos from '../pages/Administrador/Partidos/Partidos'
 import Admin from '../pages/Administrador/Admin/Admin'
 import ProtectedRoute from '../Auth/ProtectedRoute';
 import { AuthProvider, useAuth } from '../Auth/AuthContext';
-import PrivateLayoutPlanillero from '../components/Layout/LayoutPlanillero';
 import MorePlanillero from '../pages/More/MorePlanillero';
 import Divisiones from '../pages/Administrador/Divisiones/Divisiones';
 import Expulsados from '../pages/Administrador/Expulsados/Expulsados';
@@ -54,22 +53,42 @@ import ConfirmEmailChange from '../pages/User/Verificar/ConfirmEmailChange';
 import LegajosJugadores from '../pages/Administrador/Legajos/LegajosJugadores';
 import LegajosEquipos from '../pages/Administrador/Legajos/LegajosEquipos';
 
+import PublicRoute from '../Auth/PublicRoute';
+
 const Routes = () => {
 
     const { userRole } = useAuth();
+    const isPlanillero = userRole === 2; // Supongamos que el rol 2 es de planillero
     
     return (
         <AuthProvider>
             <BrowserRouter>
                 <ReactDomRoutes>
                     {/* Rutas Públicas */}
-                    <Route path='/onboarding' element={<Layout> <Onboarding/> </Layout>} />
-                    <Route path='/login' element={<Layout> <Login/> </Layout>} />
-                    <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} />
-                    <Route path='/create-password' element={<Layout> <Step2/> </Layout>} />
-                    <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} />
-                    <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} />
-                    <Route path='/confirm-email-change' element={<Layout> <ConfirmEmailChange/> </Layout>} />
+                    <Route element={<PublicRoute/>}>
+                        <Route path='/onboarding' element={<Layout> <Onboarding/> </Layout>} />
+                        <Route path='/login' element={<Layout> <Login/> </Layout>} />
+                        <Route path='/' element={<LayoutPrivate> <Home/> </LayoutPrivate>} />
+                        <Route path='/my-team' element={<LayoutPrivate> <MyTeam/> </LayoutPrivate>} />
+                        <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} />
+                        <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} />
+                        {/* <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} /> */}
+                        <Route path='/create-password' element={<Layout> <Step2/> </Layout>} />
+                        
+                        {/* <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} /> */}
+                        {/* <Route path='/confirm-email-change' element={<Layout> <ConfirmEmailChange/> </Layout>} /> */}
+                        {/* <Route path='/my-team/partidos' element={<LayoutPrivate> <MyTeamPartidos/> </LayoutPrivate>} /> */}
+                        {/* <Route path='/stats' element={<LayoutPrivate> <Stats/> </LayoutPrivate>} /> */}
+                        {/* <Route path='/more' element={<LayoutAux> <More/> </LayoutAux>} /> */}
+                    </Route>
+
+                    <Route path='/stats-match' element={<LayoutPrivate> <MatchStats/> </LayoutPrivate>} />
+                    <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
+                    <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
+                    <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} />
+                    <Route path='/categoria/posiciones/:id_page' element={<LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} />
+                    <Route path='/categoria/fixture/:id_page' element={<LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} />
+                    <Route path='/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
 
                     {/* Rutas Privadas */}
                     <Route element={<ProtectedRoute />}>
@@ -103,77 +122,23 @@ const Routes = () => {
 
                         {/* Planillero */}
                         <Route element={<ProtectedRoute roles={[2]} />}>
-                            <Route path='/planillero' element={<PrivateLayoutPlanillero> <HomePlanillero/> </PrivateLayoutPlanillero>} />
-                            <Route path='/planillero/planilla' element={<PrivateLayoutPlanillero> <Planilla/> </PrivateLayoutPlanillero>} />
-                            <Route path='/planiller/categorias' element={<PrivateLayoutPlanillero> <UserCategorias/> </PrivateLayoutPlanillero>} />
-                            <Route path='/planiller/more' element={<PrivateLayoutPlanillero> <MorePlanillero/> </PrivateLayoutPlanillero>} />
+                            <Route path='/planillero' element={<LayoutPrivate> <HomePlanillero/> </LayoutPrivate>} />
+                            <Route path='/planillero/planilla' element={<LayoutPrivate> <Planilla/> </LayoutPrivate>} />
+                            <Route path='/planiller/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
+                            <Route path='planillero/mi-perfil' element={<LayoutPrivate> <Perfil/> </LayoutPrivate>} />
 
+                            {/* <Route path='/categoria/estadisticas/asistentes/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasAsistentes/> </PrivateLayoutPlanillero>} />
+                            <Route path='/categoria/estadisticas/expulsados/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasExpulsados/> </PrivateLayoutPlanillero>} />
+                            <Route path='/categoria/posiciones/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasPosiciones/> </PrivateLayoutPlanillero>} />
+                            <Route path='/categoria/fixture/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasFixture/> </PrivateLayoutPlanillero>} />
+                            <Route path='/categorias' element={<PrivateLayoutPlanillero> <UserCategorias/> </PrivateLayoutPlanillero>} /> */}
+
+                            {/* <Route path='/planiller/more' element={<PrivateLayoutPlanillero> <MorePlanillero/> </PrivateLayoutPlanillero>} /> */}
                             {/* <Route path='/planiller/stats' element={<PrivateLayoutPlanillero> <Stats/> </PrivateLayoutPlanillero>} /> */}
                             {/* <Route path='/my-team' element={<PrivateLayoutPlanillero> <MyTeam/> </PrivateLayoutPlanillero>} />
                             <Route path='/stats-match' element={<PrivateLayoutPlanillero> <MatchStats/> </PrivateLayoutPlanillero>} /> */}
                         </Route>
 
-                        {/* Rutas compartidas entre roles 2 y 3 */}
-                    {/* Rutas compartidas entre roles 2 y 3 */}
-                    <Route element={<ProtectedRoute roles={[2, 3]} />}>
-                        <Route 
-                            path='/categoria/estadisticas/goleadores/:id_page' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <UserCategoriasGoleadores/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} 
-                        />
-                        <Route 
-                            path='/categoria/estadisticas/asistentes/:id_page' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <UserCategoriasAsistentes/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} 
-                        />
-                        <Route 
-                            path='/categoria/estadisticas/expulsados/:id_page' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <UserCategoriasExpulsados/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} 
-                        />
-                        <Route 
-                            path='/categoria/posiciones/:id_page' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <UserCategoriasPosiciones/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} 
-                        />
-                        <Route 
-                            path='/categoria/fixture/:id_page' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <UserCategoriasFixture/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} 
-                        />
-                        <Route 
-                            path='/categorias' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <UserCategorias/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <UserCategorias/> </LayoutPrivate>} 
-                        />
-                        <Route 
-                            path='/mi-perfil' 
-                            element={userRole === 2 ? 
-                                <PrivateLayoutPlanillero> <Perfil/> </PrivateLayoutPlanillero> : 
-                                <LayoutPrivate> <Perfil/> </LayoutPrivate>} 
-                        />
-                    </Route>
-
-                        {/* Rutas del usuario */}
-                        <Route element={<ProtectedRoute roles={[3]} />}>
-                            <Route path='/' element={<LayoutPrivate> <Home/> </LayoutPrivate>} />
-                            <Route path='/my-team' element={<LayoutPrivate> <MyTeam/> </LayoutPrivate>} />
-                            {/* <Route path='/my-team/partidos' element={<LayoutPrivate> <MyTeamPartidos/> </LayoutPrivate>} /> */}
-                            <Route path='/stats' element={<LayoutPrivate> <Stats/> </LayoutPrivate>} />
-                            <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} />
-                            <Route path='/more' element={<LayoutAux> <More/> </LayoutAux>} />
-                            <Route path='/stats-match' element={<LayoutPrivate> <MatchStats/> </LayoutPrivate>} />
-                            {/* <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
-                            <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
-                            <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} /> */}
-
-                        </Route>
                     </Route>
 
                 </ReactDomRoutes>

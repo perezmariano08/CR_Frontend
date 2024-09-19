@@ -13,7 +13,7 @@ export const NavbarContainerStyled = styled.header`
     z-index: 1000;
     user-select: none;
     @media (max-width: 968px) {
-        height: 40px;
+        height: 50px;
     }
 `
 
@@ -41,6 +41,11 @@ export const NavbarLogo = styled(NavLink)`
     img {
         height: 100%;
     }
+    @media (max-width: 968px) {
+        img {
+        height: 80%;
+        }
+    }
 `
 export const ContainerNoti = styled.button`
     border: none;
@@ -61,12 +66,13 @@ export const NavbarList = styled.ul`
 
     li a {
         color: var(--white);
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 600;
     }
 
     @media (max-width: 968px) {
-        
+        gap: 10px;
+
         li {
             display: none;
         }
@@ -79,4 +85,28 @@ export const NavbarList = styled.ul`
     .active {
         color: var(--green);
     }
+
+    img {
+        width: 30px;
+    }
+`
+
+export const TeamContainer = styled.div`
+    display: flex;
+    align-items: center;
+    width: 40%;
+    gap: 10px;
+    padding: 0px 20px;
+    @media (max-width: 968px) {
+        gap: 5px;
+        width: 100%;
+    }
+`
+
+export const SelectTeamContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    /* padding: 20px; */
 `

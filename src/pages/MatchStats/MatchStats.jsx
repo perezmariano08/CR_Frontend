@@ -94,7 +94,9 @@ const MatchStats = () => {
 
                 {activeTab === 'Previa' && (
                     <>
-                        <Alignment formaciones={formaciones} jugadores={jugadores} partido={partido} />
+                        {
+                        partido.estado !== 'S' && <Alignment formaciones={formaciones} jugadores={jugadores} partido={partido} />
+                        }
                         {partido.estado === 'F' && <Incidents incidentes={incidencias} formaciones={formaciones} partidoId={partidoId} />}
                         <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />
                     </>

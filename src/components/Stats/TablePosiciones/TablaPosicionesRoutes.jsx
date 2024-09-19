@@ -9,7 +9,7 @@ import { SpinerContainer } from '../../../Auth/SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
 
 const TablePosicionesRoutes = ({ data, dataColumns }) => {
-
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     const navigate = useNavigate();
 
@@ -48,10 +48,17 @@ const TablePosicionesRoutes = ({ data, dataColumns }) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
 
+    const rowClassName = (rowData) => {
+        return {
+            'my-team-row': rowData.id_equipo === idMyTeam 
+        };
+    }
+
     return (
         <TableWrapper
             value={data}
             emptyMessage="No hay datos disponibles"
+            rowClassName={rowClassName}
             >
                 {dataColumns.map((col) => (
                 <Column

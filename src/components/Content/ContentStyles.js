@@ -245,10 +245,16 @@ export const ContentUserTituloContainer = styled.div`
 
 export const TituloContainer = styled.div`
     display: flex;
+    align-items: center;
     gap: 15px;
 
     img {
         width: 40px;
+    }
+
+    svg {
+        cursor: pointer;
+        color: var(--green);
     }
 `;
 
@@ -435,6 +441,10 @@ export const JornadasFixturePartidoEquipo = styled.div`
     }
     img {
         width: 20px;
+    }
+
+    .miEquipo {
+        color: var(--green);
     }
 
     @media (max-width: 968px) {

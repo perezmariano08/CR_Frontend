@@ -3,6 +3,7 @@ import { SelectContainerStyled, SelectWrapper } from './SelectStyles';
 import { useSelector } from 'react-redux';
 
 const Select2 = ({ idTeam, currentActionPlayerId, onSelect, action }) => {
+    
     const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
     const matches = useSelector((state) => state.match);
     const match = matches.find(p => p.ID === idPartido);

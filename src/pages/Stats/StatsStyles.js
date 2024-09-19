@@ -46,7 +46,7 @@ export const StatsNull = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    background: var(--gray-300);
+    background: var(--gray-400);
     padding: 20px;
     border-radius: 20px;
     text-align: center;
