@@ -443,6 +443,10 @@ export const JornadasFixturePartidoEquipo = styled.div`
         width: 20px;
     }
 
+    .miEquipo {
+        color: var(--green);
+    }
+
     @media (max-width: 968px) {
         min-width: 0;
     }

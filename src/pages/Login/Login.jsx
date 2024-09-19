@@ -6,7 +6,7 @@ import { URL } from '../../utils/utils';
 import Input from '../../components/UI/Input/Input';
 import { AiOutlineLock } from "react-icons/ai";
 import { PiIdentificationCardLight } from 'react-icons/pi';
-import { LoginContainerStyled, LoginWrapperUp, LoginDataContainer, LoginDataWrapper, LoginDataInputs, LoginDataPassword, ButtonLogin, LoginWrapperInfo, LoginWrapperForm, ActivInfoContainer, NavToHomeContainer } from "./LoginStyles";
+import { LoginContainerStyled, LoginWrapperUp, LoginDataContainer, LoginDataWrapper, LoginDataInputs, LoginDataPassword, ButtonLogin, LoginWrapperInfo, LoginWrapperForm, ActivInfoContainer, NavToHomeContainer, SolicitarCuentaContainer } from "./LoginStyles";
 import IsotipoCR from "/Logos/CR-Logo.png";
 import { useDispatch } from 'react-redux';
 import { setLogCurrentUser } from '../../redux/user/userSlice';
@@ -51,6 +51,7 @@ const Login = () => {
         event.preventDefault();
         try {
             const response = await axios.post(`${URL}/auth/check-login`, { dni: dniUser, password: passUser });
+
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
@@ -61,10 +62,7 @@ const Login = () => {
                     } else {
                         window.location.href = '/admin/dashboard';
                     }
-                } else {
-                    window.location.href = '/';
                 }
-                
             } else {
                 toast.error('Error durante el inicio de sesión');
                 setIsLoading(false);
@@ -72,10 +70,12 @@ const Login = () => {
         } catch (error) {
             // Aquí manejamos el error capturado
             if (error.response && error.response.status === 401) {
-                toast.error('Contraseña incorrecta');
+                toast.error('No autorizado');
             } else if (error.response && error.response.status === 403) {
                 toast.error('Debes activar la cuenta');
-            } else {
+            } else if (error.response && error.response.status === 405) {
+                toast.error('Contraseña incorrecta')
+            }else {
                 toast.error('Error al iniciar sesión');
             }
             console.error("Error en la solicitud HTTP:", error);
@@ -161,7 +161,7 @@ const Login = () => {
                             </>
                         )}
                     </ButtonLogin>
-                    {/* <p>¿No tienes cuenta? <NavLink to={'/create-account'}>Registrate</NavLink></p> */}
+                    {/* <SolicitarCuentaContainer> <NavLink to={'/create-account'}>Solicitar cuenta</NavLink> <span>* Solo para personal administrativo *</span ></SolicitarCuentaContainer> */}
                 </LoginDataContainer>
                 <Toaster/>
             </LoginWrapperForm>

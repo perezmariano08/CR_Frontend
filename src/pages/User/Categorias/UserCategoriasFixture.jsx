@@ -28,7 +28,7 @@ const UserCategoriasFixture = () => {
     const partidos = useSelector((state) => state.partidos.data);
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
-
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const categoriaFiltrada = categorias.find((c) => c.id_categoria === id_categoria);
     const edicionFiltrada = ediciones.find((e) => e.id_edicion === categoriaFiltrada.id_edicion);
 
@@ -196,7 +196,7 @@ const UserCategoriasFixture = () => {
                                                             {partidosDeZona.map((partido) => (
                                                                 <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
                                                                     <JornadasFixturePartidoEquipo>
-                                                                        {nombresEquipos(partido.id_equipoLocal)}
+                                                                    <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
                                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
                                                                     </JornadasFixturePartidoEquipo>
                                                                     <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
@@ -208,7 +208,7 @@ const UserCategoriasFixture = () => {
                                                                     </JornadasFixtureResultado>
                                                                     <JornadasFixturePartidoEquipo className='visita'>
                                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
-                                                                        {nombresEquipos(partido.id_equipoVisita)}
+                                                                        <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
                                                                     </JornadasFixturePartidoEquipo>
                                                                 </JornadasFixturePartido>
                                                             ))}
@@ -222,7 +222,7 @@ const UserCategoriasFixture = () => {
                                             partidosPorFecha[fecha].map((partido) => (
                                                 <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)} className={partido.estado === 'A' ? 'suspendido' : ''}>
                                                     <JornadasFixturePartidoEquipo>
-                                                        {nombresEquipos(partido.id_equipoLocal)}
+                                                        <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
                                                     </JornadasFixturePartidoEquipo>
                                                     <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
@@ -234,7 +234,7 @@ const UserCategoriasFixture = () => {
                                                     </JornadasFixtureResultado>
                                                     <JornadasFixturePartidoEquipo className='visita'>
                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
-                                                        {nombresEquipos(partido.id_equipoVisita)}
+                                                        <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
                                                     </JornadasFixturePartidoEquipo>
                                                 </JornadasFixturePartido>
                                             ))

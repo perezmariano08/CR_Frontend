@@ -61,7 +61,6 @@ const ModalSuspenderPartido = ({ partido }) => {
         }
 
         try {
-            console.log(partidoData);
             const response = await axios.put(`${URL}/user/update-partido`, partidoData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -74,6 +73,9 @@ const ModalSuspenderPartido = ({ partido }) => {
             console.error('Error al suspender el partido:', error);
         } finally {
             setLoading(false);
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000)
         }
     };
 

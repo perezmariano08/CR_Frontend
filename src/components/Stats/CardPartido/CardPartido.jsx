@@ -9,7 +9,7 @@ import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
 import { useAuth } from '../../../Auth/AuthContext.jsx';
 
 const CardPartido = ({ partido, rol }) => {
-    const { idMyTeam } = useAuth();
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const matches = useSelector((state) => state.match);
     const dispatch = useDispatch();
     const navigate = useNavigate();

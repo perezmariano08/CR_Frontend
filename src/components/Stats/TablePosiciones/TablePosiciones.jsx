@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../Auth/AuthContext';
 
 const TablePosiciones = ({ data, zona, dataColumns }) => {
-    const { idMyTeam } = useAuth();
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     const navigate = useNavigate();
 
