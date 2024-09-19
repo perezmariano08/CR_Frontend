@@ -48,21 +48,21 @@ import CategoriasMenuNav from './CategoriasMenuNav';
 
 const CategoriasEquiposDetalle = () => {
     const dispatch = useDispatch()
-    const { id_page } = useParams()
-    const { escudosEquipos } = useEquipos();
+    const { id_categoria, id_equipo } = useParams()
+    
+    const { escudosEquipos, nombresEquipos } = useEquipos();
 
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
-    const equiposList = useSelector((state) => state.equipos.data);
+    const temporadas = useSelector((state) => state.temporadas.data);
     const jugadoresList = useSelector((state) => state.jugadores.data);
     const [jugadorExistente, setJugadorExistente] = useState(null);
 
-    const equipoFiltrado = equiposList.find(equipo => equipo.id_equipo == id_page);
+    const equipoFiltrado = temporadas.find(equipo => equipo.id_equipo == id_equipo && equipo.id_categoria == id_categoria);
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == equipoFiltrado.id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == equipoFiltrado.id_categoria)
     
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     // Estado de los botones que realizan una accion en la base de datos
@@ -87,7 +87,7 @@ const CategoriasEquiposDetalle = () => {
         nombre_jugador: '',
         apellido_jugador: '',
         posicion_jugador: '',
-        id_equipo: id_page,
+        id_equipo: id_equipo,
         id_jugador: ''
     });
 
@@ -152,14 +152,14 @@ const CategoriasEquiposDetalle = () => {
     }
     
     const ListaBuenaFeEquipo = planteles.filter((plantel) => 
-        plantel.id_equipo == id_page &&
+        plantel.id_equipo == id_equipo &&
         plantel.id_categoria === equipoFiltrado.id_categoria && 
         plantel.id_edicion === categoriaFiltrada.id_edicion &&
         plantel.eventual === 'N'
     )
 
     const EventualesEquipo = planteles.filter((plantel) => 
-        plantel.id_equipo == id_page &&
+        plantel.id_equipo == id_equipo &&
         plantel.id_categoria === equipoFiltrado.id_categoria && 
         plantel.id_edicion === categoriaFiltrada.id_edicion &&
         plantel.eventual === 'S'
@@ -175,7 +175,7 @@ const CategoriasEquiposDetalle = () => {
                 id_categoria: equipoFiltrado.id_categoria,
                 id_edicion: categoriaFiltrada.id_edicion,
                 id_jugador: jugadorExistente.id_jugador,
-                id_equipo: id_page
+                id_equipo: id_equipo
             };
             
             try {
@@ -229,7 +229,7 @@ const CategoriasEquiposDetalle = () => {
             nombre: formState.nombre_jugador,
             apellido: formState.apellido_jugador,
             posicion: formState.posicion_jugador,
-            id_equipo: id_page
+            id_equipo: id_equipo
         };
         
         await crear(data);
@@ -251,7 +251,7 @@ const CategoriasEquiposDetalle = () => {
             id_categoria: equipoFiltrado.id_categoria,
             id_edicion: categoriaFiltrada.id_edicion,
             id_jugador: id_jugadorSeleccionado,
-            id_equipo: id_page
+            id_equipo: id_equipo
         };
         try {
             await eliminarPorData(data);
@@ -318,16 +318,14 @@ const CategoriasEquiposDetalle = () => {
                 if (dniToJugadorMap.has(dni)) {
                     // Obtén el id_jugador del jugador existente
                     const id_jugador = dniToJugadorMap.get(dni);
-                    console.log(id_jugador);
                     
                     // Inserta el jugador y su relación en planteles
                     await Axios.post(`${URL}/user/agregar-jugador-plantel`, {
                         id_jugador,
-                        id_equipo: id_page, // Reemplaza esto con el id del equipo actual
+                        id_equipo: id_equipo, // Reemplaza esto con el id del equipo actual
                         id_edicion: categoriaFiltrada.id_edicion, // Reemplaza con la edición actual
                         id_categoria: equipoFiltrado.id_categoria // Reemplaza con la categoría actual
                     });
-                    console.log(`El jugador con DNI ${dni} ya existe y se ha agregado al plantel.`);
                     continue;
                 }
 
@@ -337,7 +335,7 @@ const CategoriasEquiposDetalle = () => {
                     nombre,
                     apellido,
                     posicion,
-                    id_equipo: id_page, // Reemplaza esto con el id del equipo actual
+                    id_equipo: id_equipo, // Reemplaza esto con el id del equipo actual
                     id_edicion: categoriaFiltrada.id_edicion, // Reemplaza con la edición actual
                     id_categoria: equipoFiltrado.id_categoria // Reemplaza con la categoría actual
                 });
@@ -389,11 +387,11 @@ const CategoriasEquiposDetalle = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <CategoriasMenuNav id_categoria={id_page}/>
+            <CategoriasMenuNav id_categoria={equipoFiltrado.id_categoria}/>
             <EquipoDetalleInfo>
                 <EquipoWrapper>
                     <img src={`${URLImages}${escudosEquipos(equipoFiltrado.id_equipo)}`} alt={equipoFiltrado.nombre} />
-                    <h1>{equipoFiltrado.nombre}</h1>
+                    <h1>{nombresEquipos(equipoFiltrado.id_equipo)}</h1>
                 </EquipoWrapper>
                 <Button bg="success" color="white" >
                     <p>Editar equipo</p>
@@ -403,9 +401,6 @@ const CategoriasEquiposDetalle = () => {
                 <div style={{display: 'flex', gap: '20px', justifyContent: 'space-between'}}>
                     <Button bg="success" color="white" onClick={openCreateModal}>
                         <p>Agregar jugador</p>
-                    </Button>
-                    <Button bg="danger" color="white">
-                        <p>Eliminar jugador</p>
                     </Button>
                 </div>
                 <label htmlFor="importInput" style={{ display: 'none' }}>

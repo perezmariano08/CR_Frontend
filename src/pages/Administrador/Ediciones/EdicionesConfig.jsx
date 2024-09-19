@@ -26,12 +26,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 const EdicionesConfig = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const { id_edicion } = useParams(); // Obtenemos el id desde la URL
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     
-    const edicionFiltrada  = edicionesList.find(edicion => edicion.id_edicion == id_page);
+    const edicionFiltrada  = edicionesList.find(edicion => edicion.id_edicion == id_edicion);
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
@@ -84,7 +84,7 @@ const EdicionesConfig = () => {
             puntos_victoria: formState.puntos_victoria,
             puntos_empate: formState.puntos_empate,
             puntos_derrota: formState.puntos_derrota,
-            id_edicion: id_page,
+            id_edicion: id_edicion,
         }
         await actualizar(data);
     };
@@ -96,7 +96,7 @@ const EdicionesConfig = () => {
 
     const eliminarRegistros = async () => {
         try {
-            await eliminarPorId(id_page);
+            await eliminarPorId(id_edicion);
         } catch (error) {
             console.error("Error eliminando años:", error);
         } finally {
@@ -113,8 +113,8 @@ const EdicionesConfig = () => {
                 <div>{edicionFiltrada.nombre_temporada}</div>
             </MenuContentTop>
             <ContentNavWrapper>
-                <li><NavLink to={`/admin/ediciones/categorias/${id_page}`}>Categorias</NavLink></li>
-                <li><NavLink to={`/admin/ediciones/config/${id_page}`}>Configuración</NavLink></li>
+                <li><NavLink to={`/admin/ediciones/categorias/${id_edicion}`}>Categorias</NavLink></li>
+                <li><NavLink to={`/admin/ediciones/config/${id_edicion}`}>Configuración</NavLink></li>
             </ContentNavWrapper>
             <ConfigFormWrapper>
                 <h2>Configuración de la edición {edicionFiltrada.nombre}</h2>

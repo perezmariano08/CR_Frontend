@@ -6,3 +6,10 @@ export const dataEquiposColumns = [
     {field: 'jugadores_sin_dni', header: 'Jugadores sin DNI'},
     {field: 'eliminar', header: ''},
 ];
+
+export const dataEquiposLegajosColumns = [
+    {field: 'equipo', header: 'equipo'},
+    {field: 'jugadores', header: 'cant. jugadores'},
+    {field: 'listas', header: 'listas'},
+    {field: 'link', header: ''},
+];

@@ -8,7 +8,6 @@ const Content = ({children}) => {
 
   return (
     <>
-        
         <ContentContainerStyled isOpen={isOpen}>
             <Header/>
             <ContentWrapper>

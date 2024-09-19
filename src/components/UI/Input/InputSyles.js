@@ -44,9 +44,9 @@ export const InputContainerStyled = styled.div`
         width: 100%;
         
         input {
-            background-color: var(--gray-300);
+            background-color: var(--gray-400);
             border-radius: 10px;
-            border: 1px solid var(--gray-300); 
+            border: 1px solid var(--gray-400); 
             color: var(--white);
             outline: none; 
             width: 100%;
@@ -81,7 +81,7 @@ export const InputContainerStyled = styled.div`
 `
 
 export const InputWrapper = styled.input`
-    background-color: var(--gray-300);
+    background-color: var(--gray-400);
     border-radius: 10px;
     border: 1px solid var(--gray-300); 
     color: var(--white);

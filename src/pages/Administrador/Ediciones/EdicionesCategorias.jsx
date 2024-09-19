@@ -25,14 +25,15 @@ import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { EstadoBodyTemplate, LinkBodyTemplate } from '../../../components/Table/TableStyles';
+import Skeleton from 'react-loading-skeleton';
 
 const EdicionesCategorias = () => {
     const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const { id_edicion } = useParams();
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
-        id_edicion: id_page,
+        id_edicion: id_edicion,
         nombre_categoria: '',
         genero: 'B',
         tipo_futbol: 7,
@@ -44,15 +45,17 @@ const EdicionesCategorias = () => {
     // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
     const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModalsCrud();
 
-    // Constantes del modulo
-    const id = "id_categoria"
 
     // Estado del el/los Listado/s que se necesitan en el modulo
-    const edicionesList = useSelector((state) => state.ediciones.data)
-    const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == id_page)
-    const categoriasList = useSelector((state) => state.categorias.data)
-    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_page)
-    const categoriasListLink = categoriasEdicion.map(categoria => ({
+
+    // Ediciones
+    const ediciones = useSelector((state) => state.ediciones.data)
+    const edicionFiltrada = ediciones.find(edicion => edicion.id_edicion == id_edicion)
+
+    // Categorias
+    const categorias = useSelector((state) => state.categorias.data)
+    const categoriasEdicion = categorias.filter(categoria => categoria.id_edicion == id_edicion)
+    const TablaCategorias = categoriasEdicion.map(categoria => ({
         ...categoria,
         estado: (
             <>
@@ -87,7 +90,7 @@ const EdicionesCategorias = () => {
             return;
         }
 
-        if (categoriasList.some(a => a.nombre === formState.nombre_categoria.trim() && a.id_edicion == formState.id_edicion)) {
+        if (categorias.some(a => a.nombre === formState.nombre_categoria.trim() && a.id_edicion == formState.id_edicion)) {
             toast.error(`La categoría ya existe en esta edición.`);
             return;
         }
@@ -120,19 +123,19 @@ const EdicionesCategorias = () => {
                 <div>{edicionFiltrada.nombre_temporada}</div>
             </MenuContentTop>
             <ContentNavWrapper>
-                <li><NavLink to={`/admin/ediciones/categorias/${id_page}`}>Categorias</NavLink></li>
-                <li><NavLink to={`/admin/ediciones/config/${id_page}`}>Configuración</NavLink></li>
+                <li><NavLink to={`/admin/ediciones/categorias/${id_edicion}`}>Categorias</NavLink></li>
+                <li><NavLink to={`/admin/ediciones/config/${id_edicion}`}>Configuración</NavLink></li>
             </ContentNavWrapper>
             {
                 categoriasEdicion.length > 0 ? (
                     <>
                         <Table
-                            data={categoriasListLink}
+                            data={TablaCategorias}
                             dataColumns={dataCategoriasColumns}
                             paginator={false}
                             selection={false}
                             sortable={false}
-                            id_={id}
+                            id_={'id_categoria'}
                             urlClick={`/admin/categorias/resumen/`}
                             rowClickLink
                         />

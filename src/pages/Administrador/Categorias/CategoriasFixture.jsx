@@ -50,7 +50,7 @@ import { estadoPartidos } from '../../../Data/Estados/Estados';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const { id_categoria } = useParams(); // Obtenemos el id desde la URL
     const [searchParams] = useSearchParams(); // Lee los parámetros de búsqueda
 
   // Obtén el valor del parámetro jornada
@@ -61,7 +61,7 @@ const CategoriasFixture = () => {
     
     // Manejo del form
     const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
-        id_edicion: id_page,
+        id_edicion: id_categoria,
         equipo_local: '',
         equipo_visita: '',
         jornada: '',
@@ -286,7 +286,7 @@ const actualizarDato = async () => {
                         dia: convertirFecha(row.dia),
                         id_equipoLocal: equipoLocal.id_equipo,
                         id_equipoVisita: equipoVisita.id_equipo,
-                        id_categoria: id_page,
+                        id_categoria: id_categoria,
                         id_edicion: edicionFiltrada.id_edicion,
                         id_zona: formState.zona
                     };
@@ -314,17 +314,17 @@ const actualizarDato = async () => {
         }
     };
     
-    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_page);
-    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_page)
+    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
+    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_categoria)
     const categoriasListLink = categoriasEdicion.map(categoria => ({
         ...categoria,
         link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
     }));
 
-    const equiposCategoria = equiposList.filter((equipo) => equipo.id_categoria == id_page);
+    const equiposCategoria = equiposList.filter((equipo) => equipo.id_categoria == id_categoria);
     
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_page)
+    const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_categoria)
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == categoriaFiltrada.id_categoria)
     // Agregar acciones a la tabla
         const partidosListLink = partidosCategoria.map(partido => ({
@@ -395,9 +395,9 @@ const actualizarDato = async () => {
     const cambiarFecha = (direccion) => {
         // const indexActual = fechas.indexOf(fechaSeleccionada);
         if (direccion === 'anterior') {
-            navigate(`/admin/categorias/fixture/${id_page}?jornada=${jornada - 1}`)
+            navigate(`/admin/categorias/fixture/${id_categoria}?jornada=${jornada - 1}`)
         } else if (direccion === 'siguiente') {
-            navigate(`/admin/categorias/fixture/${id_page}?jornada=${jornada + 1}`)
+            navigate(`/admin/categorias/fixture/${id_categoria}?jornada=${jornada + 1}`)
             // setFechaSeleccionada(jornadaInt + 1);
         }
     };
@@ -428,7 +428,7 @@ const actualizarDato = async () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <CategoriasMenuNav id_categoria={id_page}/>
+            <CategoriasMenuNav id_categoria={id_categoria}/>
             {
                 partidosCategoria.length > 0 ? (
                     <>

@@ -40,14 +40,16 @@ import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { EquiposDetalle, ResumenItemDescripcion, ResumenItemsContainer, ResumenItemTitulo, ResumenItemWrapper } from './categoriasStyles';
+import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
+import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 
 const Categorias = () => {
     const dispatch = useDispatch();
-    const { id_page } = useParams(); // Obtenemos el id desde la URL
+    const { id_categoria } = useParams(); // Obtenemos el id desde la URL
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
-        id_edicion: id_page,
+        id_edicion: id_categoria,
         nombre_categoria: '',
         genero: 'M',
         tipo_futbol: 7,
@@ -76,20 +78,22 @@ const Categorias = () => {
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const planteles = useSelector((state) => state.planteles.data);
-    const jugadoresCategoria = planteles.filter((p) => p.id_categoria == id_page)
+    const jugadoresCategoria = planteles.filter((p) => p.id_categoria == id_categoria)
 
     const partidos = useSelector((state) => state.partidos.data);
-    const partidosCategoria = partidos.filter((p) => p.id_categoria == id_page)
+    const partidosCategoria = partidos.filter((p) => p.id_categoria == id_categoria)
     
     
     const temporadas = useSelector((state) => state.temporadas.data);
-    const equiposCategoria = temporadas.filter((t) => t.id_categoria == id_page)
+    const equiposCategoria = temporadas.filter((t) => t.id_categoria == id_categoria)
     
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
         dispatch(fetchTemporadas());
+        dispatch(fetchJugadores());
+        dispatch(fetchPlanteles());
     }, []);
 
 
@@ -129,8 +133,8 @@ const Categorias = () => {
         resetForm()
     };
     
-    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_page);
-    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_page)
+    const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
+    const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_categoria)
     const categoriasListLink = categoriasEdicion.map(categoria => ({
         ...categoria,
         link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
@@ -147,7 +151,7 @@ const Categorias = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <CategoriasMenuNav id_categoria={id_page} />
+            <CategoriasMenuNav id_categoria={id_categoria} />
             <ResumenItemsContainer>
                 <ResumenItemWrapper>
                     <ResumenItemTitulo>
@@ -178,7 +182,7 @@ const Categorias = () => {
                             <h3>{equiposCategoria.filter((e) => e.id_zona === null).length}</h3>
                             <p>Sin vacante</p>
                         </EquiposDetalle>
-                        <NavLink to={`/admin/categorias/equipos/${id_page}`}>
+                        <NavLink to={`/admin/categorias/equipos/${id_categoria}`}>
                             Ir a equipos
                         </NavLink>
                     </ResumenItemDescripcion>

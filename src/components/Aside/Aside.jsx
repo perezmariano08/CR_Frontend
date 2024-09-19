@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoShieldHalf } from "react-icons/io5";
 import { FaAngleDown } from "react-icons/fa6";
-import { LiaFutbol } from "react-icons/lia";
+import { LiaClipboardListSolid, LiaFutbol } from "react-icons/lia";
 import { TbCalendarEvent } from "react-icons/tb";
 import { PiUsers } from "react-icons/pi";
 import { MdOutlineDashboard } from "react-icons/md";
@@ -52,7 +52,8 @@ const Aside = ({className}) => {
     }, [userName, showWelcomeToast, setShowWelcomeToast, isActiveTemporadas]);
 
     const isOpen = useSelector((state) => state.aside.isOpen);
-    
+    const isActive = location.pathname.startsWith('/admin/legajos');
+
     return (
         <>
             <AsideContainerStyled 
@@ -94,6 +95,13 @@ const Aside = ({className}) => {
                         <NavLinkItem to={'/admin/sanciones/expulsados'}>
                             <BiBlock />
                             <p>Sanciones</p>
+                        </NavLinkItem>
+                        <NavLinkItem 
+                            to='/admin/legajos/jugadores' 
+                            className={isActive ? 'active' : ''}
+                        >
+                            <LiaClipboardListSolid />
+                            <p>Legajos</p>
                         </NavLinkItem>
                         <NavLinkItem to={'/'}>
                             <BiSearch />
