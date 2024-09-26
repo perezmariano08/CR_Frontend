@@ -232,7 +232,7 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                 emptyMessage="No hay datos disponibles"
                 removableSort
                 paginator={paginator}
-                rows={50}
+                rows={25}
                 rowsPerPageOptions={[5, 10, 25, 50]}
                 selectionMode={rowClick ? null : 'multiple'}
                 selection={selectedProducts}
