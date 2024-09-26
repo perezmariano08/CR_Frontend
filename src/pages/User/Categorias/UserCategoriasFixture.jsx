@@ -199,8 +199,8 @@ const UserCategoriasFixture = () => {
                                                                     <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
                                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
                                                                     </JornadasFixturePartidoEquipo>
-                                                                    <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
-                                                                        {partido.estado === 'F'
+                                                                    <JornadasFixtureResultado className={partido.estado === 'F' || partido.estado === 'S' ? '' : 'hora'}>
+                                                                        {partido.estado === 'F' || partido.estado === 'S'
                                                                             ? `${partido.goles_local} - ${partido.goles_visita}`
                                                                             : partido.estado === 'A'
                                                                                 ? <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>
@@ -225,8 +225,8 @@ const UserCategoriasFixture = () => {
                                                         <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
                                                     </JornadasFixturePartidoEquipo>
-                                                    <JornadasFixtureResultado className={partido.estado === 'F' ? '' : 'hora'}>
-                                                        {partido.estado === 'F'
+                                                    <JornadasFixtureResultado className={partido.estado === 'F' || partido.estado === 'S' ? '' : 'hora'}>
+                                                        {partido.estado === 'F' || partido.estado === 'S'
                                                             ? `${partido.goles_local} - ${partido.goles_visita}`
                                                             : partido.estado === 'A'
                                                                 ? <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>

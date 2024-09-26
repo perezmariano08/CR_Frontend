@@ -1,15 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
-import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
-import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
 import { FiPlus } from 'react-icons/fi';
 import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
-import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
-import { ContentTitle } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
+import { HandlerFechasContainer, HandlerFechasWrapper, InputRadioContainer, InputRadioWrapper, ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
@@ -17,27 +13,27 @@ import Overlay from '../../../components/Overlay/Overlay';
 import Axios from 'axios';
 import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
-import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
-import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
-import { fetchAños } from '../../../redux/ServicesApi/añosSlice';
-import { fetchRoles } from '../../../redux/ServicesApi/rolesSlice';
-import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
-import { dataUsuariosColumns } from '../../../Data/Usuarios/DataUsuarios';
 import Select from '../../../components/Select/Select';
 import { fetchExpulsados } from '../../../redux/ServicesApi/expulsadosSlice';
 import { dataExpulsadosColumn } from '../../../Data/Expulsados/DataExpulsados';
 import { EquipoBodyTemplate } from '../../../components/Table/TableStyles';
 import { BiMessageDetail, BiSolidEdit } from 'react-icons/bi';
+import { IoIosArrowUp, IoIosArrowDown  } from "react-icons/io";
 import { TablaExpulsadosWrapper } from './ExpulsadosStyles';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import useForm from '../../../hooks/useForm';
 import { useCrud } from '../../../hooks/useCrud';
 import { BsCalendar2Event } from 'react-icons/bs';
+import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
+import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
+import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
+import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
+import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 
 const Expulsados = () => {
-    const dispatch = useDispatch();
+    //Hooks
     const { 
         isCreateModalOpen, openCreateModal, closeCreateModal, 
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
@@ -45,7 +41,7 @@ const Expulsados = () => {
     } = useModalsCrud();
 
     // Manejo del form
-    const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
+    const [formState, handleChange, resetForm, setFormState] = useForm({ 
         id_partido: '',
         id_jugador: '',
         id_equipo: '',
@@ -60,9 +56,27 @@ const Expulsados = () => {
         id_expulsion: ''
     })
 
+    const dispatch = useDispatch();
+    const equiposList = useSelector((state) => state.equipos.data);
+    const expulsadosList = useSelector((state) => state.expulsados.data);
+    const ediciones = useSelector((state) => state.ediciones.data);
+    const categorias = useSelector((state) => state.categorias.data);
+    const categoriasEdicion = categorias.filter((c) => c.id_edicion == formState.id_edicion) 
+    const temporadas = useSelector((state) => state.temporadas.data);
+    const equiposCategoria = temporadas.filter((t) => t.id_categoria == formState.id_categoria)
+    const planteles = useSelector((state) => state.planteles.data);
+    const jugadoresEquipo = planteles.filter((p) => p.id_equipo == formState.id_equipo) 
+    const token = localStorage.getItem('token')
+
+    const [isSaving, setIsSaving] = useState(false);
+    const [originalState, setOriginalState] = useState(null);
+
+    const { actualizar, isUpdating } = useCrud(
+        `${URL}/admin/update-expulsion`, fetchExpulsados, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+    );
+
     const handleEdicionChange = (e) => {
         const { name, value } = e.target;
-
         // Reseteamos categoría, equipo y jugador cuando se cambia la edición
         setFormState({
             ...formState,
@@ -80,8 +94,8 @@ const Expulsados = () => {
         setFormState({
             ...formState,
             [name]: value,
-            id_equipo: '',     // Reset equipo
-            id_jugador: ''     // Reset jugador
+            id_equipo: '',     
+            id_jugador: '' 
         });
     };
 
@@ -96,21 +110,6 @@ const Expulsados = () => {
         });
     };
 
-    // Estado del el/los Listado/s que se necesitan en el modulo
-    const equiposList = useSelector((state) => state.equipos.data);
-    const expulsadosList = useSelector((state) => state.expulsados.data);
-    
-    const ediciones = useSelector((state) => state.ediciones.data);
-
-    const categorias = useSelector((state) => state.categorias.data);
-    const categoriasEdicion = categorias.filter((c) => c.id_edicion == formState.id_edicion) 
-
-    const temporadas = useSelector((state) => state.temporadas.data);
-    const equiposCategoria = temporadas.filter((t) => t.id_categoria == formState.id_categoria)
-
-    const planteles = useSelector((state) => state.planteles.data);
-    const jugadoresEquipo = planteles.filter((p) => p.id_equipo == formState.id_equipo) 
-    
     const expulsados = expulsadosList.map((expulsado) => {
         // Buscar el equipo correspondiente en equiposList
         const equipo = equiposList.find(e => e.id_equipo === expulsado.id_equipo);
@@ -123,7 +122,7 @@ const Expulsados = () => {
             ...expulsado,
             acciones: (
                 <div style={{display: "flex", gap: "10px"}}>
-                    <Button bg={"danger"}>
+                    <Button bg={"danger"} onClick={() => eliminarExpulsion(expulsado.id_expulsion)}>
                         <IoTrashOutline />
                     </Button>
                     <Button bg={"import"} onClick={() => editarSuspension(expulsado.id_expulsion)}>
@@ -158,33 +157,170 @@ const Expulsados = () => {
         };
     });
 
+    const agregarDato = async () => {
+        const { id_edicion, id_categoria, id_equipo, id_jugador } = formState;
+    
+        if (id_edicion !== '' && id_categoria !== '' && id_equipo !== '' && id_jugador !== '') {
+            setIsSaving(true);
+            try {
+                const response = await Axios.post(`${URL}/admin/crear-expulsion`, {
+                    id_edicion,
+                    id_categoria,
+                    id_equipo,
+                    id_jugador
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                toast.success('Expulsion creada');
+                resetForm();
+                closeCreateModal();
+                dispatch(fetchExpulsados());
+                setIsSaving(false);
+
+            } catch (error) {
+                console.log(error);
+                if (error.response && error.response.data) {
+                    toast.error(error.response.data);
+                } else {
+                    toast.error('Error al crear la expulsion');
+                }
+            } finally {
+                setIsSaving(false);
+            }
+        } else {
+            setIsSaving(false);
+        }
+    };
+    
+    const eliminarExpulsion = (id_expulsion) => {
+        const expulsionAEliminar = expulsadosList.find((e) => e.id_expulsion === id_expulsion)
+        if (expulsionAEliminar) {
+            setFormState({
+                id_expulsion: expulsionAEliminar.id_expulsion,
+                id_jugador: expulsionAEliminar.id_jugador,
+                id_categoria: expulsionAEliminar.id_categoria
+            });
+            openDeleteModal()
+        }
+        openDeleteModal()
+    }
+
+    const deleteExpulsion = async () => {
+        const { id_expulsion, id_categoria, id_jugador } = formState;
+        if (id_expulsion && id_categoria && id_jugador) {
+            try {
+                setIsSaving(true);
+                await Axios.delete(`${URL}/admin/borrar-expulsion`, {
+                    data: { id_expulsion, id_categoria, id_jugador },
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                toast.success('Expulsión eliminada');
+                resetForm();
+                dispatch(fetchExpulsados());
+                closeDeleteModal(); 
+            } catch (error) {
+                handleError(error);
+            } finally {
+                setIsSaving(false);
+            }
+        } else {
+            toast.error('Faltan datos para eliminar la expulsión');
+        }
+    };
+    
     const editarSuspension = (id_expulsion) => {
-        const expulsionAEditar = expulsadosList.find((e) => e.id_expulsion === id_expulsion)
+        const expulsionAEditar = expulsadosList.find((e) => e.id_expulsion === id_expulsion);
         if (expulsionAEditar) {
             setFormState({
                 id_expulsion: expulsionAEditar.id_expulsion,
                 fechas: expulsionAEditar.fechas,
+                fechas_restantes: expulsionAEditar.fechas_restantes,
+                multa: expulsionAEditar.multa
             });
-            openUpdateModal()
+            setOriginalState({
+                fechas: expulsionAEditar.fechas,
+                fechas_restantes: expulsionAEditar.fechas_restantes,
+                multa: expulsionAEditar.multa
+            });
+            openUpdateModal();
         }
-        openUpdateModal()
-    }
+    };
 
-    const { actualizar, isUpdating } = useCrud(
-        `${URL}/user/actualizar-expulsion`, fetchExpulsados, 'Registro actualizado correctamente.', "Error al actualizar el registro."
-    );
+    const isFormChanged = () => {
+        return (
+            formState.fechas !== originalState.fechas ||
+            formState.fechas_restantes !== originalState.fechas_restantes ||
+            formState.multa !== originalState.multa
+        );
+    };
 
     const actualizarDato = async () => {
         const data = { 
-            fechas: formState.fechas,
             id_expulsion: formState.id_expulsion,
-        }
+            fechas: formState.fechas,
+            fechas_restantes: formState.fechas_restantes,
+            multa: formState.multa
+        };
+        console.log(data);
         await actualizar(data);
-        closeUpdateModal()
+        closeUpdateModal();
     };
 
+    const aumentarValor = (campo) => {
+        if (campo === 'fechas') {
+            // Aumentar fechas
+            setFormState(prevState => ({
+                ...prevState,
+                fechas: prevState.fechas + 1,
+                fechas_restantes: Math.min(prevState.fechas + 1, prevState.fechas_restantes)
+            }));
+        } else if (campo === 'fechas_restantes') {
+            // Aumentar fechas_restantes solo si no es mayor que fechas
+            if (formState.fechas_restantes < formState.fechas) {
+                setFormState(prevState => ({
+                    ...prevState,
+                    fechas_restantes: prevState.fechas_restantes + 1
+                }));
+            }
+        }
+    };
+    
+    const disminuirValor = (campo) => {
+        if (campo === 'fechas') {
+            // Disminuir fechas solo si es mayor que 1
+            if (formState.fechas > 1) {
+                setFormState(prevState => {
+                    const newFechas = prevState.fechas - 1;
+                    return {
+                        ...prevState,
+                        fechas: newFechas,
+                        fechas_restantes: Math.min(newFechas, prevState.fechas_restantes) // Asegurarse de que fechas_restantes no sea mayor
+                    };
+                });
+            }
+        } else if (campo === 'fechas_restantes') {
+            // Disminuir fechas_restantes solo si es mayor que 0
+            if (formState.fechas_restantes > 0) {
+                setFormState(prevState => ({
+                    ...prevState,
+                    fechas_restantes: prevState.fechas_restantes - 1
+                }));
+            }
+        }
+    };
+    
     useEffect(() => {
         dispatch(fetchExpulsados());
+        dispatch(fetchEdiciones());
+        dispatch(fetchEquipos());
+        dispatch(fetchJugadores());
+        dispatch(fetchCategorias());
+        dispatch(fetchTemporadas());
+        dispatch(fetchPlanteles());
     }, []);
 
     return (
@@ -226,11 +362,17 @@ const Expulsados = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={'agregarDato'} disabled={'isSaving'}>
-                                    <>
-                                        <IoCheckmark />
-                                        Guardar
-                                    </>
+                                <Button color={"success"} onClick={agregarDato} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Guardar
+                                        </>
+                                    )}
                                 </Button>
                             </>
                         }
@@ -290,7 +432,7 @@ const Expulsados = () => {
                                         id_={"id_jugador"}
                                         column='jugador'
                                         value={formState.id_jugador}
-                                        onChange={handleFormChange}
+                                        onChange={handleChange}
                                         disabled={!formState.id_equipo}
                                     >
                                     </Select>
@@ -307,7 +449,8 @@ const Expulsados = () => {
                         animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        message={`${articuloPlural} ${plural}`}
+                        // message={`${articuloPlural} ${plural}`}
+                        text={"¿Estas seguro que deseas eliminar esta expulsión?"}
                         onClickClose={closeDeleteModal}
                         buttons={
                             <>
@@ -315,7 +458,7 @@ const Expulsados = () => {
                                     <IoClose />
                                     No
                                 </Button>
-                                <Button color={"success"} onClick={eliminarAños} disabled={isSaving}>
+                                <Button color={"success"} onClick={deleteExpulsion} disabled={isSaving}>
                                     {isSaving ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
@@ -347,7 +490,7 @@ const Expulsados = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdating}>
+                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdating || !isFormChanged()}>
                                     {isUpdating ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
@@ -365,15 +508,73 @@ const Expulsados = () => {
                         form={
                             <>
                                 <ModalFormInputContainer>
-                                    Fechas de suspensión
+                                Fechas de suspensión
+                                <HandlerFechasWrapper>
                                     <Input 
                                         name='fechas'
-                                        type='number' 
                                         placeholder="Ejemplo: 1" 
                                         icon={<BsCalendar2Event className='icon-input'/>} 
                                         value={formState.fechas}
-                                        onChange={handleFormChange}
+                                        readOnly // O puedes quitar esto si prefieres permitir edición directa
                                     />
+                                    <HandlerFechasContainer>
+                                        <button type="button"  onClick={() => aumentarValor('fechas')}>
+                                            <IoIosArrowUp/>
+                                        </button>
+                                        <button type="button" onClick={() => disminuirValor('fechas')}>
+                                            <IoIosArrowDown/>
+                                        </button>
+                                    </HandlerFechasContainer>
+                                </HandlerFechasWrapper>
+                                Fechas restantes
+                                    <HandlerFechasWrapper>
+                                        <Input 
+                                            name='fechas_restantes'
+                                            placeholder="Ejemplo: 1" 
+                                            icon={<BsCalendar2Event className='icon-input'/>} 
+                                            value={formState.fechas_restantes}
+                                            readOnly // O puedes quitar esto si prefieres permitir edición directa
+                                        />
+                                        <HandlerFechasContainer>
+                                        <button type="button" onClick={() => aumentarValor('fechas_restantes')}>
+                                            <IoIosArrowUp/>
+                                        </button>
+                                        <button type="button" onClick={() => disminuirValor('fechas_restantes')}>
+                                            <IoIosArrowDown/>
+                                        </button>
+                                        </HandlerFechasContainer>
+                                    </HandlerFechasWrapper>
+                                    Multa
+                                    <InputRadioContainer>
+                                    <InputRadioWrapper>
+                                    <label htmlFor={'multa-si'}>
+                                        Sí
+                                    </label>
+                                    <input 
+                                        id={'multa-si'} 
+                                        type='radio' 
+                                        name='multa' 
+                                        value={'S'} 
+                                        checked={formState.multa === 'S'} 
+                                        onChange={handleChange} 
+                                    />
+                                </InputRadioWrapper>
+
+                                <InputRadioWrapper>
+                                    <label htmlFor="multa-no">
+                                        No
+                                    </label>
+                                    <input 
+                                        id={'multa-no'} 
+                                        type='radio' 
+                                        name='multa' 
+                                        value={'N'} 
+                                        checked={formState.multa === 'N'} 
+                                        onChange={handleChange} 
+                                    />
+                                </InputRadioWrapper>
+                                    </InputRadioContainer>
+
                                 </ModalFormInputContainer>
                             </>
                         }
