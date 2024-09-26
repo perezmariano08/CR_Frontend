@@ -282,9 +282,10 @@ export const VacanteWrapper = styled.div`
 
 export const VacanteEquipo = styled.div`
     display: flex;
-    gap: 5px;
+    align-items: center;
+    gap: 8px;
     img {
-        width: 20px;
+        height: 20px;
     }
 `
 

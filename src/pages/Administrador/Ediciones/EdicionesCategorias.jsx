@@ -35,7 +35,7 @@ const EdicionesCategorias = () => {
     const [formState, handleFormChange, resetForm] = useForm({ 
         id_edicion: id_edicion,
         nombre_categoria: '',
-        genero: 'B',
+        genero: 'M',
         tipo_futbol: 7,
         duracion_tiempo: '',
         duracion_entretiempo: '',
@@ -87,6 +87,11 @@ const EdicionesCategorias = () => {
 
         if (formState.duracion_tiempo < 5 ) {
             toast.error("La duración de cada tiempo debe tener al menos 5.");
+            return;
+        }
+
+        if (formState.duracion_tiempo > 100 || formState.duracion_entretiempo) {
+            toast.error("El campo duración de cada tiempo debe ser menor que 100.");
             return;
         }
 

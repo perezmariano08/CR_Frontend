@@ -47,6 +47,7 @@ import { Calendar } from 'primereact/calendar';
 import InputCalendar from '../../../components/UI/Input/InputCalendar';
 import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 import { estadoPartidos } from '../../../Data/Estados/Estados';
+import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -116,14 +117,16 @@ const CategoriasFixture = () => {
     const zonas = useSelector((state) => state.zonas.data);
     
     const usuarios = useSelector((state) => state.usuarios.data);
+    
     const planilleros = usuarios.filter((u) => u.id_rol === 2)
-
+    
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
         dispatch(fetchPartidos());
         dispatch(fetchZonas());
+        dispatch(fetchUsuarios());
     }, []);
 
     // ACTUALIZAR
@@ -131,6 +134,7 @@ const CategoriasFixture = () => {
 
     const editarPartido = (id_partido) => {
         const partidoAEditar = partidosCategoria.find((partido) => partido.id_partido === id_partido)
+        
         if (partidoAEditar) {
             setFormState({
                 equipo_local: partidoAEditar.id_equipoLocal,
@@ -143,8 +147,10 @@ const CategoriasFixture = () => {
                 estado: partidoAEditar.estado,
                 planillero: partidoAEditar.id_planillero,
                 zona: partidoAEditar.id_zona,
-                id_partido: partidoAEditar.id_partido
+                id_partido: partidoAEditar.id_partido,
+                estado: partidoAEditar.estado
             });
+            
             openUpdateModal()
         }
     }
@@ -177,9 +183,10 @@ const actualizarDato = async () => {
         id_edicion: edicionFiltrada.id_edicion,
         id_categoria: categoriaFiltrada.id_categoria,
         id_zona: formState.zona,
+        estado: formState.estado,
         id_partido: formState.id_partido
     };
-
+    
     try {
         await actualizar(data);
         closeUpdateModal();
@@ -600,7 +607,7 @@ const actualizarDato = async () => {
                                         icon={<BsCalendar2Event className='icon-input'/>} 
                                         value={formState.hora}
                                         onChange={handleFormChange}
-                                        
+                                        step="1800"  // 30 minutos = 1800 segundos
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
@@ -876,7 +883,7 @@ const actualizarDato = async () => {
                                     </Select>
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
-                                    Planillero
+                                    Estado
                                     <Select 
                                         name={'estado'}
                                         data={estadoPartidos}

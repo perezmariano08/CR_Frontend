@@ -58,6 +58,7 @@ const CategoriasFormato = () => {
     const temporadas = useSelector((state) => state.temporadas.data);
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
     const equiposZona = temporadas.filter((t) => t.id_zona === 2)
+    console.log(equiposTemporada);
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({
@@ -70,6 +71,7 @@ const CategoriasFormato = () => {
     });
 
     const [isAsignarEquipoZona, setAsignarEquipoZona] = useState(false);
+    const [isEliminarVacante, setEliminarVacante] = useState(false);
     const [id_zona, setIdZona] = useState('');
     const [numeroVacante, setNumeroVacante] = useState('');
 
@@ -80,6 +82,8 @@ const CategoriasFormato = () => {
     }
     const openEquipoZona = () => setAsignarEquipoZona(true);
     const closeEquipoZona = () => setAsignarEquipoZona(false);
+    const openEliminarVacante = () => setEliminarVacante(true);
+    const closeEliminarVacante = () => setEliminarVacante(false);
 
     const { 
         isCreateModalOpen, openCreateModal, closeCreateModal,
@@ -160,10 +164,16 @@ const CategoriasFormato = () => {
 
     // ELIMINAR
     const [idEliminar, setidEliminar] = useState(null) 
+    const [VacanteEliminar, setVacanteEliminar] = useState(null) 
 
     const eliminarZona = (id_zona) => {
         openDeleteModal()
         setidEliminar(id_zona)
+    }
+
+    const eliminarVacante = (vacante) => {
+        openEliminarVacante()
+        setVacanteEliminar(vacante)
     }
 
     const { eliminarPorId, isDeleting } = useCrud(
@@ -326,7 +336,7 @@ const CategoriasFormato = () => {
                                                             <GoKebabHorizontal className='kebab' />
                                                             <div className='modales'>
                                                                 <div className='editar'>Reemplazar equipo</div>
-                                                                <div onClick={''} className='eliminar'>Eliminar vacante</div>
+                                                                <div onClick={eliminarVacante} className='eliminar'>Eliminar vacante</div>
                                                             </div>
                                                         </div>
                                                     </VacanteWrapper>
@@ -468,18 +478,19 @@ const CategoriasFormato = () => {
                         }
                         form={
                             !crearEquipo ? 
-                            <ModalFormInputContainer>
-                                nombre
-                                <Input 
-                                    name='nombre_equipo'
-                                    type='text' 
-                                    placeholder="Nombre" 
-                                    icon={<BsCalendar2Event className='icon-input'/>} 
-                                    value={formState.nombre_equipo}
-                                    onChange={handleFormChange}
-                                />
-                                <p style={{color: '#a8a8a8', textTransform: 'uppercase'}}>ingresar al menos 3 caracateres</p>
-                            </ModalFormInputContainer>
+                            <>
+                                <ModalFormInputContainer>
+                                    nombre
+                                    <Input
+                                        name='nombre_equipo'
+                                        type='text'
+                                        placeholder="Nombre"
+                                        icon={<BsCalendar2Event className='icon-input' />}
+                                        value={formState.nombre_equipo}
+                                        onChange={handleFormChange} />
+                                    <p style={{ color: '#a8a8a8', textTransform: 'uppercase' }}>ingresar al menos 3 caracateres</p>
+                                </ModalFormInputContainer> 
+                                </>
                             : <ModalFormInputContainer>
                                 nombre
                                 <Input 
@@ -494,7 +505,7 @@ const CategoriasFormato = () => {
                         }
                         texto={
                             !crearEquipo &&
-                            formState.nombre_equipo.length >= 3 && (
+                            formState.nombre_equipo.length >= 3 ? (
                                 equiposList.find((e) => 
                                     e.nombre.toLowerCase().includes(formState.nombre_equipo.trim().toLowerCase())
                                 ) 
@@ -536,7 +547,38 @@ const CategoriasFormato = () => {
                                         Crear equipo
                                     </Button>
                                 </EquipoNoExiste>
-                            )
+                            ) :
+                            equiposTemporada
+                                .filter((e) =>
+                                    e.id_zona === null
+                                ).length > 0 
+                                &&
+                                <>
+                                <EquipoExisteDivider/>
+                            <EquipoExiste>
+                                <h2>Sugerencias</h2>
+                                <EquipoExisteLista>
+                                {
+                                    equiposTemporada
+                                        .filter((e) => 
+                                            e.id_categoria == id_categoria &&
+                                            e.id_zona === null
+                                        )
+                                        .map((e) => (
+                                            <EquipoExisteItem key={e.id_equipo}>
+                                                <EquipoExisteEscudo>
+                                                    <img src={`${URLImages}${escudosEquipos(e.id_equipo)}`} alt={nombresEquipos(e.id_equipo)} />
+                                                    {nombresEquipos(e.id_equipo)}
+                                                </EquipoExisteEscudo>
+                                                <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
+                                                    Seleccionar
+                                                </Button>
+                                            </EquipoExisteItem>
+                                        ))
+                                }
+                                </EquipoExisteLista>
+                            </EquipoExiste>
+                                </>
                         }
                     />
                     <Overlay onClick={closeEquipoZona} />
@@ -575,6 +617,43 @@ const CategoriasFormato = () => {
                             }  
                         />
                         <Overlay onClick={closeDeleteModal}/>
+                    </>
+                    
+                )
+            }
+            {
+                isEliminarVacante && (
+                    <>
+                        <ModalDelete
+                            text={
+                            `¿Estas seguro que quieres eliminar la fase?`}
+                            animate={{ opacity: isEliminarVacante ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            onClickClose={closeEliminarVacante}
+                            buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeEliminarVacante}>
+                                    <IoClose />
+                                    No
+                                </Button>
+                                <Button color={"success"} onClick={eliminarRegistros} disabled={''}>
+                                    {isDeleting ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                            Eliminando
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Si
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                            }  
+                        />
+                        <Overlay onClick={closeEliminarVacante}/>
                     </>
                     
                 )

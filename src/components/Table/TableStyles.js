@@ -180,6 +180,8 @@ export const TableContainerStyled = styled(DataTable)`
         color: var(--white) !important;
         gap: 50px;
         padding: 15px 20px;
+        background-color: var(--gray-400);
+        border-color: var(--gray-300);
 
         > button {
             color: var(--gray-200);
@@ -224,6 +226,23 @@ export const TableContainerStyled = styled(DataTable)`
                 }
             }
         }
+
+        .p-paginator-element {
+            border-color: var(--gray-300);
+        }
+
+        .p-inputwrapper-filled {
+            background-color: var(--green-opacity);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-color: var(--gray-300);
+            .p-dropdown {
+                gap: 5px;
+            }
+        }
+
+        
     }
 
     .p-datatable-emptymessage {
@@ -231,7 +250,7 @@ export const TableContainerStyled = styled(DataTable)`
     }
 
     .p-dropdown  {
-        gap: 10px;
+        gap: 5px;
         padding: 5px 10px;
         border-radius: 10px;
         border: 1px solid var(--gray-200);

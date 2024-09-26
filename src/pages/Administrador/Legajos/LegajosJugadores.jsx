@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import LegajosMenuNav from './LegajosMenuNav';
 import { dataJugadoresLegajosColumns } from '../../../Data/Jugadores/Jugadores';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Table from '../../../components/Table/Table';
 import { LinkBodyTemplate } from '../../../components/Table/TableStyles';
 import Input from '../../../components/UI/Input/Input';
 import { BiSearch } from 'react-icons/bi';
+import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
+import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
+import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 
 const LegajosJugadores = () => {
+    const dispatch = useDispatch()
     const jugadores = useSelector((state) => state.jugadores.data);
     const planteles = useSelector((state) => state.planteles.data);
 
@@ -30,7 +35,7 @@ const LegajosJugadores = () => {
         );
     });
 
-    const TablaJugadores = filteredJugadores.map((e) => ({
+    const TablaJugadores = jugadores.map((e) => ({
         ...e,
         listas: `${new Set(planteles.filter((p) => p.id_jugador === e.id_jugador).map((p) => p.id_categoria)).size}`,
         equipos: `${planteles.filter((p) => p.id_jugador === e.id_jugador).length}`,
@@ -42,11 +47,18 @@ const LegajosJugadores = () => {
         nombre: `${e.apellido.toUpperCase()}, ${e.nombre}`
     }));
 
+    useEffect(() => {
+        dispatch(fetchJugadores());
+        dispatch(fetchEquipos())
+        dispatch(fetchPlanteles())
+        dispatch(fetchTemporadas())
+    }, []);
+
     return (
         <Content>
             <LegajosMenuNav />
             {/* Input de búsqueda */}
-            <div style={{ width: '50%' }}>
+            {/* <div style={{ width: '50%' }}>
                 <Input 
                     name='jornada'
                     icon={<BiSearch className='icon-input' />} 
@@ -55,13 +67,12 @@ const LegajosJugadores = () => {
                     value={searchTerm} 
                     onChange={handleSearch} 
                 />
-            </div>
+            </div> */}
             {
                 TablaJugadores.length > 0 ? (
                     <Table
                         data={TablaJugadores}
                         dataColumns={dataJugadoresLegajosColumns}
-                        paginator={false}
                         selection={false}
                         sortable={false}
                         id_={'id_equipo'}

@@ -30,6 +30,7 @@ const LegajosEquipos = () => {
     );
 
     const TablaEquipos = filteredEquipos.map((e) => ({
+        ...e,
         equipo: (
             <EquipoBodyTemplate>
                 <img src={`${URLImages}${escudosEquipos(e.id_equipo)}`} alt={nombresEquipos(e.id_equipo)} />
@@ -65,7 +66,6 @@ const LegajosEquipos = () => {
                 TablaEquipos.length > 0 ? <Table
                 data={TablaEquipos}
                 dataColumns={dataEquiposLegajosColumns}
-                paginator={false}
                 selection={false}
                 sortable={false}
                 id_={'id_equipo'}

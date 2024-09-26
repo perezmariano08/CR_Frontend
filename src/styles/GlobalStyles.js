@@ -130,6 +130,22 @@ export const GlobalStyles = createGlobalStyle`
         
     }
 
+    .p-dropdown-panel {
+        border-color: var(--gray-300);
+    }
+
+    .p-dropdown-items {
+        .p-dropdown-item {
+            padding: 5px;
+            &.p-highlight {
+                background-color: var(--green-opacity);
+                color: var(--white);
+            }
+        }
+    }
+    
+    
+    
 
     .p-datepicker {
         background-color: var(--gray-300);
