@@ -262,12 +262,6 @@ export const SolicitarCuentaContainer = styled.div`
     flex-direction: column;
     align-items: center;
     gap: 5px;
-
-    a {
-        color: var(--green);
-    }
-
-    span {
-        font-size: 12px;
-    }
+    color: var(--red);
+    font-size: 11px;
 `
