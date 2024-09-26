@@ -81,6 +81,21 @@ export const ModalFormInputContainer = styled.div`
         color: var(--red);
     }
 `
+export const InputRadioContainer = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: start;
+    justify-content: center;
+    gap: 10px;
+    flex-direction: column;
+`
+export const InputRadioWrapper = styled.div`
+    display: flex;
+    width: 10%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+`
 
 export const ModalFormInputImg = styled.div`
     display: flex;
@@ -209,3 +224,31 @@ export const SelectPerfil = styled.select`
         color: var(--gray-200);
     }
 `
+
+export const HandlerFechasContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    margin-right: 8px;
+
+    button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+
+        :hover {
+            color: var(--green);
+            transform: scale(1.2);
+            transition: all 0.2s ease;
+        }
+    }
+`;
+
+export const HandlerFechasWrapper = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+`;

@@ -5,6 +5,9 @@ import { toast } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 
 export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
+
+    const token = localStorage.getItem('token')
+
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
@@ -14,9 +17,15 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
     const crear = async (data) => {
         setIsSaving(true);
         try {
-            await Axios.post(url, data);
-            toast.success(successMessage);
-            dispatch(fetchAction())
+            const response = await Axios.post(url, data, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status === 200) {
+                toast.success(successMessage);
+                dispatch(fetchAction())
+            }
         } catch (error) {
             toast.error(errorMessage);
             console.error(error);
@@ -26,14 +35,13 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
     };
 
     const actualizar = async (data) => {
-        // if (!isUpdated(data, img, originalValues)) {
-        //     setIsSaving(false);
-        //     toast.info("No se realizaron cambios.");
-        //     return;
-        // }
         setIsUpdating(true);
         try {
-            const response = await Axios.put(url, data);
+            const response = await Axios.put(url, data, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (response.status === 200) {
                 setIsUpdating(false);
                 toast.success(successMessage);

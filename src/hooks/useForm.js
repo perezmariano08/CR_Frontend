@@ -7,10 +7,10 @@ const useForm = (initialState) => {
         const { name, value } = event.target;
         setFormState(prevState => ({
             ...prevState,
-            [name]: value,
+            [name]: name === 'fechas' || name === 'fechas_restantes' ? Number(value) : value,
         }));
     };
-
+    
     const resetForm = () => {
         setFormState(initialState);
     };
