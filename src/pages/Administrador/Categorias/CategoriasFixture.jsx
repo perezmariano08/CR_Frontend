@@ -148,7 +148,6 @@ const CategoriasFixture = () => {
                 planillero: partidoAEditar.id_planillero,
                 zona: partidoAEditar.id_zona,
                 id_partido: partidoAEditar.id_partido,
-                estado: partidoAEditar.estado
             });
             
             openUpdateModal()
