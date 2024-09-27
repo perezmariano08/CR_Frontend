@@ -48,6 +48,7 @@ import InputCalendar from '../../../components/UI/Input/InputCalendar';
 import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 import { estadoPartidos } from '../../../Data/Estados/Estados';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
+import { PiSoccerBall } from 'react-icons/pi';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -65,6 +66,8 @@ const CategoriasFixture = () => {
         id_edicion: id_categoria,
         equipo_local: '',
         equipo_visita: '',
+        goles_local: '',
+        goles_visita: '',
         jornada: '',
         dia: '',
         hora: '',
@@ -139,6 +142,8 @@ const CategoriasFixture = () => {
             setFormState({
                 equipo_local: partidoAEditar.id_equipoLocal,
                 equipo_visita: partidoAEditar.id_equipoVisita,
+                goles_local: partidoAEditar.goles_local,
+                goles_visita: partidoAEditar.goles_visita,
                 jornada: partidoAEditar.jornada,
                 dia: partidoAEditar.dia,
                 hora: partidoAEditar.hora,
@@ -173,6 +178,8 @@ const actualizarDato = async () => {
     const data = { 
         id_equipoLocal: formState.equipo_local, 
         id_equipoVisita: formState.equipo_visita, 
+        goles_local: formState.goles_local, 
+        goles_visita: formState.goles_visita, 
         jornada: formState.jornada, 
         dia: diaPartido, 
         hora: formState.hora,
@@ -478,8 +485,8 @@ const actualizarDato = async () => {
                             selection={false}
                             sortable={false}
                             id_={'id_partido'}
-                            urlClick={`/admin/categorias/fixture/${edicionFiltrada.id_edicion}/detalle/`}
-                            rowClickLink
+                            // urlClick={`/admin/categorias/fixture/${edicionFiltrada.id_edicion}/detalle/`}
+                            // rowClickLink
                         /> : <p>No se encontraron partidos para esta jornada.</p>
                         }
                         
@@ -511,7 +518,7 @@ const actualizarDato = async () => {
                         animate={{ opacity: isCreateModalOpen ? 1 : 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        title={`Agregar equipo`}
+                        title={`Agregar partido`}
                         onClickClose={closeCreateModal}
                         buttons={
                             <>
@@ -800,6 +807,17 @@ const actualizarDato = async () => {
                                     </Select>
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
+                                    Goles local
+                                    <Input 
+                                        name='goles_local'
+                                        type='number' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<PiSoccerBall className='icon-input'/>} 
+                                        value={formState.goles_local}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
                                     Equipo Visitante
                                     <Select 
                                         name={'equipo_visita'}
@@ -812,6 +830,17 @@ const actualizarDato = async () => {
                                         onChange={handleFormChange}
                                     >
                                     </Select>
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Goles visita
+                                    <Input 
+                                        name='goles_visita'
+                                        type='number' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<PiSoccerBall className='icon-input'/>} 
+                                        value={formState.goles_visita}
+                                        onChange={handleFormChange}
+                                    />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Jornada
@@ -909,7 +938,7 @@ const actualizarDato = async () => {
                     <>
                         <ModalDelete
                             text={
-                            `¿Estas seguro que quieres eliminar la categoria ${categoriaFiltrada.nombre}?`}
+                            `¿Estas seguro que quieres eliminar el partido?`}
                             animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}

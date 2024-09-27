@@ -58,7 +58,6 @@ const CategoriasFormato = () => {
     const temporadas = useSelector((state) => state.temporadas.data);
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
     const equiposZona = temporadas.filter((t) => t.id_zona === 2)
-    console.log(equiposTemporada);
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({
@@ -156,7 +155,6 @@ const CategoriasFormato = () => {
             vacante: numeroVacante
         };
 
-        console.log(data);        
         await guardarEquipo(data);
         closeEquipoZona();
         resetForm()
@@ -226,7 +224,6 @@ const CategoriasFormato = () => {
             vacante: numeroVacante
         };
 
-        console.log(data);
         
         
         await asignarTemporada(data);
@@ -252,7 +249,6 @@ const CategoriasFormato = () => {
         // Lógica para guardar el nuevo equipo
         setCrearEquipo(false); // Opcional, para cerrar el formulario después de guardar
         setIdAsignar(id_equipo)
-        alert(id_equipo)
         asignarRegistro(id_equipo)
     };
 

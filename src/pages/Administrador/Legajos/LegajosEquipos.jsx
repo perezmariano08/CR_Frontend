@@ -69,8 +69,8 @@ const LegajosEquipos = () => {
                 selection={false}
                 sortable={false}
                 id_={'id_equipo'}
-                urlClick={`/admin/categorias/equipos/detalle/`}
-                rowClickLink
+                // urlClick={`/admin/categorias/equipos/detalle/`}
+                // rowClickLink
             /> : 
             'No se encontraron equipos.'
             }

@@ -30,9 +30,9 @@ const ModalImport = ({ title, buttons, onClickClose, initial, animate, exit, tra
                 <p>Archivo seleccionado: {fileName}</p>
                 <div style={{width: '50%'}}>{select}</div>
             </> : <ModalExample>
-                    <a href="public/ejemplo_partidos.csv" download="ejemplo.csv" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    {/* <a href="public/ejemplo_partidos.csv" download="ejemplo.csv" style={{ textDecoration: 'none', color: 'inherit' }}>
                         Descargar Hoja de Cálculo de Ejemplo <PiExport />
-                    </a>
+                    </a> */}
             </ModalExample>
             }
             <ModalButtons>
