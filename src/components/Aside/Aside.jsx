@@ -103,10 +103,10 @@ const Aside = ({className}) => {
                             <LiaClipboardListSolid />
                             <p>Legajos</p>
                         </NavLinkItem>
-                        <NavLinkItem to={'/'}>
+                        {/* <NavLinkItem to={'/'}>
                             <BiSearch />
                             <p>Buscador</p>
-                        </NavLinkItem>
+                        </NavLinkItem> */}
                         {/* <MenuItem>
                             <motion.div style={{ display: 'flex', alignItems: 'center' }}>
                                 <NavLinkItem onClick={toggleSubMenuSanciones} className="custom-navlink">
