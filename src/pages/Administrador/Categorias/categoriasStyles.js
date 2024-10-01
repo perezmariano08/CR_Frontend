@@ -71,6 +71,7 @@ export const ResumenItemTitulo = styled.div`
         color: var(--green);
         font-size: 16px;
     }
+    
 `
 
 export const ResumenItemDescripcion = styled.div`

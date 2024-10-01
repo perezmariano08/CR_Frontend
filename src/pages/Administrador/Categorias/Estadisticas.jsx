@@ -42,47 +42,26 @@ import CategoriasMenuNav from './CategoriasMenuNav';
 import { EquiposDetalle, ResumenItemDescripcion, ResumenItemsContainer, ResumenItemTitulo, ResumenItemWrapper } from './categoriasStyles';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
+import { getPosicionesTemporada, getSanciones, getZonas } from '../../../utils/dataFetchers';
+import TablePosiciones from '../../../components/Stats/TablePosiciones/TablePosiciones';
+import { dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../../components/Stats/Data/Data';
+import TableSanciones from '../../../components/Stats/TableSanciones/TableSanciones';
 
-const Categorias = () => {
+const Estadisticas = () => {
     const dispatch = useDispatch();
     const { id_categoria } = useParams(); // Obtenemos el id desde la URL
     
-    // Manejo del form
-    const [formState, handleFormChange, resetForm] = useForm({ 
-        id_edicion: id_categoria,
-        nombre_categoria: '',
-        genero: 'M',
-        tipo_futbol: 7,
-        duracion_tiempo: '',
-        duracion_entretiempo: '',
-    });
-    const isFormEmpty = !formState.nombre_categoria.trim();
-
-    // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
-    const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModalsCrud();
-
-    // Constantes del modulo
-    const articuloSingular = "el"
-    const articuloPlural = "los"
-    const id = "id_equipo"
-    const plural = "ediciones"
-    const singular = "edicion"
-    const get = "get-anios"
-    const create = "crear-anio"
-    const importar = "importar-anios"
-    const eliminar = "delete-anio"
-
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const planteles = useSelector((state) => state.planteles.data);
     const jugadoresCategoria = planteles.filter((p) => p.id_categoria == id_categoria)
-
     const partidos = useSelector((state) => state.partidos.data);
-    const partidosCategoria = partidos.filter((p) => p.id_categoria == id_categoria)
-    
     const temporadas = useSelector((state) => state.temporadas.data);
-    const equiposCategoria = temporadas.filter((t) => t.id_categoria == id_categoria)
+
+    const [zonas, setZonas] = useState([]);
+    const [sanciones, setSanciones] = useState(null);
+    const [posiciones, setPosiciones] = useState(null);
     
     useEffect(() => {
         dispatch(fetchEdiciones());
@@ -93,43 +72,6 @@ const Categorias = () => {
         dispatch(fetchPlanteles());
     }, []);
 
-
-    // CREAR
-    const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-categoria`, fetchCategorias, 'Registro creado correctamente.', "Error al crear el registro."
-    );
-
-    const agregarRegistro = async () => {
-        if (!formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo) {
-            toast.error("Completá los campos.");
-            return;
-        }
-
-        if (formState.duracion_tiempo < 4 ) {
-            toast.error("La duración de cada tiempo debe tener al menos 5.");
-            return;
-        }
-
-        if (categoriasList.some(a => a.nombre === formState.nombre_categoria.trim() && a.id_edicion == formState.id_edicion)) {
-            toast.error(`La categoría ya existe en esta edición.`);
-            return;
-        }
-        
-        
-        const data = {
-            id_edicion: formState.id_edicion,
-            nombre: formState.nombre_categoria.trim(),
-            genero: formState.genero,
-            tipo_futbol: formState.tipo_futbol,
-            duracion_tiempo: formState.duracion_tiempo,
-            duracion_entretiempo: formState.duracion_entretiempo
-        };
-        
-        await crear(data);
-        closeCreateModal();
-        resetForm()
-    };
-    
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_categoria)
     const categoriasListLink = categoriasEdicion.map(categoria => ({
@@ -137,8 +79,38 @@ const Categorias = () => {
         link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
     }));
 
+    const zonasFiltradas = zonas.find((z) => z.id_categoria === categoriaFiltrada.id_categoria);
+    const id_zona = zonasFiltradas?.id_zona
+
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    
+
+    useEffect(() => {
+        getZonas()
+            .then((data) => setZonas(data))
+            .catch((error) => console.error('Error fetching zonas:', error));
+
+        getSanciones()
+            .then((data) => sancionesActivas(data))
+            .catch((error) => console.error('Error fetching sanciones:', error));
+    }, []);
+
+    useEffect(() => {
+        if (id_zona) {
+            getPosicionesTemporada(id_zona)
+                .then((data) => {
+                    setPosiciones(data);
+                })
+                .catch((error) => console.error('Error en la petición de posiciones:', error));
+        }
+    }, [id_zona]);
+
+    const sancionesActivas = (sanciones) => {
+        const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
+        console.log(sancionesFiltradas);
+        const sancionesPorCategoria = sancionesFiltradas.filter(s => s.id_categoria === categoriaFiltrada.id_categoria)
+        setSanciones(sancionesPorCategoria);
+    }
+
     return (
         <Content>
             <MenuContentTop>
@@ -152,49 +124,30 @@ const Categorias = () => {
             <ResumenItemsContainer>
                 <ResumenItemWrapper>
                     <ResumenItemTitulo>
-                        <p>Estado de Categoria</p>
-                        <span>HABILITADO</span>
+                        <p>Posiciones</p>
+                        {/* <span>LIGUILLA</span> */}
                     </ResumenItemTitulo>
-                    <ResumenItemDescripcion>
-                        {
-                            partidosCategoria.filter((p) => p.estado === "F").length
-                        }
-                        /
-                        {
-                            partidosCategoria.length
-                        }
-                    </ResumenItemDescripcion>
+                        <TablePosiciones
+                            data={posiciones}
+                            zona={zonasFiltradas}
+                            dataColumns={dataPosicionesTemporadaColumnsMinus}
+                        />
+                    {/* <ResumenItemDescripcion>
+
+                    </ResumenItemDescripcion> */}
                 </ResumenItemWrapper>
                 <ResumenItemWrapper>
                     <ResumenItemTitulo>
-                        equipos
-                        <IoShieldHalf />
+                        <p>Sanciones</p>
+                        {/* <span>LIGUILLA</span> */}
                     </ResumenItemTitulo>
-                    <ResumenItemDescripcion>
-                        <EquiposDetalle>
-                            <h3>{equiposCategoria.length}</h3>
-                            <p>Total</p>
-                        </EquiposDetalle>
-                        <EquiposDetalle>
-                            <h3>{equiposCategoria.filter((e) => e.id_zona === null).length}</h3>
-                            <p>Sin vacante</p>
-                        </EquiposDetalle>
-                        <NavLink to={`/admin/categorias/equipos/${id_categoria}`}>
-                            Ir a equipos
-                        </NavLink>
-                    </ResumenItemDescripcion>
-                </ResumenItemWrapper>
-                <ResumenItemWrapper>
-                    <ResumenItemTitulo>
-                        jugadores
-                        <IoShieldHalf />
-                    </ResumenItemTitulo>
-                    <ResumenItemDescripcion>
-                        <EquiposDetalle>
-                            <h3>{jugadoresCategoria.length}</h3>
-                            <p>Total</p>
-                        </EquiposDetalle>
-                    </ResumenItemDescripcion>
+                        <TableSanciones
+                            data={sanciones}
+                            dataColumns={dataSancionesColumns}
+                        />
+                    {/* <ResumenItemDescripcion>
+
+                    </ResumenItemDescripcion> */}
                 </ResumenItemWrapper>
             </ResumenItemsContainer>
             
@@ -202,4 +155,4 @@ const Categorias = () => {
     );
 };
 
-export default Categorias;
+export default Estadisticas;

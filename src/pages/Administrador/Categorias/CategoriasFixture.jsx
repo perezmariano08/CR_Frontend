@@ -49,6 +49,7 @@ import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 import { estadoPartidos } from '../../../Data/Estados/Estados';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { PiSoccerBall } from 'react-icons/pi';
+import DreamTeam from './DreamTeam';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -509,7 +510,6 @@ const actualizarDato = async () => {
                             <p>Importar</p>
                         </Button>
                     </>
-                    
                 )
             }
             {
@@ -968,9 +968,9 @@ const actualizarDato = async () => {
                         />
                         <Overlay onClick={closeDeleteModal}/>
                     </>
-                    
                 )
             }
+        <DreamTeam id_categoria={id_categoria} jornada={jornada} />
         </Content>
     );
 };

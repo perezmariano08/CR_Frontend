@@ -81,6 +81,10 @@ export const ModalFormInputContainer = styled.div`
         color: var(--red);
     }
 `
+export const SelectContainer = styled.span`
+    
+`
+
 export const InputRadioContainer = styled.div`
     display: flex;
     width: 100%;

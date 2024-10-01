@@ -2,6 +2,6 @@ import styled from "styled-components";
 
 export const DividerWrapper = styled.div`
     height: 1px;
-    background: ${({ color }) => `var(--${color})`};
+    background-color: ${({ color }) => color || 'var(--default-color)'};
     width: 100%;
-`
+`;

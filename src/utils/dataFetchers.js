@@ -139,3 +139,43 @@ export const traerNovedades = async (id_rol) => {
         return false
     }
 }
+
+export const traerJugadoresDestacados = async (id_categoria, jornada) => {
+    try {
+        const response = await Axios.get(`${URL}/user/get-jugadores-destacados?id_categoria=${id_categoria}&jornada=${jornada}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const actualizarJugadoresDestacados = async (data) => {
+    try {
+        const response = await Axios.put(`${URL}/user/actualizar-jugadores-destacados`, data)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const limpiarJugadoresDescatados = async (jornada) => {
+    try {
+        const response = await Axios.put(`${URL}/user/resetear-jugadores-destacados?jornada=${jornada}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const traerJugadoresPorCategoria = async (id_categoria, jornada) => {
+    try {
+        const response = await Axios.get(`${URL}/user/get-jugadores-categoria?id_categoria=${id_categoria}&jornada=${jornada}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}

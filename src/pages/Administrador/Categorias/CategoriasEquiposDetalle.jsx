@@ -9,7 +9,7 @@ import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentNavWrapper, ContentTitle, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
+import { InputRadioContainer, InputRadioWrapper, ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
@@ -27,10 +27,6 @@ import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { CategoriasEdicionEmpty, TablasTemporadaContainer, TablaTemporada } from '../Ediciones/edicionesStyles';
 import useForm from '../../../hooks/useForm';
 import { TbPlayFootball } from 'react-icons/tb';
-import Select from '../../../components/Select/Select';
-
-import { TbNumber } from "react-icons/tb";
-import { BsCalendar2Event } from "react-icons/bs";
 import { NavLink, useParams } from 'react-router-dom';
 import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
 import { useCrud } from '../../../hooks/useCrud';
@@ -51,7 +47,6 @@ const CategoriasEquiposDetalle = () => {
     const { id_categoria, id_equipo } = useParams()
     
     const { escudosEquipos, nombresEquipos } = useEquipos();
-
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
@@ -88,12 +83,14 @@ const CategoriasEquiposDetalle = () => {
         apellido_jugador: '',
         posicion_jugador: '',
         id_equipo: id_equipo,
-        id_jugador: ''
+        id_jugador: '',
+        jugador_eventual: ''
     });
 
     const [id_jugadorSeleccionado, setId_jugadorSeleccionado] = useState(null);
     // Planteles Data
     const plantelesList = useSelector((state) => state.planteles.data);
+
     const planteles = plantelesList.map(categoria => ({
         ...categoria,
         acciones: (
@@ -104,7 +101,7 @@ const CategoriasEquiposDetalle = () => {
                     }}>
                     <IoTrashOutline />
                 </Button>
-                <Button bg={"import"} onClick={() => editarJugador(categoria.id_jugador)}>
+                <Button bg={"import"} onClick={() => editarJugador(categoria.id_jugador, categoria.id_categoria)}>
                     <IoPencil />
                 </Button>
             </AccionesBodyTemplate>
@@ -138,14 +135,22 @@ const CategoriasEquiposDetalle = () => {
         )
     }));
 
-    const editarJugador = (id_jugador) => {
+    const editarJugador = (id_jugador, id_categoria) => {
         const jugadorAEditar = jugadoresList.find((jugador) => jugador.id_jugador === id_jugador)
+        const jugadorEnPlantel = plantelesList.find((jugador) => {
+            if (jugador.id_categoria === id_categoria && jugador.id_jugador === jugadorAEditar.id_jugador) {
+                return jugador;
+            }
+        })
+
         if (jugadorAEditar) {
             setFormState({
+                id_jugador: id_jugador,
                 dni_jugador: jugadorAEditar.dni,
                 nombre_jugador: jugadorAEditar.nombre,
                 apellido_jugador: jugadorAEditar.apellido,
                 posicion_jugador: jugadorAEditar.posicion,
+                jugador_eventual: jugadorEnPlantel.eventual
             });
             openUpdateModal()
         }
@@ -165,9 +170,9 @@ const CategoriasEquiposDetalle = () => {
         plantel.eventual === 'S'
     )
     
-    
     const [isDniConfirmationOpen, setIsDniConfirmationOpen] = useState(false);
     const [confirmDni, setConfirmDni] = useState(false);
+
     const handleDniConfirmation = async (confirm) => {
         if (confirm) {
             // Agregar el jugador existente al plantel
@@ -269,16 +274,28 @@ const CategoriasEquiposDetalle = () => {
         openUpdateModal()
         setidEditar(id_equipo)
     }
+
     const { actualizar, isUpdating } = useCrud(
-        `${URL}/user/actualizar-categoria-equipo`, fetchEquipos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+        `${URL}/user/update-jugador`, fetchEquipos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
 
     const actualizarDato = async () => {
-        const data = { 
-            id_categoriaNueva: formStateCategoria.id_categoria,
-            id_equipo: idEditar,
-        }
+        const data = {
+            id_categoria: equipoFiltrado.id_categoria,
+            id_edicion: categoriaFiltrada.id_edicion,
+            id_jugador: formState.id_jugador,
+            dni: formState.dni_jugador,
+            nombre: formState.nombre_jugador,
+            apellido: formState.apellido_jugador,
+            posicion: formState.posicion_jugador,
+            id_equipo: id_equipo,
+            jugador_eventual: formState.jugador_eventual
+        };
         await actualizar(data);
+
+        //Actualizamos interfaz
+        dispatch(fetchPlanteles())
+        dispatch(fetchJugadores())
         closeUpdateModal()
     };
 
@@ -355,9 +372,8 @@ const CategoriasEquiposDetalle = () => {
         }
     };
     
-    
-    
     const openImportModal = () => setIsImportModalOpen(true);
+
     const closeImportModal = () => {
         setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
         setFileData(null); // Restablece los datos del archivo cuando se cierra el modal
@@ -377,7 +393,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchPlanteles());
         dispatch(fetchJugadores());
     }, [dispatch]);
-        
+
     return (
         <Content>
             <MenuContentTop>
@@ -421,7 +437,7 @@ const CategoriasEquiposDetalle = () => {
             {
                 ListaBuenaFeEquipo.length > 0 ? (
                     <>
-                        <p>Lista de buena fé ({equipoFiltrado.jugadores})</p>
+                        <p>Lista de buena fé ({equipoFiltrado.jugadores_con_dni})</p>
                         <Table
                             data={ListaBuenaFeEquipo}
                             dataColumns={dataPlantelesColumns}
@@ -736,6 +752,36 @@ const CategoriasEquiposDetalle = () => {
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
+                                <InputRadioContainer>
+                                        Eventual
+                                        <InputRadioWrapper>
+                                            <label htmlFor={'multa-si'}>
+                                                Sí
+                                            </label>
+                                            <input 
+                                                id={'multa-si'} 
+                                                type='radio' 
+                                                name='jugador_eventual' 
+                                                value={'S'} 
+                                                checked={formState.jugador_eventual === 'S'} 
+                                                onChange={handleFormChange} 
+                                            />
+                                        </InputRadioWrapper>
+
+                                        <InputRadioWrapper>
+                                            <label htmlFor="multa-no">
+                                                No
+                                            </label>
+                                            <input 
+                                                id={'multa-no'} 
+                                                type='radio' 
+                                                name='jugador_eventual' 
+                                                value={'N'} 
+                                                checked={formState.jugador_eventual === 'N'} 
+                                                onChange={handleFormChange} 
+                                            />
+                                        </InputRadioWrapper>
+                                </InputRadioContainer>
                             </>
                         }
                     />

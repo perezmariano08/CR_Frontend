@@ -19,7 +19,8 @@ const CategoriasMenuNav = ({ id_categoria, children }) => {
         <ContentNavWrapper>
             <li><NavLink to={`/admin/categorias/resumen/${id_categoria}`}>Resumen</NavLink></li>
             <li><NavLink to={`/admin/categorias/formato/${id_categoria}`}>Formato</NavLink></li>
-            <li><NavLink to={`/admin/categorias/fixture/${id_categoria}?jornada=${ultimaFecha}`}>Fixture</NavLink></li>
+            <li><NavLink to={`/admin/categorias/fixture/${id_categoria}?jornada=${ultimaFecha}`}>Fixture / DreamTeam</NavLink></li>
+            <li><NavLink to={`/admin/categorias/estadisticas/${id_categoria}`}>Estadisticas</NavLink></li>
             <li><NavLink to={`/admin/categorias/equipos/${id_categoria}`}>Equipos ({equiposTemporada.length})</NavLink></li>
             <li><NavLink to={`/admin/categorias/config/${id_categoria}`}>Configuración</NavLink></li>
             {children}

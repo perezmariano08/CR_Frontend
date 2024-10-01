@@ -323,6 +323,8 @@ const Expulsados = () => {
         dispatch(fetchPlanteles());
     }, []);
 
+    console.log(expulsados);
+    
     return (
         <Content>
             <Button bg={'success'} onClick={openCreateModal}>
@@ -331,13 +333,19 @@ const Expulsados = () => {
             </Button>
             <TablaExpulsadosWrapper>
                 <h2>Suspensiones activas</h2>
-                <Table 
-                    data={expulsados.filter((e) => e.fechas_restantes > 0)} 
-                    dataColumns={dataExpulsadosColumn} 
-                    paginator={false}
-                    selection={false}
-                    sortable={false}
-                />
+                {
+                    expulsados ? (
+                        <Table 
+                            data={expulsados.filter((e) => e.fechas_restantes > 0)} 
+                            dataColumns={dataExpulsadosColumn} 
+                            paginator={false}
+                            selection={false}
+                            sortable={false}
+                        />
+                    ) : (
+                        <p>No hay expulsiones vigentes</p>
+                    )
+                }
             </TablaExpulsadosWrapper>
             <TablaExpulsadosWrapper>
                 <h2>Suspensiones cumplidas</h2>
@@ -546,33 +554,33 @@ const Expulsados = () => {
                                     </HandlerFechasWrapper>
                                     Multa
                                     <InputRadioContainer>
-                                    <InputRadioWrapper>
-                                    <label htmlFor={'multa-si'}>
-                                        Sí
-                                    </label>
-                                    <input 
-                                        id={'multa-si'} 
-                                        type='radio' 
-                                        name='multa' 
-                                        value={'S'} 
-                                        checked={formState.multa === 'S'} 
-                                        onChange={handleChange} 
-                                    />
-                                </InputRadioWrapper>
+                                        <InputRadioWrapper>
+                                            <label htmlFor={'multa-si'}>
+                                                Sí
+                                            </label>
+                                            <input 
+                                                id={'multa-si'} 
+                                                type='radio' 
+                                                name='multa' 
+                                                value={'S'} 
+                                                checked={formState.multa === 'S'} 
+                                                onChange={handleChange} 
+                                            />
+                                        </InputRadioWrapper>
 
-                                <InputRadioWrapper>
-                                    <label htmlFor="multa-no">
-                                        No
-                                    </label>
-                                    <input 
-                                        id={'multa-no'} 
-                                        type='radio' 
-                                        name='multa' 
-                                        value={'N'} 
-                                        checked={formState.multa === 'N'} 
-                                        onChange={handleChange} 
-                                    />
-                                </InputRadioWrapper>
+                                        <InputRadioWrapper>
+                                            <label htmlFor="multa-no">
+                                                No
+                                            </label>
+                                            <input 
+                                                id={'multa-no'} 
+                                                type='radio' 
+                                                name='multa' 
+                                                value={'N'} 
+                                                checked={formState.multa === 'N'} 
+                                                onChange={handleChange} 
+                                            />
+                                        </InputRadioWrapper>
                                     </InputRadioContainer>
 
                                 </ModalFormInputContainer>
