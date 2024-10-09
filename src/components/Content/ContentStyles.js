@@ -549,7 +549,7 @@ export const MenuPosicionesItemFilter = styled.div`
 
 export const TablePosicionesContainer = styled.div`
     width: 100%;
-    padding: 16px 32px;
+    /* padding: 16px 32px; */
 
     h2 {
         color: var(--green);

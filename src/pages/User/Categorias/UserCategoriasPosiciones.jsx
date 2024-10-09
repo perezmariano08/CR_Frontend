@@ -120,6 +120,8 @@ const UserCategoriasPosiciones = () => {
               <TablePosicionesContainer>
                 <TablePosicionesRoutes
                   data={data}
+                  id_zona={id_zona}
+                  id_categoria={id_categoria}
                   dataColumns={dataPosicionesTemporadaColumns}
                 />
               </TablePosicionesContainer>
