@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Toaster } from 'react-hot-toast';
+import React, { useEffect, useState } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { MatchStatsWrapper } from '../../MatchStats/MatchStatsStyles';
 import Section from '../../../components/Section/Section';
 import CardFinalPartido from '../../../components/Stats/CardFinalPartido/CardFinalPartido';
@@ -9,7 +9,7 @@ import ActionConfirmed from '../../../components/FormacionesPlanilla/ActionConfi
 import ActionTime from '../../../components/FormacionesPlanilla/ActionTime/ActionTime';
 import ActionAsisted from '../../../components/FormacionesPlanilla/ActionAsisted/ActionAsisted';
 import Cronometro from '../../../components/FormacionesPlanilla/Cronometro/Cronometro.jsx';
-import { ButtonContainer, ButtonMatch, InputDescContainer, PlanillaContainerStyled, SelectContainerStyled, SelectMvp } from './PlanillaStyles.js';
+import { ButtonContainer, ButtonMatch, InputDescContainer, PlanillaContainerStyled, SelectContainerStyled } from './PlanillaStyles.js';
 import EditDorsal from '../../../components/FormacionesPlanilla/EditDorsal/EditDorsal.jsx';
 import ModalConfirmation from '../../../components/Stats/Incidents/ModalConfirmation.jsx';
 import InputLong from '../../../components/UI/Input/InputLong.jsx';
@@ -26,12 +26,16 @@ import { handleMvpSlice } from '../../../redux/Planillero/planilleroSlice.js';
 import PenaltyOption from '../../../components/PenaltyOption/PenaltyOption.jsx';
 import { FaCloudArrowUp } from "react-icons/fa6";
 import { ImCross } from "react-icons/im";
-import { FaPlay, FaRegStopCircle  } from "react-icons/fa";
+import { FaPlay, FaRegStopCircle } from "react-icons/fa";
+import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice.js';
+import { useWebSocket } from '../../../Auth/WebSocketContext.jsx';
+import { insertarMvp } from '../../../utils/dataFetchers.js';
 
 const Planilla = () => {
     const dispatch = useDispatch();
-
+    const socket = useWebSocket();
     const [mvpSelected, setMvpSelected] = useState(0);
+    const [jugadoresDestacadosLocal, setJugadoresDestacadosLocal] = useState([]); // Nuevo estado local para jugadores destacados
     const searchParams = new URLSearchParams(window.location.search);
     const partidoId = parseInt(searchParams.get('id'));
 
@@ -40,6 +44,7 @@ const Planilla = () => {
         matchCorrecto,
         descripcion,
         bdFormaciones,
+        setBdFormaciones,
         bdIncidencias,
         handleChange,
         handleStartMatch,
@@ -47,17 +52,56 @@ const Planilla = () => {
         handleToastStartMatch,
         formacionesConNombreApellido,
         suspenderPartido,
-        jugadoresDescatados,
+        jugadoresDestacados,
+        estadoPartido
     } = usePlanilla(partidoId);
 
-    const handleMvp = (e) => {
-        const selectedValue = e.target.value;
-        setMvpSelected(selectedValue);
+    useEffect(() => {
+        if (jugadoresDestacados?.length > 0 && JSON.stringify(jugadoresDestacados) !== JSON.stringify(jugadoresDestacadosLocal)) {
+            setJugadoresDestacadosLocal(jugadoresDestacados);
+        }
+    }, [jugadoresDestacados]);
+
+    // console.log(jugadoresDestacadosLocal);
     
-        if (selectedValue) {
-            dispatch(handleMvpSlice(selectedValue));
+    
+    const handleMvp = async (e) => {
+        if (estadoPartido !== 'T') {
+            return toast.error('El partido debe terminar para seleccionar un MVP');
+        }
+    
+        const selectedValue = e.target.value;
+        const toastId = toast.loading('Cargando...');
+        const delay = 300;
+    
+        try {
+            const response = await insertarMvp(partidoId, selectedValue);
+            if (response.status === 200) {
+                setTimeout(() => {
+                    toast.success('MVP agregado correctamente', { id: toastId });
+                    setMvpSelected(selectedValue);
+                    dispatch(handleMvpSlice(selectedValue));
+                }, delay);
+            } else {
+                setTimeout(() => {
+                    toast.error('Error al agregar el MVP', { id: toastId });
+                }, delay);
+            }
+        } catch (error) {
+            console.error(error);
+            setTimeout(() => {
+                toast.error('Error en la solicitud', { id: toastId });
+            }, 2000);
+        } finally {
+            setTimeout(() => {
+                toast.dismiss(toastId);
+            }, delay);
         }
     };
+
+    useEffect(() => {
+        dispatch(fetchPartidos());
+    }, [dispatch]);
 
     if (!partido || !bdFormaciones || !bdIncidencias) {
         return (
@@ -72,24 +116,21 @@ const Planilla = () => {
             <MatchStatsWrapper className='wrapper'>
                 <Section>
                     <h2>Ficha de partido</h2>
-                    <CardFinalPartido idPartido={partidoId} incidencias={bdIncidencias}/>
+                    <CardFinalPartido idPartido={partidoId} />
                 </Section>
-    
+
                 {matchCorrecto.estado !== 'S' && (
                     <>
                         <Cronometro />
-                        
-                        {/* Formaciones solo cuando el partido está finalizado */}
                         {matchCorrecto.estado === 'F' && (
                             <Alignment formaciones={formacionesConNombreApellido} partido={matchCorrecto} />
                         )}
-    
+
                         {matchCorrecto.estado !== 'F' && (
-                            <FormacionesPlanilla idPartido={partidoId} />
+                            <FormacionesPlanilla idPartido={partidoId} formacionesPartido={bdFormaciones} />
                         )}
-                        
-                        {/* Mostrar incidencias siempre que el partido no esté suspendido */}
-                        <Incidents incidentes={bdIncidencias} formaciones={formacionesConNombreApellido} partidoId={partidoId} />
+
+                        <Incidents formaciones={formacionesConNombreApellido} partidoId={partidoId} />
 
                         {matchCorrecto.estado !== 'F' && (
                             <>
@@ -98,15 +139,15 @@ const Planilla = () => {
                                     <Select
                                         placeholder={'Seleccione un jugador'}
                                         icon={<GiSoccerKick className='icon-select' />}
-                                        data={jugadoresDescatados}
+                                        data={jugadoresDestacadosLocal}
                                         onChange={handleMvp}
                                         id_="id_jugador"
-                                        column="nombre_jugador"
+                                        column="nombre_completo"
                                         value={mvpSelected}
                                         planilla={true}
                                     />
                                 </SelectContainerStyled>
-                                
+
                                 <PenaltyOption partido={matchCorrecto} />
 
                                 <InputDescContainer>
@@ -120,63 +161,59 @@ const Planilla = () => {
                                         onChange={handleChange} 
                                     />
                                 </InputDescContainer>
-                            </>                      
+                            </>
                         )}
                     </>
                 )}
-    
-                {/* Botones al final */}
-                {matchCorrecto.estado === 'P' && (
-                    <ButtonContainer>
-                        {partido.matchState === null && (
-                            <ButtonMatch 
-                                className='started' 
-                                onClick={() => {
-                                    handleToastStartMatch();
-                                    handleStartMatch();
-                                }}>
-                                <FaPlay />
-                                Comenzar Partido
-                            </ButtonMatch>
-                        )}
-                        {partido.matchState === 'isFinish' && (
-                                <ButtonMatch onClick={pushInfoMatch}>
-                                    <FaCloudArrowUp />
-                                    Subir partido
-                                </ButtonMatch>
-                        )}
-                        {partido.matchState === 'isStarted' && (
-                            <ButtonMatch onClick={handleStartMatch}>
-                                <FaRegStopCircle />
-                                Finalizar Partido
-                            </ButtonMatch>
-                        )}
-                        {partido.matchState === 'matchPush' && (
-                            <ButtonMatch className='finish'>
-                                Partido cargado
-                            </ButtonMatch>
-                        )}
-                        {partido.matchState !== 'matchPush' && (
-                            <ButtonMatch className='suspender' onClick={suspenderPartido}>
-                                <ImCross />
-                                Suspender Partido
-                            </ButtonMatch>
-                        )}
-                    </ButtonContainer>
-                )}
+
+                <ButtonContainer>
+                    {estadoPartido === 'P' && (
+                        <ButtonMatch
+                            className='started'
+                            onClick={() => {
+                                handleToastStartMatch();
+                                handleStartMatch();
+                            }}>
+                            <FaPlay />
+                            Comenzar Partido
+                        </ButtonMatch>
+                    )}
+                    {estadoPartido === 'T' && (
+                        <ButtonMatch onClick={pushInfoMatch}>
+                            <FaCloudArrowUp />
+                            Subir partido
+                        </ButtonMatch>
+                    )}
+                    {estadoPartido === 'C' && (
+                        <ButtonMatch onClick={handleStartMatch}>
+                            <FaRegStopCircle />
+                            Finalizar Partido
+                        </ButtonMatch>
+                    )}
+                    {estadoPartido === 'F' && (
+                        <ButtonMatch className='finish'>
+                            Partido cargado
+                        </ButtonMatch>
+                    )}
+                    {estadoPartido !== 'F' && (
+                        <ButtonMatch className='suspender' onClick={suspenderPartido}>
+                            <ImCross />
+                            Suspender Partido
+                        </ButtonMatch>
+                    )}
+                </ButtonContainer>
             </MatchStatsWrapper>
-    
-            {/* Modales al final */}
+
             <ActionConfirmed />
             <ActionAsisted />
             <ActionTime />
-            <EditDorsal />
+            <EditDorsal formaciones={bdFormaciones} setBdFormaciones={setBdFormaciones} />
             <JugadoresEventuales />
             <ModalConfirmation />
-            <ModalSuspenderPartido partido={matchCorrecto}/>
-            
+            <ModalSuspenderPartido partido={matchCorrecto} />
+            <Toaster />
         </PlanillaContainerStyled>
     );
-}
+};
 
 export default Planilla;

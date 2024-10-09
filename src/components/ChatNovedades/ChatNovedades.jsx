@@ -55,7 +55,7 @@ const ChatNovedades = () => {
 
   return (
     <ChatContainer>
-      <ChatWrapper onClick={toggleChat} isOpen={isOpen}>
+      {/* <ChatWrapper onClick={toggleChat} isOpen={isOpen}>
         <img src={IsotipoCR} alt="Logo" />
         {!isOpen && <Counter><FaExclamationTriangle/></Counter>}
       </ChatWrapper>
@@ -65,7 +65,7 @@ const ChatNovedades = () => {
           <ChatHeader>Novedades</ChatHeader>
         </div>
 
-        {novedades.map((novedad, index) => (
+        {novedades?.map((novedad, index) => (
           <ChatMessage key={index}>
             <ChatIcon>
               {getIconByType(novedad.tipo)}
@@ -73,7 +73,7 @@ const ChatNovedades = () => {
             {novedad.mensaje}
           </ChatMessage>
         ))}
-      </ChatBox>
+      </ChatBox> */}
     </ChatContainer>
   );
 };

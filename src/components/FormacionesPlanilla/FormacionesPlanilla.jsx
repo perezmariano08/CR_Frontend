@@ -19,8 +19,12 @@ import { IoIosStarOutline } from "react-icons/io";
 import { IoIosStar } from "react-icons/io";
 import { URLImages } from '../../utils/utils';
 import useNameAndShieldTeams from '../../hooks/useNameAndShieldTeam';
+import { eliminarJugadorDestacado, getFormaciones, insertarJugadorDestacado, traerJugadoresDestacados, traerPlantelesPartido } from '../../utils/dataFetchers';
+import { useWebSocket } from '../../Auth/WebSocketContext';
+import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice';
+import { usePlanilla } from '../../hooks/usePlanilla';
 
-const FormacionesPlanilla = ({ idPartido }) => {
+const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
     const dispatch = useDispatch();
     const [activeButton, setActiveButton] = useState('local');
     const initialState = useSelector((state) => state.match) || [];
@@ -29,29 +33,175 @@ const FormacionesPlanilla = ({ idPartido }) => {
     const [playerDorsal, setPlayerDorsal] = useState('');
     const [playerName, setPlayerName] = useState('');
     const [selectedPlayerId, setSelectedPlayerId] = useState(''); 
+    const [loading, setLoading] = useState(false);
 
-    const selectedStar = useSelector((state) => state.planillero.timeMatch.jugador_destacado || [])
+    //*BASE DE DATOS
+    const socket = useWebSocket();
+    const [jugadoresPartido, setJugadoresPartido] = useState();
+    const [jugadoresDestacados, setJugadoresDestacados] = useState([]);
 
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find((partido) => partido.id_partido === idPartido);
     const matchState = useSelector((state) => state.match);
     const matchCorrecto = matchState.find((match) => match.ID === idPartido);
     const currentTeam = activeButton === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
+    
+    const { setJugadoresDestacadosBd } = usePlanilla(idPartido)
 
+    //custom hook
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
+
+    // Traer los jugadores destacados desde la base de datos al cargar el componente
+    // Modificar el useEffect que trae los planteles y jugadores destacados
+    useEffect(() => {
+        const fetchData = async () => {
+            if (partido) {
+                try {
+                    const data = await traerPlantelesPartido(idPartido);
+                    const jugadoresConFormacion = data.map(player => ({
+                        ...player,
+                        dorsal: formacionesPartido?.find(f => f.id_jugador === player.id_jugador)?.dorsal || '',
+                    }));
+                    setJugadoresPartido(jugadoresConFormacion);
+                } catch (error) {
+                    console.error('Error en la petición:', error);
+                }
+            }
+    };
+
+    fetchData(); // Llamar a la función de obtención de datos
+}, [partido, formacionesPartido, idPartido]);
+
+    // Traer jugadores destacados al cargar el componente
+    useEffect(() => {
+        const fetchJugadoresDestacados = async () => {
+            try {
+                const data = await traerJugadoresDestacados(partido.id_categoria, partido.jornada);
+                setJugadoresDestacados(data);
+            } catch (error) {
+                console.error('Error al traer jugadores destacados:', error);
+            }
+        };
+
+        if (partido) {
+            fetchJugadoresDestacados();
+        }
+    }, [partido]);
+
+    // Escuchar eventos de WebSocket
+    useEffect(() => {
+        const handlePlayerStarred = ({ idJugador }) => {
+            // Actualizar la lista de jugadores destacados al recibir un evento
+            setJugadoresDestacados(prev => [...prev, idJugador]);
+        };
+
+        socket.on('jugadorDestacado', handlePlayerStarred);
+
+        return () => {
+            socket.off('jugadorDestacado', handlePlayerStarred);
+        };
+    }, [socket]);
+
+
+    //Actualizar estado del partido
+    useEffect(() => {
+        const actualizarEstadoPartido = () => {
+            dispatch(fetchPartidos());
+        }
+        socket.on('estadoPartidoActualizado', actualizarEstadoPartido)
+
+        return () => {
+            socket.off('estadoPartidoActualizado', actualizarEstadoPartido)
+        }
+
+    }, [socket])
+
+    // Escuchar los eventos de asignación y eliminación de dorsal
+    useEffect(() => {
+        const handleDorsalAsignado = ({ idJugador, dorsal }) => {
+            setJugadoresPartido((prevState) => 
+                prevState.map((player) => 
+                    player.id_jugador === idJugador ? { ...player, dorsal } : player
+                )
+            );
+        };
+    
+        const handleDorsalEliminado = ({ idJugador }) => {
+            setJugadoresPartido((prevState) => 
+                prevState.map((player) => 
+                    player.id_jugador === idJugador ? { ...player, dorsal: '' } : player
+                )
+            );
+        };
+    
+        const handlePlayerExpelled = ({ idJugador }) => {
+            setJugadoresPartido((prevState) => 
+                prevState.map((player) => {
+                    // Verifica que el jugador no esté realizando otra acción
+                    if (player.id_jugador === idJugador) {
+                        return { ...player, sancionado: 'S' }; 
+                    }
+                    return player;
+                })
+            );
+        };
+        
+        const handleExpulsionRemoved = ({ idJugador }) => {
+            setJugadoresPartido((prevState) => 
+                prevState.map((player) => 
+                    player.id_jugador === idJugador && player.sancionado === 'S' // Verifica que el jugador esté sancionado
+                        ? { ...player, sancionado: 'N' } // Eliminar la sanción
+                        : player
+                )
+            );
+        };
+        
+        // Escuchar los eventos de WebSocket
+        socket.on('dorsalAsignado', handleDorsalAsignado);
+        socket.on('dorsalEliminado', handleDorsalEliminado);
+        socket.on('expulsión', handlePlayerExpelled);
+        socket.on('eliminarExpulsión', handleExpulsionRemoved); // Agregar el manejador para eliminar la expulsión
+    
+        return () => {
+            // Limpiar los eventos cuando el componente se desmonte
+            socket.off('dorsalAsignado', handleDorsalAsignado);
+            socket.off('dorsalEliminado', handleDorsalEliminado);
+            socket.off('expulsión', handlePlayerExpelled);
+            socket.off('eliminarExpulsión', handleExpulsionRemoved); // Limpiar el evento de eliminar expulsión
+        };
+    }, [socket]);
+    
+
+    // Modificar el useEffect que trae los planteles
+    useEffect(() => {
+        traerPlantelesPartido(idPartido)
+        .then((data) => {
+            // Combinar jugadoresPartido con formacionesPartido
+            const jugadoresConFormacion = data.map(player => {
+                const formacionJugador = formacionesPartido?.find(f => f.id_jugador === player.id_jugador);
+                return {
+                    ...player,
+                    dorsal: formacionJugador?.dorsal || '',
+                };
+            });
+            setJugadoresPartido(jugadoresConFormacion);
+        })
+        .catch((error) => console.error('Error en la petición', error));
+    }, [idPartido, formacionesPartido]);
 
     const handleButtonClick = (buttonType) => {
         setActiveButton(buttonType);
-        const selectedTeam = buttonType === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
+        //Mandar a redux el id del equipo seleccionado
+        const selectedTeam = buttonType === 'local' ? partido.id_equipoLocal : partido.id_equipoVisita;
         if (selectedTeam) {
-            dispatch(handleTeamPlayer(selectedTeam.id_equipo));
+            dispatch(handleTeamPlayer(selectedTeam));
         }
     };
-    
+
     //Manejador de las acciones del partido
     const handleNext = (playerID, playerDorsal, namePlayer, idEquipo) => {
-        if (matchCorrecto.matchState === null || matchCorrecto.matchState === 'matchPush') {
-            if (matchCorrecto.matchState === 'matchPush') {
+        if (partido.estado === 'P' || partido.estado === 'F') {
+            if (partido.estado === 'F') {
                 toast.error('El partido ya ha sido cargado en la base de datos');
             } else {
                 toast.error('Debe comenzar el partido para realizar acciones');
@@ -73,19 +223,23 @@ const FormacionesPlanilla = ({ idPartido }) => {
 
     //Edicion del dorsal
     const handleEditDorsal = (player) => {
-        if (matchCorrecto.matchState !== 'matchPush') {
-            if (player.eventual === 'S') {
-                const {DNI, Dorsal, Nombre} = player;
-                const [nombre, apellido] = Nombre.split(' ').map(part => part.trim());
-                dispatch(setInfoPlayerEvent({DNI, Dorsal, nombre, apellido}));
-                dispatch(setEnabledStateInfoPlayerEvent());
-                handleModalPlayerEventual();
-                return;
-            }
+        if (partido.estado !== 'F') {
+            // if (player.eventual === 'S') {
+            //     //!REVISAR POR VALORES DE PLAYER <- EVENTUAL
+            //     const {dni, dorsal, nombre_jugador} = player;
+            //     const [nombre, apellido] = nombre_jugador.split(' ').map(part => part.trim());
+
+            //     dispatch(setInfoPlayerEvent({dni, dorsal, nombre, apellido}));
+            //     dispatch(setEnabledStateInfoPlayerEvent());
+            //     handleModalPlayerEventual();
+            //     return;
+            // }
     
-            setSelectedPlayerId(player.ID);
-            dispatch(setPlayerSelected(player.ID));
-            dispatch(setNamePlayerSelected(player.Nombre));
+            setSelectedPlayerId(player.id_jugador);
+            dispatch(setPlayerSelected(player.id_jugador));
+            dispatch(setNamePlayerSelected(player.nombre_jugador));
+            dispatch(setdorsalPlayer(player.dorsal));
+            
             dispatch(toggleHiddenDorsal());
         } else {
             toast.error('No puedes editar con el partido cargado');
@@ -93,7 +247,7 @@ const FormacionesPlanilla = ({ idPartido }) => {
     };
     
     const DeleteDorsalPlayer = (idPartido, idEquipo, idJugador, dorsal) => {
-        if (matchCorrecto.matchState !== 'matchPush') {
+        if (partido.estado !== 'F') {
             dispatch(setInfoDelete({ idPartido, idEquipo, idJugador }));
             dispatch(toggleHiddenModal());
             dispatch(setCurrentStateModal('dorsal'));
@@ -101,52 +255,58 @@ const FormacionesPlanilla = ({ idPartido }) => {
         } else {
             toast.error('El partido ya ha sido cargado en la base de datos');
         }
-
     };
 
     const handleModalPlayerEventual = () => {
-        if (matchCorrecto.matchState !== 'matchPush') {
+        if (partido.estado !== 'F') {
             dispatch(toggleHiddenPlayerEvent());
         } else {
             toast.error('El partido ya ha sido cargado en la base de datos');
         }
     };
 
-    const handleStar = (player) => {
-        if (matchCorrecto.matchState === null || matchCorrecto.matchState === 'matchPush') {
-            if (matchCorrecto.matchState === null) {
-                toast.error('Debe comenzar el partido para asignar el MVP');
-            } else {
-                toast.error('El partido ya fue cargado en la base de datos');
-            }
+    // En la función handleStar
+    const handleStar = async (player) => {
+        if (partido.estado === 'P' || partido.estado === 'F') {
+            toast.error('No puedes asignar MVP en este estado del partido');
             return;
         }
 
-        const alreadySelected = selectedStar.some(jugador => jugador.id_jugador === player.ID);
-    
-        let newSelectedStars;
-        if (alreadySelected) {
-            newSelectedStars = selectedStar.filter(jugador => jugador.id_jugador !== player.ID);
-        } else {
-            const newPlayer = {
-                id_jugador: player.ID,
-                id_equipo: currentTeam.id_equipo,
-                nombre_jugador: player.Nombre
-            };
-            newSelectedStars = [...selectedStar, newPlayer];
+        const alreadySelected = jugadoresDestacados.some(jugador => jugador.id_jugador === player.id_jugador);
+
+        try {
+            if (alreadySelected) {
+                await eliminarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_jugador);
+                setJugadoresDestacados(prev => prev.filter(jugador => jugador.id_jugador !== player.id_jugador));
+                toast.success('Jugador destacado eliminado correctamente');
+            } else {
+                await insertarJugadorDestacado(partido.id_categoria, partido.id_partido, player);
+                setJugadoresDestacados(prev => [...prev, player]);
+                toast.success('Jugador destacado insertado correctamente');
+            }
+            setJugadoresDestacadosBd(jugadoresDestacados); // Actualizar el hook de estado
+        } catch (error) {
+            toast.error(error.message);
         }
-        
-        dispatch(handleBestPlayerOfTheMatch(newSelectedStars));
     };
     
     useEffect(() => {
-        const selectedTeam = matchCorrecto.Local;
+        //Mandar a redux el id del equipo seleccionado apenas se inicia el componente
+        const selectedTeam = partido.id_equipoLocal;
         if (!initialized && selectedTeam) {
             setActiveButton('local');
-            dispatch(handleTeamPlayer(selectedTeam.id_equipo));
+            dispatch(handleTeamPlayer(selectedTeam));
             setInitialized(true);
         }
     }, [initialState, initialized, dispatch]);
+
+    // Al final de tu componente FormacionesPlanilla
+    const sortedJugadoresPartido = jugadoresPartido?.sort((a, b) => {
+        // Ordena los jugadores según el campo eventual
+        if (a.eventual === 'S' && b.eventual !== 'S') return 1; // a va al final
+        if (a.eventual !== 'S' && b.eventual === 'S') return -1; // b va al final
+        return 0; // Si ambos son eventuales o no, manten el orden
+    });
 
     return (
         <FormacionesPlanillaWrapper>
@@ -183,48 +343,52 @@ const FormacionesPlanilla = ({ idPartido }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentTeam && currentTeam.Player?.map(player => (
-                        <tr 
-                            key={player.ID} 
-                            className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}
-                        >
-                            <div className='info-player'>
-                                <td
-                                className={`dorsal ${(!player.Dorsal || player.sancionado === 'S' ) && 'disabled'}`}
-                                onClick={() => {
-                                        if (player.Dorsal && player.sancionado !== 'S') {
-                                            handleNext(player.ID, player.Dorsal, player.Nombre, currentTeam.id_equipo);
-                                        }
-                                }}
+                {jugadoresPartido && sortedJugadoresPartido
+                    .filter(player => player.id_equipo === (activeButton === 'local' ? partido.id_equipoLocal : partido.id_equipoVisita))
+                    .map(player => {
+                        return (
+                            <tr 
+                                key={player.id_jugador} 
+                                className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}
                             >
-                                {player.Dorsal}
-                            </td>
-                            <td className='text dni'>{player.DNI}</td>
-                            <td className='text nombre'>{player.Nombre}</td>
-                            </div>
-                            <td className='tdActions'>
-                            <HiMiniPencil
-                                className='edit'
-                                onClick={() => handleEditDorsal(player)}
-                            />
-                            {selectedStar.some((p) => p.id_jugador === player.ID) ? (
-                                <IoIosStar 
-                                    className={player.Dorsal ? 'star' : 'disabled'}
-                                    onClick={() => handleStar(player)} 
-                                />
-                            ) : (
-                                <IoIosStarOutline 
-                                    className={player.Dorsal ? 'star' : 'disabled'}
-                                    onClick={() => handleStar(player)} 
-                                />
-                            )}
-                            <HiOutlineXCircle
-                                className={`delete ${!player.Dorsal ? 'disabled' : ''}`}
-                                onClick={() => DeleteDorsalPlayer(idPartido, currentTeam.id_equipo, player.ID, player.Dorsal)}
-                            />
-                        </td>
-                        </tr>
-                    ))}
+                                <div className='info-player'>
+                                    <td
+                                        className={`dorsal ${(!player.dorsal || player.sancionado === 'S') && 'disabled'}`}
+                                        onClick={() => {
+                                            if (player.dorsal && player.sancionado !== 'S') {
+                                                handleNext(player.id_jugador, player.dorsal, player.nombre_jugador, currentTeam.id_equipo);
+                                            }
+                                        }}
+                                    >
+                                        {player.dorsal || ''}
+                                    </td>
+                                    <td className='text dni'>{player.dni}</td>
+                                    <td className='text nombre'>{player.nombre_jugador}</td>
+                                </div>
+                                <td className='tdActions'>
+                                    <HiMiniPencil
+                                        className='edit'
+                                        onClick={() => handleEditDorsal(player)}
+                                    />
+                                    {jugadoresDestacados.some((p) => p.id_jugador === player.id_jugador) ? (
+                                        <IoIosStar 
+                                            className={player.dorsal ? 'star' : 'disabled'}
+                                            onClick={() => handleStar(player)} 
+                                        />
+                                    ) : (
+                                        <IoIosStarOutline 
+                                            className={player.dorsal ? 'star' : 'disabled'}
+                                            onClick={() => handleStar(player)} 
+                                        />
+                                    )}
+                                    <HiOutlineXCircle
+                                        className={`delete ${!player.dorsal ? 'disabled' : ''}`}
+                                        onClick={() => DeleteDorsalPlayer(idPartido, currentTeam.id_equipo, player.id_jugador, player.dorsal)}
+                                    />
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </TablePlanillaWrapper>
             <PlayerEventContainer>

@@ -21,7 +21,7 @@ import partidosReducer from "./ServicesApi/partidosSlice"
 import equiposReducer from "./ServicesApi/equiposSlice"
 import rolesReducer from "./ServicesApi/rolesSlice"
 import expulsadosReducer from "./ServicesApi/expulsadosSlice"
-import asideReducer from "./Aside/asideSlice"; // Importa tu nuevo slice
+import asideReducer from "./Aside/asideSlice";
 import edicionesReducer from "./ServicesApi/edicionesSlice"
 import plantelesReducer from "./ServicesApi/plantelesSlice"
 import zonasReducer from "./ServicesApi/zonasSlice"
@@ -47,7 +47,7 @@ const reducers = combineReducers({
     aside: asideReducer, 
     ediciones: edicionesReducer,
     planteles: plantelesReducer,
-    zonas: zonasReducer
+    zonas: zonasReducer,
 });
 
 const persistConfig = {
@@ -72,7 +72,7 @@ const persistConfig = {
         "expulsados",
         "aside",
         "ediciones",
-        "planteles"
+        "planteles",
     ]
 }
 

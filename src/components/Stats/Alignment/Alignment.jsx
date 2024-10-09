@@ -6,7 +6,6 @@ import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 const Alignment = ({ formaciones, partido }) => {
   // Hook para nombres y escudos de equipos
   const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
-
   // Jugadores locales y visitantes
   const localPlayers = formaciones?.local || [];
   const visitantePlayers = formaciones?.visitante || [];

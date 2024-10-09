@@ -4,7 +4,7 @@ import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfir
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Select2 from '../../UI/Select/Select2';
-import { setActionPlayer, setActionToEdit, setNavigationSource, toggleHiddenAction, toggleHiddenTime, toggleHiddenAsist, setTipoExpulsion } from '../../../redux/Planillero/planilleroSlice';
+import { setActionPlayer, setActionToEdit, setNavigationSource, toggleHiddenAction, toggleHiddenTime, toggleHiddenAsist, setTipoExpulsion, setEnabledActionEdit, setDisabledActionEdit } from '../../../redux/Planillero/planilleroSlice';
 
 const ActionConfirmed = () => {
     const dispatch = useDispatch();
@@ -15,6 +15,7 @@ const ActionConfirmed = () => {
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
             dispatch(toggleHiddenAction());
+            dispatch(setDisabledActionEdit());
         }
     };
 
@@ -79,11 +80,17 @@ const ActionConfirmed = () => {
                 <ActionConfirmedWrapper>
                     <ActionBackContainer>
                         <ActionBack>
-                            <HiArrowLeft onClick={() => dispatch(toggleHiddenAction())}/>
+                        <HiArrowLeft onClick={() => {
+                                dispatch(toggleHiddenAction());
+                                dispatch(setDisabledActionEdit()); // Agregar aquí
+                            }}/>
                             <p>Volver</p>
                         </ActionBack>
                         <IconClose>
-                            <HiMiniXMark onClick={() => dispatch(toggleHiddenAction())}/>
+                        <HiMiniXMark onClick={() => {
+                                dispatch(toggleHiddenAction());
+                                dispatch(setDisabledActionEdit()); // Agregar aquí
+                            }}/>
                         </IconClose>
                     </ActionBackContainer>
 

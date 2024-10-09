@@ -43,8 +43,8 @@ const MatchStats = () => {
                     let formacionesData = [];
                     if (partido.estado === 'F') {
                         formacionesData = await getFormaciones(partidoId);
-                        setIncidencias(await getIndicencias(partidoId));
                     } else {
+                        setIncidencias(await getIndicencias(partidoId));
                         const plantelesData = await traerPlantelesPartido(partidoId);
                         // Asegúrate de que plantelesData sea un array
                         formacionesData = Array.isArray(plantelesData) ? plantelesData : [];
@@ -84,7 +84,7 @@ const MatchStats = () => {
             <MatchStatsWrapper className='wrapper'>
                 <Section>
                     <h2>Ficha de Partido</h2>
-                    <CardFinalPartido idPartido={partidoId} incidencias={incidencias} />
+                    <CardFinalPartido idPartido={partidoId}/>
                 </Section>
 
                 <Navigate>
@@ -97,8 +97,8 @@ const MatchStats = () => {
                         {
                         partido.estado !== 'S' && <Alignment formaciones={formaciones} jugadores={jugadores} partido={partido} />
                         }
-                        {partido.estado === 'F' && <Incidents incidentes={incidencias} formaciones={formaciones} partidoId={partidoId} />}
-                        <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />
+                        {partido.estado !== 'P' && <Incidents formaciones={formaciones} partidoId={partidoId} />}
+                        {partidosJugados.length === 0 && <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />}
                     </>
                 )}
 

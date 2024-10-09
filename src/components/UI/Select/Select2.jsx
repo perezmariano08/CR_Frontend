@@ -1,14 +1,10 @@
 import React from 'react';
 import { SelectContainerStyled, SelectWrapper } from './SelectStyles';
-import { useSelector } from 'react-redux';
 
-const Select2 = ({ idTeam, currentActionPlayerId, onSelect, action }) => {
-    
-    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
-    const matches = useSelector((state) => state.match);
-    const match = matches.find(p => p.ID === idPartido);
-    const team = match.Local.id_equipo === idTeam ? match.Local : match.Visitante;
-    const filteredPlayers = team.Player.filter(player => player.status && player.ID !== currentActionPlayerId && player.sancionado !== 'S');
+const Select2 = ({ idTeam, onSelect, action, formaciones }) => {
+    const team = formaciones?.filter((j) => j.id_equipo === idTeam)
+    const jugadoresHabilitados = team?.filter((j) => j.rojas < 1 && j.amarillas < 2)
+    console.log(jugadoresHabilitados);
 
     const handleSelectChange = (event) => {
         const value = event.target.value;
@@ -29,8 +25,8 @@ const Select2 = ({ idTeam, currentActionPlayerId, onSelect, action }) => {
                 ) : (
                     <>
                         <option value="" disabled>Elegir jugador</option>
-                        {filteredPlayers.map(player => (
-                            <option key={player.ID} value={player.ID}>{player.Nombre} - {player.Dorsal}</option>
+                        {jugadoresHabilitados.map(player => (
+                            <option key={player.id_jugador} value={player.id_jugador}>{player.nombre} {player.apellido} - {player.dorsal}</option>
                         ))}
                     </>
                 )}

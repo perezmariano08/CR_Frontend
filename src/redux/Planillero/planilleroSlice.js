@@ -239,9 +239,9 @@ const planilleroSlice = createSlice({
       state.infoDelete.idJugador = idJugador;
     },
     setInfoPlayerEvent: (state, action) => {
-      const {DNI, Dorsal, nombre, apellido} = action.payload;
-      state.playerEventData.dni = DNI;
-      state.playerEventData.dorsal = Dorsal;
+      const {dni, dorsal, nombre, apellido} = action.payload;
+      state.playerEventData.dni = dni;
+      state.playerEventData.dorsal = dorsal;
       state.playerEventData.nombre = nombre;
       state.playerEventData.apellido = apellido;
     },

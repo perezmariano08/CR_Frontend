@@ -1,60 +1,128 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { URL } from "../../utils/utils";
+import axios from "axios";
 
 const initialState = [];
+
+// Crear el thunk
+export const deletePlayerDorsal = createAsyncThunk(
+    'matches/deletePlayerDorsal',
+    async ({ idPartido, idEquipo, idJugador }, { dispatch }) => {
+        // Realizar la petición a la API
+        await axios.delete(`${URL}/user/borrar-firma-jugador`, { data: { idPartido, idJugador } });
+
+        // Después de que la petición sea exitosa, despachar la acción para limpiar el estado
+        dispatch(deleteTotalActionsToPlayer({ idPartido, idEquipo, idJugador }));
+    }
+);
+
+export const resetActions = () => {
+    return (dispatch) => {
+        dispatch({
+            type: 'RESET_ACTIONS',
+        });
+    };
+};
 
 const matchesSlice = createSlice({
     name: 'match',
     initialState,
     reducers: {
         manageDorsal: (state, action) => {
-            const { idPartido, playerId, dorsal, assign } = action.payload;
-
-            // Find the specific match by idPartido
+            const { idPartido, playerId, dorsal, assign, socket } = action.payload;
+        
+            // Buscar el partido específico por idPartido
             const match = state.find(match => match.ID === idPartido);
             if (!match) {
                 console.error('Partido no encontrado');
                 return;
             }
-
+        
             let playerFound = false;
-
-            // Search in the Local team
+        
+            // Buscar el jugador en el equipo Local
             let player = match.Local.Player.find(p => p.ID === playerId);
             if (player) {
                 playerFound = true;
                 if (assign) {
-                    // Ensure no other player has the same dorsal
+                    // Asegurarse de que ningún otro jugador tenga el mismo dorsal
                     if (!match.Local.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
                         player.Dorsal = dorsal;
                         player.status = true;
+        
+                        // Petición al servidor para guardar el dorsal en la base de datos
+                        axios.post(`${URL}/user/firma-jugador`, { idPartido, idJugador: playerId, dorsal })
+                            .then(response => {
+                                console.log('Dorsal guardado en la base de datos:', response.data);
+        
+                                // Emitir el evento con WebSocket después de la petición exitosa
+                                socket.emit('dorsalAsignado', { idPartido, idJugador: playerId, dorsal });
+                            })
+                            .catch(error => {
+                                console.error('Error al guardar el dorsal en la base de datos:', error);
+                            });
                     }
                 } else {
                     if (player.Dorsal === dorsal) {
                         player.Dorsal = '';
                         player.status = false;
+        
+                        // Enviar la petición para remover el dorsal en el servidor
+                        axios.post(`${URL}/user/borrar-firma-jugador`, { idPartido, idJugador: playerId, dorsal: '' })
+                            .then(response => {
+                                console.log('Dorsal removido en la base de datos:', response.data);
+                                socket.emit('dorsalAsignado', { idPartido, idJugador: playerId, dorsal: '' });
+                            })
+                            .catch(error => {
+                                console.error('Error al remover el dorsal en la base de datos:', error);
+                            });
                     }
                 }
             }
-
-            // Search in the Visitante team if not found in the Local team
+        
+            // Si no se encuentra en el equipo Local, buscar en el equipo Visitante
             if (!playerFound) {
                 player = match.Visitante.Player.find(p => p.ID === playerId);
                 if (player) {
                     if (assign) {
-                        // Ensure no other player has the same dorsal
+                        // Asegurarse de que ningún otro jugador en el Visitante tenga el mismo dorsal
                         if (!match.Visitante.Player.some(p => p.Dorsal === dorsal && p.ID !== playerId)) {
                             player.Dorsal = dorsal;
                             player.status = true;
+        
+                            // Petición al servidor para guardar el dorsal en la base de datos
+                            axios.post(`${URL}/user/firma-jugador`, { idPartido, idJugador: playerId, dorsal })
+                                .then(response => {
+                                    console.log('Dorsal guardado en la base de datos:', response.data);
+        
+                                    // Emitir el evento con WebSocket
+                                    socket.emit('dorsalAsignado', { idPartido, idJugador: playerId, dorsal });
+                                })
+                                .catch(error => {
+                                    console.error('Error al guardar el dorsal en la base de datos:', error);
+                                });
                         }
                     } else {
                         if (player.Dorsal === dorsal) {
                             player.Dorsal = '';
                             player.status = false;
+        
+                            // Petición al servidor para remover el dorsal en la base de datos
+                            axios.post(`${URL}/user/borrar-firma-jugador`, { idPartido, idJugador: playerId, dorsal: '' })
+                                .then(response => {
+                                    console.log('Dorsal removido en la base de datos:', response.data);
+        
+                                    // Emitir el evento con WebSocket
+                                    socket.emit('dorsalAsignado', { idPartido, idJugador: playerId, dorsal: '' });
+                                })
+                                .catch(error => {
+                                    console.error('Error al remover el dorsal en la base de datos:', error);
+                                });
                         }
                     }
                 }
             }
-        },
+        },        
         addEventualPlayer: (state, action) => {
             const { idPartido, teamId, player } = action.payload;
         
@@ -143,7 +211,6 @@ const matchesSlice = createSlice({
         
             return newMatches;
         },
-        
         addActionToPlayer: (state, action) => {
             const { partidoId, actionData } = action.payload;
             const match = state.find(match => match.ID === partidoId);
@@ -194,6 +261,7 @@ const matchesSlice = createSlice({
                     }
         
                     if (playerIndex !== -1) {
+                        // Limpiar acciones y otras propiedades
                         team.Player[playerIndex].Actions = [];
                         team.Player[playerIndex].Dorsal = '';
                         team.Player[playerIndex].status = false;
@@ -208,24 +276,24 @@ const matchesSlice = createSlice({
                 console.error('Partido no encontrado', idPartido);
             }
         },
-        deleteActionToPlayer: (state, action) => {
-            const { actionToDelete } = action.payload;
-            const match = state.find(match => match.ID === actionToDelete.idPartido);
+        // deleteActionToPlayer: (state, action) => {
+        //     const { actionToDelete } = action.payload;
+        //     const match = state.find(match => match.ID === actionToDelete.idPartido);
         
-            if (match) {
-                const team = match.Local.id_equipo === actionToDelete.idEquipo ? match.Local : match.Visitante;
-                const player = team.Player.find(p => p.ID === actionToDelete.idJugador);
+        //     if (match) {
+        //         const team = match.Local.id_equipo === actionToDelete.idEquipo ? match.Local : match.Visitante;
+        //         const player = team.Player.find(p => p.ID === actionToDelete.idJugador);
         
-                if (player) {
-                    const sancionesActuales = player.Actions ? player.Actions.filter(accion => accion.ID !== actionToDelete.ID) : [];
-                    player.Actions = sancionesActuales.length > 0 ? sancionesActuales : [];
+        //         if (player) {
+        //             const sancionesActuales = player.Actions ? player.Actions.filter(accion => accion.ID !== actionToDelete.ID) : [];
+        //             player.Actions = sancionesActuales.length > 0 ? sancionesActuales : [];
         
-                    const yellowCards = player.Actions.filter(action => action.Type === 'Amarilla').length;
-                    const redCards = player.Actions.filter(action => action.Type === 'Roja').length;
-                    player.sancionado = (yellowCards >= 2 || redCards >= 1) ? 'S' : 'N';
-                }
-            }
-        },
+        //             const yellowCards = player.Actions.filter(action => action.Type === 'Amarilla').length;
+        //             const redCards = player.Actions.filter(action => action.Type === 'Roja').length;
+        //             player.sancionado = (yellowCards >= 2 || redCards >= 1) ? 'S' : 'N';
+        //         }
+        //     }
+        // },
         editActionToPlayer: (state, action) => {
             const { partidoId, actionData } = action.payload;
             const match = state.find(match => match.ID === partidoId);
@@ -264,19 +332,6 @@ const matchesSlice = createSlice({
                 }
             } else {
                 console.warn('Partido no encontrado');
-            }
-        },
-        toggleStateMatch: (state, action) => {
-            const match = state.find(match => match.ID === action.payload);
-
-            if (match) {
-                if (match.matchState === null) {
-                    match.matchState = 'isStarted';
-                } else if (match.matchState === 'isStarted') {
-                    match.matchState = 'isFinish';
-                } else if (match.matchState === 'isFinish'){
-                    match.matchState = 'matchPush';
-                }
             }
         },
         addDescToMatch: (state, action) => {

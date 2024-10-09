@@ -4,8 +4,10 @@ import { fetchPartidos } from '../redux/ServicesApi/partidosSlice';
 import { fetchEquipos } from '../redux/ServicesApi/equiposSlice';
 import { setMatches } from '../redux/Matches/matchesSlice';
 import { traerPlantelesPartido } from '../utils/dataFetchers';
+import { useWebSocket } from '../Auth/WebSocketContext.jsx';
 
 const useFetchMatches = (filterCondition) => {
+    const socket = useWebSocket();
     const dispatch = useDispatch();
     const partidos = useSelector((state) => state.partidos.data);
     const equipos = useSelector((state) => state.equipos.data);
@@ -32,6 +34,39 @@ const useFetchMatches = (filterCondition) => {
         dispatch(fetchPartidos());
         dispatch(fetchEquipos());
     }, [dispatch]);
+
+    // Actualizar partidos cuando se recibe un evento del socket relacionado con el estado o las acciones
+    useEffect(() => {
+        const handleEstadoPartidoActualizado = (data) => {
+            if (data) {
+                dispatch(fetchPartidos())
+                    .then((partidos) => {
+                        console.log('Partido actualizado:', data.idPartido);
+                    })
+                    .catch(error => console.error('Error actualizando el partido:', error));
+            }
+        };
+    
+        const handleNewIncidence = () => {
+            dispatch(fetchPartidos()); // Actualizar partidos cuando hay una nueva acción
+        };
+    
+        const handleIncidenciaEliminada = () => {
+            dispatch(fetchPartidos()); // Actualizar partidos cuando se elimina una acción
+        };
+    
+        // Suscripción a los eventos de socket
+        socket.on('estadoPartidoActualizado', handleEstadoPartidoActualizado);
+        socket.on('nuevaAccion', handleNewIncidence);
+        socket.on('eliminarAccion', handleIncidenciaEliminada);
+    
+        return () => {
+            // Limpiar suscripciones
+            socket.off('estadoPartidoActualizado', handleEstadoPartidoActualizado);
+            socket.off('nuevaAccion', handleNewIncidence);
+            socket.off('eliminarAccion', handleIncidenciaEliminada);
+        };
+    }, [socket, dispatch]);
 
     // Fetch planteles solo cuando partidos o equipos cambien
     useEffect(() => {
@@ -88,7 +123,7 @@ const useFetchMatches = (filterCondition) => {
                     };
                 }));
 
-                dispatch(setMatches(matchesData)); // Actualizar el estado con los datos más recientes
+                dispatch(setMatches(matchesData));
             }
         };
 

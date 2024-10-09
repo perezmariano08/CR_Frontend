@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, IconClose } from '../ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, setActionToEdit, setEnabledActionEdit, setDisabledActionEdit, resetAssist } from '../../../redux/Planillero/planilleroSlice';
+import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, setEnabledActionEdit, setDisabledActionEdit, resetAssist } from '../../../redux/Planillero/planilleroSlice';
 import { addActionToPlayer, editActionToPlayer } from '../../../redux/Matches/matchesSlice';
+import { io } from 'socket.io-client';
+import { URL } from '../../../utils/utils';
+import axios from 'axios';
+import { useWebSocket } from '../../../Auth/WebSocketContext';
+import { toast } from 'react-hot-toast'; // Importar toast
 
 const ActionConfirmed = () => {
-    const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
     const dispatch = useDispatch();
+    const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
     const hiddenTime = useSelector((state) => state.planillero.planillaTime.hidden);
     const navigationSource = useSelector((state) => state.planillero.planilla.navigationSource);
     const { newTime } = useSelector((state) => state.planillero.planillaTime);
@@ -18,7 +23,23 @@ const ActionConfirmed = () => {
     const { localTeam, playerSelected, playerName, dorsalPlayer, actionPlayer } = useSelector((state) => state.planillero.planilla);
     const actionToEdit = useSelector((state) => state.planillero.actionEdit);
     const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
-    const sanctionType = useSelector((state) => state.planillero.expulsadoData.tipo)
+    const sanctionType = useSelector((state) => state.planillero.expulsadoData.tipo);
+
+    const socket = useWebSocket();
+
+    const [inputValue, setInputValue] = useState("");
+    const [loading, setLoading] = useState(false); // Estado para controlar el loading
+    const [originalMinute, setOriginalMinute] = useState(""); // Guardar el minuto original
+
+    useEffect(() => {
+        // Autocompletar con el minuto de la acción a editar si enabledEdit es true
+        if (enabledEdit && actionToEdit && actionToEdit.Minuto) {
+            setInputValue(actionToEdit.Minuto.toString());
+            setOriginalMinute(actionToEdit.Minuto);
+        } else {
+            setInputValue(""); // Limpiar si no es edición
+        }
+    }, [enabledEdit, actionToEdit]);
 
     const handleBack = () => {
         if (navigationSource === 'Assisted') {
@@ -30,8 +51,6 @@ const ActionConfirmed = () => {
         }
     };
 
-    const [inputValue, setInputValue] = useState("");
-
     const handleInputChange = (value) => {
         if (/^\d{0,2}$/.test(value) || value === '') {
             setInputValue(value);
@@ -41,25 +60,19 @@ const ActionConfirmed = () => {
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
             dispatch(toggleHiddenTime());
+            setInputValue('');
         }
     };
 
-    const handleTimeConfirm = () => {
+    const handleTimeConfirm = async () => {
+
         const actionData = enabledEdit
             ? {
-                id: actionToEdit.ID,
-                idPartido: actionToEdit.idPartido,
-                isLocalTeam: actionToEdit.idEquipo,
-                idJugador: actionToEdit.idJugador,
-                nombreJugador: actionToEdit.Nombre,
-                dorsal: actionToEdit.dorsal,
-                accion: actionToEdit.Accion,
-                minuto: parseInt(inputValue),
-                detail: accionDetail,
-                tipoExpulsion: actionToEdit.Accion === 'Roja' ? sanctionType : null
+                ...actionToEdit,
+                minuto: inputValue,
+                id_partido: partidoId
             }
             : {
-                id: Date.now(),
                 idPartido: partidoId,
                 isLocalTeam: localTeam,
                 idJugador: playerSelected,
@@ -70,18 +83,35 @@ const ActionConfirmed = () => {
                 detail: accionDetail,
                 tipoExpulsion: actionPlayer === 'Roja' ? sanctionType : null
             };
-        if (enabledEdit) {
-            dispatch(editActionToPlayer({ partidoId, actionData }));
-        } else {
-            dispatch(addActionToPlayer({ partidoId, actionData }));
+            console.log(actionData);
+            
+        try {
+            setLoading(true); // Iniciar loading
+            const loadingToastId = toast.loading('Procesando...'); // Agregar el toast loading
+    
+            const url = enabledEdit ? `${URL}/user/editar-accion` : `${URL}/user/insertar-accion`;
+            const response = await axios.post(url, actionData);
+    
+            socket.emit(enabledEdit ? 'editarAccion' : 'nuevaAccion', actionData);
+        
+            dispatch(setNewTime(inputValue));
+            dispatch(toggleHiddenTime());
+            dispatch(setDisabledActionEdit());
+            dispatch(resetAssist());
+            setInputValue('');
+    
+            toast.dismiss(loadingToastId); // Cerrar el loader
+            toast.success(enabledEdit ? 'Acción editada con éxito' : 'Acción procesada con éxito');
+        } catch (error) {
+            console.error('Error al enviar la acción:', error);
+            toast.dismiss(loadingToastId); // Cerrar el loader
+            toast.error('Error al procesar la acción');
+        } finally {
+            setLoading(false); // Finalizar loading
         }
-        dispatch(setNewTime(inputValue));
-        dispatch(toggleHiddenTime());
-        dispatch(setDisabledActionEdit());
-        dispatch(resetAssist());
-        setInputValue('');
     };
     
+    const isButtonDisabled = !inputValue.trim() || inputValue === originalMinute.toString() || loading;
 
     return (
         <>
@@ -90,11 +120,16 @@ const ActionConfirmed = () => {
                     <ActionConfirmedWrapper>
                         <ActionBackContainer>
                             <ActionBack onClick={handleBack}>
-                                <HiArrowLeft />
+                                <HiArrowLeft onClick={() => {
+                                    dispatch(setDisabledActionEdit());
+                                }}/>
                                 <p>Volver</p>
                             </ActionBack>
                             <IconClose>
-                                <HiMiniXMark onClick={() => dispatch(toggleHiddenTime())} />
+                                <HiMiniXMark onClick={() => {
+                                    dispatch(toggleHiddenTime());
+                                    dispatch(setDisabledActionEdit());
+                                }}/>
                             </IconClose>
                         </ActionBackContainer>
                         <ActionTitle>
@@ -110,11 +145,11 @@ const ActionConfirmed = () => {
                             />
                         </ActionsContainer>
                         <ActionNext
-                            disabled={!inputValue.trim()}
-                            className={!inputValue.trim() ? 'disabled' : ''}
+                            disabled={isButtonDisabled} // Asegúrate de usar la propiedad 'disabled' correctamente
+                            className={isButtonDisabled ? 'disabled' : ''} // Aplica la clase 'disabled' correctamente
                             onClick={handleTimeConfirm}
                         >
-                            Confirmar
+                            {loading ? 'Procesando...' : 'Confirmar'}
                         </ActionNext>
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>

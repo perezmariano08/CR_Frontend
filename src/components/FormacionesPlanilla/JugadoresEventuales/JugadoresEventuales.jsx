@@ -9,6 +9,7 @@ import Input2 from '../../UI/Input/Input2';
 import { toast, LoaderIcon } from 'react-hot-toast';
 import userJugadorEventualStates from '../../../hooks/userJugadorEventualStates';
 import useJugadorEventual from '../../../hooks/useJugadorEventual';
+import { insertarJugadorEventual } from '../../../utils/dataFetchers';
 
 const JugadoresEventuales = () => {
     const dispatch = useDispatch();
@@ -20,7 +21,7 @@ const JugadoresEventuales = () => {
     const isEnabledEdit = useSelector((state) => state.planillero.playerEventData.state);
     const matchCorrecto = matchState.find((match) => match.ID === idPartido);
     const equipoCorrecto = matchCorrecto?.Local.id_equipo === idCurrentTeam ? matchCorrecto.Local : matchCorrecto.Visitante;
-
+    
     const [loading, setLoading] = useState();
     const [loadingDni, setLoadingDni] = useState(false);
     const [foundPlayer, setFoundPlayer] = useState({});
@@ -108,49 +109,56 @@ const JugadoresEventuales = () => {
                         return;
                     }
                     
-                    //! Corroborar ambos casos!! 
-                    let eventualExistente = bdEventual.find(jugador => jugador.dni === trimmedDni)
-                    let regularExistente = foundPlayer.found && !foundPlayer.matchCategory ? foundPlayer.jugador : null
-
+                    let eventualExistente = bdEventual.find(jugador => jugador.dni === trimmedDni);
+                    let regularExistente = foundPlayer.found && !foundPlayer.matchCategory ? foundPlayer.jugador : null;
+    
                     if (eventualExistente?.sancionado === 'S' || regularExistente?.sancionado === 'S')  {
                         setLoading(false);
-                        return toast.error('El jugador esta sancionado')
+                        return toast.error('El jugador está sancionado');
                     }
                     
                     let jugadorExistente = eventualExistente ? eventualExistente : regularExistente;
                     let newPlayer;
-                    
-                    if (jugadorExistente) {
-                        newPlayer = {
-                            ID: jugadorExistente.id_jugador,
-                            Nombre: `${jugadorExistente.nombre} ${jugadorExistente.apellido}`,
-                            DNI: trimmedDni,
-                            Dorsal: trimmedDorsal,
-                            status: true,
-                            eventual: 'S',
-                        };
-                    } else {
-                        newPlayer = {
-                            ID: generateId(),
-                            Nombre: `${trimmedName} ${trimmedSurName}`,
-                            DNI: trimmedDni,
-                            Dorsal: trimmedDorsal,
-                            status: true,
-                            eventual: 'S',
-                        };
-                    }
-                    
-                    dispatch(addEventualPlayer({ idPartido: idPartido, teamId: idCurrentTeam, player: newPlayer }));
-                    dispatch(setDisabledStateInfoPlayerEvent());
-                    dispatch(toggleHiddenPlayerEvent());
-                    toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
-                    setLoading(false);
     
-                    // Limpiamos inputs
-                    setDorsalValue('');
-                    setDniValue('');
-                    setNameValue('');
-                    setSurNameValue('');
+                    // if (jugadorExistente) {
+                    //     newPlayer = {
+                    //         ID: jugadorExistente.id_jugador,
+                    //         Nombre: `${jugadorExistente.nombre} ${jugadorExistente.apellido}`,
+                    //         DNI: trimmedDni,
+                    //         Dorsal: trimmedDorsal,
+                    //         status: true,
+                    //         eventual: 'S',
+                    //     };
+                    // } else {
+                        newPlayer = {
+                            id_partido: idPartido,
+                            id_equipo: idCurrentTeam,
+                            nombre: trimmedName,
+                            apellido: trimmedSurName,
+                            dni: trimmedDni,
+                            dorsal: trimmedDorsal,
+                            estado: 'A',
+                            eventual: 'S',
+                        };
+                    // }
+                    // console.log(newPlayer);
+                    try {
+                        await insertarJugadorEventual(newPlayer);
+                        // dispatch(addEventualPlayer({ idPartido: idPartido, teamId: idCurrentTeam, player: newPlayer }));
+                        dispatch(setDisabledStateInfoPlayerEvent());
+                        dispatch(toggleHiddenPlayerEvent());
+                        toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
+                    } catch (error) {
+                        console.error('Error al insertar jugador eventual:', error);
+                        toast.error('Ocurrió un error al crear el jugador eventual');
+                    } finally {
+                        setLoading(false);
+                        // Limpiamos inputs
+                        setDorsalValue('');
+                        setDniValue('');
+                        setNameValue('');
+                        setSurNameValue('');
+                    }
                     break;
                 case '1':
                     setLoading(false);
@@ -210,7 +218,7 @@ const JugadoresEventuales = () => {
         if (dniValue.trim()) {
             setLoadingDni(true);
             try {
-                const playerExists = await checkPlayerExists(dniValue.trim(), parseInt(equipoCorrecto.id_equipo));
+                const playerExists = await checkPlayerExists(dniValue.trim(), parseInt(equipoCorrecto.id_equipo), idPartido);
                 
                 if (playerExists.found) {
                     setIsDisabled(true);
@@ -262,7 +270,7 @@ const JugadoresEventuales = () => {
                             <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer className='large'>
-                            <TitleInputContainer>
+                            {/* <TitleInputContainer>
                                 <p>J.E existentes</p>
                                 <SelectEventual onChange={handlePlayerSelect}>
                                     <option value="">Seleccione un jugador</option>
@@ -272,7 +280,7 @@ const JugadoresEventuales = () => {
                                         </option>
                                     ))}
                                 </SelectEventual>
-                            </TitleInputContainer>
+                            </TitleInputContainer> */}
                             <TitleInputContainer>
                                 <p>Dorsal</p>
                                 <Input2
