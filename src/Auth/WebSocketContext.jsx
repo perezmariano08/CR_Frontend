@@ -16,6 +16,7 @@ export const WebSocketProvider = ({ children }) => {
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
+            withCredentials: true,
         });
     
         newSocket.on('connect', () => {
@@ -36,7 +37,7 @@ export const WebSocketProvider = ({ children }) => {
             newSocket.disconnect(); // Disconnect when the component unmounts
         };
     }, []);
-    
+
     return (
         <WebSocketContext.Provider value={socket}>
             {children}
