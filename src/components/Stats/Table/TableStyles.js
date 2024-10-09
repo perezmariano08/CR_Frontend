@@ -189,3 +189,141 @@ export const TableFootItem = styled.div `
         }
     }
 `
+
+export const TablaPosiciones = styled(DataTable)`
+    padding: 10px 0;
+    .p-column-header-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 0;
+        & :nth-child(2) {
+            display: none;
+        }
+    }
+
+    th.p-highlight {
+        color: var(--green) !important;
+        & :nth-child(2) {
+            display: flex;
+            svg {
+                color: var(--green);
+                width: 8px
+            }
+        }
+    }
+
+    td, th {
+        height: 36px;
+        text-align: center;
+        background-color: var(--gray-400);
+        border: none;
+        
+    }
+
+    th {
+        color: var(--gray-200) !important;
+    }
+
+    tr th:nth-child(2) .p-column-header-content  {
+        justify-content: start ;
+    }
+
+    td .team {
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 108px;
+            img {
+            height: 15px;
+        }
+    }
+
+    .pos {
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        span {
+            position: absolute;
+            width: 2px;
+            height: 70%;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+
+            &.green {
+                background-color: var(--green);
+            }
+
+            &.orange {
+                background-color: orange;
+            }
+
+            &.blue {
+                background-color: #0046A7;
+            }
+
+            &.yellow {
+                background-color: yellow;
+            }
+
+            &.red {
+                background-color: var(--red);
+            }
+        }
+    }
+`
+
+
+export const EstadisticaTabla = styled.div`
+    border: 1px solid red;
+    background-color: var(--gray-100);
+`
+
+export const TablaFormatoDetalle = styled.div`
+    padding: 20px 20px 30px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+`
+
+export const FormatoDetalleItem = styled.div`
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    span {
+        width: 8px;
+        background-color: var(--green);
+        height: 8px;
+        border-radius: 50%;
+        &.green {
+            background-color: var(--green);
+        }
+
+        &.orange {
+            background-color: orange;
+        }
+
+        &.blue {
+            background-color: #0046A7;
+        }
+
+        &.yellow {
+            background-color: yellow;
+        }
+
+        &.red {
+            background-color: var(--red);
+        }
+    }
+
+    p {
+        font-size: 12px;
+        color: var(--gray-100);
+    }
+`
