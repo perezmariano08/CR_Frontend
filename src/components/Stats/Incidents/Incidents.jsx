@@ -1,99 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiLifebuoy, HiMiniPencil, HiMiniStop, HiOutlineXCircle } from "react-icons/hi2";
 import { IoIosStar } from "react-icons/io";
-import { toggleHiddenModal, setActionToDelete, toggleHiddenAction, setCurrentStateModal, setActionToEdit, setEnabledActionEdit } from '../../../redux/Planillero/planilleroSlice';
+import { toggleHiddenModal, setActionToDelete, toggleHiddenAction, setCurrentStateModal, setActionToEdit, setEnabledActionEdit, toggleHiddenTime } from '../../../redux/Planillero/planilleroSlice';
 import { IncidentLocal, IndicentsContainer, IndicentsWrapper, IconContainer } from './IndicentsStyles';
 import { TbRectangleVerticalFilled } from "react-icons/tb";
 import { URLImages } from '../../../utils/utils';
 import { AlignmentDivider, AlignmentTeam, AlignmentTeams } from '../Alignment/AlignmentStyles';
 import toast, { Toaster } from 'react-hot-toast';
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
+import { useWebSocket } from '../../../Auth/WebSocketContext';
+import { usePlanilla } from '../../../hooks/usePlanilla';
+import { useAuth } from '../../../Auth/AuthContext';
 
-const Incidents = ({ incidentes, formaciones, partidoId }) => {
+const Incidents = ({ formaciones, partidoId }) => {
+  const { userRole } = useAuth();
+  const { bdIncidencias: incidentes } = usePlanilla(partidoId);
   const dispatch = useDispatch();
+  const [realTimeIncidencias, setRealTimeIncidencias] = useState([]);
   const partidos = useSelector((state) => state.partidos.data);
   const partido = partidos.find((partido) => partido.id_partido === partidoId);
-  const matches = useSelector((state) => state.match);
-  const match = matches.find(p => p.ID === partidoId);
+  const socket = useWebSocket();
 
-  // Get local and visitor incidents
-  const getIncidenciasFromLocal = (team, isLocal) => {
-    if (!team || !team.Player) return [];
-
-    return team.Player
-      .filter(player => player.Actions)
-      .flatMap(player => player.Actions.map(action => {
-        let detalleGol = '';
-        if (action.Type === 'Gol') {
-          if (action.Detail.penal === 'si') detalleGol += ' (p)';
-          if (action.Detail.enContra === 'si') detalleGol += ' (ec)';
-        }
-        return {
-          ID: action.ID,
-          idPartido: partidoId,
-          idEquipo: team.id_equipo,
-          idJugador: player.ID,
-          dorsal: player.Dorsal,
-          Nombre: player.Nombre + detalleGol,
-          Accion: action.Type,
-          Minuto: parseInt(action.Time, 10),
-          Detail: action.Detail,
-          Local: isLocal
-        };
-      }));
-  };
-
-  // Get database incidents
-  const getIncidenciasFromDatabase = () => {
-    const jugadores = [
-      ...(formaciones.local || []),
-      ...(formaciones.visitante || [])
-    ];
-
-    return incidentes?.filter(i => i.tipo !== 'Asistencia')
-      .map(incident => {
-        const jugador = jugadores.find(j => j.id_jugador === incident.id_jugador);
-        return {
-          ID: `${incident.tipo}-${incident.minuto}-${incident.id_jugador}`,
-          idPartido: partidoId,
-          idEquipo: incident.id_equipo,
-          idJugador: incident.id_jugador,
-          dorsal: jugador ? jugador.dorsal : '',
-          Nombre: `${incident.nombre} ${incident.apellido}`,
-          Accion: incident.tipo,
-          Minuto: incident.minuto,
-          Detail: {
-            penal: incident.penal,
-            enContra: incident.en_contra
-          },
-          Local: incident.id_equipo === partido.id_equipoLocal
-        };
-      });
-  };
-
-  // Combine local and database incidents based on match status
-  const incidencias = partido
-    ? partido.estado === 'F'
-      ? getIncidenciasFromDatabase()
-      : [
-          ...getIncidenciasFromLocal(match ? match.Local : {}, true),
-          ...getIncidenciasFromLocal(match ? match.Visitante : {}, false)
-        ]
-    : [];
-
-  incidencias.sort((a, b) => a.Minuto - b.Minuto);
+  // Manejo de incidencias locales
+  useEffect(() => {
+    if (incidentes) {
+      setRealTimeIncidencias(incidentes.filter(i => i.tipo !== 'Asistencia'));
+    }
+  }, [incidentes]);
 
   const mejorJugador = [
     ...(formaciones.local || []),
     ...(formaciones.visitante || [])
   ].find(jugador => jugador.id_jugador === partido.jugador_destacado);
 
-  //Hook nombres y escudos equipos
+  // Hook nombres y escudos equipos
   const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
   const renderActionIcon = (action) => {
-    switch (action.Accion) {
+    switch (action.tipo) {
       case 'Gol':
         return <HiLifebuoy />;
       case 'Amarilla':
@@ -106,20 +51,23 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
   };
 
   const handleDeleteAction = (action) => {
+    
     if (partido.estado !== 'F') {
       dispatch(toggleHiddenModal());
       dispatch(setActionToDelete(action));
       dispatch(setCurrentStateModal('action'));
+
     } else {
       toast.error('El partido ya ha sido cargado en la base de datos');
     }
   };
 
   const handleEditAccion = (action) => {
+
     if (partido.estado !== 'F') {
       dispatch(setActionToEdit(action));
       dispatch(setEnabledActionEdit());
-      dispatch(toggleHiddenAction());
+      dispatch(toggleHiddenTime());
     } else {
       toast.error('El partido ya ha sido cargado en la base de datos');
     }
@@ -131,39 +79,39 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
       <AlignmentDivider />
       <AlignmentTeams>
         <AlignmentTeam className='local'>
-        <img 
-            src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
-            alt={`${getNombreEquipo(partido.id_equipoLocal)}`}/>
-          <h3>{`${getNombreEquipo(partido.id_equipoLocal)}`}</h3>
+          <img 
+              src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
+              alt={`${getNombreEquipo(partido.id_equipoLocal)}`}/>
+            <h3>{`${getNombreEquipo(partido.id_equipoLocal)}`}</h3>
         </AlignmentTeam>
         <AlignmentTeam className='visita'>
-        <h3>{`${getNombreEquipo(partido.id_equipoVisita)}`}</h3>
-        <img 
-            src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
-            alt={`${getNombreEquipo(partido.id_equipoVisita)}`}/>
+          <h3>{`${getNombreEquipo(partido.id_equipoVisita)}`}</h3>
+          <img 
+              src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
+              alt={`${getNombreEquipo(partido.id_equipoVisita)}`}/>
         </AlignmentTeam>
       </AlignmentTeams>
       <IndicentsContainer>
-        {incidencias.map((action, index) => (
-          <IncidentLocal key={index} className={action.Local ? 'local' : 'visit'}>
-            {action.Local ? (
+        {realTimeIncidencias.map((action) => (
+          <IncidentLocal key={action.id_accion} className={action.id_equipo === partido.id_equipoLocal ? 'local' : 'visit'}>
+            {action.id_equipo === partido.id_equipoLocal ? (
               <>
-                {partido.estado !== 'F' && (
+                {partido.estado !== 'F' && userRole !== null &&  (
                   <IconContainer>
                     <HiMiniPencil onClick={() => handleEditAccion(action)} />
                     <HiOutlineXCircle className='delete' onClick={() => handleDeleteAction(action)} />
                   </IconContainer>
                 )}
-                <h3>{action.Minuto}'</h3>
+                <h3>{action.minuto}'</h3>
                 {renderActionIcon(action)}
-                <h4>{action.Nombre}</h4>
+                <h4>{action.nombre} {action.apellido}</h4>
               </>
             ) : (
               <>
-                <h4>{action.Nombre}</h4>
+                <h4>{action.nombre} {action.apellido}</h4>
                 {renderActionIcon(action)}
-                <h3>{action.Minuto}'</h3>
-                {partido.estado !== 'F' && (
+                <h3>{action.minuto}'</h3>
+                {partido.estado !== 'F' && userRole !== null && (
                   <IconContainer>
                     <HiMiniPencil onClick={() => handleEditAccion(action)} />
                     <HiOutlineXCircle className='delete' onClick={() => handleDeleteAction(action)} />
@@ -173,7 +121,7 @@ const Incidents = ({ incidentes, formaciones, partidoId }) => {
             )}
           </IncidentLocal>
         ))}
-        {partido.estado === 'F' && mejorJugador && (
+        {partido.estado !== 'C' && mejorJugador && (
           <IncidentLocal className='mejorJugador'>
             <h3>Mejor Jugador</h3>
             <h4>{mejorJugador.nombre} {mejorJugador.apellido}</h4>

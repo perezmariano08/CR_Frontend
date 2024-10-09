@@ -120,9 +120,9 @@ export const getSanciones = async () => {
     }
 }
 
-export const verificarCategoriaJugadorEventual = async (dni, id_categoria, id_equipo) => {
+export const verificarCategoriaJugadorEventual = async (dni, id_categoria, id_equipo, id_partido) => {
     try {
-        const response = await Axios.get(`${URL}/user/get-jugador-eventual-categoria?dni=${dni}&id_categoria=${id_categoria}&id_equipo=${id_equipo}`);
+        const response = await Axios.get(`${URL}/user/get-jugador-eventual-categoria?dni=${dni}&id_categoria=${id_categoria}&id_equipo=${id_equipo}&id_partido=${id_partido}`);
         return response.data;
     } catch (error) {
         console.error('Error en la petición', error);
@@ -173,6 +173,56 @@ export const limpiarJugadoresDescatados = async (jornada) => {
 export const traerJugadoresPorCategoria = async (id_categoria, jornada) => {
     try {
         const response = await Axios.get(`${URL}/user/get-jugadores-categoria?id_categoria=${id_categoria}&jornada=${jornada}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const verificarJugadores = async (id_partido) => {
+    try {
+        const response = await Axios.get(`${URL}/user/verificar-comienzo-partido?id_partido=${id_partido}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const insertarJugadorDestacado = async (id_categoria, id_partido, jugador) => {
+    try {
+        const response = await Axios.post(`${URL}/user/insertar-jugador-destacado?id_partido=${id_partido}&id_categoria=${id_categoria}`, jugador)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const eliminarJugadorDestacado = async (id_categoria, id_partido, id_jugador) => {
+    try {
+        const response = await Axios.delete(`${URL}/user/eliminar-jugador-destacado?id_partido=${id_partido}&id_categoria=${id_categoria}&id_jugador=${id_jugador}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const insertarMvp = async (id_partido, id_jugador) => {
+    try {
+        const response = await Axios.put(`${URL}/user/insertar-mvp-partido?id_partido=${id_partido}&id_jugador=${id_jugador}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const insertarJugadorEventual = async (jugador_eventual) => {
+    try {
+        const response = await Axios.post(`${URL}/user/insertar-jugador-eventual`, jugador_eventual)
         return response.data;
     } catch (error) {
         console.error('Error en la peticion', error);

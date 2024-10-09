@@ -7,17 +7,24 @@ import { fetchJugadores } from "../redux/ServicesApi/jugadoresSlice";
 import { toast, LoaderIcon } from 'react-hot-toast';
 import { useEffect } from "react";
 import userJugadorEventualStates from "./userJugadorEventualStates";
+import { usePlanilla } from "./usePlanilla";
 
 const useJugadorEventual = () => {
-    const dispatch = useDispatch();
     const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
+
+    const { matchCorrecto, bdFormaciones } = usePlanilla(idPartido);
+
+    const dispatch = useDispatch();
     const idCurrentTeam = useSelector((state) => state.planillero.playerEvent.idPlayerTeam);
+
     const matchState = useSelector((state) => state.match);
-    const matchCorrecto = matchState.find((match) => match.ID === idPartido);
-    const equipoCorrecto = matchCorrecto?.Local.id_equipo === idCurrentTeam ? matchCorrecto.Local : matchCorrecto.Visitante;
+    // const matchCorrecto = matchState.find((match) => match.ID === idPartido);
+
+    const equipoCorrecto = matchCorrecto?.id_equipoLocal === idCurrentTeam ? matchCorrecto?.id_equipoLocal : matchCorrecto?.id_equipoVisita;
+
     const isEnabledEdit = useSelector((state) => state.planillero.playerEventData.state);
     const jugadores = useSelector((state) => state.jugadores.data);
-    const id_categoria = parseInt(matchCorrecto.id_categoria);
+    const id_categoria = matchCorrecto?.id_categoria;
 
     const [bdEventual, setBdEventual] = useState([]);
     const [maxQuantityPlayers, setMaxQuantityPlayers] = useState(true);
@@ -26,10 +33,12 @@ const useJugadorEventual = () => {
         dispatch(fetchJugadores());
     }, []);
 
-    const checkPlayerExists = async (dni, id_equipo) => {
+    const checkPlayerExists = async (dni, id_equipo, id_partido) => {
         try {
-            const data = await verificarCategoriaJugadorEventual(dni, id_categoria, id_equipo);
-            return data;
+            if (id_categoria) {
+                const data = await verificarCategoriaJugadorEventual(dni, id_categoria, id_equipo, id_partido);
+                return data;
+            }
     
         } catch (error) {
             console.error('Error al verificar el jugador eventual:', error);
@@ -47,77 +56,85 @@ const useJugadorEventual = () => {
         return parseInt(`015${formattedNumber}`, 10);
     };
 
-    const searchDorsal = async (dorsal, dni, eventual) => {    
-        const id_equipo = matchCorrecto.id_equipo;
-        
+    const searchDorsal = async (dorsal, dni, eventual) => {
+        const id_equipo = matchCorrecto?.id_equipo;
+    
         if (!equipoCorrecto) return false;
     
-        const players = isEnabledEdit
-            ? equipoCorrecto.Player.filter(player => {
-                return !eventual || player.Dorsal !== eventual.dorsal || player.DNI !== eventual.dni;
-            })
-            : equipoCorrecto.Player;
+        const jugadoresEquipo = bdFormaciones.filter((j) => j.id_equipo === equipoCorrecto);
     
-        const foundByDorsal = players.some(player => player.Dorsal === dorsal);
-        const foundByDNI = players.some(player => player.DNI === dni);
+        const players = jugadoresEquipo.filter(player => {
+            // Si está en modo edición, no se debe comparar con el jugador actual
+            if (isEnabledEdit && eventual) {
+                return player.dorsal !== eventual.dorsal || player.dni !== eventual.dni;
+            }
+            return true;
+        });
+    
+        // Busca si algún jugador tiene el mismo dorsal
+        const foundByDorsal = players.some(player => player.dorsal === Number(dorsal));
+        // Busca si algún jugador tiene el mismo DNI
+        const foundByDNI = players.some(player => player.dni === Number(dni));
+    
         let foundByDNIForTeams = false;
     
+        // Verifica si el jugador eventual ya existe en algún equipo
         try {
             const data = await verificarJugadorEventual(dni, id_categoria, id_equipo);
             foundByDNIForTeams = data.found;
         } catch (error) {
             console.error('Error al verificar el jugador eventual:', error);
         }
-        
+    
+        // Condiciones de retorno según la búsqueda
         if (foundByDorsal && foundByDNI) {
-            return '1';
+            return '1'; // Ambos dorsal y DNI coinciden
         } else if (foundByDorsal) {
-            return '2';
+            return '2'; // Solo el dorsal coincide
         } else if (foundByDNI || foundByDNIForTeams) {
-            return '3';
+            return '3'; // Solo el DNI coincide o ya existe en otro equipo
         } else {
-            return false;
+            return false; // No coincide nada
         }
     };
     
-
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
-            const eventualPlayersCounts = equipoCorrecto.Player?.filter(player => player.eventual === 'S').length;
+            const jugadoresEquipo = bdFormaciones.filter((j) => j.id_equipo === equipoCorrecto)
+            const eventualPlayersCounts = jugadoresEquipo.filter(player => player.eventual === 'S').length;
             setMaxQuantityPlayers(eventualPlayersCounts < 5);
         }
     };
 
     const verificarJugador = (dni) => {
 
-        
         // Verificar si el DNI ya existe en jugadores regulares (no eventuales) del equipo actual
-        const jugadorExistenteRegular = jugadores.find(
-            (jugador) => jugador.DNI === dni && jugador.eventual === 'N'
-        );
+        // const jugadorExistenteRegular = jugadores.find(
+        //     (jugador) => jugador.DNI === dni && jugador.eventual === 'N'
+        // );
     
-        if (jugadorExistenteRegular) {
-            toast.error('El jugador ya existe en jugadores regulares (no eventuales) del equipo actual');
-            return false;
-        }
+        // if (jugadorExistenteRegular) {
+        //     toast.error('El jugador ya existe en jugadores regulares (no eventuales) del equipo actual');
+        //     return false;
+        // }
     
         // Verificar si el DNI ya ha sido agregado como eventual en el equipo contrario en el mismo partido
-        const equipoContrario = matchCorrecto.Local.id_equipo === idCurrentTeam
-            ? matchCorrecto.Visitante
-            : matchCorrecto.Local;
+        // const equipoContrario = matchCorrecto.Local.id_equipo === idCurrentTeam
+        //     ? matchCorrecto.Visitante
+        //     : matchCorrecto.Local;
     
         // const jugadorExistenteEnOtroEquipo = equipoContrario.Player.find(
         //     (jugador) => jugador.DNI === dni && jugador.eventual === 'S'
         // );
 
-        const jugadorExistenteEnOtroEquipo = equipoContrario.Player.find(
-            (jugador) => jugador.DNI === dni
-        );
+        // const jugadorExistenteEnOtroEquipo = equipoContrario.Player.find(
+        //     (jugador) => jugador.DNI === dni
+        // );
     
-        if (jugadorExistenteEnOtroEquipo) {
-            toast.error('El jugador eventual ya está registrado en el equipo rival');
-            return false;
-        }
+        // if (jugadorExistenteEnOtroEquipo) {
+        //     toast.error('El jugador eventual ya está registrado en el equipo rival');
+        //     return false;
+        // }
     
         // Verificar si el jugador tiene menos de 3 partidos eventuales jugados en la temporada actual
         const jugadorEventualEnTemporada = bdEventual.filter((j) => 

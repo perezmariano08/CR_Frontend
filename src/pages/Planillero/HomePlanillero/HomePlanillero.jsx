@@ -24,7 +24,7 @@ const HomePlanillero = () => {
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
     const partidosPendientes = partidos
-        .filter((partido) => partido.id_planillero === userId && partido.estado === 'P')
+        .filter((partido) => partido.id_planillero === userId && partido.estado !== 'F')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosPlanillados = partidos
@@ -45,7 +45,7 @@ const HomePlanillero = () => {
     }
 
     const handleToggleChange = () => {
-        setIsPending(!isPending); // Cambiar entre partidos pendientes y planillados
+        setIsPending(!isPending);
     };
 
     return (
@@ -58,7 +58,7 @@ const HomePlanillero = () => {
                             <span className="slider round"></span>
                         </label>
                         {partidosFiltrados && partidosFiltrados.length > 0 ? (
-                            <h2>{isPending ? 'Partidos Pendientes' : 'Partidos Planillados'}</h2>
+                            <h2>{isPending ? `Partidos Pendientes (${partidosFiltrados.length})` : `Partidos planillados (${partidosFiltrados.length})`}</h2>
                         ) : (
                             <h2>No tienes partidos cargados</h2>
                         )}

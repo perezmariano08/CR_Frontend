@@ -5,13 +5,17 @@ import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Select2 from '../../UI/Select/Select2';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setActionToEdit, setNewAssist, toggleHiddenAction, toggleHiddenAsist, toggleHiddenTime } from '../../../redux/Planillero/planilleroSlice';
+import { setActionToEdit, setDisabledActionEdit, setNewAssist, toggleHiddenAction, toggleHiddenAsist, toggleHiddenTime } from '../../../redux/Planillero/planilleroSlice';
+import { usePlanilla } from '../../../hooks/usePlanilla';
+import { useWebSocket } from '../../../Auth/WebSocketContext';
 
 const ActionAsisted = () => {
     const dispatch = useDispatch();
+    const socket = useWebSocket();
     const hiddenAsist = useSelector((state) => state.planillero.asist.hidden);
     const actionToEdit = useSelector((state) => state.planillero.actionEdit);
     const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
+    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
 
     //Enviar local team true o false al select para la filtracion
     const planillaData = useSelector((state) => state.planillero.planilla.localTeam)
@@ -21,6 +25,8 @@ const ActionAsisted = () => {
     const [enContraSeleccionado, setEnContraSeleccionado] = useState(null);
     const [asistenciaSeleccionada, setAsistenciaSeleccionada] = useState(null);
     const [selectedPlayer, setSelectedPlayer] = useState('');
+
+    const { bdFormaciones: formaciones } = usePlanilla(idPartido)
 
     const handlePenalChange = (event) => {
         if (event.target.checked) {
@@ -126,11 +132,16 @@ const ActionAsisted = () => {
                 <ActionConfirmedWrapper>
                     <ActionBackContainer>
                         <ActionBack onClick={handleBack}>
-                            <HiArrowLeft />
+                            <HiArrowLeft onClick={() => {
+                                dispatch(setDisabledActionEdit()); // Agregar aquí
+                            }}/>
                             <p>Volver</p>
                     </ActionBack>
                     <IconClose>
-                        <HiMiniXMark onClick={() => dispatch(toggleHiddenAsist())}/>
+                        <HiMiniXMark onClick={() => {
+                            dispatch(toggleHiddenAsist()) 
+                            dispatch(setDisabledActionEdit())
+                        }}/>
                     </IconClose>
                     </ActionBackContainer>
 
@@ -196,6 +207,7 @@ const ActionAsisted = () => {
                                 idTeam={planillaData}
                                 currentActionPlayerId={playerActionId}
                                 onSelect={(playerId) => setSelectedPlayer(playerId)}
+                                formaciones={formaciones}
                             />
                         )}
                     </ActionsContainer>
