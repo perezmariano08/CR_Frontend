@@ -11,21 +11,32 @@ export const WebSocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        // Initialize the socket with reconnection options
         const newSocket = io(URL, {
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
         });
-
+    
+        newSocket.on('connect', () => {
+            console.log('WebSocket connected:', newSocket.id);
+        });
+    
+        newSocket.on('connect_error', (error) => {
+            console.error('WebSocket connection error:', error);
+        });
+    
+        newSocket.on('disconnect', (reason) => {
+            console.log('WebSocket disconnected:', reason);
+        });
+    
         setSocket(newSocket);
-
+    
         return () => {
             newSocket.disconnect(); // Disconnect when the component unmounts
         };
     }, []);
-
+    
     return (
         <WebSocketContext.Provider value={socket}>
             {children}
