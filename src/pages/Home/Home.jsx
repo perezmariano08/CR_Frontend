@@ -27,7 +27,7 @@ const Home = () => {
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
     const id_zona = miEquipo?.id_zona;
 
-    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual } = useMatchesUser(idMyTeam);
+    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido } = useMatchesUser(idMyTeam);
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
@@ -59,6 +59,17 @@ const Home = () => {
     const sancionesActivas = (sanciones) => {
         const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
         setSanciones(sancionesFiltradas);
+    }
+
+    let tituloPartido = '';
+    if (partidoEnDirecto) {
+        tituloPartido = 'En directo';
+    } else if (proximoPartido) {
+        tituloPartido = 'Próximo Partido';
+    } else if (ultimoPartido) {
+        tituloPartido = 'Último Partido';
+    } else {
+        tituloPartido = 'No hay partidos programados';
     }
 
     return (
@@ -111,7 +122,7 @@ const Home = () => {
                     </HomeLeftWrapper>
                     <HomeMediumWrapper>
                         <Section>
-                            <h2>{proximoPartido ? 'Próximo partido' : 'Último partido'}</h2>
+                            <h2>{tituloPartido}</h2>
                             {partidoAMostrar ? (
                                 <CardPartido
                                     rol={userRole}

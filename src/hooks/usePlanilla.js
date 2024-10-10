@@ -141,8 +141,7 @@ export const usePlanilla = (partidoId) => {
         };
     
         const handleNewIncidence = async (incidence) => {
-            console.log(incidence);
-            
+
             if (!incidence || typeof incidence !== 'object' || !incidence.id_partido) {
                 console.warn('Incidencia vacía o undefined recibida.');
                 return;
@@ -230,29 +229,42 @@ export const usePlanilla = (partidoId) => {
     };
 
     const handleStartMatch = async () => {
+        const loadingToast = toast.loading('Actualizando el estado del partido...');
+    
         const resultadoVerificacion = await verificarJugadores(partidoId);
-
+    
         if (resultadoVerificacion.sePuedeComenzar) {
             if (partido.estado === 'C') {
                 dispatch(toggleHiddenModal());
                 dispatch(setCurrentStateModal('matchFinish'));
+                // Cerrar loader
+                toast.dismiss(loadingToast);
             } else {
-                // Start the match
+                // Comenzar el partido
                 axios.post(`${URL}/user/actualizar-estado-partido`, { idPartido: partidoId })
                     .then(response => {
-                        toast.success('Estado del partido actualizado con éxito');
+                        // Estado actualizado correctamente
+                        toast.success('Estado del partido actualizado con éxito', {
+                            id: loadingToast // Cierra el loader y muestra el mensaje de éxito
+                        });
                         socket.emit('estadoPartidoActualizado', { idPartido: partidoId, nuevoEstado: response.data.nuevoEstado });
                     })
                     .catch(error => {
                         console.error('Error al actualizar el estado del partido:', error);
-                        toast.error('Error al actualizar el estado del partido');
+                        // Mostrar mensaje de error y cerrar loader
+                        toast.error('Error al actualizar el estado del partido', {
+                            id: loadingToast // Cierra el loader y muestra el error
+                        });
                     });
             }
         } else {
-            toast.error('Debe haber un mínimo de 5 jugadores por equipo registrados para comenzar');
+            // Mostrar mensaje de error de verificación y cerrar loader
+            toast.error('Debe haber un mínimo de 5 jugadores por equipo registrados para comenzar', {
+                id: loadingToast // Cierra el loader
+            });
         }
     };
-
+    
     const suspenderPartido = () => {        
         dispatch(toggleHiddenModalSuspender());
         dispatch(setCurrentStateModal('suspenderPartido'));
@@ -275,8 +287,7 @@ export const usePlanilla = (partidoId) => {
     useEffect(() => {
         const handleJugadorInsertado = async (data) => {
             const idPartido = data;
-            console.log(matchCorrecto);
-            
+
             const destacados = await traerJugadoresDestacados(matchCorrecto.id_categoria, matchCorrecto.jornada);
 
             const jugadoresFiltrados = destacados.filter((j) => j.id_partido == idPartido);

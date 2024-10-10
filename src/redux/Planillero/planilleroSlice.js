@@ -18,7 +18,8 @@ const initialState = {
     playerSelected: null,
     actionPlayer: null,
     playerName: null,
-    actions: []
+    actions: [],
+    descripcionPartido: '',
   },
   planillaTime: {
     hidden: true,
@@ -75,6 +76,9 @@ const planilleroSlice = createSlice({
   reducers: {
     setTipoExpulsion: (state , action) => {
       state.expulsadoData.tipo = action.payload
+    },
+    setDescripcionPartido(state, action) {
+      state.descripcionPartido = action.payload;
     },
     resetAssist: (state) => {
       state.asist.dataGol = {
@@ -305,7 +309,8 @@ export const {
   resetAssist,
   handleMvpSlice,
   setPenales,
-  toggleHiddenModalSuspender
+  toggleHiddenModalSuspender,
+  setDescripcionPartido
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;

@@ -14,7 +14,7 @@ import {
     setEnabledStateInfoPlayerEvent,
     handleBestPlayerOfTheMatch
 } from '../../redux/Planillero/planilleroSlice';
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster, toast, LoaderIcon } from 'react-hot-toast';
 import { IoIosStarOutline } from "react-icons/io";
 import { IoIosStar } from "react-icons/io";
 import { URLImages } from '../../utils/utils';
@@ -119,11 +119,13 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
     // Escuchar los eventos de asignación y eliminación de dorsal
     useEffect(() => {
         const handleDorsalAsignado = ({ idJugador, dorsal }) => {
+            setLoading(true);
             setJugadoresPartido((prevState) => 
                 prevState.map((player) => 
                     player.id_jugador === idJugador ? { ...player, dorsal } : player
                 )
             );
+            setLoading(false);
         };
     
         const handleDorsalEliminado = ({ idJugador }) => {
@@ -360,7 +362,7 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
                                             }
                                         }}
                                     >
-                                        {player.dorsal || ''}
+                                        {loading ? <LoaderIcon/> : player.dorsal || ''}
                                     </td>
                                     <td className='text dni'>{player.dni}</td>
                                     <td className='text nombre'>{player.nombre_jugador}</td>

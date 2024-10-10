@@ -22,7 +22,7 @@ import { GiSoccerKick } from "react-icons/gi";
 import ModalSuspenderPartido from '../../../components/Stats/Incidents/ModalSuspenderPartido.jsx';
 import Select from '../../../components/Select/Select.jsx';
 import { useDispatch } from 'react-redux';
-import { handleMvpSlice } from '../../../redux/Planillero/planilleroSlice.js';
+import { handleMvpSlice, setDescripcionPartido } from '../../../redux/Planillero/planilleroSlice.js';
 import PenaltyOption from '../../../components/PenaltyOption/PenaltyOption.jsx';
 import { FaCloudArrowUp } from "react-icons/fa6";
 import { ImCross } from "react-icons/im";
@@ -34,8 +34,12 @@ import { insertarMvp } from '../../../utils/dataFetchers.js';
 const Planilla = () => {
     const dispatch = useDispatch();
     const socket = useWebSocket();
+
+    // const descripcionRedux = useSelector((state) => state.planillero.planilla.descripcionPartido);
+
     const [mvpSelected, setMvpSelected] = useState(0);
     const [jugadoresDestacadosLocal, setJugadoresDestacadosLocal] = useState([]); // Nuevo estado local para jugadores destacados
+
     const searchParams = new URLSearchParams(window.location.search);
     const partidoId = parseInt(searchParams.get('id'));
 
@@ -62,9 +66,10 @@ const Planilla = () => {
         }
     }, [jugadoresDestacados]);
 
-    // console.log(jugadoresDestacadosLocal);
-    
-    
+    const handleChangeDescripcion = (e) => {
+        dispatch(setDescripcionPartido(e.target.value));
+    };
+
     const handleMvp = async (e) => {
         if (estadoPartido !== 'T') {
             return toast.error('El partido debe terminar para seleccionar un MVP');

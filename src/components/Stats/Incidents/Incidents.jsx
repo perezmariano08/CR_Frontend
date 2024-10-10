@@ -104,11 +104,19 @@ const Incidents = ({ formaciones, partidoId }) => {
                 )}
                 <h3>{action.minuto}'</h3>
                 {renderActionIcon(action)}
-                <h4>{action.nombre} {action.apellido}</h4>
+                <h4>
+                  {action.nombre} {action.apellido} 
+                  {action.tipo === 'Gol' && action.en_contra === 'S' && ' (e.c)'}
+                  {action.tipo === 'Gol' && action.penal === 'S' && ' (p)'}
+                </h4>
               </>
             ) : (
               <>
-                <h4>{action.nombre} {action.apellido}</h4>
+                  <h4>
+                    {action.nombre} {action.apellido} 
+                    {action.tipo === 'Gol' && action.en_contra === 'S' && ' (e.c)'}
+                    {action.tipo === 'Gol' && action.penal === 'S' && ' (p)'}
+                  </h4>
                 {renderActionIcon(action)}
                 <h3>{action.minuto}'</h3>
                 {partido.estado !== 'F' && userRole !== null && (

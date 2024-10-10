@@ -13,8 +13,6 @@ const CardFinalPartido = ({ idPartido }) => {
 
     const { nombresEquipos, escudosEquipos } = useEquipos();
 
-    // console.log(bdIncidencias);
-
     const procesarGoles = (incidencias) => {
         if (!incidencias || !partido) return { local: [], visita: [] };
     
@@ -32,8 +30,8 @@ const CardFinalPartido = ({ idPartido }) => {
                     id_jugador: incidencia.id_jugador,
                     nombre: incidencia.nombre,
                     apellido: incidencia.apellido,
-                    penal: incidencia.penal === 'S',
-                    enContra: incidencia.en_contra === 'S'
+                    penal: incidencia.penal === 'S' || incidencia.penal === 'si',
+                    enContra: incidencia.en_contra === 'S' || incidencia.en_contra === 'si'
                 };
     
                 if (incidencia.id_equipo === partido.id_equipoLocal) {

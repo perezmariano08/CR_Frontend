@@ -75,21 +75,28 @@ const useMatchesUser = (idEquipo) => {
     )
     .sort((a, b) => new Date(a.dia) - new Date(b.dia))[0]; // Ordenar por fecha más cercana
 
-const ultimoPartido = !proximoPartido
-    ? partidos
-        .filter(
-            (partido) => 
-                (partido.estado === 'F' || partido.estado === 'T') && // Estado de "Finalizado" o "Terminado"
-                (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
-        )
-        .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0] // Ordenar por fecha más reciente
-    : null;
+const ultimoPartido = partidos
+    .filter(
+        (partido) => 
+            (partido.estado === 'F' || partido.estado === 'T') && // Estado de "Finalizado" o "Terminado"
+            (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
+    )
+    .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0]; // Ordenar por fecha más reciente
 
-    const partidoAMostrar = proximoPartido || ultimoPartido;
+const partidoEnDirecto = partidos
+    .filter(
+        (partido) => 
+            partido.estado === 'C' && // Estado de "En directo"
+            (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
+    )
+    .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0]; // Ordenar por fecha más reciente
 
-    const partidosFecha = partidos.filter(partido => partido.id_zona == miEquipo?.id_zona && partido.jornada == fechaActual)
+const partidoAMostrar = partidoEnDirecto || proximoPartido || ultimoPartido || partidos[0] || null;
 
-    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual };
+        
+const partidosFecha = partidos.filter(partido => partido.id_zona == miEquipo?.id_zona && partido.jornada == fechaActual)
+
+    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido };
 }
 
 export default useMatchesUser;
