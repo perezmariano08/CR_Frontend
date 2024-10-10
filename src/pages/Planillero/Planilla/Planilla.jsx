@@ -62,7 +62,7 @@ const Planilla = () => {
     
     useEffect(() => {
         if (jugadoresDestacados?.length > 0 && JSON.stringify(jugadoresDestacados) !== JSON.stringify(jugadoresDestacadosLocal)) {
-            jugadoresDestacadosFiltrados = jugadoresDestacados.filter((j) => j.id_partido === partidoId)
+            const jugadoresDestacadosFiltrados = jugadoresDestacados.filter((j) => j.id_partido === partidoId)
             setJugadoresDestacadosLocal(jugadoresDestacadosFiltrados);
         }
     }, [jugadoresDestacados]);
