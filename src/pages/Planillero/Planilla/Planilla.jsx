@@ -39,10 +39,10 @@ const Planilla = () => {
 
     const [mvpSelected, setMvpSelected] = useState(0);
     const [jugadoresDestacadosLocal, setJugadoresDestacadosLocal] = useState([]); // Nuevo estado local para jugadores destacados
-
+    
     const searchParams = new URLSearchParams(window.location.search);
     const partidoId = parseInt(searchParams.get('id'));
-
+    
     const {
         partido,
         matchCorrecto,
@@ -59,13 +59,14 @@ const Planilla = () => {
         jugadoresDestacados,
         estadoPartido
     } = usePlanilla(partidoId);
-
+    
     useEffect(() => {
         if (jugadoresDestacados?.length > 0 && JSON.stringify(jugadoresDestacados) !== JSON.stringify(jugadoresDestacadosLocal)) {
-            setJugadoresDestacadosLocal(jugadoresDestacados);
+            jugadoresDestacadosFiltrados = jugadoresDestacados.filter((j) => j.id_partido === partidoId)
+            setJugadoresDestacadosLocal(jugadoresDestacadosFiltrados);
         }
     }, [jugadoresDestacados]);
-
+    
     const handleChangeDescripcion = (e) => {
         dispatch(setDescripcionPartido(e.target.value));
     };

@@ -346,7 +346,7 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
                 </thead>
                 <tbody>
                 {jugadoresPartido && sortedJugadoresPartido
-                    .filter(player => player.id_equipo === (activeButton === 'local' ? partido.id_equipoLocal : partido.id_equipoVisita))
+                    ?.filter(player => player.id_equipo === (activeButton === 'local' ? partido.id_equipoLocal : partido.id_equipoVisita))
                     .map(player => {
                         return (
                             <tr 

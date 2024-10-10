@@ -83,8 +83,7 @@ const ActionConfirmed = () => {
                 detail: accionDetail,
                 tipoExpulsion: actionPlayer === 'Roja' ? sanctionType : null
             };
-            console.log(actionData);
-            
+
         try {
             setLoading(true); // Iniciar loading
             const loadingToastId = toast.loading('Procesando...'); // Agregar el toast loading
