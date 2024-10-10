@@ -112,7 +112,7 @@ export const TableWrapper = styled(DataTable)`
     }
 
     .team {
-        text-align: left;
+        text-align: start;
         display: flex;
         align-items: center;
         gap: 5px;
@@ -190,8 +190,11 @@ export const TableFootItem = styled.div `
     }
 `
 
+
+// Posiciones
+
 export const TablaPosiciones = styled(DataTable)`
-    padding: 10px 0;
+    padding: 10px 10px 10px 0;
     .p-column-header-content {
         display: flex;
         justify-content: center;
@@ -214,20 +217,71 @@ export const TablaPosiciones = styled(DataTable)`
         }
     }
 
+    tr:hover {
+        td {
+            background-color: var(--gray-300);
+        }
+
+        .team {
+            text-decoration: underline;
+        }
+    }
+
     td, th {
         height: 36px;
         text-align: center;
         background-color: var(--gray-400);
         border: none;
-        
+
+        @media (max-width: 768px) {
+            font-size: 0.9em;
+        }
     }
 
     th {
         color: var(--gray-200) !important;
     }
 
+
     tr th:nth-child(2) .p-column-header-content  {
-        justify-content: start ;
+        justify-content: start;
+    }
+
+    // Estadisticas puntos
+    tr th.p-sortable-column:nth-child(1){
+        width: 50px;
+        @media (max-width: 768px) {
+            width: 40px;
+        }
+
+        .p-column-header-content  {
+            width: 100%;
+        }
+    }
+
+    // Estadisticas puntos
+    tr th.p-sortable-column:nth-child(3), 
+    tr th.p-sortable-column:nth-child(4), 
+    tr th.p-sortable-column:nth-child(5), 
+    tr th.p-sortable-column:nth-child(6), 
+    tr th.p-sortable-column:nth-child(7), 
+    tr th.p-sortable-column:nth-child(8),
+    tr th.p-sortable-column:nth-child(9),
+    tr th.p-sortable-column:nth-child(10) {
+        width: 50px;
+
+        @media (max-width: 768px) {
+            width: 30px;
+        }
+
+        .p-column-header-content  {
+            width: 100%;
+        }
+    }
+
+    // Estadisticas puntos
+    tr td:nth-child(3) {
+        font-weight: 700;
     }
 
     td .team {
@@ -239,6 +293,10 @@ export const TablaPosiciones = styled(DataTable)`
             img {
             height: 15px;
         }
+
+        &:hover {
+            color: var(--gray-100);
+        }
     }
 
     .pos {
@@ -247,6 +305,7 @@ export const TablaPosiciones = styled(DataTable)`
         display: flex;
         align-items: center;
         justify-content: center;
+        /* padding-left: 5px; */
         span {
             position: absolute;
             width: 2px;
@@ -277,7 +336,6 @@ export const TablaPosiciones = styled(DataTable)`
         }
     }
 `
-
 
 export const EstadisticaTabla = styled.div`
     border: 1px solid red;

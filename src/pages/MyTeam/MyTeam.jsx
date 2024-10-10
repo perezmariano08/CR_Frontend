@@ -178,7 +178,12 @@ const MyTeam = () => {
                         
                     <Section>
                         <h2>Posiciones</h2>
-                        <TablePosiciones data={posiciones} zona={zonaFiltrada} dataColumns={dataPosicionesTemporadaColumns}/>
+                        <TablePosiciones 
+                            data={posiciones} 
+                            zona={zonaFiltrada} 
+                            id_categoria={1}
+                            dataColumns={dataPosicionesTemporadaColumns}
+                        />
                     </Section>
 
                     <Section>
