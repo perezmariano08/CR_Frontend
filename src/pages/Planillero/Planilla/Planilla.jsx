@@ -21,7 +21,7 @@ import { usePlanilla } from '../../../hooks/usePlanilla.js';
 import { GiSoccerKick } from "react-icons/gi";
 import ModalSuspenderPartido from '../../../components/Stats/Incidents/ModalSuspenderPartido.jsx';
 import Select from '../../../components/Select/Select.jsx';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { handleMvpSlice, setDescripcionPartido } from '../../../redux/Planillero/planilleroSlice.js';
 import PenaltyOption from '../../../components/PenaltyOption/PenaltyOption.jsx';
 import { FaCloudArrowUp } from "react-icons/fa6";
@@ -35,11 +35,12 @@ const Planilla = () => {
     const dispatch = useDispatch();
     const socket = useWebSocket();
 
-    // const descripcionRedux = useSelector((state) => state.planillero.planilla.descripcionPartido);
+    const descripcionRedux = useSelector((state) => state.planillero.planilla.descripcionPartido);
 
     const [mvpSelected, setMvpSelected] = useState(0);
     const [jugadoresDestacadosLocal, setJugadoresDestacadosLocal] = useState([]); // Nuevo estado local para jugadores destacados
-    
+    const jugadoresDestacados = useSelector((state) => state.planillero.jugadoresDestacados);
+
     const searchParams = new URLSearchParams(window.location.search);
     const partidoId = parseInt(searchParams.get('id'));
     
@@ -56,16 +57,8 @@ const Planilla = () => {
         handleToastStartMatch,
         formacionesConNombreApellido,
         suspenderPartido,
-        jugadoresDestacados,
         estadoPartido
     } = usePlanilla(partidoId);
-    
-    useEffect(() => {
-        if (jugadoresDestacados?.length > 0 && JSON.stringify(jugadoresDestacados) !== JSON.stringify(jugadoresDestacadosLocal)) {
-            const jugadoresDestacadosFiltrados = jugadoresDestacados.filter((j) => j.id_partido === partidoId)
-            setJugadoresDestacadosLocal(jugadoresDestacadosFiltrados);
-        }
-    }, [jugadoresDestacados]);
     
     const handleChangeDescripcion = (e) => {
         dispatch(setDescripcionPartido(e.target.value));
@@ -73,7 +66,7 @@ const Planilla = () => {
 
     const handleMvp = async (e) => {
         if (estadoPartido !== 'T') {
-            return toast.error('El partido debe terminar para seleccionar un MVP');
+            return toast.error('Finaliza el partido para seleccionar un MVP');
         }
     
         const selectedValue = e.target.value;
@@ -145,7 +138,7 @@ const Planilla = () => {
                                     <Select
                                         placeholder={'Seleccione un jugador'}
                                         icon={<GiSoccerKick className='icon-select' />}
-                                        data={jugadoresDestacadosLocal}
+                                        data={jugadoresDestacados}
                                         onChange={handleMvp}
                                         id_="id_jugador"
                                         column="nombre_completo"
@@ -163,8 +156,8 @@ const Planilla = () => {
                                         name="description" 
                                         placeholder="Escriba su descripcion aqui..." 
                                         type="textarea" 
-                                        value={descripcion} 
-                                        onChange={handleChange} 
+                                        value={descripcionRedux} 
+                                        onChange={handleChangeDescripcion} 
                                     />
                                 </InputDescContainer>
                             </>

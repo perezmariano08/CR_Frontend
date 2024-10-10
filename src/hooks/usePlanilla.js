@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { getFormaciones, getIndicencias, traerJugadoresDestacados, verificarJugadores } from '../utils/dataFetchers.js';
-import { setCurrentStateModal, setDescOfTheMatch, toggleHiddenModal, toggleHiddenModalSuspender, toggleIdMatch } from '../redux/Planillero/planilleroSlice.js';
+import { setCurrentStateModal, setDescOfTheMatch, setJugadoresDestacados, toggleHiddenModal, toggleHiddenModalSuspender, toggleIdMatch } from '../redux/Planillero/planilleroSlice.js';
 import { fetchPartidos } from '../redux/ServicesApi/partidosSlice.js';
 import { alignmentTeamToFinish } from '../pages/Planillero/Planilla/helpers.js';
 import { toggleStateMatch } from '../redux/Matches/matchesSlice.js';
@@ -285,44 +285,49 @@ export const usePlanilla = (partidoId) => {
     };
 
     useEffect(() => {
-        const handleJugadorInsertado = async (data) => {
-            const idPartido = data;
-
-            const destacados = await traerJugadoresDestacados(matchCorrecto.id_categoria, matchCorrecto.jornada);
-
-            const jugadoresFiltrados = destacados.filter((j) => j.id_partido == idPartido);
-
-            setJugadoresDestacadosBd((prevDestacados = []) => {
-                const jugadoresActualizados = prevDestacados.filter(j => 
-                    !jugadoresFiltrados.some(n => n.id_jugador === j.id_jugador)
-                );
+        const cargarJugadoresDestacados = async (idPartido) => {
+            try {
+                const destacados = await traerJugadoresDestacados(matchCorrecto.id_categoria, matchCorrecto.jornada);
+                const jugadoresFiltrados = destacados
+                    .filter(j => j.id_partido === idPartido)
+                    .map(j => ({
+                        ...j,
+                        nombre_completo: `${j.nombre} ${j.apellido}`, // Agregar nombre_completo
+                    }));
     
-                const nuevoEstado = [...jugadoresActualizados, ...jugadoresFiltrados];
+                // Aquí usas dispatch para actualizar el slice de Redux
+                dispatch(setJugadoresDestacados(jugadoresFiltrados));
     
-                if (nuevoEstado.length !== prevDestacados.length || 
-                    !nuevoEstado.every((j, index) => j.id_jugador === prevDestacados[index]?.id_jugador)) {
-                    return nuevoEstado;
-                }
-    
-                return prevDestacados; // Retorna el estado anterior si no hay cambios
-            });
+            } catch (error) {
+                console.error('Error al cargar jugadores destacados:', error);
+            }
         };
     
-        socket.on('jugadoresDestacadosActualizados', handleJugadorInsertado);
+        // Carga inicial de jugadores
+        if (matchCorrecto) {
+            cargarJugadoresDestacados(matchCorrecto.id_partido);
+        }
+    
+        const handleJugadorInsertado = (idPartido) => {
+            if (matchCorrecto?.id_partido === idPartido) {
+                cargarJugadoresDestacados(idPartido); // Reutilizamos la misma función
+            }
+        };
+    
+        // Escuchar eventos de socket solo si matchCorrecto está disponible
+        if (socket && matchCorrecto) {
+            socket.on('jugadoresDestacadosActualizados', handleJugadorInsertado);
+        }
     
         return () => {
-            socket.off('jugadoresDestacadosActualizados', handleJugadorInsertado);
+            if (socket) {
+                socket.off('jugadoresDestacadosActualizados', handleJugadorInsertado);
+            }
         };
-    }, [socket, partido]);
-    
+    }, [matchCorrecto, socket, dispatch]);
     
     const formacionesConNombreApellido = partido && bdFormaciones ? alignmentTeamToFinish(partido, bdFormaciones) : null;
     
-    const jugadoresDestacados = jugadoresDescatadosBd?.map((j) => ({
-        ...j,
-        nombre_completo: `${j.nombre} ${j.apellido}`
-    }));
-        
     return {
         partido,
         matchCorrecto,
@@ -336,7 +341,6 @@ export const usePlanilla = (partidoId) => {
         pushInfoMatch,
         handleToastStartMatch,
         formacionesConNombreApellido,
-        jugadoresDestacados,
         setJugadoresDestacadosBd,
         suspenderPartido,
         estadoPartido

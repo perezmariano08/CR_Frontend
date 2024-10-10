@@ -161,7 +161,7 @@ const Login = () => {
                             </>
                         )}
                     </ButtonLogin>
-                    <SolicitarCuentaContainer>Solo para personal administrativo</SolicitarCuentaContainer>
+                    <SolicitarCuentaContainer>Solo personal administrativo</SolicitarCuentaContainer>
                     {/* <SolicitarCuentaContainer> <NavLink to={'/create-account'}>Solicitar cuenta</NavLink> <span>* Solo para personal administrativo *</span ></SolicitarCuentaContainer> */}
                 </LoginDataContainer>
                 <Toaster/>

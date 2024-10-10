@@ -100,12 +100,12 @@ const useJugadorEventual = () => {
     
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
-            const jugadoresEquipo = bdFormaciones.filter((j) => j.id_equipo === equipoCorrecto)
+            const jugadoresEquipo = Array.isArray(bdFormaciones) ? bdFormaciones.filter((j) => j.id_equipo === equipoCorrecto) : [];
             const eventualPlayersCounts = jugadoresEquipo.filter(player => player.eventual === 'S').length;
             setMaxQuantityPlayers(eventualPlayersCounts < 5);
         }
     };
-
+    
     const verificarJugador = (dni) => {
 
         // Verificar si el DNI ya existe en jugadores regulares (no eventuales) del equipo actual
