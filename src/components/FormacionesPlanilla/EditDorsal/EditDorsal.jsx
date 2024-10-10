@@ -66,13 +66,13 @@ const EditDorsal = ({ formaciones, setBdFormaciones }) => {
             } else {
                 try {
                     // Actualizar localmente las formaciones inmediatamente
-                    setBdFormaciones(prevFormaciones =>
-                        prevFormaciones.map(player =>
-                            player.id_jugador === playerSelected
-                                ? { ...player, dorsal: dorsalValue }
-                                : player
-                        )
-                    );
+                    // setBdFormaciones(prevFormaciones =>
+                    //     prevFormaciones.map(player =>
+                    //         player.id_jugador === playerSelected
+                    //             ? { ...player, dorsal: dorsalValue }
+                    //             : player
+                    //     )
+                    // );
     
                     setLoading(true); // Activar el loading
                     const loadingToastId = toast.loading('Procesando...'); // Mostrar el loading toast

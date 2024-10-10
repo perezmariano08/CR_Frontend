@@ -21,7 +21,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
 
     //SACAR
     const equipoBodyTemplate = (rowData, field) => (
-        <div className="team" style={{minWidth: '140px', cursor: 'pointer'}} 
+        <div className="team" style={{minWidth: '140px', cursor: 'pointer', height: '100%'}} 
             onClick={() => verPaginaEquipo(rowData.id_equipo)}
         >
             <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.equipo}/>
@@ -132,6 +132,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 value={data}
                 emptyMessage="No hay datos disponibles"
                 rowClassName={rowClassName}
+                removableSort
             >
                 {dataColumns.map((col) => (
                     <Column
@@ -139,7 +140,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                         field={col.field}
                         header={col.header}
                         sortable
-                        style={{ width: 'auto' }}
+                        // style={{ width: 'auto' }}
                         body={col.field === 'pos'
                             ? posicionTemplate
                             : col.field === 'equipo'

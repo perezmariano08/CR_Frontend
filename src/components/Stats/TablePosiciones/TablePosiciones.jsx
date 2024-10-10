@@ -20,18 +20,6 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
         return <StatsNull>No hay datos disponibles.</StatsNull>;
     }
 
-    const body = (rowData) => {
-        if (rowData.pos === 1) {
-            return <div className="pos green">{rowData.pos}</div>;
-        } else if (rowData.pos > 1 && rowData.pos < 4) {
-            return <div className="pos orange">{rowData.pos}</div>;
-        } else if (rowData.pos > 3 && rowData.pos < 7) {
-            return <div className="pos red">{rowData.pos}</div>;
-        } else {
-            return <div className="pos">{rowData.pos}</div>;
-        }
-    };
-
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
         return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';

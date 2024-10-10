@@ -67,18 +67,28 @@ const initialState = {
   penales: {
     penal_local: null,
     penal_visita: null
-  }
+  },
+  jugadoresDestacados: [],
 };
 
 const planilleroSlice = createSlice({
   name: 'planillero',
   initialState,
   reducers: {
+      setJugadoresDestacados: (state, action) => {
+        state.jugadoresDestacados = action.payload;
+    },
+    agregarJugadorDestacadoRedux: (state, action) => {
+        state.jugadoresDestacados.push(action.payload);
+    },
+    eliminarJugadorDestacadoRedux: (state, action) => {
+        state.jugadoresDestacados = state.jugadoresDestacados.filter(j => j.id_jugador !== action.payload);
+    },
     setTipoExpulsion: (state , action) => {
       state.expulsadoData.tipo = action.payload
     },
     setDescripcionPartido(state, action) {
-      state.descripcionPartido = action.payload;
+      state.planilla.descripcionPartido = action.payload;
     },
     resetAssist: (state) => {
       state.asist.dataGol = {
@@ -310,7 +320,10 @@ export const {
   handleMvpSlice,
   setPenales,
   toggleHiddenModalSuspender,
-  setDescripcionPartido
+  setDescripcionPartido,
+  setJugadoresDestacados,
+  agregarJugadorDestacadoRedux,
+  eliminarJugadorDestacadoRedux,
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;
