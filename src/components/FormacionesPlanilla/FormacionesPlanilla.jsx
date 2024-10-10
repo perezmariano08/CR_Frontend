@@ -12,7 +12,9 @@ import {
     setInfoDelete,
     setInfoPlayerEvent,
     setEnabledStateInfoPlayerEvent,
-    handleBestPlayerOfTheMatch
+    handleBestPlayerOfTheMatch,
+    eliminarJugadorDestacadoRedux,
+    agregarJugadorDestacadoRedux
 } from '../../redux/Planillero/planilleroSlice';
 import { Toaster, toast, LoaderIcon } from 'react-hot-toast';
 import { IoIosStarOutline } from "react-icons/io";
@@ -46,8 +48,6 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
     const matchCorrecto = matchState.find((match) => match.ID === idPartido);
     const currentTeam = activeButton === 'local' ? matchCorrecto.Local : matchCorrecto.Visitante;
     
-    const { setJugadoresDestacadosBd } = usePlanilla(idPartido)
-
     //custom hook
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
@@ -58,10 +58,13 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
             if (partido) {
                 try {
                     const data = await traerPlantelesPartido(idPartido);
-                    const jugadoresConFormacion = data.map(player => ({
-                        ...player,
-                        dorsal: formacionesPartido?.find(f => f.id_jugador === player.id_jugador)?.dorsal || '',
-                    }));
+                    const jugadoresConFormacion = data.map(player => {
+                        const formacionJugador = formacionesPartido?.find(f => f.id_jugador === player.id_jugador);
+                        return {
+                            ...player,
+                            dorsal: formacionJugador?.dorsal || '', // Verifica si existe formacionJugador
+                        };
+                    });
                     setJugadoresPartido(jugadoresConFormacion);
                 } catch (error) {
                     console.error('Error en la petición:', error);
@@ -101,7 +104,6 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
             socket.off('jugadorDestacado', handlePlayerStarred);
         };
     }, [socket]);
-
 
     //Actualizar estado del partido
     useEffect(() => {
@@ -173,7 +175,6 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
         };
     }, [socket]);
     
-
     // Modificar el useEffect que trae los planteles
     useEffect(() => {
         traerPlantelesPartido(idPartido)
@@ -273,23 +274,32 @@ const FormacionesPlanilla = ({ idPartido, formacionesPartido }) => {
             toast.error('No puedes asignar MVP en este estado del partido');
             return;
         }
-
+    
         const alreadySelected = jugadoresDestacados.some(jugador => jugador.id_jugador === player.id_jugador);
-
+    
         try {
             if (alreadySelected) {
                 await eliminarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_jugador);
-                setJugadoresDestacados(prev => prev.filter(jugador => jugador.id_jugador !== player.id_jugador));
+                dispatch(eliminarJugadorDestacadoRedux(player.id_jugador));
+                setJugadoresDestacados(prev => prev.filter(jugador => jugador.id_jugador !== player.id_jugador)); // Actualiza el estado local
                 toast.success('Jugador destacado eliminado correctamente');
             } else {
                 await insertarJugadorDestacado(partido.id_categoria, partido.id_partido, player);
-                setJugadoresDestacados(prev => [...prev, player]);
+            
+                // Formatear el objeto player para que tenga la estructura esperada
+                const playerFormatted = {
+                    ...player,
+                    nombre_completo: player.nombre_jugador // Asegura que tenga nombre_completo
+                };
+        
+                dispatch(agregarJugadorDestacadoRedux(playerFormatted));
+                setJugadoresDestacados(prev => [...prev, playerFormatted]); // Agrega el jugador al estado local
                 toast.success('Jugador destacado insertado correctamente');
             }
-            setJugadoresDestacadosBd(jugadoresDestacados); // Actualizar el hook de estado
         } catch (error) {
             toast.error(error.message);
         }
+        
     };
     
     useEffect(() => {

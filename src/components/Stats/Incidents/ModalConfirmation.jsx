@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
-import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice } from '../../../redux/Planillero/planilleroSlice';
+import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido } from '../../../redux/Planillero/planilleroSlice';
 import { deleteActionToPlayer, deletePlayerDorsal, deleteTotalActionsToPlayer, toggleStateMatch } from '../../../redux/Matches/matchesSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import useBdPartido from './customHook/useBdPartido';
@@ -124,20 +124,12 @@ const ModalConfirmation = () => {
                     break;
                 case 'matchPush':
                     if (jugadorDestacado) {
-                        // await updateJugadores();
                         await updateMatch();
-                        // await insertFormaciones();
-                        // await insertRojas();
-                        // await insertGoles();
-                        // await insertAmarillas();
-                        // await insertAsistencias();
                         await updateSancionados();
-                        // await insertDreamTeam();
-
                         // Nueva llamada para actualizar el estado del partido
                         await actualizarEstadoPartido(idPartido); // <-- Aquí se agrega la nueva función
 
-                        // dispatch(toggleStateMatch(idPartido));
+                        dispatch(setDescripcionPartido(''));
                         dispatch(toggleHiddenModal());
                         dispatch(handleBestPlayerOfTheMatch(null));
                         dispatch(handleMvpSlice(null));
