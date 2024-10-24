@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import styled, { keyframes }  from 'styled-components';
-=======
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
->>>>>>> 80e5b1a3b3fe83f23cab0de595b52ac34d17d419
 
 export const HomeContainerStyled = styled.div`
     display: flex;
