@@ -27,7 +27,7 @@ export const dataPosicionesTemporadaColumns = [
 
 export const dataPosicionesTemporadaColumnsMinus = [
     {field: 'pos', header: "#"},
-    {field: 'nombre', header: "Equipo"},
+    {field: 'equipo', header: "Equipo"},
     {field: 'PTS', header: "PTS"},
     {field: 'PJ', header: "PJ"},
     {field: 'DIF', header: "DIF"}

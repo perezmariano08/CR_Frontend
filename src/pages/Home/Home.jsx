@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper } from './HomeStyles';
+import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
@@ -9,11 +9,14 @@ import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, da
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import { StatsNull } from '../Stats/StatsStyles.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
+import { fetchCategorias } from '../../redux/ServicesApi/categoriasSlice.js';
+import { fetchEdiciones } from '../../redux/ServicesApi/edicionesSlice.js';
 import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones.jsx';
 import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, MenuCategoriasTitulo } from '../../components/Content/ContentStyles.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
 import { URLImages } from '../../utils/utils.js';
+import TablaPosicionesRoutes from '../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -21,8 +24,16 @@ const Home = () => {
     const userRole = 3
     useEffect(() => {
         dispatch(fetchEquipos());
+        dispatch(fetchCategorias());
+        dispatch(fetchEdiciones());
     }, [dispatch]);
 
+    const categorias = useSelector((state) => state.categorias.data);
+    const ediciones = useSelector((state) => state.ediciones.data);
+    console.log(ediciones);
+    
+    const categoriasFiltradas = categorias.filter((c) => c.id_edicion === 1)
+    
     const equipos = useSelector((state) => state.equipos.data);
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
     const id_zona = miEquipo?.id_zona;
@@ -77,48 +88,44 @@ const Home = () => {
             <HomeContainerStyled>
                 <HomeWrapper>
                     <HomeLeftWrapper>
-                        <MenuCategoriasContainer>
-                        <MenuCategoriasTitulo>
-                            <img src={`${URLImages}/uploads/CR/logo-clausura-2024.png`}/>
-                            Clausura 2024
-                        </MenuCategoriasTitulo>
-                        <MenuCategoriasDivider>
-                            <span>CATEGORIA LIBRE</span>
-                            <div/>
-                        </MenuCategoriasDivider>
-                        <MenuCategoriasItem to={'/categoria/posiciones/1'}>
-                            Serie A
-                        </MenuCategoriasItem>
-                        <MenuCategoriasItem to={'/categoria/posiciones/2'}>
-                            Serie B
-                        </MenuCategoriasItem>
-                        <MenuCategoriasItem to={'/categoria/posiciones/3'}>
-                            Serie C
-                        </MenuCategoriasItem>
-                        <MenuCategoriasItem to={'/categoria/posiciones/4'}>
-                            Serie D
-                        </MenuCategoriasItem>
-                        <MenuCategoriasDivider>
-                            <span>CATEGORIA SUB 19</span>
-                            <div/>
-                        </MenuCategoriasDivider>
-                        <MenuCategoriasItem to={'/categoria/posiciones/5'}>
-                            Serie A
-                        </MenuCategoriasItem>
-                        <MenuCategoriasItem to={'/categoria/posiciones/6'}>
-                            Serie B
-                        </MenuCategoriasItem>
-                        <MenuCategoriasDivider>
-                            <span>FEMENINO</span>
-                            <div/>
-                        </MenuCategoriasDivider>
-                        <MenuCategoriasItem to={'/categoria/posiciones/7'}>
-                            Intermedias
-                        </MenuCategoriasItem>
-                        <MenuCategoriasItem to={'/categoria/posiciones/8'}>
-                            Principiantes
-                        </MenuCategoriasItem>
-                    </MenuCategoriasContainer>
+                        <CategoriasListaWrapper>
+                            <CategoriasListaTitulo>
+                                {
+                                    ediciones.filter((e) => e.id_edicion === 1).map((edicion) => {
+                                        return <p>{edicion.nombre} {edicion.temporada}</p>
+                                    })
+                                }
+                                <span>masculino</span>
+                            </CategoriasListaTitulo>
+                            <CategoriasItemsWrapper>
+                                {
+                                    categorias.filter((c) => c.id_edicion === 1).map((c) => {
+                                        return <CategoriasItem to={`/categoria/posiciones/${c.id_categoria}`}>
+                                            {c.nombre}
+                                        </CategoriasItem>
+                                    })
+                                }
+                            </CategoriasItemsWrapper>
+                        </CategoriasListaWrapper>
+                        <CategoriasListaWrapper>
+                            <CategoriasListaTitulo>
+                                {
+                                    ediciones.filter((e) => e.id_edicion === 2).map((edicion) => {
+                                        return <p>{edicion.nombre} {edicion.temporada}</p>
+                                    })
+                                }
+                                <span>femenino</span>
+                            </CategoriasListaTitulo>
+                            <CategoriasItemsWrapper>
+                                {
+                                    categorias.filter((c) => c.id_edicion === 2).map((c) => {
+                                        return <CategoriasItem to={`/categoria/posiciones/${c.id_categoria}`}>
+                                            {c.nombre}
+                                        </CategoriasItem>
+                                    })
+                                }
+                            </CategoriasItemsWrapper>
+                        </CategoriasListaWrapper>
                     </HomeLeftWrapper>
                     <HomeMediumWrapper>
                         <Section>
@@ -170,12 +177,19 @@ const Home = () => {
                     <HomeRightWrapper>
                         {posiciones && zonasFiltradas ? (
                             <Section>
-                                <h2>Posiciones</h2>
-                                <TablePosiciones
-                                    data={posiciones}
-                                    zona={zonasFiltradas}
-                                    dataColumns={dataPosicionesTemporadaColumnsMinus}
-                                />
+                                <CategoriasListaWrapper>
+                                    <CategoriasListaTitulo>
+                                        <p>Serie A - Libre</p>
+                                        <span>Liguilla</span>
+                                    </CategoriasListaTitulo>
+                                    <TablaPosicionesRoutes
+                                        data={posiciones}
+                                        id_categoria={2}
+                                        // zona={zonasFiltradas}
+                                        dataColumns={dataPosicionesTemporadaColumnsMinus}
+                                    />
+                                </CategoriasListaWrapper>
+                                
                             </Section>
                         ) : (
                             <SpinerContainer>
