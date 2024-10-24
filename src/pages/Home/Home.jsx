@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
-<<<<<<< HEAD
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive } from './HomeStyles';
-=======
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper } from './HomeStyles';
->>>>>>> 80e5b1a3b3fe83f23cab0de595b52ac34d17d419
+import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
@@ -20,12 +16,9 @@ import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, Men
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
 import { URLImages } from '../../utils/utils.js';
-<<<<<<< HEAD
 import DreamteamUser from '../User/Dreamteam/DreamteamUser.jsx';
 import { Carousel } from 'primereact/carousel';
-=======
 import TablaPosicionesRoutes from '../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
->>>>>>> 80e5b1a3b3fe83f23cab0de595b52ac34d17d419
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -39,7 +32,6 @@ const Home = () => {
 
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
-    console.log(ediciones);
     
     const categoriasFiltradas = categorias.filter((c) => c.id_edicion === 1)
     
@@ -205,7 +197,7 @@ const Home = () => {
                                 <TailSpin width='40' height='40' color='#2AD174' />
                             </SpinerContainer>
                         )}
-                        <DreamteamUser fecha={fechaActual} id_categoria={partidoAMostrar.id_categoria} zona={zonasFiltradas}/>
+                        <DreamteamUser fecha={fechaActual} id_categoria={partidoAMostrar?.id_categoria} zona={zonasFiltradas}/>
                     </HomeRightWrapper>
                 </HomeWrapper>
             </HomeContainerStyled>
