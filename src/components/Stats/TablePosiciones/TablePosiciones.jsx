@@ -70,28 +70,13 @@ const TablePosiciones = ({ data, zona, dataColumns }) => {
                         // col.field === 'pos'
                         // ? body
                         //: 
-                        col.field === 'nombre'
+                        col.field === 'equipo'
                         ? equipoBodyTemplate
                         : null
                     }
                 />
             ))}
             </TableWrapper>
-            {/* <TableTitleDivider/> */}
-            {/* <TableFoot>
-                <TableFootItem>
-                    <div className='one'></div>
-                    <h3>Copa Oro</h3>
-                </TableFootItem>
-                <TableFootItem>
-                    <div className='two'></div>
-                    <h3>Copa Plata</h3>
-                </TableFootItem>
-                <TableFootItem>
-                    <div className='three'></div>
-                    <h3>Copa Bronce</h3>
-                </TableFootItem>
-            </TableFoot> */}
         </TableContainerStyled>
     )
 }

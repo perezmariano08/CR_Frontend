@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes }  from "styled-components";
 
 export const CardPartidoWrapper = styled.div`
     background-color: var(--gray-400);
@@ -9,6 +9,8 @@ export const CardPartidoWrapper = styled.div`
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
+    position: relative;
+
 `
 export const CardPartidoTitles = styled.div`
     display: flex;
@@ -26,6 +28,30 @@ export const CardPartidoTitles = styled.div`
         font-size: 9px;
         font-weight: 300;
         color: var(--green)
+    }
+`
+
+const pulseAnimation = keyframes`
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+`;
+
+export const WatchFixtureContainer = styled.span`
+    position: absolute;
+    left: 20px;
+    top: 16px;
+    margin: 0;
+`
+
+export const WatchContainer = styled.span`
+    &i,svg {
+        font-size: 16px;
+        color: var(--green);
+        animation: ${pulseAnimation} 1s ease-in-out infinite;
     }
 `
 

@@ -19,13 +19,15 @@ import { useEquipos } from '../../../hooks/useEquipos';
 import { URLImages } from '../../../utils/utils';
 import { HiArrowLeft } from "react-icons/hi";
 import UseNavegador from './UseNavegador';
+import { MdOutlineWatchLater } from "react-icons/md";
+import { WatchContainer, WatchFixtureContainer } from '../../../components/Stats/CardPartido/CardPartidoStyles';
+import useMatchesUser from '../../../hooks/useMatchesUser';
 
 const UserCategoriasFixture = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id_page } = useParams();
     const id_categoria = parseInt(id_page);
-    const partidos = useSelector((state) => state.partidos.data);
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
@@ -34,6 +36,7 @@ const UserCategoriasFixture = () => {
 
     const { GoToCategorias } = UseNavegador();
 
+    const { partidos } = useMatchesUser()
 
     const [zonas, setZonas] = useState([]);
     const [jornadasDisponibles, setJornadasDisponibles] = useState([]);
@@ -57,7 +60,6 @@ const UserCategoriasFixture = () => {
 
     useEffect(() => {
         dispatch(fetchEquipos());
-        dispatch(fetchPartidos());
         dispatch(fetchCategorias());
     }, [dispatch]);
 
@@ -156,7 +158,7 @@ const UserCategoriasFixture = () => {
                                     <ContentUserSubMenuTitulo>
                                         <ContentMenuLink>
                                             <NavLink to={`/categoria/fixture/${id_categoria}`}>
-                                                Liguilla
+                                                Por jornada 
                                             </NavLink>
                                         </ContentMenuLink>
                                     </ContentUserSubMenuTitulo>
@@ -221,12 +223,22 @@ const UserCategoriasFixture = () => {
                                         ) : (
                                             partidosPorFecha[fecha].map((partido) => (
                                                 <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)} className={partido.estado === 'A' ? 'suspendido' : ''}>
+                                                    {
+                                                        partido.estado === 'C' && (
+                                                            <WatchFixtureContainer>
+                                                                <WatchContainer>
+                                                                    <MdOutlineWatchLater />
+                                                                </WatchContainer>
+                                                            </WatchFixtureContainer>
+                                                        )
+                                                    }
+
                                                     <JornadasFixturePartidoEquipo>
                                                         <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
                                                     </JornadasFixturePartidoEquipo>
-                                                    <JornadasFixtureResultado className={partido.estado === 'F' || partido.estado === 'S' ? '' : 'hora'}>
-                                                        {partido.estado === 'F' || partido.estado === 'S'
+                                                    <JornadasFixtureResultado className={partido.estado !== 'P' ? '' : 'hora'}>
+                                                        {partido.estado !== 'P' && partido.estado !== 'A'
                                                             ? `${partido.goles_local} - ${partido.goles_visita}`
                                                             : partido.estado === 'A'
                                                                 ? <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>

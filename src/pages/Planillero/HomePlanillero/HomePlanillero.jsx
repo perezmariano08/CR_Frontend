@@ -24,11 +24,11 @@ const HomePlanillero = () => {
     useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
     const partidosPendientes = partidos
-        .filter((partido) => partido.id_planillero === userId && partido.estado !== 'F')
+        .filter((partido) => partido.id_planillero === userId && partido.estado !== 'F' && partido.estado !== 'S')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosPlanillados = partidos
-        .filter((partido) => partido.id_planillero === userId && partido.estado === 'F')
+        .filter((partido) => partido.id_planillero === userId && partido.estado === 'F' || partido.estado === 'S')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosFiltrados = isPending ? partidosPendientes : partidosPlanillados;

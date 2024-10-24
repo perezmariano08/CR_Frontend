@@ -165,7 +165,14 @@ const Planilla = () => {
                     </>
                 )}
 
-                <ButtonContainer>
+        <ButtonContainer>
+            {estadoPartido === 'S' ? (
+                <ButtonMatch className='suspender'>
+                    <ImCross />
+                    Partido Suspendido
+                </ButtonMatch>
+            ) : (
+                <>
                     {estadoPartido === 'P' && (
                         <ButtonMatch
                             className='started'
@@ -200,7 +207,10 @@ const Planilla = () => {
                             Suspender Partido
                         </ButtonMatch>
                     )}
-                </ButtonContainer>
+                </>
+            )}
+        </ButtonContainer>
+        
             </MatchStatsWrapper>
 
             <ActionConfirmed />

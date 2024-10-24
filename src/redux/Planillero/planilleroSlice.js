@@ -65,8 +65,8 @@ const initialState = {
     descripcion: null,
   },
   penales: {
-    penal_local: null,
-    penal_visita: null
+    penal_local: 0,
+    penal_visita: 0
   },
   jugadoresDestacados: [],
 };

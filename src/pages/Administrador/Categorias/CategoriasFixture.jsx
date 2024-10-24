@@ -382,6 +382,12 @@ const actualizarDato = async () => {
                     {partido.estado === 'S' && (
                         <EstadoBodyTemplate $bg={"danger"}>SUSPENDIDO</EstadoBodyTemplate>
                     )}
+                    {partido.estado === 'C' && (
+                        <EstadoBodyTemplate $bg={"export"}>EN CURSO</EstadoBodyTemplate>
+                    )}
+                    {partido.estado === 'T' && (
+                        <EstadoBodyTemplate $bg={"yellow"}>FALTA SUBIR</EstadoBodyTemplate>
+                    )}
                 </>
             ),
             resultado: (

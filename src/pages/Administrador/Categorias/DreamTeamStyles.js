@@ -103,8 +103,8 @@ cursor: pointer;
 `;
 
 export const JugadorPlaceholder = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: var(--gray-300);
   display: flex;
@@ -203,3 +203,53 @@ export const JugadorEquipo = styled.span`
     font-size: 12px;
     color: var(--gray-100);
 `;
+
+export const InfoTop = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 10px;
+    gap: 17px;
+
+    h2 {
+        font-size: 25px;
+        font-weight: 600;
+    }
+
+    span {
+        color: var(--green);
+    }
+`
+export const ExplicativoContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    /* padding: 20px; */
+    background-color: var(--gray-400);
+`
+
+export const Explicativo = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding-top: 10px;
+
+    span {
+        background-color: var(--gray-100);
+        color: var(--gray-500);
+        font-weight: 900;
+        padding: 10px;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        &i,svg {
+            color: var(--red);
+        }
+    }
+
+`
+

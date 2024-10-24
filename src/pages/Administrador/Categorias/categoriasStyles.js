@@ -36,6 +36,19 @@ export const EquipoWrapper= styled.div`
     h1 {
         font-size: 30px;
     }
+
+    &i,svg {
+        color: var(--red);
+        font-size: 30px;
+    }
+`
+
+export const ApercibimientosContainer = styled.span`
+    padding: 5px 20px;
+    background-color: var(--gray-400);
+    border-radius: 10px;
+    font-weight: 600;
+    color: var(--red);
 `
 
 export const ResumenItemsContainer = styled.div`
@@ -47,7 +60,7 @@ export const ResumenItemWrapper = styled.div`
     display: flex;
     flex-direction: column;
     background-color: var(--gray-400);
-    width: 30%;
+    width: 50%;
     border-radius: 20px;
     overflow: hidden;
 `

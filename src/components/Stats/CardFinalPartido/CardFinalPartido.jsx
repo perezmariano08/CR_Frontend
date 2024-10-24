@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn } from "../CardPartido/CardPartidoStyles";
+import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn, WatchContainer } from "../CardPartido/CardPartidoStyles";
 import { HiLifebuoy } from "react-icons/hi2";
 import { useSelector } from 'react-redux';
 import { URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
-import { useWebSocket } from '../../../Auth/WebSocketContext';
+import { MdOutlineWatchLater } from "react-icons/md";
 import { usePlanilla } from '../../../hooks/usePlanilla';
 
 const CardFinalPartido = ({ idPartido }) => {
@@ -14,16 +14,22 @@ const CardFinalPartido = ({ idPartido }) => {
     const { nombresEquipos, escudosEquipos } = useEquipos();
 
     const procesarGoles = (incidencias) => {
-        if (!incidencias || !partido) return { local: [], visita: [] };
+        if (!partido) return { local: [], visita: [] };
+        
+        // Si el estado del partido es 'S', usar directamente los goles del partido
+        if (partido.estado === 'S') {
+            return {
+                local: Array(partido.goles_local).fill({ nombre: 'Gol' }), // Genera un arreglo con tantos elementos como goles locales
+                visita: Array(partido.goles_visita).fill({ nombre: 'Gol' }) // Genera un arreglo con tantos elementos como goles de visita
+            };
+        }
     
         const goles = {
             local: [],
             visita: []
         };
     
-        incidencias.forEach((incidencia) => {
-            // const incidenciaUnificada = unificarIncidencias(incidencia);
-    
+        incidencias?.forEach((incidencia) => {
             if (incidencia.tipo === 'Gol') {
                 const gol = {
                     minuto: incidencia.minuto,
@@ -55,10 +61,9 @@ const CardFinalPartido = ({ idPartido }) => {
     
         return goles;
     };
-
+    
     const golesNube = procesarGoles(bdIncidencias);
 
-    
     if (!partido) {
         return <div>Loading...</div>;
     }
@@ -75,6 +80,13 @@ const CardFinalPartido = ({ idPartido }) => {
                     <h4>{nombresEquipos(partido.id_equipoLocal)}</h4>
                 </CardPartidoTeam>
                 <CardPartidoInfo>
+                    {
+                        estadoPartido === 'C' && (
+                            <WatchContainer>
+                                <MdOutlineWatchLater />
+                            </WatchContainer>
+                        )
+                    }
                     <h4>{golesNube.local.length}-{golesNube.visita.length}</h4>
                     {estadoPartido === 'P' ? (
                         <span>Programado</span>

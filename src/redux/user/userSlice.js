@@ -24,12 +24,16 @@ const INITIAL_STATE = {
         counter: 0,
     },
     equipoSeleccionado: 1,
+    dreamTeamIsEmpty: true,
 };
 
 const userSlice = createSlice({
     name: "user",
     initialState: INITIAL_STATE,
     reducers: {
+        setIsDreamTeamEmpty : (state, action) => {
+            state.dreamTeamIsEmpty = action.payload;
+        },
         setNuevoEquipoSeleccionado: (state, action) => {
             state.equipoSeleccionado = action.payload;
         },
@@ -73,6 +77,6 @@ const userSlice = createSlice({
     },
 });
 
-export const {setNuevoEquipoSeleccionado, setCurrentUser, toggleHiddenMenu, setNewUser, setNewUserPassword, setNewUserTeamFavorite, setLogCurrentUser, handleResendPassword, setCounter} = userSlice.actions;
+export const {setNuevoEquipoSeleccionado, setCurrentUser, toggleHiddenMenu, setNewUser, setNewUserPassword, setNewUserTeamFavorite, setLogCurrentUser, handleResendPassword, setCounter, setIsDreamTeamEmpty} = userSlice.actions;
 
 export default userSlice.reducer;

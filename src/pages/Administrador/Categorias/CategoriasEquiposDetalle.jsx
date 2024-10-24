@@ -33,14 +33,18 @@ import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
-import { CategoriaEquiposEmpty, EquipoDetalleInfo, EquipoWrapper } from './categoriasStyles';
+import { ApercibimientosContainer, CategoriaEquiposEmpty, EquipoDetalleInfo, EquipoWrapper } from './categoriasStyles';
 import { dataPlantelesColumns } from '../../../Data/Jugadores/Jugadores';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 import { AccionesBodyTemplate, EstadoBodyTemplate } from '../../../components/Table/TableStyles';
 import { PiIdentificationCardLight, PiUser } from 'react-icons/pi';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
+import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
 import CategoriasMenuNav from './CategoriasMenuNav';
+import { IoAlertCircle } from "react-icons/io5";
+import { RiAlarmWarningLine } from "react-icons/ri";
+
 
 const CategoriasEquiposDetalle = () => {
     const dispatch = useDispatch()
@@ -53,8 +57,9 @@ const CategoriasEquiposDetalle = () => {
     const categoriasList = useSelector((state) => state.categorias.data);
     const temporadas = useSelector((state) => state.temporadas.data);
     const jugadoresList = useSelector((state) => state.jugadores.data);
-    const [jugadorExistente, setJugadorExistente] = useState(null);
 
+    const [jugadorExistente, setJugadorExistente] = useState(null);
+    
     const equipoFiltrado = temporadas.find(equipo => equipo.id_equipo == id_equipo && equipo.id_categoria == id_categoria);
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == equipoFiltrado.id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
@@ -72,6 +77,7 @@ const CategoriasEquiposDetalle = () => {
         isCreateModalOpen, openCreateModal, closeCreateModal, 
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
         isUpdateModalOpen, openUpdateModal, closeUpdateModal,
+        isDescripcionModalOpen, openDescripcionModal, closeDescripcionModal,
     } = useModalsCrud();
 
     // Manejo del form
@@ -201,7 +207,39 @@ const CategoriasEquiposDetalle = () => {
         setIsDniConfirmationOpen(false);
     };
     
+    //ACTUALIZAR APERCIBIMIENTOS
+    const [apercibimientos, setApercibimientos] = useState(equipoFiltrado.apercibimientos || 0)
 
+    const actualizarEstadoApercibimientos = (apercibimientos) => {
+        setApercibimientos(apercibimientos)
+    }
+
+    const { actualizar: actualizarApercibimientos, isUpdating: isUpdatingApercibimientos } = useCrud(
+        `${URL}/user/actualizar-apercibimientos`, fetchTemporadas, 'Apercibimientos actualizados correctamente.', "Error al actualizar los apercibimientos."
+    );
+
+    const manejarActualizarApercibimientos = async () => {
+        const data = {
+            id_categoria: equipoFiltrado.id_categoria,
+            id_equipo: equipoFiltrado.id_equipo,
+            id_zona: equipoFiltrado.id_zona,
+            apercibimientos: apercibimientos // El estado actual de los apercibimientos
+        };
+    
+        try {
+            await actualizarApercibimientos(data); // Reutiliza el hook para actualizar
+            setApercibimientos(0); // Restablece los apercibimientos si es necesario
+        } catch (error) {
+            console.error("Error al actualizar los apercibimientos:", error);
+        } finally {
+            closeDescripcionModal() 
+        }
+    }
+
+    const handleSubmit = () => {
+        manejarActualizarApercibimientos(); // Llama a la función al enviar el formulario
+    };
+    
     // CREAR
     const { crear, isSaving } = useCrud(
         `${URL}/user/crear-jugador`, fetchJugadores, 'Registro creado correctamente.', "Error al crear el registro."
@@ -242,7 +280,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
         dispatch(fetchPlanteles());
-        dispatch(fetchJugadores()); // Actualizar la lista de jugadores después de la creación
+        dispatch(fetchJugadores());
         closeCreateModal();
         resetForm()
     };
@@ -392,6 +430,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchEquipos());
         dispatch(fetchPlanteles());
         dispatch(fetchJugadores());
+        dispatch(fetchTemporadas());
     }, [dispatch]);
 
     return (
@@ -404,15 +443,28 @@ const CategoriasEquiposDetalle = () => {
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
             <CategoriasMenuNav id_categoria={equipoFiltrado.id_categoria}/>
+
             <EquipoDetalleInfo>
                 <EquipoWrapper>
                     <img src={`${URLImages}${escudosEquipos(equipoFiltrado.id_equipo)}`} alt={equipoFiltrado.nombre} />
                     <h1>{nombresEquipos(equipoFiltrado.id_equipo)}</h1>
                 </EquipoWrapper>
-                <Button bg="success" color="white" >
+                <Button bg="success" color="white">
                     <p>Editar equipo</p>
                 </Button>
             </EquipoDetalleInfo>
+
+            <EquipoDetalleInfo>
+                <EquipoWrapper>
+                    <RiAlarmWarningLine />
+                    <h3>Apercibimientos</h3>
+                    <ApercibimientosContainer>{equipoFiltrado.apercibimientos}</ApercibimientosContainer>
+                </EquipoWrapper>
+                <Button bg="red" color="white" onClick={openDescripcionModal}>
+                    <p>Actualizar apercibimientos</p>
+                </Button>
+            </EquipoDetalleInfo>
+
             <div style={{display: 'flex', gap: '20px', justifyContent: 'space-between'}}>
                 <div style={{display: 'flex', gap: '20px', justifyContent: 'space-between'}}>
                     <Button bg="success" color="white" onClick={openCreateModal}>
@@ -691,8 +743,8 @@ const CategoriasEquiposDetalle = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdating}>
-                                    {isUpdating ? (
+                                <Button color={"success"} onClick={actualizarDato} disabled={isUpdatingApercibimientos}>
+                                    {isUpdatingApercibimientos ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
                                             Actualizando
@@ -787,6 +839,61 @@ const CategoriasEquiposDetalle = () => {
                     />
                     <Overlay onClick={closeUpdateModal} />
                 </>
+            }
+            {
+                isDescripcionModalOpen && (
+                    <>
+                        <ModalCreate 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: isDescripcionModalOpen ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            title={`Editar apercibimientos`}
+                            onClickClose={closeDescripcionModal}
+                            buttons={
+                                <>
+                                    <Button color={"danger"} onClick={closeDescripcionModal}>
+                                        <IoClose />
+                                        Cancelar
+                                    </Button>
+                                    <Button color={"success"} onClick={handleSubmit} disabled={isUpdating}>
+                                        {isUpdating ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                                Actualizando
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Guardar
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            }
+                            form={
+                                <>
+                                    <ModalFormInputContainer>
+                                        Apercibimientos
+                                    <Input 
+                                        name='apercibimientos'
+                                        type='number' 
+                                        placeholder="Escriba el número de apercibimientos..." 
+                                        value={apercibimientos}
+                                        icon={<IoAlertCircle className='icon-input'/>} 
+                                        onChange={(e) => {
+                                            const value = Math.max(0, e.target.value);
+                                            actualizarEstadoApercibimientos(value);
+                                        }}
+                                        min="0"
+                                    />
+                                    </ModalFormInputContainer>
+                                </>
+                            }
+                        />
+                        <Overlay onClick={closeDescripcionModal} />
+                    </>
+                )
             }
         </Content>
     );

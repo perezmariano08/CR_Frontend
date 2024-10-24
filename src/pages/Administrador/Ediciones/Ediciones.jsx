@@ -75,6 +75,8 @@ const Ediciones = () => {
         puntos_victoria: 3,
         puntos_empate: 1,
         puntos_derrota: 0,
+        apercibimientos: 5,
+        puntos_descuento: 1,
     });
     const isFormEmpty = !formState.nombre_edicion.trim();
 
@@ -99,7 +101,9 @@ const Ediciones = () => {
             temporada: formState.temporada,
             puntos_victoria: formState.puntos_victoria,
             puntos_empate: formState.puntos_empate,
-            puntos_derrota: formState.puntos_derrota
+            puntos_derrota: formState.puntos_derrota,
+            apercibimientos: formState.apercibimientos,
+            puntos_descuento: formState.puntos_descuento,
         };
         await crear(data);
         closeCreateModal();
@@ -295,6 +299,46 @@ const Ediciones = () => {
                                     />
                                     </ModalFormInputContainer>
                                 </ModalFormWrapper>
+
+                                <ModalFormWrapper>
+                                    <ModalFormInputContainer>
+                                    apercibimientos
+                                    <Select 
+                                        name={'apercibimientos'}
+                                        data={[
+                                            { apercibimientos: 0, nombre: "No se otorgan" },
+                                            { apercibimientos: 1, nombre: "1 apercibimiento" },
+                                            { apercibimientos: 2, nombre: "2 apercibimientos" },
+                                            { apercibimientos: 3, nombre: "3 apercibimientos" },
+                                            { apercibimientos: 4, nombre: "4 apercibimientos" },
+                                            { apercibimientos: 5, nombre: "5 apercibimientos" },
+                                        ]}
+                                        icon={<TbNumber className='icon-select'/>}
+                                        id_={"apercibimientos"}
+                                        column='nombre'
+                                        value={formState.apercibimientos}
+                                        onChange={handleFormChange}
+                                    />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                    puntos por apercibimientos
+                                    <Select 
+                                        name={'puntos_descuento'}
+                                        data={[
+                                            { puntos_descuento: 0, nombre: "No se otorgan" },
+                                            { puntos_descuento: 1, nombre: "1 punto" },
+                                            { puntos_descuento: 2, nombre: "2 puntos" },
+                                            { puntos_descuento: 3, nombre: "3 puntos" }
+                                        ]}
+                                        icon={<TbNumber className='icon-select'/>}
+                                        id_={"puntos_descuento"}
+                                        column='nombre'
+                                        value={formState.puntos_descuento}
+                                        onChange={handleFormChange}
+                                    />
+                                    </ModalFormInputContainer>
+                                </ModalFormWrapper>
+
                             </>
                         }
                     />

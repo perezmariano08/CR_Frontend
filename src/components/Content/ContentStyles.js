@@ -333,7 +333,6 @@ export const ContentUserSubMenuTitulo = styled(ContentUserMenuTitulo)`
     border-bottom: 1px solid var(--gray-300);
 `;
 
-
 export const ContentJornadasFixture = styled.div`
     width: 100%;
     padding: 16px 32px;
@@ -416,6 +415,7 @@ export const JornadasFixturePartido = styled.div`
     }
     cursor: pointer;
     transition: all ease .2s;
+    position: relative;
     
     &:hover {
         background-color: var(--gray-300);

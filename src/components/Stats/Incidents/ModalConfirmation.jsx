@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
-import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido } from '../../../redux/Planillero/planilleroSlice';
+import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido, setJugadoresDestacados } from '../../../redux/Planillero/planilleroSlice';
 import { deleteActionToPlayer, deletePlayerDorsal, deleteTotalActionsToPlayer, toggleStateMatch } from '../../../redux/Matches/matchesSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import useBdPartido from './customHook/useBdPartido';
@@ -39,15 +39,8 @@ const ModalConfirmation = () => {
 
     // Envío a la base de datos
     const { 
-        updateJugadores, 
         updateMatch, 
-        insertFormaciones, 
-        insertGoles, 
-        insertRojas, 
-        insertAmarillas, 
-        insertAsistencias, 
         updateSancionados,
-        insertDreamTeam 
     } = useOperationMatch(bd_jugadores_eventuales, bd_partido, bd_formaciones, bd_goles, bd_rojas, bd_amarillas, bd_asistencias, bd_dreamTeam);
 
     // Escuchar cambios en el MVP a través del socket
@@ -91,9 +84,9 @@ const ModalConfirmation = () => {
             const response = await axios.post(`${URL}/user/actualizar-estado-partido`, { idPartido: partidoId });
             // toast.success('Estado del partido actualizado con éxito');
             socket.emit('estadoPartidoActualizado', { idPartido: partidoId, nuevoEstado: response.data.nuevoEstado });
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+            // setTimeout(() => {
+            //     window.location.reload();
+            // }, 2000);
         } catch (error) {
             console.error('Error al actualizar el estado del partido:', error);
             toast.error('Error al actualizar el estado del partido');
@@ -124,15 +117,16 @@ const ModalConfirmation = () => {
                     break;
                 case 'matchPush':
                     if (jugadorDestacado) {
+
                         await updateMatch();
                         await updateSancionados();
-                        // Nueva llamada para actualizar el estado del partido
-                        await actualizarEstadoPartido(idPartido); // <-- Aquí se agrega la nueva función
+                        await actualizarEstadoPartido(idPartido);
 
                         dispatch(setDescripcionPartido(''));
                         dispatch(toggleHiddenModal());
                         dispatch(handleBestPlayerOfTheMatch(null));
                         dispatch(handleMvpSlice(null));
+                        dispatch(setJugadoresDestacados([]))
                         toast.success('Partido subido correctamente en la base de datos');
                     } else {
                         toast.error('Se debe seleccionar el MVP antes de finalizar');

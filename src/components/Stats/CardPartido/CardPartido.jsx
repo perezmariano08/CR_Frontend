@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoStats, CardPartidoDivider } from './CardPartidoStyles';
+import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoStats, CardPartidoDivider, WatchContainer } from './CardPartidoStyles';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 import { URLImages } from '../../../utils/utils.js';
 import { getZonas } from '../../../utils/dataFetchers.js';
+import { MdOutlineWatchLater } from "react-icons/md";
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
 
 const CardPartido = ({ partido, rol }) => {
@@ -84,6 +85,13 @@ const CardPartido = ({ partido, rol }) => {
                 </CardPartidoTeam>
 
                 <CardPartidoInfo>
+                {
+                    partido.estado === 'C' && (
+                        <WatchContainer>
+                            <MdOutlineWatchLater />
+                        </WatchContainer>
+                    )
+                }
                 {partido.estado !== 'A' ? (
                     <>
                         {partido.estado === 'P' ? ( 

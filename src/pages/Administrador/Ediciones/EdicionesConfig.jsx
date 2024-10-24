@@ -40,6 +40,8 @@ const EdicionesConfig = () => {
         puntos_victoria: edicionFiltrada.puntos_victoria,
         puntos_empate: edicionFiltrada.puntos_empate,
         puntos_derrota: edicionFiltrada.puntos_derrota,
+        apercibimientos: edicionFiltrada.apercibimientos,
+        puntos_descuento: edicionFiltrada.puntos_descuento,
     });
 
     const isFormEmpty = !formState.nombre_edicion.trim();
@@ -49,7 +51,9 @@ const EdicionesConfig = () => {
         formState.temporada != edicionFiltrada.temporada ||
         formState.puntos_victoria != edicionFiltrada.puntos_victoria ||
         formState.puntos_empate != edicionFiltrada.puntos_empate ||
-        formState.puntos_derrota != edicionFiltrada.puntos_derrota
+        formState.puntos_derrota != edicionFiltrada.puntos_derrota ||
+        formState.apercibimientos != edicionFiltrada.apercibimientos ||
+        formState.puntos_descuento != edicionFiltrada.puntos_descuento
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const { isDeleteModalOpen, openDeleteModal, closeDeleteModal } = useModalsCrud();
@@ -85,6 +89,8 @@ const EdicionesConfig = () => {
             puntos_empate: formState.puntos_empate,
             puntos_derrota: formState.puntos_derrota,
             id_edicion: id_edicion,
+            apercibimientos: formState.apercibimientos,
+            puntos_descuento: formState.puntos_descuento,
         }
         await actualizar(data);
     };
@@ -157,7 +163,8 @@ const EdicionesConfig = () => {
                             >
                             </Select>
                         </ModalFormInputContainer>
-                    </ModalFormWrapper>               
+                    </ModalFormWrapper>   
+                                
                     <ModalFormWrapper>
                         <ModalFormInputContainer>
                         puntos por victoria
@@ -250,6 +257,46 @@ const EdicionesConfig = () => {
                         </Select>
                     </ModalFormInputContainer>
                     </ModalFormWrapper>
+
+                    <ModalFormWrapper>
+                        <ModalFormInputContainer>
+                        apercibimientos
+                        <Select 
+                            name={'apercibimientos'}
+                            data={[
+                                { apercibimientos: 0, nombre: "No se otorgan" },
+                                { apercibimientos: 1, nombre: "1 apercibimiento" },
+                                { apercibimientos: 2, nombre: "2 apercibimientos" },
+                                { apercibimientos: 3, nombre: "3 apercibimientos" },
+                                { apercibimientos: 4, nombre: "4 apercibimientos" },
+                                { apercibimientos: 5, nombre: "5 apercibimientos" },
+                            ]}
+                            icon={<TbNumber className='icon-select'/>}
+                            id_={"apercibimientos"}
+                            column='nombre'
+                            value={formState.apercibimientos}
+                            onChange={handleFormChange}
+                        />
+                        </ModalFormInputContainer>
+                        <ModalFormInputContainer>
+                        puntos por apercibimientos
+                        <Select 
+                            name={'puntos_descuento'}
+                            data={[
+                                { puntos_descuento: 0, nombre: "No se otorgan" },
+                                { puntos_descuento: 1, nombre: "1 punto" },
+                                { puntos_descuento: 2, nombre: "2 puntos" },
+                                { puntos_descuento: 3, nombre: "3 puntos" }
+                            ]}
+                            icon={<TbNumber className='icon-select'/>}
+                            id_={"puntos_descuento"}
+                            column='nombre'
+                            value={formState.puntos_descuento}
+                            onChange={handleFormChange}
+                        />
+                        </ModalFormInputContainer>
+                    </ModalFormWrapper>
+
                     <Button bg={"success"} onClick={actualizarDato} disabled={isUpdating || isFormEmpty || !isFormChanges}>
                         {isUpdating ? (
                             <>

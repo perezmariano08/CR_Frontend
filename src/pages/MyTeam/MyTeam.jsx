@@ -171,7 +171,7 @@ const MyTeam = () => {
                                     <TailSpin width='40' height='40' color='#2AD174' />
                                 </SpinerContainer>
                             ) : (
-                                <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns}/>
+                                <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns} id_equipo={equipoId}/>
                             )
                         }
                     </Section>

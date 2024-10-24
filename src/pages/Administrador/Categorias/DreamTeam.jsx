@@ -11,7 +11,10 @@ import {
     JugadorInfo,
     JugadorNombre,
     JugadoresContainer,
-    JugadorEquipo
+    JugadorEquipo,
+    InfoTop,
+    ExplicativoContainer,
+    Explicativo
 } from './DreamTeamStyles';
 import { 
     AlinacionTop, 
@@ -32,6 +35,7 @@ import { useEquipos } from '../../../hooks/useEquipos';
 import { URLImages } from '../../../utils/utils';
 import Overlay from '../../../components/Overlay/Overlay';
 import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
+import { IoIosWarning } from "react-icons/io";
 import toast from 'react-hot-toast'
 
 const DreamTeam = ({ id_categoria, jornada }) => {
@@ -125,6 +129,7 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                     return nuevaAlineacion;
                 });
                 toast.success('Jugador agregado con éxito');
+                fetchJugadores();
             } else {
                 toast.error('Error al agregar el jugador');
             }
@@ -274,7 +279,30 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                     </DreamTeamAlineacion>
 
                     <DreamTeamInfo>
-                        hola
+                        <InfoTop>
+                            <h2>¡Armá el <span>dreamteam</span> de la fecha!</h2>
+                            <Divider color="var(--gray-300)" />
+                        </InfoTop>
+                        <ExplicativoContainer>
+                            <Explicativo>
+                                <span>1</span> <p>Selecciona el jugador que quieres agregar</p>
+                            </Explicativo>
+                            <Explicativo>
+                                <span>2</span> <p>Una vez abierto el modal, tendras primero los jugadores destacados por los planilleros, y debajo, los jugadores que participaron en la ultima fecha</p>
+                            </Explicativo>
+                            <Explicativo>
+                                <span>3</span> <p>Elige a tu criterio el jugador en la posicion adecuada</p>
+                            </Explicativo>
+                            <Explicativo>
+                                <span>4</span> <p>Puedes cambiar el jugador seleccionado haciendo click en el mismo</p>
+                            </Explicativo>
+                            <Explicativo>
+                                <span>5</span> <p>¡Listo! ahora puedes armar el dreamteam de la fecha</p>
+                            </Explicativo>
+                            <Explicativo>
+                                <span><IoIosWarning/></span> <p>El boton limpiar formacion elimina por completo el dreamteam</p>
+                            </Explicativo>
+                        </ExplicativoContainer>
                     </DreamTeamInfo>
                 </DreamTeamWrapper>
             </DreamTeamContainer>
@@ -300,6 +328,23 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
                                         <Divider color="var(--gray-300)" />
+                                        Jugadores destacados
+                                        <JugadoresContainer>
+                                            {jugadoresDestacados.length > 0 && (
+                                                jugadoresDestacados.map(jugador => (
+                                                    <JugadorContainer 
+                                                        key={jugador.id_jugador}
+                                                        onClick={() => seleccionarJugador(jugador, selectedPosition)}
+                                                    >
+                                                        <JugadorImagen src={`${URLImages}${escudosEquipos(jugador.id_equipo)}`}  />
+                                                        <JugadorInfo>
+                                                            <JugadorNombre>{jugador.nombre} {jugador.apellido}</JugadorNombre>
+                                                            <JugadorEquipo>{nombresEquipos(jugador.id_equipo)}</JugadorEquipo>
+                                                        </JugadorInfo>
+                                                    </JugadorContainer>
+                                                ))
+                                            )}
+                                        </JugadoresContainer>
                                         Jugadores de la ultima fecha
                                         <JugadoresContainer>
                                             {/* Mostrar mensaje si no hay jugadores filtrados */}
@@ -318,23 +363,6 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                                                 ))
                                             ) : (
                                                 <p>No se encontraron jugadores para la búsqueda.</p>
-                                            )}
-                                        </JugadoresContainer>
-                                        Jugadores destacados
-                                        <JugadoresContainer>
-                                            {jugadoresDestacados.length > 0 && (
-                                                jugadoresDestacados.map(jugador => (
-                                                    <JugadorContainer 
-                                                        key={jugador.id_jugador}
-                                                        onClick={() => seleccionarJugador(jugador, selectedPosition)}
-                                                    >
-                                                        <JugadorImagen src={`${URLImages}${escudosEquipos(jugador.id_equipo)}`}  />
-                                                        <JugadorInfo>
-                                                            <JugadorNombre>{jugador.nombre} {jugador.apellido}</JugadorNombre>
-                                                            <JugadorEquipo>{nombresEquipos(jugador.id_equipo)}</JugadorEquipo>
-                                                        </JugadorInfo>
-                                                    </JugadorContainer>
-                                                ))
                                             )}
                                         </JugadoresContainer>
                                     </ModalFormInputContainer>

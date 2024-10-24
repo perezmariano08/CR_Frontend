@@ -229,3 +229,13 @@ export const insertarJugadorEventual = async (jugador_eventual) => {
         return false
     }
 }
+
+export const armarDreamteam = async (id_categoria, fecha) => {
+    try {
+        const response = await Axios.post(`${URL}/user/armar-dreamteam`, { id_categoria, fecha })
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    } 
+}

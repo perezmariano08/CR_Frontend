@@ -5,10 +5,11 @@ import { Column } from 'primereact/column';
 import { URLImages } from '../../../utils/utils';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
+import { useEquipos } from '../../../hooks/useEquipos';
 
-const TableTeam = ({ data, zona, dataColumns }) => {
+const TableTeam = ({ data, zona, dataColumns, id_equipo }) => {
     const equipoIds = data?.map(row => row.id_equipo);
-    const { getEscudoEquipo } = useNameAndShieldTeams(equipoIds);
+    const { escudosEquipos } = useEquipos();
 
     if (!zona) {
         return null;
@@ -19,9 +20,10 @@ const TableTeam = ({ data, zona, dataColumns }) => {
     }
 
     const jugadorBodyTemplate = (rowData) => (
+        
         <div className="player" style={{ minWidth: '140px' }}>
             <img 
-                src={`${URLImages}${getEscudoEquipo(rowData.id_equipo)}`} 
+                src={`${URLImages}${escudosEquipos(id_equipo)}`} 
                 alt={rowData.nombre_completo} 
             />
             <span>{rowData.nombre_completo}</span>

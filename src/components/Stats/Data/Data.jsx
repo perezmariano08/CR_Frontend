@@ -22,12 +22,13 @@ export const dataPosicionesTemporadaColumns = [
     {field: 'PP', header: "PP"},
     {field: 'GF', header: "GF"},
     {field: 'GC', header: "GC"},
-    {field: 'DIF', header: "DIF"}
+    {field: 'DIF', header: "DIF"},
+    {field: 'AP', header: "AP"},
 ];
 
 export const dataPosicionesTemporadaColumnsMinus = [
     {field: 'pos', header: "#"},
-    {field: 'nombre', header: "Equipo"},
+    {field: 'equipo', header: "Equipo"},
     {field: 'PTS', header: "PTS"},
     {field: 'PJ', header: "PJ"},
     {field: 'DIF', header: "DIF"}

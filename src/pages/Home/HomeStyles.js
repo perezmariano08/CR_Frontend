@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes }  from 'styled-components';
 
 export const HomeContainerStyled = styled.div`
     display: flex;
@@ -55,6 +55,27 @@ export const HomeMediumWrapper = styled.div`
     @media (max-width: 968px) {
         width: 100%;
     }  
+`;
+
+// Definir la animación
+const pulseAnimation = keyframes`
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+`;
+
+export const CircleLive = styled.span`
+    margin-left: 5px;
+    margin-bottom: 1px;
+    display: inline-block;
+    width: 6px; /* Ajusta el tamaño del círculo */
+    height: 6px; /* Ajusta el tamaño del círculo */
+    border-radius: 50%; /* Hace el elemento un círculo */
+    background-color: red; /* Color del círculo */
+    animation: ${pulseAnimation} 1s infinite; /* Aplicar la animación */
 `;
 
 export const HomeRightWrapper = styled.div`

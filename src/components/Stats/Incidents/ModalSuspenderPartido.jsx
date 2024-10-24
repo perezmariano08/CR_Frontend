@@ -61,7 +61,7 @@ const ModalSuspenderPartido = ({ partido }) => {
         }
 
         try {
-            const response = await axios.put(`${URL}/user/update-partido`, partidoData, {
+            const response = await axios.put(`${URL}/user/suspender-partido`, partidoData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

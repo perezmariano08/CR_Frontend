@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false, sortable = true}) => {
+
     const dispatch = useDispatch();
     const selectedProducts = useSelector((state) => state.selectedRows.selectedRows);
     const [rowClick, setRowClick] = useState(true);
@@ -204,7 +205,6 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         }
     };
     
-
     const onSelectionChange = (e) => {
         dispatch(setSelectedRows(e.value));
     };

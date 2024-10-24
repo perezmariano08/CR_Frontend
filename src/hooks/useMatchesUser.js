@@ -94,9 +94,16 @@ const partidoEnDirecto = partidos
 const partidoAMostrar = partidoEnDirecto || proximoPartido || ultimoPartido || partidos[0] || null;
 
         
-const partidosFecha = partidos.filter(partido => partido.id_zona == miEquipo?.id_zona && partido.jornada == fechaActual)
+// Filtrar partidos por jornada y zona
+const partidosFecha = partidos
+    .filter(partido => partido.id_zona === miEquipo?.id_zona && partido.jornada === fechaActual)
+    .sort((a, b) => {
+        // Primero en vivo, luego pendientes, luego finalizados
+        const statusOrder = { 'C': 1, 'P': 2, 'F': 3, 'T': 3 };
+        return statusOrder[a.estado] - statusOrder[b.estado] || new Date(a.dia) - new Date(b.dia);
+    });
 
-    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido };
+    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, partidos };
 }
 
 export default useMatchesUser;

@@ -25,11 +25,9 @@ const useOperationMatch = (bd_jugadores_eventuales, bd_partido, bd_formaciones, 
         try {
             await Axios.put(`${URL}/user/update-partido`, {
                 id_partido: bd_partido.id_partido,
-                // goles_local: bd_partido.goles_local,
-                // goles_visita: bd_partido.goles_visita,
                 descripcion: bd_partido.descripcion,
-                // id_jugador_destacado: bd_partido.id_jugador_destacado,
-                // estado: 'F'
+                pen_local: bd_partido.pen_local,
+                pen_visita: bd_partido.pen_visita,
             }, {
                 headers: {
                     'Authorization': `Bearer ${token}`

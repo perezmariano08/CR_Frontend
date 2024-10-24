@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper } from './HomeStyles';
+import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
@@ -14,6 +14,8 @@ import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, Men
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
 import { URLImages } from '../../utils/utils.js';
+import DreamteamUser from '../User/Dreamteam/DreamteamUser.jsx';
+import { Carousel } from 'primereact/carousel';
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -122,7 +124,7 @@ const Home = () => {
                     </HomeLeftWrapper>
                     <HomeMediumWrapper>
                         <Section>
-                            <h2>{tituloPartido}</h2>
+                            <h2>{tituloPartido} {tituloPartido === 'En directo' && (<CircleLive/>)}</h2>
                             {partidoAMostrar ? (
                                 <CardPartido
                                     rol={userRole}
@@ -182,6 +184,7 @@ const Home = () => {
                                 <TailSpin width='40' height='40' color='#2AD174' />
                             </SpinerContainer>
                         )}
+                        <DreamteamUser fecha={fechaActual} id_categoria={partidoAMostrar.id_categoria} zona={zonasFiltradas}/>
                     </HomeRightWrapper>
                 </HomeWrapper>
             </HomeContainerStyled>
