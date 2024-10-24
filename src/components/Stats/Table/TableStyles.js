@@ -343,7 +343,7 @@ export const EstadisticaTabla = styled.div`
 `
 
 export const TablaFormatoDetalle = styled.div`
-    padding: 20px 20px 30px 20px;
+    padding: 16px 16px 24px 16px;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;

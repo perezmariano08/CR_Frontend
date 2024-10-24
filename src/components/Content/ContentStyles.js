@@ -528,6 +528,8 @@ export const MenuCategoriasTitulo = styled.div`
 `;
 
 export const MenuPosicionesContainer = styled.div`
+    display: flex;
+    gap: 10px;
     width: 100%;
     padding: 16px 32px;
     border-bottom: 1px solid var(--gray-300);
@@ -537,14 +539,25 @@ export const MenuPosicionesContainer = styled.div`
 `;
 
 export const MenuPosicionesItemFilter = styled.div`
-    background-color: var(--white);
     border: 1px solid var(--white);
-    color: black;
+    color: var(--white);
     border-radius: 20px;
     padding: 6px 12px;
     width: fit-content;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 400;
+    transition: all .2s ease-in-out;
+    &:hover {
+        background-color: var(--gray-200);
+        border: 1px solid var(--gray-200);
+
+    }
+    &.active {
+        background-color: var(--white);
+        border: 1px solid var(--white);
+        color: black;
+        font-weight: 500;
+    }
 `;
 
 export const TablePosicionesContainer = styled.div`

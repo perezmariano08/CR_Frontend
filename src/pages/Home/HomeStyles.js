@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 export const HomeContainerStyled = styled.div`
@@ -11,10 +12,10 @@ export const HomeWrapper = styled.div`
     width: 100%;
     display: flex;
     align-items: start;
-    gap: 30px;
+    gap: 16px;
     justify-content: space-between;
     max-width: 1260px;
-    padding: 40px 30px;
+    padding: 24px 30px;
     
     &.planilla {
         flex-direction: column;
@@ -33,7 +34,7 @@ export const HomeLeftWrapper = styled.div`
     display: flex;
     flex-direction: column;
     min-width: 20%;
-    gap: 40px;
+    gap: 20px;
     @media (max-width: 1160px) {
         width: 30%;
     }  
@@ -191,4 +192,46 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+`
+
+export const CategoriasListaWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    background-color: var(--black-900);
+    border-radius: 20px;
+    overflow: hidden;
+`
+
+export const CategoriasListaTitulo = styled.div`
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--black-800);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    p {
+        font-weight: 700;
+    }
+
+    span {
+        font-size: 12px;
+        color: var(--green);
+        text-transform: uppercase;
+    }
+`
+
+export const CategoriasItemsWrapper = styled.div`
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+`
+
+export const CategoriasItem = styled(NavLink)`
+    padding: 8px 24px;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 14px;
+    color: var(--white);
+    &:hover {
+        background-color: var(--black-800);
+    }
 `
