@@ -16,7 +16,6 @@ const CardPartido = ({ partido, rol }) => {
     const [zona, setZona] = useState([]);
     const zonaTipo = zona[0]?.tipo_zona === "eliminacion-directa";
 
-    
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
     useEffect(() => {

@@ -131,14 +131,13 @@ const UserCategoriasFixture = () => {
         const partido = partidos.find((p) => p.id_partido === id_partido);
         if (!partido) {
             console.error('Partido no encontrado');
-            return null;  // Retorna null si no encuentra el partido
+            return null; 
         }
         const {id_equipoLocal, id_equipoVisita} = partido;
         const nombreLocal = nombresEquipos(id_equipoLocal);
         const nombreVisita = nombresEquipos(id_equipoVisita);
         return <p>{nombreLocal} / {nombreVisita}</p>;
     };
-    
     
     return (
         <>
