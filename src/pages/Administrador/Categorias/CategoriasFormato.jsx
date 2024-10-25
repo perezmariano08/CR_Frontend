@@ -252,7 +252,16 @@ const CategoriasFormato = () => {
         asignarRegistro(id_equipo)
     };
 
+    console.log(zonasCategoria);
+    
 
+    let zonasFiltradas = []
+
+    const filtrarZonas = () => {
+        zonasCategoria.map((z) =>{
+            zonasFiltradas.push(z.fase)
+        })
+    }
     return (
         <Content>
             <MenuContentTop>
@@ -264,96 +273,136 @@ const CategoriasFormato = () => {
             </MenuContentTop>
             <CategoriasMenuNav id_categoria={id_categoria}/>
             <CategoriaFormatoWrapper>
-                <FormatoFaseWrapper>
-                    <FormatoFaseTitulo>
-                        Fase 1
-                        <GoKebabHorizontal style={{transform: 'rotate(90deg)'}} />
-                    </FormatoFaseTitulo>
-                    <Button bg={'success'} onClick={openCreateModal}>
-                        Agregar zona
-                    </Button>
-                    <FormatoZonasWrapper>
-                        {zonasCategoria.length > 0 ? (
-                            zonasCategoria.map((z) => {
-                                // Obtener los equipos asignados a esta zona
-                                const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona);                    
-                                return (
-                                    <FormatoZonaContainer key={z.id_zona} className={zonaExpandida === z.id_zona ? '' : 'no-expandido'}>
-                                        <FormatoZona onClick={() => toggleExpandido(z.id_zona)}>
-                                            {/* Rotar el ícono solo si esta zona está expandida */}
-                                            <LiaAngleDownSolid className={zonaExpandida === z.id_zona ? 'icono-rotado' : ''} />
+    {zonasCategoria.length > 0
+        ? Object.entries(
+              zonasCategoria.reduce((fases, zona) => {
+                  // Agrupar zonas por fase
+                  if (!fases[zona.fase]) fases[zona.fase] = [];
+                  fases[zona.fase].push(zona);
+                  return fases;
+              }, {})
+          ).map(([fase, zonasPorFase]) => (
+              <div key={`fase-${fase}`}>
+                  <FormatoFaseWrapper>
+                      <FormatoFaseTitulo>
+                          Fase {fase}
+                          <GoKebabHorizontal style={{ transform: 'rotate(90deg)' }} />
+                      </FormatoFaseTitulo>
+                      <Button bg={'success'} onClick={openCreateModal}>
+                          Agregar zona
+                      </Button>
+                      <FormatoZonasWrapper>
+                          {zonasPorFase.map((z) => {
+                              const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona);
+                              return (
+                                  <FormatoZonaContainer
+                                      key={z.id_zona}
+                                      className={zonaExpandida === z.id_zona ? '' : 'no-expandido'}>
+                                      <FormatoZona onClick={() => toggleExpandido(z.id_zona)}>
+                                          <LiaAngleDownSolid
+                                              className={zonaExpandida === z.id_zona ? 'icono-rotado' : ''}
+                                          />
 
-                                            <FormatoZonaInfo>
-                                                <p>zona <span>{z.nombre_zona}</span></p>
-                                                {z.tipo_zona === "todos-contra-todos" && ("Todos contra todos")}
-                                                <span className={equiposAsignados.length === z.cantidad_equipos ? 'completo' : 'incompleto'}>
-                                                    {`${equiposAsignados.length} / ${z.cantidad_equipos} vacantes ocupadas`}
-                                                </span>
-                                            </FormatoZonaInfo>
+                                          <FormatoZonaInfo>
+                                              <p>
+                                                  Zona <span>{z.nombre_zona}</span>
+                                              </p>
+                                              {z.tipo_zona === 'todos-contra-todos' && 'Todos contra todos'}
+                                              <span
+                                                  className={
+                                                      equiposAsignados.length === z.cantidad_equipos
+                                                          ? 'completo'
+                                                          : 'incompleto'
+                                                  }>
+                                                  {`${equiposAsignados.length} / ${z.cantidad_equipos} vacantes ocupadas`}
+                                              </span>
+                                          </FormatoZonaInfo>
 
-                                            <div className='relative' onClick={(e) => e.stopPropagation()}>
-                                                <GoKebabHorizontal className='kebab' />
-                                                <div className='modales'>
-                                                    <div>Editar</div>
-                                                    <div onClick={() => eliminarZona(z.id_zona)} className='eliminar'>Eliminar</div>
-                                                </div>
-                                            </div>
-                                        </FormatoZona>
+                                          <div className='relative' onClick={(e) => e.stopPropagation()}>
+                                              <GoKebabHorizontal className='kebab' />
+                                              <div className='modales'>
+                                                  <div>Editar</div>
+                                                  <div
+                                                      onClick={() => eliminarZona(z.id_zona)}
+                                                      className='eliminar'>
+                                                      Eliminar
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </FormatoZona>
 
-                                        {/* Mostrar el contenedor solo si esta zona está expandida */}
-                                        <FormatoZonaVacantes className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
-                                            {/* Renderizar cajas de vacantes basadas en z.cantidad_equipos */}
-                                            {[...Array(z.cantidad_equipos)].map((_, index) => {
-                                                // Buscar el equipo asignado a esta vacante
-                                                const vacante = index + 1;                                    
-                                                const equipoAsignado = equiposAsignados.find(e => e.vacante === vacante);
-                                                
-                                                return (
-                                                    <VacanteWrapper key={`vacante-${index}`} className={equipoAsignado ? 'equipo' : ''} onClick={() => agregarEquipoZona(z.id_zona, index + 1)}>
-                                                        {equipoAsignado ? (
-                                                            <>
-                                                                EQUIPO
-                                                                <VacanteEquipo>
-                                                                    <img src={`${URLImages}${escudosEquipos(equipoAsignado.id_equipo)}`} alt={nombresEquipos(equipoAsignado.id_equipo)} />
-                                                                    {nombresEquipos(equipoAsignado.id_equipo)}
-                                                                </VacanteEquipo>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                Vacante
-                                                                <NavLink >
-                                                                    Seleccionar equipo
-                                                                </NavLink>  
-                                                            </>
-                                                            
-                                                        )}
-                                                        <div className={equipoAsignado ? 'vacante-texto existe' : "vacante-texto"}>A{index + 1}</div>
-                                                        <div className='relative' onClick={(e) => e.stopPropagation()}>
-                                                            <GoKebabHorizontal className='kebab' />
-                                                            <div className='modales'>
-                                                                <div className='editar'>Reemplazar equipo</div>
-                                                                <div onClick={eliminarVacante} className='eliminar'>Eliminar vacante</div>
-                                                            </div>
-                                                        </div>
-                                                    </VacanteWrapper>
-                                                );
-                                            })}
-                                        </FormatoZonaVacantes>
-                                    </FormatoZonaContainer>
-                                );
-                            })
-                        ) : (
-                            ''
-                        )}
-                    </FormatoZonasWrapper>
-                </FormatoFaseWrapper>
-                <FaseDivider/>     
-                <FormatoFaseWrapper>
-                    <Button bg={'success'}>
-                        Agregar fase
-                    </Button>
-                </FormatoFaseWrapper>
-            </CategoriaFormatoWrapper>
+                                      <FormatoZonaVacantes
+                                          className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
+                                          {[...Array(z.cantidad_equipos)].map((_, index) => {
+                                              const vacante = index + 1;
+                                              const equipoAsignado = equiposAsignados.find(
+                                                  (e) => e.vacante === vacante
+                                              );
+
+                                              return (
+                                                  <VacanteWrapper
+                                                      key={`vacante-${index}`}
+                                                      className={equipoAsignado ? 'equipo' : ''}
+                                                      onClick={() => agregarEquipoZona(z.id_zona, vacante)}>
+                                                      {equipoAsignado ? (
+                                                          <>
+                                                              EQUIPO
+                                                              <VacanteEquipo>
+                                                                  <img
+                                                                      src={`${URLImages}${escudosEquipos(
+                                                                          equipoAsignado.id_equipo
+                                                                      )}`}
+                                                                      alt={nombresEquipos(equipoAsignado.id_equipo)}
+                                                                  />
+                                                                  {nombresEquipos(equipoAsignado.id_equipo)}
+                                                              </VacanteEquipo>
+                                                          </>
+                                                      ) : (
+                                                          <>
+                                                              Vacante
+                                                              <NavLink>Seleccionar equipo</NavLink>
+                                                          </>
+                                                      )}
+                                                      <div
+                                                          className={
+                                                              equipoAsignado ? 'vacante-texto existe' : 'vacante-texto'
+                                                          }>
+                                                          A{vacante}
+                                                      </div>
+                                                      <div
+                                                          className='relative'
+                                                          onClick={(e) => e.stopPropagation()}>
+                                                          <GoKebabHorizontal className='kebab' />
+                                                          <div className='modales'>
+                                                              <div className='editar'>Reemplazar equipo</div>
+                                                              <div
+                                                                  onClick={eliminarVacante}
+                                                                  className='eliminar'>
+                                                                  Eliminar vacante
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                  </VacanteWrapper>
+                                              );
+                                          })}
+                                      </FormatoZonaVacantes>
+                                  </FormatoZonaContainer>
+                              );
+                          })}
+                      </FormatoZonasWrapper>
+                  </FormatoFaseWrapper>
+                  <FaseDivider />
+              </div>
+          ))
+        : ''}
+    <FormatoFaseWrapper>
+        <Button bg={'success'} onClick={openCreateModal}>
+            Agregar fase
+        </Button>
+    </FormatoFaseWrapper>
+</CategoriaFormatoWrapper>
+
+
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}

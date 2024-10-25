@@ -45,7 +45,13 @@ const CategoriasEquipos = () => {
     const jugadoresList = useSelector((state) => state.jugadores.data);
 
     const temporadas = useSelector((state) => state.temporadas.data);
-    const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
+    // Filtrar los equipos de la temporada y asegurarse de que no haya duplicados por id_equipo
+    const equiposTemporada = temporadas
+        .filter((t) => t.id_categoria == id_categoria)
+        .filter(
+            (equipo, index, self) =>
+                index === self.findIndex((e) => e.id_equipo === equipo.id_equipo)
+        );
     
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const categoriasSelect = categoriasList.filter((categoria) => categoria.id_edicion == categoriaFiltrada.id_edicion && categoria.id_categoria !== categoriaFiltrada.id_categoria )
