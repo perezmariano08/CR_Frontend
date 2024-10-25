@@ -34,6 +34,7 @@ export const EliminacionDirectaWrapper = styled.div`
         display: flex;
         flex-direction: column;
         gap: 10px;
+        width: 100%;
         .equipo {
             display: flex;
             justify-content: space-between;

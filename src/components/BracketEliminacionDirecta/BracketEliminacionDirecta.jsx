@@ -11,6 +11,7 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
     const zonas = useSelector(state => state.zonas.data);
 
     const [etapaSeleccionada, setEtapaSeleccionada] = useState(null);
+    
 
     // Procesar zonas para obtener solo las de la categoría seleccionada y fases ordenadas
     const zonasPorEtapa = React.useMemo(() => {
@@ -42,6 +43,20 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
         setEtapaSeleccionada(nombre_etapa);
     };
 
+    const traerEquiposPartidoPrevio = (id_partido) => {    
+        const partido = partidos.find((p) => p.id_partido === id_partido);
+        if (!partido) {
+            console.error('Partido no encontrado');
+            return null; 
+        }
+        const {id_equipoLocal, id_equipoVisita} = partido;
+        const nombreLocal = nombresEquipos(id_equipoLocal);
+        const nombreVisita = nombresEquipos(id_equipoVisita);
+        console.log(nombreLocal, nombreVisita);
+        
+        return <p>{nombreLocal} / {nombreVisita}</p>;
+    };
+
     return (
         <>
             <MenuPosicionesContainer>
@@ -70,19 +85,27 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
 
                                         return (
                                             <div key={partido.id_partido} className="match">
-                                                <div className={`equipo ${equipoLocalPerdedor ? 'perdedor' : ''}`}>
+                                                <div className={`equipo ${equipoLocalPerdedor ? 'perdedor' : ''} ${!partido.id_equipoLocal ? 'perdedor' : ''}`}>
                                                     <div className='nombre'>
                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt="" />
-                                                        {nombresEquipos(partido.id_equipoLocal)}
+                                                        {
+                                                            partido.id_equipoLocal
+                                                                ? nombresEquipos(partido.id_equipoLocal)
+                                                                : traerEquiposPartidoPrevio(partido.id_partido_previo_local)
+                                                        }
                                                     </div>
                                                     <div className='goles'>
                                                         {partido.goles_local}
                                                     </div>
                                                 </div>
-                                                <div className={`equipo ${equipoVisitaPerdedor ? 'perdedor' : ''}`}>
+                                                <div className={`equipo ${equipoVisitaPerdedor ? 'perdedor' : ''} ${!partido.id_equipoVisita ? 'perdedor' : ''}`}>
                                                     <div className='nombre'>
                                                         <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt="" />
-                                                        {nombresEquipos(partido.id_equipoVisita)}
+                                                        {
+                                                            partido.id_equipoVisita
+                                                                ? nombresEquipos(partido.id_equipoVisita)
+                                                                : traerEquiposPartidoPrevio(partido.id_partido_previo_visita)
+                                                        }
                                                     </div>
                                                     <div className='goles'>
                                                         {partido.goles_visita}

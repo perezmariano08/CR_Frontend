@@ -6,9 +6,13 @@ import { URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { MdOutlineWatchLater } from "react-icons/md";
 import { usePlanilla } from '../../../hooks/usePlanilla';
+import { getZonas } from '../../../utils/dataFetchers';
 
 const CardFinalPartido = ({ idPartido }) => {
-    
+
+    const [zona, setZona] = useState([]);
+    const zonaTipo = zona[0]?.tipo_zona === "eliminacion-directa";
+
     const { matchCorrecto: partido, bdIncidencias, estadoPartido } = usePlanilla(idPartido);
 
     const { nombresEquipos, escudosEquipos } = useEquipos();
@@ -64,6 +68,15 @@ const CardFinalPartido = ({ idPartido }) => {
     
     const golesNube = procesarGoles(bdIncidencias);
 
+    useEffect(() => {
+        getZonas()
+            .then((data) => {
+                const zonaCorrecta = data.filter(z => z.id_zona === partido?.id_zona);
+                setZona(zonaCorrecta);
+            })
+            .catch((error) => console.error('Error fetching zonas:', error));
+    }, [partido?.id_zona]);
+
     if (!partido) {
         return <div>Loading...</div>;
     }
@@ -72,8 +85,8 @@ const CardFinalPartido = ({ idPartido }) => {
         <CardPartidoWrapper>
             <CardPartidoTitles>
                 <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
-                <p>{`${partido.dia_nombre} ${partido.dia_numero}/${partido.mes}`} | {`Fecha ${partido.jornada} - ${partido.cancha}`}</p>
-            </CardPartidoTitles>
+                <p>{`${partido.dia_nombre} ${partido.dia_numero}/${partido.mes}`} | {zonaTipo ? `${zona[0]?.nombre_zona}` : `Fecha ${partido.jornada}`} - {partido.cancha}</p>
+                </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
                     <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
