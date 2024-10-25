@@ -22,6 +22,8 @@ import UseNavegador from './UseNavegador';
 import { MdOutlineWatchLater } from "react-icons/md";
 import { WatchContainer, WatchFixtureContainer } from '../../../components/Stats/CardPartido/CardPartidoStyles';
 import useMatchesUser from '../../../hooks/useMatchesUser';
+import UserCategoriasMenuNav from './UserCategoriasMenuNav';
+import { LoaderIcon } from 'react-hot-toast';
 
 const UserCategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -121,6 +123,23 @@ const UserCategoriasFixture = () => {
         return acc;
     }, {});
     
+    const partido = partidos.find((p) => p.id_categoria === id_categoria && p.jornada === jornadaActual);
+    const zonaPartido = partido ? zonas.find((z) => z.id_zona === partido.id_zona) : null;
+
+
+    const traerEquiposPartidoPrevio = (id_partido) => {    
+        const partido = partidos.find((p) => p.id_partido === id_partido);
+        if (!partido) {
+            console.error('Partido no encontrado');
+            return null;  // Retorna null si no encuentra el partido
+        }
+        const {id_equipoLocal, id_equipoVisita} = partido;
+        const nombreLocal = nombresEquipos(id_equipoLocal);
+        const nombreVisita = nombresEquipos(id_equipoVisita);
+        return <p>{nombreLocal} / {nombreVisita}</p>;
+    };
+    
+    
     return (
         <>
             <ContentUserContainer>
@@ -136,19 +155,7 @@ const UserCategoriasFixture = () => {
                                 </TituloText>
                             </TituloContainer>
                         </ContentUserTituloContainer>
-                        <ContentUserMenuTitulo>
-                            <ContentMenuLink>
-                                <NavLink to={`/categoria/posiciones/${id_categoria}`}>
-                                    Posiciones
-                                </NavLink>
-                                <NavLink to={`/categoria/fixture/${id_categoria}`}>
-                                    Fixture
-                                </NavLink>
-                                <NavLink to={`/categoria/estadisticas/goleadores/${id_categoria}`}>
-                                    Estadísticas
-                                </NavLink>
-                            </ContentMenuLink>
-                        </ContentUserMenuTitulo>
+                        <UserCategoriasMenuNav id_categoria={id_categoria} />
                     </ContentUserTituloContainerStyled>
                     <ContentPageWrapper>
                         {
@@ -163,7 +170,15 @@ const UserCategoriasFixture = () => {
                                             </NavLink>
                                         </ContentMenuLink>
                                     </ContentUserSubMenuTitulo>
-                                    <ContentJornadasFixture>
+                                    {
+                                        loading 
+                                        ? 
+                                        <div style={{width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 0'}}>
+                                            <LoaderIcon />
+                                        </div>
+                                        : 
+                                        <>
+                                        <ContentJornadasFixture>
                                         <JornadasFixtureWrapper>
                                             <ArrowJornadasFixture
                                                 onClick={handlePreviousJornada}
@@ -171,8 +186,25 @@ const UserCategoriasFixture = () => {
                                             >
                                                 <AiOutlineLeft />
                                             </ArrowJornadasFixture>
-    
-                                            Fecha {jornadaActual}
+
+                                            {
+                                                partido && zonaPartido ? (
+                                                    zonaPartido.tipo_zona === "eliminacion-directa" ? (
+                                                        <div>
+                                                            <p>{zonaPartido.nombre_etapa} - {zonaPartido.nombre_zona}</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <p>Fecha {jornadaActual}</p>
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <div>
+                                                        <p>Fecha {jornadaActual}</p>
+                                                    </div>
+                                                )
+                                            }
+
                                             <ArrowJornadasFixture
                                                 onClick={handleNextJornada}
                                                 style={{ cursor: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 'pointer' : 'not-allowed', opacity: jornadasDisponibles.indexOf(jornadaActual) < jornadasDisponibles.length - 1 ? 1 : 0.5 }}
@@ -194,13 +226,26 @@ const UserCategoriasFixture = () => {
                                                     return (
                                                         <React.Fragment key={zona.id_zona}>
                                                             <JornadasFixtureZona>
-                                                                {zona.nombre_zona}
+                                                                {
+                                                                    zona.tipo_zona === "eliminacion-directa" 
+                                                                    ? <p>{zona.nombre_etapa} - {zona.nombre_zona}</p>
+                                                                    : <p>{zona.nombre_etapa}</p>
+                                                                }
+                                                                
                                                             </JornadasFixtureZona>
                                                             {partidosDeZona.map((partido) => (
                                                                 <JornadasFixturePartido key={partido.id_partido} onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
                                                                     <JornadasFixturePartidoEquipo>
-                                                                    <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>
-                                                                        <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+                                                                        {
+                                                                            partido.id_equipoLocal ? 
+                                                                                <>
+                                                                                    <p className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoLocal)}</p>                                                                                    
+                                                                                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+
+                                                                                </>
+                                                                            : 
+                                                                                traerEquiposPartidoPrevio(partido.id_partido_previo_local)
+                                                                        }
                                                                     </JornadasFixturePartidoEquipo>
                                                                     <JornadasFixtureResultado className={partido.estado === 'F' || partido.estado === 'S' ? '' : 'hora'}>
                                                                         {partido.estado === 'F' || partido.estado === 'S'
@@ -210,8 +255,15 @@ const UserCategoriasFixture = () => {
                                                                                 : formatHour(partido.hora)}
                                                                     </JornadasFixtureResultado>
                                                                     <JornadasFixturePartidoEquipo className='visita'>
-                                                                        <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
-                                                                        <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
+                                                                        {
+                                                                            partido.id_equipoVisita ? 
+                                                                                <>
+                                                                                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
+                                                                                    <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
+                                                                                </>
+                                                                            : 
+                                                                                traerEquiposPartidoPrevio(partido.id_partido_previo_visita)
+                                                                        }
                                                                     </JornadasFixturePartidoEquipo>
                                                                 </JornadasFixturePartido>
                                                             ))}
@@ -254,6 +306,9 @@ const UserCategoriasFixture = () => {
                                         )}
                                         </React.Fragment>
                                     ))}
+                                        </>
+                                    }
+                                    
                                 </>
                             )
                         }

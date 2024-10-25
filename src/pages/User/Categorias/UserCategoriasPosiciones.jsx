@@ -12,6 +12,8 @@ import { HiArrowLeft } from "react-icons/hi";
 import { TailSpin } from 'react-loader-spinner';
 import { URLImages } from '../../../utils/utils';
 import UseNavegador from './UseNavegador';
+import UserCategoriasMenuNav from './UserCategoriasMenuNav';
+import { LoaderIcon } from 'react-hot-toast';
 
 const UserCategoriasPosiciones = () => {
    const navigate = useNavigate();
@@ -85,9 +87,8 @@ const UserCategoriasPosiciones = () => {
    const getNombreZona = (id) => {
       const zonaFiltrada = zonas.find((z) => z.id_zona === id);
       return zonaFiltrada?.nombre_zona || '';
-   }
+   }   
 
-   
    return (
       <ContentUserContainer>
          <ContentUserWrapper>
@@ -102,65 +103,57 @@ const UserCategoriasPosiciones = () => {
                </TituloText>
                </TituloContainer>
             </ContentUserTituloContainer>
-            <ContentUserMenuTitulo>
-               <ContentMenuLink>
-                  <NavLink to={`/categoria/posiciones/${id_categoria}`}>
-                     Posiciones
-                  </NavLink>
-                  <NavLink to={`/categoria/fixture/${id_categoria}`}>
-                     Fixture
-                  </NavLink>
-                  <NavLink to={`/categoria/estadisticas/goleadores/${id_categoria}`}>
-                     Estadísticas
-                  </NavLink>
-               </ContentMenuLink>
-            </ContentUserMenuTitulo>
+            <UserCategoriasMenuNav id_categoria={id_categoria} />
          </ContentUserTituloContainerStyled>
+         <ContentPageWrapper>
          {isLoading ? (
-            <SpinerContainer>
-               <TailSpin width='40' height='40' color='#2AD174' />
-            </SpinerContainer>
+            <div style={{width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 0'}}>
+               <LoaderIcon />
+            </div>
          ) : (
-            <ContentPageWrapper>
-               <MenuPosicionesContainer>
-                  {
-                     posicionesPorZona
-                        .sort((a, b) => a.id_zona - b.id_zona) // Ordena por id_zona de menor a mayor
-                        .map((p) => {
-                           const isActive = selectedZona === p.id_zona; // Verificamos si la zona está seleccionada
+               <><MenuPosicionesContainer>
+                        {posicionesPorZona
+                           .sort((a, b) => a.id_zona - b.id_zona) // Ordena por id_zona de menor a mayor
+                           .map((p) => {
+                              // Busca la zona correspondiente para obtener el tipo_zona
+                              const zona = zonas.find(z => z.id_zona === p.id_zona);
 
-                           return (
-                              <MenuPosicionesItemFilter
-                                 key={p.id_zona}
-                                 onClick={() => setSelectedZona(p.id_zona)} // Al hacer clic, actualizas el filtro
-                                 className={isActive ? 'active' : ''} // Asignamos la clase `active` si está seleccionada
-                              >
-                                 {getNombreZona(p.id_zona)}
-                              </MenuPosicionesItemFilter>
-                           );
-                        })
-                  }
-               </MenuPosicionesContainer>
+                              // Verifica si la zona existe y si su tipo_zona es 'todos-contra-todos'
+                              if (zona && zona.tipo_zona === 'todos-contra-todos') {
+                                 const isActive = selectedZona === p.id_zona; // Verificamos si la zona está seleccionada
 
-               <TablePosicionesContainer>
-                  {selectedZona ? (
-                     zonas.find((p) => p.id_zona === selectedZona)?.tipo_zona === 'eliminacion-directa' ? (
-                        <p>Contenido personalizado para eliminaciones directas</p> // Aquí va el contenido que deseas mostrar
-                     ) : (
-                        <TablePosicionesRoutes
-                           data={posicionesPorZona.find((p) => p.id_zona === selectedZona)?.data || []} // Filtras la data para la zona seleccionada
-                           id_zona={selectedZona}
-                           id_categoria={id_categoria} // Si también tienes un filtro por categoría, asegúrate de manejarlo
-                           dataColumns={dataPosicionesTemporadaColumns}
-                        />
-                     )
-                  ) : (
-                     <p>Por favor, selecciona una zona para ver la tabla.</p>
-                  )}
-               </TablePosicionesContainer>
+                                 return (
+                                    <MenuPosicionesItemFilter
+                                       key={p.id_zona}
+                                       onClick={() => setSelectedZona(p.id_zona)} // Al hacer clic, actualizas el filtro
+                                       className={isActive ? 'active' : ''} // Asignamos la clase `active` si está seleccionada
+                                    >
+                                       {getNombreZona(p.id_zona)}
+                                    </MenuPosicionesItemFilter>
+                                 );
+                              }
 
-            </ContentPageWrapper>
+                              return null; // No devuelve nada si no cumple la condición
+                           })}
+                     </MenuPosicionesContainer><TablePosicionesContainer>
+                           {selectedZona ? (
+                              zonas.find((p) => p.id_zona === selectedZona)?.tipo_zona === 'eliminacion-directa' ? (
+                                 <p>Contenido personalizado para eliminaciones directas</p> // Aquí va el contenido que deseas mostrar
+                              ) : (
+                                 <TablePosicionesRoutes
+                                    data={posicionesPorZona.find((p) => p.id_zona === selectedZona)?.data || []} // Filtras la data para la zona seleccionada
+                                    id_zona={selectedZona}
+                                    id_categoria={id_categoria} // Si también tienes un filtro por categoría, asegúrate de manejarlo
+                                    dataColumns={dataPosicionesTemporadaColumns} />
+                              )
+                           ) : (
+                              <p>Por favor, selecciona una zona para ver la tabla.</p>
+                           )}
+                        </TablePosicionesContainer></>
+
+            
          )}
+         </ContentPageWrapper>
          </ContentUserWrapper>
       </ContentUserContainer>
    );

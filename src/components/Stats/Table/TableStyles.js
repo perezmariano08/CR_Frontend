@@ -267,7 +267,8 @@ export const TablaPosiciones = styled(DataTable)`
     tr th.p-sortable-column:nth-child(7), 
     tr th.p-sortable-column:nth-child(8),
     tr th.p-sortable-column:nth-child(9),
-    tr th.p-sortable-column:nth-child(10) {
+    tr th.p-sortable-column:nth-child(10),
+    tr th.p-sortable-column:nth-child(11) {
         width: 50px;
 
         @media (max-width: 768px) {

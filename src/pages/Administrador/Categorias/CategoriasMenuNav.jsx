@@ -5,8 +5,13 @@ import { useSelector } from 'react-redux';
 
 const CategoriasMenuNav = ({ id_categoria, children }) => {
     const temporadas = useSelector((state) => state.temporadas.data);
-    // Filtrar temporadas para obtener las que pertenecen a la categoría actual
-    const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria);
+    // Filtrar los equipos de la temporada y asegurarse de que no haya duplicados por id_equipo
+    const equiposTemporada = temporadas
+    .filter((t) => t.id_categoria == id_categoria)
+    .filter(
+        (equipo, index, self) =>
+            index === self.findIndex((e) => e.id_equipo === equipo.id_equipo)
+    );    
     
     const partidos = useSelector((state) => state.partidos.data); // Suponiendo que tienes los partidos en el estado
     // Filtrar partidos para obtener los que pertenecen a la categoría actual

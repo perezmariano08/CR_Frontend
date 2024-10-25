@@ -55,6 +55,7 @@ import LegajosEquipos from '../pages/Administrador/Legajos/LegajosEquipos';
 
 import PublicRoute from '../Auth/PublicRoute';
 import Estadisticas from '../pages/Administrador/Categorias/Estadisticas';
+import UserCategoriasPlayOff from '../pages/User/Categorias/UserCategoriasPlayOff';
 
 const Routes = () => {
 
@@ -89,6 +90,7 @@ const Routes = () => {
                     <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} />
                     <Route path='/categoria/posiciones/:id_page' element={<LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} />
                     <Route path='/categoria/fixture/:id_page' element={<LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} />
+                    <Route path='/categoria/playoff/:id_page' element={<LayoutPrivate> <UserCategoriasPlayOff/> </LayoutPrivate>} />
                     <Route path='/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
 
                     {/* Rutas Privadas */}

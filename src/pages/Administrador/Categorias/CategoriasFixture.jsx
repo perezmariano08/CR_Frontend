@@ -50,6 +50,7 @@ import { estadoPartidos } from '../../../Data/Estados/Estados';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { PiSoccerBall } from 'react-icons/pi';
 import DreamTeam from './DreamTeam';
+import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -118,6 +119,8 @@ const CategoriasFixture = () => {
     const categoriasList = useSelector((state) => state.categorias.data);
     const partidosList = useSelector((state) => state.partidos.data);
     const equiposList = useSelector((state) => state.equipos.data);
+    const temporadas = useSelector((state) => state.temporadas.data);
+    
     const zonas = useSelector((state) => state.zonas.data);
     
     const usuarios = useSelector((state) => state.usuarios.data);
@@ -131,6 +134,7 @@ const CategoriasFixture = () => {
         dispatch(fetchPartidos());
         dispatch(fetchZonas());
         dispatch(fetchUsuarios());
+        dispatch(fetchTemporadas());
     }, []);
 
     // ACTUALIZAR
@@ -336,6 +340,8 @@ const actualizarDato = async () => {
     }));
 
     const equiposCategoria = equiposList.filter((equipo) => equipo.id_categoria == id_categoria);
+    const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria);
+    console.log(equiposTemporada);
     
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_categoria)
@@ -566,11 +572,11 @@ const actualizarDato = async () => {
                                     Equipo Local
                                     <Select 
                                         name={'equipo_local'}
-                                        data={equiposCategoria}
+                                        data={equiposTemporada.filter((e) => e.id_zona == formState.zona)}
                                         placeholder={'Seleccionar equipo'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
-                                        column='nombre'
+                                        column='nombre_equipo'
                                         value={formState.equipo_local}
                                         onChange={handleFormChange}
                                     >

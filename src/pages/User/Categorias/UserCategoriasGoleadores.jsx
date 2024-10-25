@@ -14,6 +14,7 @@ import TablaEstadisticas from '../../../components/TablaEstadisticas/TablaEstadi
 import { HiArrowLeft } from "react-icons/hi";
 import { LoaderIcon } from 'react-hot-toast';
 import UseNavegador from './UseNavegador';
+import UserCategoriasMenuNav from './UserCategoriasMenuNav';
 
 const UserCategoriasGoleadores = () => {
     const dispatch = useDispatch();
@@ -68,21 +69,7 @@ const UserCategoriasGoleadores = () => {
                                 </TituloText>
                             </TituloContainer>
                         </ContentUserTituloContainer>
-                        <ContentUserMenuTitulo>
-                        <ContentMenuLink>
-                            <NavLink to={`/categoria/posiciones/${id_categoria}`}>
-                                Posiciones
-                            </NavLink>
-                            <NavLink to={`/categoria/fixture/${id_categoria}`}>
-                                Fixture
-                            </NavLink>
-                            <NavLink 
-                                to={`/categoria/estadisticas/goleadores/${id_categoria}`}
-                            >
-                                Estadísticas
-                            </NavLink>
-                            </ContentMenuLink>
-                        </ContentUserMenuTitulo>
+                        <UserCategoriasMenuNav id_categoria={id_categoria} />
                     </ContentUserTituloContainerStyled>
                     <ContentPageWrapper>
                     <ContentUserSubMenuTitulo>

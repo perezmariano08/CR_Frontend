@@ -570,3 +570,19 @@ export const TablePosicionesContainer = styled.div`
         padding-left: 18px;
     }
 `;
+
+export const PlayOffsWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+`;
+
+export const PlayOffsPartido = styled.div`
+    display: flex;
+    gap: 20px;
+`;
+
+export const PlayOffsPartidoEquipo = styled.div`
+    display: flex;
+    gap: 20px;
+`;

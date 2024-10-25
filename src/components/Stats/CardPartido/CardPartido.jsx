@@ -14,7 +14,9 @@ const CardPartido = ({ partido, rol }) => {
     const navigate = useNavigate();
     
     const [zona, setZona] = useState([]);
+    const zonaTipo = zona[0]?.tipo_zona === "eliminacion-directa";
 
+    
     const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
     useEffect(() => {
@@ -63,11 +65,20 @@ const CardPartido = ({ partido, rol }) => {
             <CardPartidoTitles>                
                 <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
                 {partido.estado === 'F' || partido.estado === 'T' ? (
-                    <p>{formattedDate} {formattedTime} | Fecha {partido.jornada} - {partido.cancha}</p>
+                    <>
+                    {
+                        zonaTipo ? <p>{zona[0]?.nombre_zona} - {partido.cancha}</p> : <p>Fecha {partido.jornada} - {partido.cancha}</p>
+                    }
+                    </>
                 ) : partido.estado === 'S' ? (
                     <p>{formattedDate} {formattedTime} | Partido suspendido</p>
                 ) : partido.estado === 'P' ? (
-                    <p>Fecha {partido.jornada} - {partido.cancha}</p>
+                    <>
+                        {
+                            zonaTipo ? <p>{zona[0]?.nombre_zona} - {partido.cancha}</p> : <p>Fecha {partido.jornada} - {partido.cancha}</p>
+                        }
+                    </>
+                    
                 ) : (
                     <>
                         <p>{formattedDate}</p>
