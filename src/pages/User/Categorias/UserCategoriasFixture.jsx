@@ -67,7 +67,7 @@ const UserCategoriasFixture = () => {
         const jornadas = Array.from(new Set(partidos.filter(p => p.id_categoria === id_categoria).map(p => p.jornada)));
         jornadas.sort((a, b) => a - b); // Ordena las jornadas en orden ascendente
         setJornadasDisponibles(jornadas);
-        setJornadaActual(jornadas[jornadas.length - 1] || 1); // Establece la última jornada disponible como predeterminada
+        setJornadaActual(jornadas[jornadas.length - 1] || 1);
     }, [partidos, id_categoria]);
     
     const partidosCategoria = partidos
@@ -77,7 +77,8 @@ const UserCategoriasFixture = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
     const zonasFiltradas = zonas.filter(zona => zona.id_categoria === id_categoria);
-
+    console.log(zonasFiltradas);
+    
     const handlePreviousJornada = () => {
         const currentIndex = jornadasDisponibles.indexOf(jornadaActual);
         if (currentIndex > 0) {
