@@ -279,6 +279,28 @@ export const ContentUserMenuTitulo = styled.div`
     width: 100%;
     background-color: var(--gray-400);
     padding: 0 32px;
+    overflow-x: auto;
+
+    /* Estilos de barra de desplazamiento */
+    &::-webkit-scrollbar {
+        height: 2px; /* Altura de la barra de desplazamiento */
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--gray-300); /* Color de fondo de la pista */
+        border-radius: 10px; /* Bordes redondeados de la pista */
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--gray-200); /* Color del pulgar */
+        border-radius: 10px; /* Bordes redondeados del pulgar */
+        transition: all 0.3s ease; /* Transición suave para todas las propiedades */
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-500); /* Color del pulgar al pasar el ratón por encima */
+    }
+
     @media (max-width: 968px) {
         padding: 0 20px;
     }
