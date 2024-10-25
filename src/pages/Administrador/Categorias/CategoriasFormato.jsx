@@ -224,8 +224,6 @@ const CategoriasFormato = () => {
             vacante: numeroVacante
         };
 
-        
-        
         await asignarTemporada(data);
         closeEquipoZona();
         resetForm()
