@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 
 const CardOldMatches = ({ partidos, equipo }) => {
     const navigate = useNavigate();
-    
+
     const viewToStatsMatch = (id) => {
         navigate(`/stats-match?id=${id}`)
     }
@@ -43,7 +43,7 @@ const CardOldMatches = ({ partidos, equipo }) => {
                 partidos.length === 0 ? (
                     <div>No hay partidos disponibles</div>
                 ) : (
-                    partidos.slice(0,3).map((partido) => {
+                    partidos.slice(-3).map((partido) => {
                         // Verifica si el equipo es el local
                         const esLocal = partido.id_equipoLocal === equipo.id_equipo;
 

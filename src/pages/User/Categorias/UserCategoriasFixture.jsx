@@ -68,9 +68,23 @@ const UserCategoriasFixture = () => {
     useEffect(() => {
         const jornadas = Array.from(new Set(partidos.filter(p => p.id_categoria === id_categoria).map(p => p.jornada)));
         jornadas.sort((a, b) => a - b); // Ordena las jornadas en orden ascendente
+        
+        // Filtrar la última jornada con ambos equipos presentes
+        let jornadaSeleccionada = jornadas[jornadas.length - 1] || 1;
+        
+        // Verificar que todos los partidos de esta jornada tienen ambos equipos definidos
+        while (jornadaSeleccionada > 1) {
+            const partidosJornada = partidos.filter(p => p.jornada === jornadaSeleccionada && p.id_categoria === id_categoria);
+            const jornadaCompleta = partidosJornada.every(p => p.id_equipoLocal && p.id_equipoVisita);
+            
+            if (jornadaCompleta) break; // Si todos los partidos tienen ambos equipos, esta es la jornada a mostrar
+            jornadaSeleccionada -= 1; // Sino, intentar la jornada anterior
+        }
+    
         setJornadasDisponibles(jornadas);
-        setJornadaActual(jornadas[jornadas.length - 1] || 1);
+        setJornadaActual(jornadaSeleccionada);
     }, [partidos, id_categoria]);
+    
     
     const partidosCategoria = partidos
     .filter((p) => p.id_categoria === categoriaFiltrada.id_categoria && p.jornada === jornadaActual)
@@ -79,8 +93,7 @@ const UserCategoriasFixture = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
     const zonasFiltradas = zonas.filter(zona => zona.id_categoria === id_categoria);
-    console.log(zonasFiltradas);
-    
+
     const handlePreviousJornada = () => {
         const currentIndex = jornadasDisponibles.indexOf(jornadaActual);
         if (currentIndex > 0) {
@@ -269,7 +282,7 @@ const UserCategoriasFixture = () => {
                                                         </React.Fragment>
                                                     );
                                                 } else {
-                                                    return null; // Si no hay partidos en esa zona, no renderizamos nada
+                                                    return null;
                                                 }
                                             })
                                         ) : (

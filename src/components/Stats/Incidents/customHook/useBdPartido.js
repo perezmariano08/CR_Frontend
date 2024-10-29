@@ -3,8 +3,7 @@ import { useSelector } from "react-redux";
 const useBdPartido = (idPartido) => {
     const descToMatch = useSelector((state) => state.planillero.planilla.descripcionPartido);
     const penales = useSelector((state) => state.planillero.penales);
-    console.log(descToMatch);
-    
+
     const bd_partido = {
         id_partido: idPartido,
         pen_local: penales?.penal_local,
