@@ -59,6 +59,7 @@ const CategoriasFormato = () => {
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
     const equiposZona = temporadas.filter((t) => t.id_zona === 2)
     
+    
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({
         id_categoria: id_categoria,
