@@ -341,8 +341,7 @@ const actualizarDato = async () => {
 
     const equiposCategoria = equiposList.filter((equipo) => equipo.id_categoria == id_categoria);
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria);
-    console.log(equiposTemporada);
-    
+
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_categoria)
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == categoriaFiltrada.id_categoria)

@@ -156,7 +156,6 @@ const Equipos = () => {
         }
     };
 
-
     useEffect(() => {
         dispatch(fetchJugadores());
         dispatch(fetchEquipos());
