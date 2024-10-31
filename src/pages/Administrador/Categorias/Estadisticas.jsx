@@ -72,7 +72,7 @@ const Estadisticas = () => {
 
     const sancionesActivas = (sanciones) => {
         const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
-        console.log(sancionesFiltradas);
+
         const sancionesPorCategoria = sancionesFiltradas.filter(s => s.id_categoria === categoriaFiltrada.id_categoria)
         setSanciones(sancionesPorCategoria);
     }

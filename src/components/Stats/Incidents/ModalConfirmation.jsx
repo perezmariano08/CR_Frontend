@@ -4,7 +4,6 @@ import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNex
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
 import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido, setJugadoresDestacados } from '../../../redux/Planillero/planilleroSlice';
-import { deleteActionToPlayer, deletePlayerDorsal, deleteTotalActionsToPlayer, toggleStateMatch } from '../../../redux/Matches/matchesSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import useBdPartido from './customHook/useBdPartido';
 import useGenerarBdFormaciones from './customHook/useGenerarBdFormaciones';
@@ -27,7 +26,8 @@ const ModalConfirmation = () => {
     const infoDelete = useSelector((state) => state.planillero.infoDelete);
     const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.mvp);
 
-    
+    const token = localStorage.getItem('token')
+
     const [loading, setLoading] = useState(false);
 
     //Custom Hooks
@@ -59,7 +59,7 @@ const ModalConfirmation = () => {
     const handleDeleteDorsal = async (idPartido, idEquipo, playerId) => {
         try {
             // await dispatch(deletePlayerDorsal({ idPartido, idEquipo, idJugador: playerId }));
-            await axios.delete(`${URL}/user/borrar-firma-jugador`, { data: { idPartido, idJugador: playerId } });
+            await axios.delete(`${URL}/user/borrar-firma-jugador`, { data: { idPartido, idJugador: playerId }});
             // Emitir el socket si lo necesitas
             socket.emit('dorsalEliminado', { idPartido, idJugador: playerId, dorsal: '' });
         } catch (error) {
