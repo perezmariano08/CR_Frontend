@@ -7,7 +7,7 @@ import { LuDownload, LuFlagTriangleRight, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentNavWrapper, ContentTitle, FixtureButtons, FixtureFechas, FixtureFechasWrapper, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
+import { ModalFormInputContainer, ModalFormWrapper, ModalJornadaContainer } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
@@ -70,6 +70,7 @@ const CategoriasFixture = () => {
         equipo_visita: '',
         goles_local: '',
         goles_visita: '',
+        jornada_actual: '',
         jornada: '',
         dia: '',
         hora: '',
@@ -127,6 +128,14 @@ const CategoriasFixture = () => {
     
     const planilleros = usuarios.filter((u) => u.id_rol === 2)
     
+    const handleSetJornadaActual = (jornada) => {
+        setFormState((prevFromSate) => ({
+            ...prevFromSate,
+            jornada_actual: jornada
+        }));
+        openCreateModal();
+    }
+
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
@@ -163,13 +172,6 @@ const CategoriasFixture = () => {
             openUpdateModal()
         }
     }
-
-    // const isFormChanges = 
-    //     formState.nombre_categoria !== categoriaFiltrada.nombre ||
-    //     formState.genero != categoriaFiltrada.genero ||
-    //     formState.tipo_futbol != categoriaFiltrada.tipo_futbol ||
-    //     formState.duracion_tiempo != categoriaFiltrada.duracion_tiempo ||
-    //     formState.duracion_entretiempo != categoriaFiltrada.duracion_entretiempo
         
     // Función de actualización en el cliente
     const { actualizar, isUpdating } = useCrud(
@@ -345,70 +347,71 @@ const actualizarDato = async () => {
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_categoria)
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == categoriaFiltrada.id_categoria)
+
     // Agregar acciones a la tabla
-        const partidosListLink = partidosCategoria.map(partido => ({
-            ...partido,
-            acciones: (
-                <div style={{display: "flex", gap: "10px"}}>
-                    <Button bg={"danger"} onClick={() => {
-                        setIdPartidoEliminar(partido.id_partido)
-                        openDeleteModal()
-                    }}>
-                        <IoTrashOutline />
-                    </Button>
-                    <Button bg={"import"} onClick={() => editarPartido(partido.id_partido)}>
-                        <BiSolidEdit />
-                    </Button>
-                    <Button bg={"export"} onClick={() => abrirDescripcion(partido.descripcion)}>
-                        <BiMessageDetail />
-                    </Button>
-                </div>
-            ),
-            id_equipoLocal: (
-                <EquipoBodyTemplate className='local'>
-                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
-                    <span>{nombresEquipos(partido.id_equipoLocal)}</span>
-                </EquipoBodyTemplate>
-            ),
-            id_equipoVisita: (
-                <EquipoBodyTemplate>
-                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
-                    <span>{nombresEquipos(partido.id_equipoVisita)}</span>
-                </EquipoBodyTemplate>
-            ),
-            estado: (
-                <>
-                    {partido.estado === 'F' && (
-                        <EstadoBodyTemplate $bg={"success"}>FINALIZADO</EstadoBodyTemplate>
-                    )}
-                    {partido.estado === 'P' && (
-                        <EstadoBodyTemplate $bg={"import"}>PROGRAMADO</EstadoBodyTemplate>
-                    )}
-                    {partido.estado === 'S' && (
-                        <EstadoBodyTemplate $bg={"danger"}>SUSPENDIDO</EstadoBodyTemplate>
-                    )}
-                    {partido.estado === 'C' && (
-                        <EstadoBodyTemplate $bg={"export"}>EN CURSO</EstadoBodyTemplate>
-                    )}
-                    {partido.estado === 'T' && (
-                        <EstadoBodyTemplate $bg={"yellow"}>FALTA SUBIR</EstadoBodyTemplate>
-                    )}
-                </>
-            ),
-            resultado: (
-                <ResultadoBodyTemplate>
-                    <span>{partido.goles_local}</span>
-                    <span>-</span>
-                    <span>{partido.goles_visita}</span>
-                </ResultadoBodyTemplate>
-            ),
-            dia: (
-                formatPartidoDateTime(partido.dia)
-            ),
-            hora: (
-                formatHour(partido.hora)
-            )
-        }));
+    const partidosListLink = partidosCategoria.map(partido => ({
+        ...partido,
+        acciones: (
+            <div style={{display: "flex", gap: "10px"}}>
+                <Button bg={"danger"} onClick={() => {
+                    setIdPartidoEliminar(partido.id_partido)
+                    openDeleteModal()
+                }}>
+                    <IoTrashOutline />
+                </Button>
+                <Button bg={"import"} onClick={() => editarPartido(partido.id_partido)}>
+                    <BiSolidEdit />
+                </Button>
+                <Button bg={"export"} onClick={() => abrirDescripcion(partido.descripcion)}>
+                    <BiMessageDetail />
+                </Button>
+            </div>
+        ),
+        id_equipoLocal: (
+            <EquipoBodyTemplate className='local'>
+                <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
+                <span>{nombresEquipos(partido.id_equipoLocal)}</span>
+            </EquipoBodyTemplate>
+        ),
+        id_equipoVisita: (
+            <EquipoBodyTemplate>
+                <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt={nombresEquipos(partido.id_equipoVisita)} />
+                <span>{nombresEquipos(partido.id_equipoVisita)}</span>
+            </EquipoBodyTemplate>
+        ),
+        estado: (
+            <>
+                {partido.estado === 'F' && (
+                    <EstadoBodyTemplate $bg={"success"}>FINALIZADO</EstadoBodyTemplate>
+                )}
+                {partido.estado === 'P' && (
+                    <EstadoBodyTemplate $bg={"import"}>PROGRAMADO</EstadoBodyTemplate>
+                )}
+                {partido.estado === 'S' && (
+                    <EstadoBodyTemplate $bg={"danger"}>SUSPENDIDO</EstadoBodyTemplate>
+                )}
+                {partido.estado === 'C' && (
+                    <EstadoBodyTemplate $bg={"export"}>EN CURSO</EstadoBodyTemplate>
+                )}
+                {partido.estado === 'T' && (
+                    <EstadoBodyTemplate $bg={"yellow"}>FALTA SUBIR</EstadoBodyTemplate>
+                )}
+            </>
+        ),
+        resultado: (
+            <ResultadoBodyTemplate>
+                <span>{partido.goles_local}</span>
+                <span>-</span>
+                <span>{partido.goles_visita}</span>
+            </ResultadoBodyTemplate>
+        ),
+        dia: (
+            formatPartidoDateTime(partido.dia)
+        ),
+        hora: (
+            formatHour(partido.hora)
+        )
+    }));
 
     // Filtrar partidos por fecha
     const partidosJornada = partidosListLink.filter((p) => p.jornada === jornada)
@@ -478,7 +481,7 @@ const actualizarDato = async () => {
                                 />
                             </label>
                             <FixtureButtons>
-                                <Button bg="success" color="white" onClick={openCreateModal}>
+                                <Button bg="success" color="white" onClick={() => handleSetJornadaActual(partidosJornada[0]?.jornada)}>
                                     <FiPlus />
                                     <p>Crear partido</p>
                                 </Button>
@@ -505,6 +508,10 @@ const actualizarDato = async () => {
                     </>
                 ) : (
                     <>
+                        <Button bg="success" color="white" onClick={() => handleSetJornadaActual(partidosJornada[0]?.jornada)}>
+                                    <FiPlus />
+                                    <p>Crear partido</p>
+                        </Button>
                         <p>No se encontraron partidos.</p>
                         <label htmlFor="importInput" style={{ display: 'none' }}>
                             <input
@@ -595,17 +602,31 @@ const actualizarDato = async () => {
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Jornada
-                                    <Input 
-                                        name='jornada'
-                                        type='number' 
-                                        placeholder="Ejemplo: 1" 
-                                        icon={<BsCalendar2Event className='icon-input'/>} 
-                                        value={formState.jornada}
-                                        onChange={handleFormChange}
-                                    />
-                                </ModalFormInputContainer>
+                                <ModalJornadaContainer>
+                                    <ModalFormInputContainer>
+                                        Jornada actual
+                                        <Input 
+                                            name='jornada'
+                                            type='number' 
+                                            placeholder="Ejemplo: 1" 
+                                            icon={<BsCalendar2Event className='icon-input'/>} 
+                                            value={formState.jornada_actual}
+                                            onChange={handleFormChange}
+                                            readOnly
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Jornada
+                                        <Input 
+                                            name='jornada'
+                                            type='number' 
+                                            placeholder="Ejemplo: 1" 
+                                            icon={<BsCalendar2Event className='icon-input'/>} 
+                                            value={formState.jornada}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
+                                </ModalJornadaContainer>
                                 <ModalFormInputContainer>
                                     Día
                                     <InputCalendar
@@ -853,17 +874,17 @@ const actualizarDato = async () => {
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Jornada
-                                    <Input 
-                                        name='jornada'
-                                        type='number' 
-                                        placeholder="Ejemplo: 1" 
-                                        icon={<BsCalendar2Event className='icon-input'/>} 
-                                        value={formState.jornada}
-                                        onChange={handleFormChange}
-                                    />
-                                </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Jornada
+                                        <Input 
+                                            name='jornada'
+                                            type='number' 
+                                            placeholder="Ejemplo: 1" 
+                                            icon={<BsCalendar2Event className='icon-input'/>} 
+                                            value={formState.jornada}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Establecer nuevo día
                                     <InputCalendar

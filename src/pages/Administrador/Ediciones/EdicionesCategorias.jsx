@@ -37,8 +37,8 @@ const EdicionesCategorias = () => {
         nombre_categoria: '',
         genero: 'M',
         tipo_futbol: 7,
-        duracion_tiempo: '',
-        duracion_entretiempo: '',
+        duracion_tiempo: 25,
+        duracion_entretiempo: 5,
     });
     const isFormEmpty = !formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo;
 
@@ -80,6 +80,7 @@ const EdicionesCategorias = () => {
     );
 
     const agregarRegistro = async () => {
+
         if (!formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo) {
             toast.error("Completá los campos.");
             return;
@@ -90,7 +91,7 @@ const EdicionesCategorias = () => {
             return;
         }
 
-        if (formState.duracion_tiempo > 100 || formState.duracion_entretiempo) {
+        if (formState.duracion_tiempo > 100 || formState.duracion_entretiempo > 100) {
             toast.error("El campo duración de cada tiempo debe ser menor que 100.");
             return;
         }

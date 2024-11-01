@@ -85,6 +85,14 @@ export const SelectContainer = styled.span`
     
 `
 
+export const ModalJornadaContainer = styled.div`
+    display: flex;
+    /* flex-direction: column; */
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+`
+
 export const InputRadioContainer = styled.div`
     display: flex;
     width: 100%;

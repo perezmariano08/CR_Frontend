@@ -25,6 +25,7 @@ import asideReducer from "./Aside/asideSlice";
 import edicionesReducer from "./ServicesApi/edicionesSlice"
 import plantelesReducer from "./ServicesApi/plantelesSlice"
 import zonasReducer from "./ServicesApi/zonasSlice"
+import fasesReducer from "./ServicesApi/fasesSlice"
 
 const reducers = combineReducers({
     notis: notisReducer,
@@ -48,6 +49,7 @@ const reducers = combineReducers({
     ediciones: edicionesReducer,
     planteles: plantelesReducer,
     zonas: zonasReducer,
+    fases: fasesReducer,
 });
 
 const persistConfig = {
@@ -73,6 +75,7 @@ const persistConfig = {
         "aside",
         "ediciones",
         "planteles",
+        "fases"
     ]
 }
 
