@@ -70,9 +70,13 @@ const CategoriasFormato = () => {
         nombre_equipo: '',
         id_zona: '',
         fase: null,
+        fases_select: null,
+        zonas_select: null,
+        id_partido_previo: null,
     });
 
     const [isAsignarEquipoZona, setAsignarEquipoZona] = useState(false);
+    const [isAsignarVacantePlayOff, setAsignarVacantePlayOff] = useState(false);
     const [isEliminarVacante, setEliminarVacante] = useState(false);
     const [id_zona, setIdZona] = useState('');
     const [numeroVacante, setNumeroVacante] = useState('');
@@ -89,6 +93,8 @@ const CategoriasFormato = () => {
     const closeEquipoZona = () => setAsignarEquipoZona(false);
     const openEliminarVacante = () => setEliminarVacante(true);
     const closeEliminarVacante = () => setEliminarVacante(false);
+    const openAsignarVacantePlayOff = () => setAsignarVacantePlayOff(true);
+    const closeAsignarVacantePlayOff = () => setAsignarVacantePlayOff(false);
 
     const {
         isCreateModalOpen, openCreateModal, closeCreateModal,
@@ -102,6 +108,21 @@ const CategoriasFormato = () => {
         setFaseEstado(numero_fase);
         openCreateModal();
     };
+
+    const [partidosZona, setPartidosZona] = useState([]);
+
+    const getPartidosZona = async (id_zona, vacante) => {
+        try {
+            // Cambia a GET y envía los parámetros como query
+            const response = await axios.get(`${URL}/admin/get-partido-zona`, {
+                params: { id_zona, vacante } // Pasar los parámetros aquí
+            });
+            setPartidosZona(response.data);
+        } catch (error) {
+            console.error("Error al obtener los partidos de la zona:", error);
+        }
+    };
+    
 
     // CREAR
     const { crear, isSaving } = useCrud(
@@ -177,6 +198,42 @@ const CategoriasFormato = () => {
         resetForm()
     };
 
+    // CREAR
+    const { crear: guardarVacantePlayOff, isSaving: isSavingVacantePlayOff } = useCrud(
+        `${URL}/admin/guardar-vacante-play-off`, fetchTemporadas, 'Registro creado correctamente.', "Error al crear el registro."
+    );
+
+    const agregarPlayOffVacante = async () => {
+
+        // Validar que id_partido_previo no sea nulo o indefinido
+        if (!formState.id_partido_previo) {
+            toast.error("El ID del partido previo no puede estar vacío.");
+            return;
+        }
+    
+        const id_partido_previo = formState.id_partido_previo.split('-')[1];
+        const resultado = formState.id_partido_previo ? formState.id_partido_previo.split('-')[0] : null;
+    
+        if (!resultado) {
+            toast.error("El resultado no puede estar vacío.");
+            return;
+        }
+    
+        const data = {
+            id_partido: partidosZona[0].id_partido,
+            id_partido_previo: id_partido_previo,
+            resultado: resultado,
+            vacante: numeroVacante,
+        };
+    
+        
+
+        await guardarVacantePlayOff(data);
+        closeAsignarVacantePlayOff();
+        resetForm();
+    }
+    
+
     // ELIMINAR
     const [idEliminar, setidEliminar] = useState(null)
     const [VacanteEliminar, setVacanteEliminar] = useState(null)
@@ -209,20 +266,6 @@ const CategoriasFormato = () => {
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
 
-    const [partidosZona, setPartidosZona] = useState([]);
-
-    const getPartidosZona = async (id_zona, vacante) => {
-        try {
-            // Cambia a GET y envía los parámetros como query
-            const response = await axios.get(`${URL}/admin/get-partido-zona`, {
-                params: { id_zona, vacante } // Pasar los parámetros aquí
-            });
-            setPartidosZona(response.data);
-        } catch (error) {
-            console.error("Error al obtener los partidos de la zona:", error);
-        }
-    };
-    
     useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
@@ -251,6 +294,7 @@ const CategoriasFormato = () => {
     
         const zonaFiltrada = zonas.find(z => z.id_zona == id_zona)
         let data = {}
+        
         if (zonaFiltrada.tipo_zona === 'todos-contra-todos') {
             data = {
                 id_categoria: formState.id_categoria,
@@ -292,6 +336,7 @@ const CategoriasFormato = () => {
     };
 
     const [crearEquipo, setCrearEquipo] = useState(false);
+    const [vacantePlayOff, setVacantePlayOff] = useState(false);
 
     const manejarCrearEquipo = () => {
         setCrearEquipo(true); // Cambia el estado para mostrar el formulario de creación
@@ -314,6 +359,45 @@ const CategoriasFormato = () => {
         insertarFase(data);
     }
 
+    const [idPartidosZona, setIdPartidosZona] = useState([]);
+
+    const getIdPartidosZona = async (id_zona) => {
+        try {
+            const response = await axios.get(`${URL}/admin/get-partidos-zona`, {
+                params: { id_zona }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener los partidos de la zona:", error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchIdPartidosZona = async () => {
+            if (formState.zonas_select) {
+                try {
+                    const data = await getIdPartidosZona(formState.zonas_select);
+                    setIdPartidosZona(data); // Guarda los datos en el estado
+                } catch (error) {
+                    console.error("Error al obtener los partidos de la zona:", error);
+                }
+            }
+        };
+    
+        fetchIdPartidosZona();
+    }, [formState.zonas_select]);
+
+    const [faseActual, setFaseActual] = useState(null);
+
+    const agregarVacantePlayOff = (fase, vacante, id_zona) => {
+        openAsignarVacantePlayOff();
+        
+        setNumeroVacante(vacante);
+        setFaseActual(fase);
+
+        getPartidosZona(id_zona, numeroVacante);
+    };
+    
     return (
         <Content>
             <MenuContentTop>
@@ -392,7 +476,14 @@ const CategoriasFormato = () => {
                                                                 <VacanteWrapper
                                                                     key={`vacante-${index}`}
                                                                     className={equipoAsignado ? 'equipo' : ''}
-                                                                    onClick={() => agregarEquipoZona(z.id_zona, vacante, 'create')}>
+                                                                    onClick={() => {
+                                                                        if (z.tipo_zona === 'todos-contra-todos') {
+                                                                            agregarEquipoZona(z.id_zona, vacante);
+                                                                        } else {
+                                                                            agregarVacantePlayOff(z.fase, vacante, z.id_zona);
+                                                                            closeCreateModal(); // Cerrar cualquier otro modal activo
+                                                                        }
+                                                                    }}>
                                                                     {equipoAsignado ? (
                                                                         <>
                                                                             EQUIPO
@@ -453,6 +544,85 @@ const CategoriasFormato = () => {
                 </FormatoFaseWrapper>
             </CategoriaFormatoWrapper>
 
+            {
+                isAsignarVacantePlayOff && <>
+                    <ModalCreate
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: isAsignarVacantePlayOff ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Agregar equipo`}
+                        onClickClose={closeAsignarVacantePlayOff}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeAsignarVacantePlayOff}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} onClick={agregarPlayOffVacante} disabled={isSaving}>
+                                    {isSavingCrearEquipo ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                            Guardando
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Guardar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                                <>
+                                    <ModalFormInputContainer>
+                                        Seleccionar fase
+                                        <Select
+                                            name='fases_select'
+                                            type='text'
+                                            placeholder="Seleccionar fase"
+                                            value={formState.fases_select}
+                                            icon={<BsCalendar2Event className='icon-select' />}
+                                            column='numero_fase'
+                                            data={fases.filter((f) => f.numero_fase != faseActual)}
+                                            id_= {'numero_fase'}
+                                            onChange={handleFormChange} />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Seleccionar zona
+                                        <Select
+                                            name='zonas_select'
+                                            type='text'
+                                            placeholder="Seleccionar zona"
+                                            value={formState.zonas_select}
+                                            icon={<BsCalendar2Event className='icon-select' />}
+                                            column='nombre_zona_etapa'
+                                            data={zonas.filter((z) => z.fase == formState.fases_select && z.id_categoria == id_categoria)}
+                                            id_= {'id_zona'}
+                                            disabled={!formState.fases_select}
+                                            onChange={handleFormChange} />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Seleccionar resultado
+                                        <Select
+                                            name='id_partido_previo'
+                                            type='text'
+                                            placeholder="Seleccionar resultado"
+                                            value={formState.id_partido_previo}
+                                            icon={<BsCalendar2Event className='icon-select' />}
+                                            column='nombre_fase'
+                                            data={idPartidosZona}
+                                            id_= {'id_partido'}
+                                            disabled={!formState.zonas_select}
+                                            onChange={handleFormChange} />
+                                    </ModalFormInputContainer>
+                                </>
+                        }
+                    />
+                    <Overlay onClick={closeAsignarVacantePlayOff} />
+                </>
+            }
             {
                 isCreateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
@@ -582,17 +752,6 @@ const CategoriasFormato = () => {
                                             placeholder="Nombre"
                                             icon={<BsCalendar2Event className='icon-input' />}
                                             value={formState.nombre_equipo}
-                                            onChange={handleFormChange} />
-                                        <p style={{ color: '#a8a8a8', textTransform: 'uppercase' }}>ingresar al menos 3 caracateres</p>
-                                    </ModalFormInputContainer>
-                                    <ModalFormInputContainer>
-                                        Seleccionar vacante
-                                        <Select
-                                            name='nombre_equipo'
-                                            type='text'
-                                            placeholder="Nombre"
-                                            value={formState.nombre_equipo}
-                                            // icon={<BsCalendar2Event className='icon-input' />}
                                             onChange={handleFormChange} />
                                         <p style={{ color: '#a8a8a8', textTransform: 'uppercase' }}>ingresar al menos 3 caracateres</p>
                                     </ModalFormInputContainer>
