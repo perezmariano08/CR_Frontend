@@ -352,9 +352,11 @@ const CategoriasFormato = () => {
 
                                                         <FormatoZonaInfo>
                                                             <p>
-                                                                Zona <span>{z.nombre_zona}</span>
+                                                                {z.nombre_etapa}<span> {z.nombre_zona}</span>
                                                             </p>
                                                             {z.tipo_zona === 'todos-contra-todos' && 'Todos contra todos'}
+                                                            {z.tipo_zona === 'eliminacion-directa' && 'Eliminacion directa'}
+
                                                             <span
                                                                 className={
                                                                     equiposAsignados.length === z.cantidad_equipos

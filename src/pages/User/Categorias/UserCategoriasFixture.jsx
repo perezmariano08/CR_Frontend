@@ -203,7 +203,7 @@ const UserCategoriasFixture = () => {
                                                 partido && zonaPartido ? (
                                                     zonaPartido.tipo_zona === "eliminacion-directa" ? (
                                                         <div>
-                                                            <p>{zonaPartido.nombre_etapa} - {zonaPartido.nombre_zona}</p>
+                                                            <p>PlayOff - Fase {zonaPartido.fase - 1}</p>
                                                         </div>
                                                     ) : (
                                                         <div>
