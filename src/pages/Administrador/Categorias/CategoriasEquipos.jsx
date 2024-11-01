@@ -31,6 +31,7 @@ import { useEquipos } from '../../../hooks/useEquipos';
 import { EquipoBodyTemplate, EstadoBodyTemplate } from '../../../components/Table/TableStyles';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
+import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 
 const CategoriasEquipos = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -43,7 +44,10 @@ const CategoriasEquipos = () => {
     const categoriasList = useSelector((state) => state.categorias.data);
     const equiposList = useSelector((state) => state.equipos.data);
     const jugadoresList = useSelector((state) => state.jugadores.data);
-
+    const zonas = useSelector((state) => state.zonas.data);
+    const zonasFiltradas = zonas.filter((z) => z.id_categoria == id_categoria);
+    console.log(zonasFiltradas);
+    
     const temporadas = useSelector((state) => state.temporadas.data);
     // Filtrar los equipos de la temporada y asegurarse de que no haya duplicados por id_equipo
     const equiposTemporada = temporadas
@@ -127,6 +131,11 @@ const CategoriasEquipos = () => {
             toast.error(`El equipo ya pertenece a esta categoria.`);
             return;
         }
+        
+        if (zonasFiltradas.length <= 0) {
+            toast.error(`Debes crear al menos una zona para asignar el equipo`);
+            return;
+        }
 
         const data = {
             id_categoria: formState.id_categoria,
@@ -134,7 +143,7 @@ const CategoriasEquipos = () => {
             id_equipo: id_equipo,
             id_zona: null
         };
-        
+
         await asignarTemporada(data);
         closeCreateModal();
         resetForm()
@@ -251,6 +260,7 @@ useEffect(() => {
         dispatch(fetchCategorias());
         dispatch(fetchEquipos())
         dispatch(fetchTemporadas())
+        dispatch(fetchZonas());
         if (isCreateModalOpen) {
             // Cada vez que se abra el modal, resetear el estado a false
             setCrearEquipo(false);
