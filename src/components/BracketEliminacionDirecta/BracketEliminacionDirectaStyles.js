@@ -8,6 +8,11 @@ export const EliminacionDirectaWrapper = styled.div`
     gap: 20px;
     overflow-x: auto; /* Cambiar scroll a auto para que el scroll aparezca solo cuando sea necesario */
 
+    .penales {
+        font-size: 12px;
+        margin-left: 2px;
+    }
+
     /* Cada fase es una columna */
     .round {
         display: flex;
@@ -61,8 +66,6 @@ export const EliminacionDirectaWrapper = styled.div`
         background-color: white;
         margin: 0 auto;
     }
-
-
 
     /* Opcional: bordes y separaciones como en la imagen */
     .bracket-line {

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
-import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido, setJugadoresDestacados } from '../../../redux/Planillero/planilleroSlice';
+import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido, setJugadoresDestacados, setPenales } from '../../../redux/Planillero/planilleroSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import useBdPartido from './customHook/useBdPartido';
 import useGenerarBdFormaciones from './customHook/useGenerarBdFormaciones';
@@ -14,6 +14,7 @@ import useGenerarBdDreamTeam from './customHook/useGenerarBdDreamTeam';
 import { useWebSocket } from '../../../Auth/WebSocketContext';
 import { URL } from '../../../utils/utils';
 import axios from 'axios';
+import { actualizarPartidoVacante } from '../../../utils/dataFetchers';
 
 const ModalConfirmation = () => {
     const socket = useWebSocket();
@@ -121,12 +122,15 @@ const ModalConfirmation = () => {
                         await updateMatch();
                         await updateSancionados();
                         await actualizarEstadoPartido(idPartido);
+                        await actualizarPartidoVacante(idPartido);
 
                         dispatch(setDescripcionPartido(''));
                         dispatch(toggleHiddenModal());
                         dispatch(handleBestPlayerOfTheMatch(null));
                         dispatch(handleMvpSlice(null));
                         dispatch(setJugadoresDestacados([]))
+                        dispatch(setPenales({ penalLocal: null, penalVisita: null }));
+
                         toast.success('Partido subido correctamente en la base de datos');
                     } else {
                         toast.error('Se debe seleccionar el MVP antes de finalizar');

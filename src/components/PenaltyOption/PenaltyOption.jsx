@@ -9,9 +9,9 @@ import { setPenales } from '../../redux/Planillero/planilleroSlice';
 const PenaltyOption = ({ partido }) => {
     const dispatch = useDispatch();
 
-    const penalLocalState = useSelector((state) => state.planillero.penales.penal_local);
-    const penalVisitaState = useSelector((state) => state.planillero.penales.penal_visita);
-
+    const penalLocalState = useSelector((state) => state.planillero.penales?.penal_local || 0);
+    const penalVisitaState = useSelector((state) => state.planillero.penales?.penal_visita || 0);
+    
     const [showInputs, setShowInputs] = useState(false);
     const [penalLocal, setPenalLocal] = useState(penalLocalState);
     const [penalVisita, setPenalVisita] = useState(penalVisitaState);
@@ -31,7 +31,7 @@ const PenaltyOption = ({ partido }) => {
         if (!newShowInputs) {
             setPenalLocal(0);
             setPenalVisita(0);
-            dispatch(setPenales({ penalLocal: 0, penalVisita: 0 }));
+            dispatch(setPenales({ penalLocal: null, penalVisita: null }));
         }
     };
 

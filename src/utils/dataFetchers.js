@@ -239,3 +239,13 @@ export const armarDreamteam = async (id_categoria, fecha) => {
         return false
     } 
 }
+
+export const actualizarPartidoVacante = async (id_partido) => {
+    try {
+        const response = await Axios.post(`${URL}/user/actualizar-partido-vacante`, { id_partido })
+        return response.data;
+    } catch (error) {   
+        console.error('Error en la peticion', error);
+        return false
+    }
+}

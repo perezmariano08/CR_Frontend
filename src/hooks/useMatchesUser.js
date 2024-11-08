@@ -4,6 +4,7 @@ import { fetchPartidos } from "../redux/ServicesApi/partidosSlice";
 import { fetchEquipos } from "../redux/ServicesApi/equiposSlice";
 import { debounce } from 'lodash';
 import { useWebSocket } from "../Auth/WebSocketContext";
+import { fetchZonas } from "../redux/ServicesApi/zonasSlice";
 
 const useMatchesUser = (idEquipo) => {
     const socket = useWebSocket();
@@ -11,14 +12,20 @@ const useMatchesUser = (idEquipo) => {
     const partidos = useSelector((state) => state.partidos.data);
     const equipos = useSelector((state) => state.equipos.data);
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idEquipo);
+    const zonas = useSelector((state) => state.zonas.data);
 
     const [fechaActual, setFechaActual] = useState(null);
-    
+    const [zonaActual, setZonaActual] = useState(null);
+
     // Evitar múltiples despachos seguidos
     const fetchPartidosEquipos = useCallback(debounce(() => {
         dispatch(fetchPartidos());
         dispatch(fetchEquipos());
     }, 500), [dispatch]);
+    
+    useEffect(() => {
+        dispatch(fetchZonas());
+    }, [idEquipo]);
 
     useEffect(() => {
         fetchPartidosEquipos();
@@ -58,15 +65,26 @@ const useMatchesUser = (idEquipo) => {
 
     useEffect(() => {
         if (partidos.length > 0 && miEquipo) {
-            const sortedPartidos = partidos
-                .filter((partido) => partido.id_zona === miEquipo.id_zona)
-                .sort((a, b) => new Date(b.dia) - new Date(a.dia));
-
-            const latestFecha = sortedPartidos.reduce((max, partido) => (partido.jornada > max ? partido.jornada : max), 0);            
-            setFechaActual(latestFecha);
+            // Filtra los partidos del equipo en la misma zona
+            const partidosZonaEquipo = partidos.filter(
+                (partido) => partido.id_equipoLocal === miEquipo.id_equipo || partido.id_equipoVisita === miEquipo.id_equipo
+            );
+    
+            if (partidosZonaEquipo.length > 0) {
+                // Encuentra la jornada más alta en los partidos de este equipo
+                const partidoJornadaAlta = partidosZonaEquipo.reduce((prev, current) => 
+                    (current.jornada > prev.jornada ? current : prev), partidosZonaEquipo[0]);
+    
+                // Guarda la jornada y zona del partido con la jornada más alta
+                setFechaActual(partidoJornadaAlta.jornada);
+    
+                // Si necesitas guardar la zona también
+                const zonaPartidoAltaJornada = zonas.find(zona => zona.id_zona === partidoJornadaAlta.id_zona);
+                setZonaActual(zonaPartidoAltaJornada);
+            }
         }
-    }, [partidos, miEquipo]);
-
+    }, [partidos, miEquipo, zonas]);
+    
     const proximoPartido = partidos
     .filter(
         (partido) =>
@@ -96,14 +114,14 @@ const partidoAMostrar = partidoEnDirecto || proximoPartido || ultimoPartido || p
         
 // Filtrar partidos por jornada y zona
 const partidosFecha = partidos
-    .filter(partido => partido.id_zona === miEquipo?.id_zona && partido.jornada === fechaActual)
+    .filter(partido => partido.id_zona === zonaActual?.id_zona && partido.jornada === fechaActual)
     .sort((a, b) => {
         // Primero en vivo, luego pendientes, luego finalizados
         const statusOrder = { 'C': 1, 'P': 2, 'F': 3, 'T': 3 };
         return statusOrder[a.estado] - statusOrder[b.estado] || new Date(a.dia) - new Date(b.dia);
     });
 
-    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, partidos };
+    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, partidos, zonaActual };
 }
 
 export default useMatchesUser;

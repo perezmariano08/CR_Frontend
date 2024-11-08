@@ -52,8 +52,7 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
         const {id_equipoLocal, id_equipoVisita} = partido;
         const nombreLocal = nombresEquipos(id_equipoLocal);
         const nombreVisita = nombresEquipos(id_equipoVisita);
-        console.log(nombreLocal, nombreVisita);
-        
+
         return <p>{nombreLocal} / {nombreVisita}</p>;
     };
 
@@ -96,6 +95,11 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
                                                     </div>
                                                     <div className='goles'>
                                                         {partido.goles_local}
+                                                        {
+                                                            partido.pen_local && (
+                                                                <span className='penales'>({partido.pen_local})</span>
+                                                            )
+                                                        }
                                                     </div>
                                                 </div>
                                                 <div className={`equipo ${equipoVisitaPerdedor ? 'perdedor' : ''} ${!partido.id_equipoVisita ? 'perdedor' : ''}`}>
@@ -109,6 +113,11 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
                                                     </div>
                                                     <div className='goles'>
                                                         {partido.goles_visita}
+                                                        {
+                                                            partido.pen_local && (
+                                                                <span className='penales'>({partido.pen_visita})</span>
+                                                            )
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
