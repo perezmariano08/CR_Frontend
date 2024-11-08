@@ -24,6 +24,7 @@ import { WatchContainer, WatchFixtureContainer } from '../../../components/Stats
 import useMatchesUser from '../../../hooks/useMatchesUser';
 import UserCategoriasMenuNav from './UserCategoriasMenuNav';
 import { LoaderIcon } from 'react-hot-toast';
+import { nombreMes } from './utils';
 
 const UserCategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -58,6 +59,8 @@ const UserCategoriasFixture = () => {
             }
         };
         fetchZonas();
+
+
     }, []);
 
     useEffect(() => {
@@ -118,15 +121,6 @@ const UserCategoriasFixture = () => {
         navigate(`/stats-match?id=${id}`);
     };
 
-    const meses = [
-        "enero", "febrero", "marzo", "abril", "mayo", "junio", 
-        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-    ];
-    
-    const nombreMes = (numeroMes) => {
-    return meses[numeroMes - 1]; 
-    };
-
     const partidosPorFecha = partidosCategoria.reduce((acc, partido) => {
         const fechaPartido = `${partido.dia_nombre}, ${partido.dia_numero} de ${nombreMes(partido.mes)} de ${partido.año}`;
         if (!acc[fechaPartido]) {
@@ -185,6 +179,7 @@ const UserCategoriasFixture = () => {
             </GanadorPerdedorContainer>
         );
     };
+
     
     return (
         <>
