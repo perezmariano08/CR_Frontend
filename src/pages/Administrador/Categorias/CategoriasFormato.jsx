@@ -93,7 +93,7 @@ const CategoriasFormato = () => {
     const [faseActual, setFaseActual] = useState(null);
     const [VacanteEliminar, setVacanteEliminar] = useState(null)
     const [partidosZona, setPartidosZona] = useState([]);
-    const [partidosCategoria, setPartidosCategoria] = useState([]);
+    // const [partidosCategoria, setPartidosCategoria] = useState([]);
     const [triggerFetch, setTriggerFetch] = useState(false); // Variable de estado para controlar el fetch
 
     const agregarEquipoZona = async (id_zona, vacante) => {
