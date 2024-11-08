@@ -249,3 +249,13 @@ export const actualizarPartidoVacante = async (id_partido) => {
         return false
     }
 }
+
+export const determinarVentaja = async (id_zona, vacante) => {
+    try {
+        const response = await Axios.get(`${URL}/user/determinar-ventaja`, { id_zona, vacante } )
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}

@@ -12,7 +12,6 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
 
     const [etapaSeleccionada, setEtapaSeleccionada] = useState(null);
     
-
     // Procesar zonas para obtener solo las de la categoría seleccionada y fases ordenadas
     const zonasPorEtapa = React.useMemo(() => {
         const fasesOrdenadas = zonas
