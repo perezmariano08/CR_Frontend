@@ -78,8 +78,14 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
                                 partidos
                                     .filter((p) => p.id_zona === zona.id_zona)
                                     .map((partido) => {
-                                        const equipoLocalPerdedor = partido.estado === "F" || partido.estado === "S" && partido.goles_local < partido.goles_visita;
-                                        const equipoVisitaPerdedor = partido.estado === "F" || partido.estado === "S" && partido.goles_visita < partido.goles_local;
+                                        const equipoLocalPerdedor = (partido.estado === "F" && partido.goles_local < partido.goles_visita) || 
+                                        (partido.estado === "S" && partido.goles_local < partido.goles_visita) ||
+                                        (partido.estado === "F" && partido.goles_local === partido.goles_visita && partido.pen_local < partido.pen_visita);
+            
+            const equipoVisitaPerdedor = (partido.estado === "F" && partido.goles_visita < partido.goles_local) || 
+                                         (partido.estado === "S" && partido.goles_visita < partido.goles_local) ||
+                                         (partido.estado === "F" && partido.goles_local === partido.goles_visita && partido.pen_visita < partido.pen_local);
+            
 
                                         return (
                                             <div key={partido.id_partido} className="match">
