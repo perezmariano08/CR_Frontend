@@ -51,6 +51,30 @@ export const ApercibimientosContainer = styled.span`
     color: var(--red);
 `
 
+export const PublicarCategoriaContainer = styled.div`
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    background-color: var(--gray-400);
+    width: 40%;
+    padding: 20px;
+    border-radius: 20px;
+
+    span {
+        font-weight: 700;
+        font-size: 18px;
+    }
+
+    a {
+        color: var(--green);
+        text-decoration: underline;
+    }
+
+    button {
+        margin-top: 20px;
+    }
+`
+
 export const ResumenItemsContainer = styled.div`
     display: flex;
     gap: 10px;
@@ -98,6 +122,15 @@ export const ResumenItemDescripcion = styled.div`
         margin-top: 30px;
         color: var(--green);
         text-decoration: underline;
+    }
+`
+
+export const VacantesEstado = styled.div`
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    svg {
+        font-size: 30px;
     }
 `
 
@@ -202,11 +235,18 @@ export const VacanteWrapper = styled.div`
     transition: all .2s ease-in;
     cursor: pointer;
     position: relative;
+    overflow: hidden;
 
     &:hover {
         background-color: var(--gray-300);
     }
 
+    
+
+    &.cruce {
+        border-color: orange;
+        
+    }
     &.equipo {
         border-color: var(--green);
     }
@@ -214,6 +254,10 @@ export const VacanteWrapper = styled.div`
     a {
         text-decoration: underline;
         color: var(--import);
+
+        &.cruce {
+            color: orange;
+        }
     }
 
      /* Agregar un estilo para el texto A1 */
@@ -231,10 +275,17 @@ export const VacanteWrapper = styled.div`
         font-weight: bold;
         border-radius: 0 0 5px;
 
+        
+        &.cruce {
+            background-color: orange;
+            color: var(--black);
+        }
+        
         &.existe {
             background-color: var(--green);
             color: var(--black);
         }
+
     }
 
     .relative {

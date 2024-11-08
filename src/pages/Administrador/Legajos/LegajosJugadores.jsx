@@ -35,24 +35,65 @@ const LegajosJugadores = () => {
         );
     });
 
-    const TablaJugadores = jugadores.map((e) => ({
-        ...e,
-        listas: `${new Set(planteles.filter((p) => p.id_jugador === e.id_jugador).map((p) => p.id_categoria)).size}`,
-        equipos: `${planteles.filter((p) => p.id_jugador === e.id_jugador).length}`,
-        link: (
-            <LinkBodyTemplate to={`/admin/ediciones/categorias/${e.id_jugador}`}>
-                Ingresar
-            </LinkBodyTemplate>
-        ),
-        nombre: `${e.apellido.toUpperCase()}, ${e.nombre}`
-    }));
-
     useEffect(() => {
         dispatch(fetchJugadores());
         dispatch(fetchEquipos())
         dispatch(fetchPlanteles())
         dispatch(fetchTemporadas())
     }, []);
+
+    console.log(jugadores);
+    
+    const columns = [
+        {
+            field: "nombre_completo",
+            header: "nombre completo",
+            body: (rowData) => (
+                `${rowData.apellido.toUpperCase()}, ${rowData.nombre}`
+            ),
+        },
+        {
+            field: "email",
+            header: "email",
+            body: (rowData) => {
+                rowData.email ? '-' : '-'
+            },
+        },
+        {
+            field: "dni",
+            header: "dni"
+        },
+        {
+            field: "equipos",
+            header: "cant. equipos",
+            body: (rowData) => {
+                const cantidadEquipos = new Set(
+                    planteles.filter((p) => p.id_jugador === rowData.id_jugador)
+                    .map((p) => p.id_categoria)
+                ).size;
+        
+                return `${cantidadEquipos} ${cantidadEquipos === 1 ? "equipo" : "equipos"}`;
+            },
+        },
+        {
+            field: "listas",
+            header: "cant. listas",
+            body: (rowData) => {
+                const cantidadListas = planteles.filter((p) => p.id_jugador === rowData.id_jugador).length;
+                return `${cantidadListas} ${cantidadListas === 1 ? "lista" : "listas"}`;
+            },
+        },
+        {
+            field: "link",
+            header: "",
+            body: (rowData) => (
+                    <LinkBodyTemplate to={`/admin/ediciones/categorias/${rowData.id_jugador}`}>
+                        Ingresar
+                    </LinkBodyTemplate>
+            ),
+        },
+        
+    ];
 
     return (
         <Content>
@@ -69,15 +110,15 @@ const LegajosJugadores = () => {
                 />
             </div> */}
             {
-                TablaJugadores.length > 0 ? (
+                jugadores.length > 0 ? (
                     <Table
-                        data={TablaJugadores}
-                        dataColumns={dataJugadoresLegajosColumns}
+                        data={jugadores}
+                        dataColumns={columns}
                         selection={false}
                         sortable={false}
-                        id_={'id_equipo'}
-                        // urlClick={`/admin/categorias/equipos/detalle/`}
-                        // rowClickLink
+                        id_={'id_jugador'}
+                        rowField="id_jugador" 
+                        path="/admin/categorias/equipos/detalle"
                     />
                 ) : (
                     'No se encontraron jugadores.'

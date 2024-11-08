@@ -71,13 +71,16 @@ const EdicionesConfig = () => {
 
     const actualizarDato = async () => {
         const nombre_temporada = `${formState.nombre_edicion.trim()} ${formState.temporada}`
-
+        
         if (!nombre_temporada.trim()) {
             toast.error("Completá los campos.");
             return;
         }
 
-        if (edicionesList.some(a => a.nombre_temporada === nombre_temporada.trim())) {
+        console.log(edicionesList);
+        
+
+        if (edicionesList.some(a => a.nombre_temporada === nombre_temporada.trim()) && !isFormChanges) {
             toast.error(`No se puede actualizar, esa edición ya existe.`);
             return
         }
@@ -92,6 +95,8 @@ const EdicionesConfig = () => {
             apercibimientos: formState.apercibimientos,
             puntos_descuento: formState.puntos_descuento,
         }
+
+        console.log(data);
         await actualizar(data);
     };
 
