@@ -77,6 +77,7 @@ const CategoriasFormato = () => {
         fases_select: null,
         zonas_select: null,
         id_partido_previo: null,
+        etapa: null,
     });
 
     const [isAsignarEquipoZona, setAsignarEquipoZona] = useState(false);
@@ -84,14 +85,27 @@ const CategoriasFormato = () => {
     const [isEliminarVacante, setEliminarVacante] = useState(false);
     const [id_zona, setIdZona] = useState('');
     const [numeroVacante, setNumeroVacante] = useState('');
+    const [idEliminar, setidEliminar] = useState(null)
+    const [zonaExpandida, setZonaExpandida] = useState(null);
+    const [crearEquipo, setCrearEquipo] = useState(false);
+    const [vacantePlayOff, setVacantePlayOff] = useState(false);
+    const [idPartidosZona, setIdPartidosZona] = useState([]);
+    const [faseActual, setFaseActual] = useState(null);
+    const [VacanteEliminar, setVacanteEliminar] = useState(null)
+    const [partidosZona, setPartidosZona] = useState([]);
+    const [partidosCategoria, setPartidosCategoria] = useState([]);
+    const [triggerFetch, setTriggerFetch] = useState(false); // Variable de estado para controlar el fetch
 
-    const agregarEquipoZona = (id_zona, vacante) => {
-
-        setIdZona(id_zona)
-        setNumeroVacante(vacante)
-
-        openEquipoZona()
-    }
+    const agregarEquipoZona = async (id_zona, vacante) => {
+        setIdZona(id_zona);
+        setNumeroVacante(vacante);
+    
+        // Usar el valor de vacante directamente aquí
+        const partidosZonaFetch = await getPartidosZona(id_zona, vacante);
+        setPartidosZona(partidosZonaFetch);
+    
+        openEquipoZona();
+    };
 
     const openEquipoZona = () => setAsignarEquipoZona(true);
     const closeEquipoZona = () => setAsignarEquipoZona(false);
@@ -113,7 +127,30 @@ const CategoriasFormato = () => {
         openCreateModal();
     };
 
-    const [partidosZona, setPartidosZona] = useState([]);
+    useEffect(() => {
+        const fetchPartidosCategoria = async () => {
+            try {
+                const partidos = await getPartidosCategoria(id_categoria);
+                setPartidosCategoria(partidos);
+            } catch (error) {
+                console.error("Error al obtener los partidos de la zona:", error);
+            }
+        };
+    
+        fetchPartidosCategoria();
+    }, [id_categoria, triggerFetch]);
+    
+    const getPartidosCategoria = async (id_categoria) => {
+        try {
+            // Cambia a GET y envía los parámetros como query
+            const response = await axios.get(`${URL}/admin/get-partidos-categoria`, {
+                params: { id_categoria } // Pasar los parámetros aquí
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error al obtener los partidos de la zona:", error);
+        }
+    };
 
     const getPartidosZona = async (id_zona, vacante) => {
         try {
@@ -121,13 +158,12 @@ const CategoriasFormato = () => {
             const response = await axios.get(`${URL}/admin/get-partido-zona`, {
                 params: { id_zona, vacante } // Pasar los parámetros aquí
             });
-            setPartidosZona(response.data);
+            return response.data;
         } catch (error) {
             console.error("Error al obtener los partidos de la zona:", error);
         }
     };
     
-
     // CREAR
     const { crear, isSaving } = useCrud(
         `${URL}/user/crear-zona-vacantes-partidos`, fetchZonas, 'Registro creado correctamente.', "Error al crear el registro."
@@ -148,10 +184,9 @@ const CategoriasFormato = () => {
             id_categoria: id_categoria,
             nombre: formState.nombre_zona.trim(),
             cantidad_equipos: formState.cantidad_equipos,
-            id_etapa: 1,
+            id_etapa: formState.etapa,
             fase: faseEstado,
             tipo_zona: formState.tipo_zona,
-            jornada: 1,
             id_edicion: 1,
         };
 
@@ -169,8 +204,8 @@ const CategoriasFormato = () => {
     const { crear: asignarTemporada, isSaving: isSavingAsignacionEquipo } = useCrud(
         `${URL}/user/insertar-equipo-temporada`,
         fetchTemporadas,
-        'Registro del jugador creado correctamente.',
-        "Error al crear el jugador."
+        'Equipo asignado correctamente.',
+        "Error al asignar el equipo a la vacante."
     );
 
     const agregarEquipo = async () => {
@@ -208,7 +243,6 @@ const CategoriasFormato = () => {
     );
 
     const agregarPlayOffVacante = async () => {
-
         // Validar que id_partido_previo no sea nulo o indefinido
         if (!formState.id_partido_previo) {
             toast.error("El ID del partido previo no puede estar vacío.");
@@ -229,19 +263,16 @@ const CategoriasFormato = () => {
             resultado: resultado,
             vacante: numeroVacante,
         };
-    
         
-
         await guardarVacantePlayOff(data);
         closeAsignarVacantePlayOff();
         resetForm();
+
+        setTriggerFetch(prev => !prev); // Cambiar el estado para disparar el useEffect
+
     }
     
-
     // ELIMINAR
-    const [idEliminar, setidEliminar] = useState(null)
-    const [VacanteEliminar, setVacanteEliminar] = useState(null)
-
     const eliminarZona = (id_zona) => {
         openDeleteModal()
         setidEliminar(id_zona)
@@ -286,8 +317,6 @@ const CategoriasFormato = () => {
         }
     }, [isAsignarEquipoZona]);
 
-    const [zonaExpandida, setZonaExpandida] = useState(null);
-
     const asignarRegistro = async (id_equipo) => {
         // Verificar si el equipo ya está asignado a la vacante
         if (
@@ -310,9 +339,6 @@ const CategoriasFormato = () => {
             };
         } else if (zonaFiltrada.tipo_zona === 'eliminacion-directa') {
 
-            //esperamos a obtener el partido correspondiente
-            await getPartidosZona(id_zona, numeroVacante);
-        
             if (partidosZona.length === 0) {
                 toast.error("No se encontraron partidos para esta zona.");
                 return;
@@ -332,16 +358,12 @@ const CategoriasFormato = () => {
         closeEquipoZona();
         resetForm();
     };
-    
 
     // Función para manejar la expansión
     const toggleExpandido = (id_zona) => {
         // Si la zona seleccionada ya está expandida, la contraemos; si no, la expandimos.
         setZonaExpandida(zonaExpandida === id_zona ? null : id_zona);
     };
-
-    const [crearEquipo, setCrearEquipo] = useState(false);
-    const [vacantePlayOff, setVacantePlayOff] = useState(false);
 
     const manejarCrearEquipo = () => {
         setCrearEquipo(true); // Cambia el estado para mostrar el formulario de creación
@@ -363,8 +385,6 @@ const CategoriasFormato = () => {
         };
         insertarFase(data);
     }
-
-    const [idPartidosZona, setIdPartidosZona] = useState([]);
 
     const getIdPartidosZona = async (id_zona) => {
         try {
@@ -392,17 +412,66 @@ const CategoriasFormato = () => {
         fetchIdPartidosZona();
     }, [formState.zonas_select]);
 
-    const [faseActual, setFaseActual] = useState(null);
-
-    const agregarVacantePlayOff = (fase, vacante, id_zona) => {
+    const agregarVacantePlayOff = async (fase, vacante, id_zona) => {
         openAsignarVacantePlayOff();
         
         setNumeroVacante(vacante);
         setFaseActual(fase);
 
-        getPartidosZona(id_zona, numeroVacante);
+        const partidosZonaFetch = await getPartidosZona(id_zona, numeroVacante);
+        setPartidosZona(partidosZonaFetch);
+
     };
+
+    const obtenerResultadoYEtiquetaVacante = (numeroZona, numeroVacante) => {
+
+        const partidosFiltrados = partidosCategoria.filter(partido => partido.id_zona === numeroZona);
+        
+        const partidoRelaciondo = partidosFiltrados.find(partido => 
+            (partido.vacante_local === numeroVacante || partido.vacante_visita === numeroVacante)
+        );
     
+        if (!partidoRelaciondo) return <>Vacante<NavLink>Seleccionar equipo</NavLink></>;
+    
+        // Obtener el resultado del partido previo basado en el local o visita
+        const esLocal = partidoRelaciondo.vacante_local === numeroVacante;
+        const resultadoPrevio = esLocal ? partidoRelaciondo.res_partido_previo_local : partidoRelaciondo.res_partido_previo_visita;
+        const idPartidoPrevio = esLocal ? partidoRelaciondo.id_partido_previo_local : partidoRelaciondo.id_partido_previo_visita;
+        const partidoPrevio = partidosCategoria.find(p => p.id_partido == idPartidoPrevio);
+
+        const zonaAnterior = partidoPrevio?.id_zona;
+        const zonaFiltrada = zonas.find(z => z.id_zona == zonaAnterior);
+
+        // Determinar quién ganó 
+        const resultado = resultadoPrevio === 'G' ? 'Ganador' : resultadoPrevio === 'P' ? 'Perdedor' : null;
+
+        if (!resultado) return <>Vacante<NavLink>Seleccionar equipo</NavLink></>
+
+        // Generar la etiqueta
+        const letraFase = String.fromCharCode(64 + zonaFiltrada.fase);
+        const etiqueta = `${letraFase}${partidoPrevio?.vacante_local}-${letraFase}${partidoPrevio?.vacante_visita}`; // C1-C2
+    
+        return {
+            resultado,
+            etiqueta,
+        };
+    };
+
+    const [etapas, setEtapas] = useState([]);
+
+    useEffect(() => {
+        const getEtapas = async () => {
+            try {
+                const response = await axios.get(`${URL}/admin/get-etapas`);
+                setEtapas(response.data);
+            } catch (error) {
+                console.error("Error al obtener las etapas:", error);
+            }
+        };
+
+        getEtapas();
+    }, []);
+
     return (
         <Content>
             <MenuContentTop>
@@ -472,10 +541,14 @@ const CategoriasFormato = () => {
                                                     <FormatoZonaVacantes
                                                         className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
                                                         {[...Array(z.cantidad_equipos)].map((_, index) => {
+                                                            const numeroZona = z.id_zona;
                                                             const vacante = index + 1;
                                                             const equipoAsignado = equiposAsignados.find(
                                                                 (e) => e.vacante === vacante
                                                             );
+                                                            // const resultadoVacante = obtenerResultadoVacante(z.id_zona, vacante);
+                                                            const { resultado, etiqueta } = obtenerResultadoYEtiquetaVacante(numeroZona, vacante);
+
 
                                                             const partidoAsignado = partidosCategoria.find((p) => p.id_zona == z.id_zona && p.vacante_local == vacante )
                                                             
@@ -507,22 +580,17 @@ const CategoriasFormato = () => {
                                                                         </>
                                                                     ) : (
                                                                         <>
-                                                                            {
-                                                                                partidoAsignado ? (
-                                                                                    <>
-                                                                                        Resultado
-                                                                                        <VacanteEquipo>
-                                                                                            Cruce definido
-                                                                                        
-                                                                                        </VacanteEquipo>
-                                                                                    </>
-                                                                                ) : (<>
+                                                                        {resultado ? (
+                                                                            <VacanteEquipo>
+                                                                                {resultado} {etiqueta}
+                                                                            </VacanteEquipo>
+                                                                        ) : (
+                                                                            <>
                                                                                 Vacante
-                                                                            <NavLink>Seleccionar equipo</NavLink>
-                                                                                </>)
-                                                                            }
-                                                                            
-                                                                        </>
+                                                                                <NavLink>Seleccionar equipo</NavLink>
+                                                                            </>
+                                                                        )}
+                                                                    </>
                                                                     )}
                                                                     <div
                                                                         className={[partidoAsignado ? 'cruce' : '',equipoAsignado ? 'vacante-texto existe' : 'vacante-texto' ].join(' ')}
@@ -712,6 +780,18 @@ const CategoriasFormato = () => {
                                         id_={"id_tipo_zona"}
                                         column='tipo_zona'
                                         value={formState.tipo_zona}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Etapa
+                                    <Select
+                                        name={'etapa'}
+                                        data={etapas}
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        id_={"id_etapa"}
+                                        column='nombre'
+                                        value={formState.etapa}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
