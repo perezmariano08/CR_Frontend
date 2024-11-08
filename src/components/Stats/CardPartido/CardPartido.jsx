@@ -59,31 +59,50 @@ const CardPartido = ({ partido, rol }) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }
     
+    const formatearFecha = (fecha) => {
+        const date = new Date(fecha);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return ` ${day}/${month}/${year}`;
+    }
+
     return (
         <CardPartidoWrapper> 
-            <CardPartidoTitles>                
-                <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
-                {partido.estado === 'F' || partido.estado === 'T' ? (
-                    <>
-                    {
-                        zonaTipo ? <p>{zona[0]?.nombre_zona} - {partido.cancha}</p> : <p>Fecha {partido.jornada} - {partido.cancha}</p>
-                    }
-                    </>
-                ) : partido.estado === 'S' ? (
-                    <p>{formattedDate} {formattedTime} | Partido suspendido</p>
-                ) : partido.estado === 'P' ? (
-                    <>
-                        {
-                            zonaTipo ? <p>{zona[0]?.nombre_zona} - {partido.cancha}</p> : <p>Fecha {partido.jornada} - {partido.cancha}</p>
-                        }
-                    </>
-                    
-                ) : (
-                    <>
-                        <p>{formattedDate}</p>
-                    </>
-                )}
-            </CardPartidoTitles>
+        <CardPartidoTitles>
+            <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
+            {partido.estado === 'F' || partido.estado === 'T' ? (
+                <>
+                    {zonaTipo ? (
+                        <p>
+                            {zona[0]?.nombre_zona} - {partido.cancha || 'Cancha a confirmar'}
+                        </p>
+                    ) : (
+                        <p>
+                            Fecha {partido.jornada} - {partido.cancha || 'Cancha a confirmar'}
+                        </p>
+                    )}
+                </>
+            ) : partido.estado === 'S' ? (
+                <p>{formattedDate} {formattedTime} | Partido suspendido</p>
+            ) : partido.estado === 'P' ? (
+                <>
+                    {zonaTipo ? (
+                        <p>
+                            {zona[0]?.nombre_zona} - {partido.cancha || 'Cancha a confirmar'} - 
+                            {partido.dia === '0000-00-00' ? ' Fecha a confirmar' : formatearFecha(partido.dia)}
+                        </p>
+                    ) : (
+                        <p>
+                            Fecha {partido.jornada} - {partido.cancha || 'Cancha a confirmar'} - 
+                            {partido.dia === '0000-00-00' ? ' Fecha a confirmar' : formatearFecha(partido.dia)}
+                        </p>
+                    )}
+                </>
+            ) : (
+                <p>{formattedDate}</p>
+            )}
+        </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
                     <img 
@@ -107,7 +126,12 @@ const CardPartido = ({ partido, rol }) => {
                         {partido.estado === 'P' ? ( 
                             <h4>{formattedTime}</h4>
                         ) : (
-                            <h4>{`${partido.goles_local ?? 0}-${partido.goles_visita ?? 0}`}</h4>
+                            <h4>
+                                {partido.pen_local && <span className='penales'>({partido.pen_local})</span>}
+                                {`${partido.goles_local ?? 0}-${partido.goles_visita ?? 0}`}
+                                {partido.pen_visita && <span className='penales'>({partido.pen_visita})</span>}
+                            </h4>
+
                         )}
                         <span>
                             {partido.estado === 'F' || partido.estado === 'T' ? 'Final' : partido.estado === 'S' ? 'Partido suspendido' : partido.estado === 'C' ? 'En curso' : 'Programado'}

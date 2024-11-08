@@ -21,6 +21,9 @@ const useOperationMatch = (bd_jugadores_eventuales, bd_partido, bd_formaciones, 
         }
     };
 
+    console.log(bd_partido.pen_local, bd_partido.pen_visita,);
+    
+
     const updateMatch = async () => {
         try {
             await Axios.put(`${URL}/user/update-partido`, {

@@ -7,7 +7,7 @@ import {
     ContentJornadasFixture, ContentMenuLink, ContentPageWrapper,
     ContentUserContainer, ContentUserMenuTitulo, ContentUserSubMenuTitulo,
     ContentUserTituloContainer, ContentUserTituloContainerStyled,
-    ContentUserWrapper, JornadasEmpty, JornadasFixtureDia, JornadasFixturePartido,
+    ContentUserWrapper, GanadorPerdedorContainer, JornadasEmpty, JornadasFixtureDia, JornadasFixturePartido,
     JornadasFixturePartidoEquipo, JornadasFixtureResultado, JornadasFixtureWrapper,
     JornadasFixtureZona, TituloContainer, TituloText
 } from '../../../components/Content/ContentStyles';
@@ -139,17 +139,51 @@ const UserCategoriasFixture = () => {
     const partido = partidos.find((p) => p.id_categoria === id_categoria && p.jornada === jornadaActual);
     const zonaPartido = partido ? zonas.find((z) => z.id_zona === partido.id_zona) : null;
 
-
-    const traerEquiposPartidoPrevio = (id_partido) => {    
-        const partido = partidos.find((p) => p.id_partido === id_partido);
-        if (!partido) {
-            console.error('Partido no encontrado');
-            return null; 
+    const traerEquiposPartidoPrevio = (id_partido_previo, resultado) => {
+        const partido_previo = partidos.find((p) => p.id_partido === id_partido_previo);
+    
+        if (!partido_previo) {
+            console.error('Partido previo no encontrado');
+            return <p>Equipo a confirmar</p>; 
         }
-        const {id_equipoLocal, id_equipoVisita} = partido;
+    
+        const { id_equipoLocal, id_equipoVisita, vacante_local, vacante_visita, id_zona } = partido_previo;
+        
+        // Determina si el equipo está definido
+        const equipoDefinido = id_equipoLocal && id_equipoVisita;
+        
+        // Determina si debe mostrar "Ganador" o "Perdedor"
+        const equipoPlaceholder = resultado === 'G' ? 'Ganador' : 'Perdedor';
+        const color = resultado === 'G' ? 'var(--green)' : 'var(--red)';
+        
+        if (!equipoDefinido) {
+            // Calcular el número de partido de la fase previa basándose en las vacantes
+            // Ajustamos el número del partido para comenzar desde 1
+            const vacantes = [vacante_local, vacante_visita];
+            const numeroPartido = Math.max(...vacantes) % 2 === 0 ? Math.max(...vacantes) / 2 : Math.floor(Math.max(...vacantes) / 2) + 1;
+    
+            const zona = zonas.find((z) => z.id_zona === id_zona);
+            const zonaNombre = zona ? `${zona.nombre_etapa} - ${zona.nombre_zona}` : 'Zona desconocida';
+    
+            return (
+                <GanadorPerdedorContainer color={color}>
+                    <p>
+                        {equipoPlaceholder} de {zonaNombre}, Partido {numeroPartido}
+                    </p>
+                </GanadorPerdedorContainer>
+            );
+        }
+        
+        // Si el equipo está definido, muestra los nombres de los equipos
         const nombreLocal = nombresEquipos(id_equipoLocal);
         const nombreVisita = nombresEquipos(id_equipoVisita);
-        return <p>{nombreLocal} / {nombreVisita}</p>;
+    
+        return (
+            <GanadorPerdedorContainer color={color}>
+                <p>{equipoPlaceholder}</p>
+                <span>{nombreLocal} / {nombreVisita}</span>
+            </GanadorPerdedorContainer>
+        );
     };
     
     return (
@@ -228,7 +262,9 @@ const UserCategoriasFixture = () => {
     
                                     {Object.keys(partidosPorFecha).map((fecha, index) => (
                                         <React.Fragment key={index}>
-                                            <JornadasFixtureDia>{fecha}</JornadasFixtureDia>
+                                            <JornadasFixtureDia>
+                                                <p>{fecha === 'null, 0 de undefined de 0' ? 'Fecha a confirmar' : fecha}</p>
+                                            </JornadasFixtureDia>
                                             {zonasFiltradas.length > 1 ? (
                                             zonasFiltradas.map((zona) => {
                                                 const partidosDeZona = partidosPorFecha[fecha].filter(p => p.id_zona === zona.id_zona);
@@ -256,16 +292,30 @@ const UserCategoriasFixture = () => {
 
                                                                                 </>
                                                                             : 
-                                                                                traerEquiposPartidoPrevio(partido.id_partido_previo_local)
+                                                                                traerEquiposPartidoPrevio(partido.id_partido_previo_local, partido.res_partido_previo_local)
+
                                                                         }
                                                                     </JornadasFixturePartidoEquipo>
                                                                     <JornadasFixtureResultado className={partido.estado === 'F' || partido.estado === 'S' ? '' : 'hora'}>
-                                                                        {partido.estado === 'F' || partido.estado === 'S'
-                                                                            ? `${partido.goles_local} - ${partido.goles_visita}`
-                                                                            : partido.estado === 'A'
-                                                                                ? <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>
-                                                                                : formatHour(partido.hora)}
+                                                                        {partido.estado === 'F' || partido.estado === 'S' ? (
+                                                                            <>
+                                                                                <div className='goles'>
+                                                                                    {partido.pen_local && <span className='penales'>({partido.pen_local})</span>}
+                                                                                    {partido.goles_local}
+                                                                                </div>
+                                                                                -
+                                                                                <div className='goles'>
+                                                                                    {partido.goles_visita}
+                                                                                    {partido.pen_visita && <span className='penales'>({partido.pen_visita})</span>}
+                                                                                </div>
+                                                                            </>
+                                                                        ) : partido.estado === 'A' ? (
+                                                                            <span style={{ fontSize: '10px', color: '#a8a8a8' }}>POSTERGADO</span>
+                                                                        ) : (
+                                                                            formatHour(partido.hora)
+                                                                        )}
                                                                     </JornadasFixtureResultado>
+
                                                                     <JornadasFixturePartidoEquipo className='visita'>
                                                                         {
                                                                             partido.id_equipoVisita ? 
@@ -274,7 +324,7 @@ const UserCategoriasFixture = () => {
                                                                                     <p className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{nombresEquipos(partido.id_equipoVisita)}</p>
                                                                                 </>
                                                                             : 
-                                                                                traerEquiposPartidoPrevio(partido.id_partido_previo_visita)
+                                                                                traerEquiposPartidoPrevio(partido.id_partido_previo_visita, partido.res_partido_previo_visita)
                                                                         }
                                                                     </JornadasFixturePartidoEquipo>
                                                                 </JornadasFixturePartido>

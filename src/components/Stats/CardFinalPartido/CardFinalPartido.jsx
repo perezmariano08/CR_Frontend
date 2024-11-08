@@ -100,7 +100,12 @@ const CardFinalPartido = ({ idPartido }) => {
                             </WatchContainer>
                         )
                     }
-                    <h4>{golesNube.local.length}-{golesNube.visita.length}</h4>
+                    <h4>
+                        {partido.pen_local && <span className='penales'>({partido.pen_local})</span>}
+                        {golesNube.local.length}-{golesNube.visita.length}
+                        {partido.pen_visita && <span className='penales'>({partido.pen_visita})</span>}
+                    </h4>
+
                     {estadoPartido === 'P' ? (
                         <span>Programado</span>
                     ) : estadoPartido === 'T' || estadoPartido === 'F' ? (

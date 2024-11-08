@@ -432,9 +432,6 @@ export const JornadasFixturePartido = styled.div`
     padding: 16px 32px;
     justify-content: center;
     gap: 20px;
-    @media (max-width: 968px) {
-        padding: 12px 20px;
-    }
     cursor: pointer;
     transition: all ease .2s;
     position: relative;
@@ -445,6 +442,14 @@ export const JornadasFixturePartido = styled.div`
 
     &.suspendido {
         background-color: var(--black);
+    }
+
+    @media (max-width: 968px) {
+        gap: 3px;
+        padding: 12px 20px;
+    }
+    @media (max-width: 568px) {
+        
     }
 `;
 
@@ -471,9 +476,36 @@ export const JornadasFixturePartidoEquipo = styled.div`
 
     @media (max-width: 968px) {
         min-width: 0;
+        gap: 5px;
+        font-size: 12px;
+
     }
     @media (max-width: 568px) {
         font-size: 12px;
+    }
+`;
+
+export const GanadorPerdedorContainer = styled.div`
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+
+    p {
+        font-size: 14px;
+        color: ${(props) => props.color};
+    }
+
+    span {
+        font-size: 12px;
+        color: var(--gray-200);
+    }
+
+    @media (max-width: 968px) {
+        p {
+            font-size: 12px;
+        }
+
     }
 `;
 
@@ -497,6 +529,12 @@ export const JornadasFixtureResultado = styled.div`
 
     @media (max-width: 568px) {
         font-size: 16px;
+    }
+
+    .penales {
+        font-size: 12px;
+        margin-left: 4px;
+        margin-right: 4px;
     }
 `;
 

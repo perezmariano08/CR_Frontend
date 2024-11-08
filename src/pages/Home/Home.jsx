@@ -39,7 +39,8 @@ const Home = () => {
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
     const id_zona = miEquipo?.id_zona;
 
-    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido } = useMatchesUser(idMyTeam);
+    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, zonaActual } = useMatchesUser(idMyTeam);
+console.log(partidoAMostrar);
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
@@ -145,7 +146,13 @@ const Home = () => {
                         <Section>
                             {fechaActual && partidosFecha.length > 0 ? (
                                 <>
-                                    <h2>{`Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`}</h2>
+                                    <h2>{
+                                        zonaActual.tipo_zona === 'todos-contra-todos'
+                                            ? `Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`
+                                            : `${zonaActual.nombre_zona} - ${partidosFecha[0]?.nombre_categoria}`
+                                        }
+
+                                    </h2>
                                     <CardsMatchesContainer>
                                         <CardsMatchesWrapper>
                                             {partidosFecha
