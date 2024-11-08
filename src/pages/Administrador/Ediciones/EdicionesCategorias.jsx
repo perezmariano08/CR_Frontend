@@ -142,8 +142,8 @@ const EdicionesCategorias = () => {
                             selection={false}
                             sortable={false}
                             id_={'id_categoria'}
-                            urlClick={`/admin/categorias/resumen/`}
-                            rowClickLink
+                            path={`/admin/categorias/resumen`}
+                            rowField={'id_categoria'}
                         />
                         <Button bg="success" color="white" onClick={openCreateModal}>
                             <FiPlus />

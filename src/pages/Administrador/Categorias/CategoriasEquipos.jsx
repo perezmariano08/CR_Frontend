@@ -46,7 +46,6 @@ const CategoriasEquipos = () => {
     const jugadoresList = useSelector((state) => state.jugadores.data);
     const zonas = useSelector((state) => state.zonas.data);
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == id_categoria);
-    console.log(zonasFiltradas);
     
     const temporadas = useSelector((state) => state.temporadas.data);
     // Filtrar los equipos de la temporada y asegurarse de que no haya duplicados por id_equipo
@@ -139,10 +138,13 @@ const CategoriasEquipos = () => {
 
         const data = {
             id_categoria: formState.id_categoria,
+
             id_edicion: formState.id_edicion,
             id_equipo: id_equipo,
-            id_zona: null
+            id_zona: null,
+            vacante: null
         };
+                
 
         await asignarTemporada(data);
         closeCreateModal();
@@ -167,7 +169,6 @@ const CategoriasEquipos = () => {
             id_edicion: formState.id_edicion,
             id_equipo: idEliminar,
         }
-        console.log(data)        
 
         try {
             await eliminarPorData(data);
@@ -292,8 +293,8 @@ useEffect(() => {
                             selection={false}
                             sortable={false}
                             id_={id}
-                            urlClick={`/admin/categorias/equipos/${id_categoria}/detalle/`}
-                            rowClickLink
+                            path={`/admin/categorias/equipos/${id_categoria}/detalle`}
+                            rowField={'id_equipo'}
                         />
                     </>
                 ) : (

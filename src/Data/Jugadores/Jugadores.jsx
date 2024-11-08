@@ -8,11 +8,8 @@ export const dataJugadoresColumns = [
 ];
 
 export const dataJugadoresLegajosColumns = [
-    { field: 'nombre', header: 'nombre completo' },
     { field: 'email', header: 'Email' },
     { field: 'dni', header: 'DNI' },
-    { field: 'equipos', header: 'Cant. equipos' },
-    { field: 'listas', header: 'cant. listas' },
     { field: 'link', header: '' },
 ];
 

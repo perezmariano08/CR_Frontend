@@ -26,6 +26,7 @@ import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { CategoriasEdicionEmpty, TablasTemporadaContainer, TablaTemporada } from '../Ediciones/edicionesStyles';
 import useForm from '../../../hooks/useForm';
 import { TbPlayFootball } from 'react-icons/tb';
@@ -57,6 +58,9 @@ const CategoriasFormato = () => {
     const categoriasList = useSelector((state) => state.categorias.data);
     const equiposList = useSelector((state) => state.equipos.data);
     const zonas = useSelector((state) => state.zonas.data);
+    const partidos = useSelector((state) => state.partidos.data);
+    const partidosCategoria = partidos.filter((p) => p.id_categoria == id_categoria)
+    
     const temporadas = useSelector((state) => state.temporadas.data);
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
     const fases = useSelector((state) => state.fases.data);
@@ -272,6 +276,7 @@ const CategoriasFormato = () => {
         dispatch(fetchEquipos());
         dispatch(fetchZonas());
         dispatch(fetchTemporadas());
+        dispatch(fetchPartidos());
         dispatch(fetchFases(id_categoria));
 
         if (isAsignarEquipoZona) {
@@ -366,18 +371,18 @@ const CategoriasFormato = () => {
             const response = await axios.get(`${URL}/admin/get-partidos-zona`, {
                 params: { id_zona }
             });
+            setIdPartidosZona(response.data); // Guarda los datos en el estado
             return response.data;
         } catch (error) {
-            console.error("Error al obtener los partidos de la zona:", error);
+            return []; // Retorna un array vacío en caso de error
         }
     };
-
     useEffect(() => {
         const fetchIdPartidosZona = async () => {
-            if (formState.zonas_select) {
+            if (formState?.zonas_select) {
                 try {
                     const data = await getIdPartidosZona(formState.zonas_select);
-                    setIdPartidosZona(data); // Guarda los datos en el estado
+                    setIdPartidosZona(data || []); // Guarda los datos en el estado
                 } catch (error) {
                     console.error("Error al obtener los partidos de la zona:", error);
                 }
@@ -472,10 +477,13 @@ const CategoriasFormato = () => {
                                                                 (e) => e.vacante === vacante
                                                             );
 
+                                                            const partidoAsignado = partidosCategoria.find((p) => p.id_zona == z.id_zona && p.vacante_local == vacante )
+                                                            
+                                                            
                                                             return (
                                                                 <VacanteWrapper
                                                                     key={`vacante-${index}`}
-                                                                    className={equipoAsignado ? 'equipo' : ''}
+                                                                    className={[partidoAsignado ? 'cruce' : '',equipoAsignado ? 'equipo' : '' ].join(' ')}
                                                                     onClick={() => {
                                                                         if (z.tipo_zona === 'todos-contra-todos') {
                                                                             agregarEquipoZona(z.id_zona, vacante);
@@ -499,14 +507,27 @@ const CategoriasFormato = () => {
                                                                         </>
                                                                     ) : (
                                                                         <>
-                                                                            Vacante
+                                                                            {
+                                                                                partidoAsignado ? (
+                                                                                    <>
+                                                                                        Resultado
+                                                                                        <VacanteEquipo>
+                                                                                            Cruce definido
+                                                                                        
+                                                                                        </VacanteEquipo>
+                                                                                    </>
+                                                                                ) : (<>
+                                                                                Vacante
                                                                             <NavLink>Seleccionar equipo</NavLink>
+                                                                                </>)
+                                                                            }
+                                                                            
                                                                         </>
                                                                     )}
                                                                     <div
-                                                                        className={
-                                                                            equipoAsignado ? 'vacante-texto existe' : 'vacante-texto'
-                                                                        }>
+                                                                        className={[partidoAsignado ? 'cruce' : '',equipoAsignado ? 'vacante-texto existe' : 'vacante-texto' ].join(' ')}
+                                                                    >
+
                                                                         A{vacante}
                                                                     </div>
                                                                     <div

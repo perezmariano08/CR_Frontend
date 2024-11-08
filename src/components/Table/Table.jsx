@@ -12,7 +12,7 @@ import { DataItemEstado, DataItemTemporada } from '../../pages/Administrador/Edi
 import { useNavigate } from 'react-router-dom';
 
 
-const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false, sortable = true}) => {
+const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false, sortable = true, rowField, path}) => {
 
     const dispatch = useDispatch();
     const selectedProducts = useSelector((state) => state.selectedRows.selectedRows);
@@ -220,9 +220,10 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
     );
 
     const navigate = useNavigate(); // Hook para manejar la navegación
-    const handleRowClicks = (rowData) => {
-        // Aquí defines la ruta a la que deseas redirigir
-        navigate(`${urlClick}${rowData[id_]}`);
+
+    const handleRowClick = (e) => {
+        const fieldValue = e.data[rowField]; // Obtiene el valor del campo dinámico de la fila seleccionada        
+        navigate(`${path}/${fieldValue}`); // Navega a la página de detalles usando el path y el valor del campo
     };
 
     return (
@@ -238,7 +239,8 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                 selection={selectedProducts}
                 onSelectionChange={onSelectionChange}
                 dataKey={id_}
-                onRowClick={rowClickLink ? (e) => handleRowClicks(e.data) : null} // Condicional para onRowClick
+                // onRowClick={rowClickLink ? (e) => handleRowClicks(e.data) : null} Condicional para onRowClick
+                onRowClick={rowField ? handleRowClick :  null} // Condicional para onRowClick
             >
                 {
                     selection && (
@@ -253,6 +255,7 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
                         sortable={sortable}
                         style={{ width: 'auto' }}
                         body={
+                            col.body ? col.body :
                             arrayName === 'Equipos' && col.field === 'nombre'
                             || arrayName === 'Usuarios' && col.field === 'equipo'
                             || arrayName === 'Jugadores' && col.field === 'id_equipo'

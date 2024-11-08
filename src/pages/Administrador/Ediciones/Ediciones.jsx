@@ -171,8 +171,8 @@ const Ediciones = () => {
                             selection={false}
                             sortable={false}
                             id_={'id_edicion'}
-                            urlClick={'/admin/ediciones/categorias/'}
-                            rowClickLink
+                            path={'/admin/ediciones/categorias'}
+                            rowField={'id_edicion'}
                         />
                     </TablaTemporada>
                 ))}
@@ -338,7 +338,6 @@ const Ediciones = () => {
                                     />
                                     </ModalFormInputContainer>
                                 </ModalFormWrapper>
-
                             </>
                         }
                     />

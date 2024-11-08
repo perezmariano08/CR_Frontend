@@ -281,6 +281,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchEquipos());
         dispatch(fetchPlanteles());
         dispatch(fetchJugadores());
+        dispatch(fetchTemporadas());
         closeCreateModal();
         resetForm()
     };
@@ -489,7 +490,7 @@ const CategoriasEquiposDetalle = () => {
             {
                 ListaBuenaFeEquipo.length > 0 ? (
                     <>
-                        <p>Lista de buena fé ({equipoFiltrado.jugadores_con_dni})</p>
+                        <p>Lista de buena fé ({equipoFiltrado.jugadores_con_dni} jugadores) </p>
                         <Table
                             data={ListaBuenaFeEquipo}
                             dataColumns={dataPlantelesColumns}
