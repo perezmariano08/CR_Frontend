@@ -33,19 +33,15 @@ const Home = () => {
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
     
-    const categoriasFiltradas = categorias.filter((c) => c.id_edicion === 1)
-    
     const equipos = useSelector((state) => state.equipos.data);
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
     const id_zona = miEquipo?.id_zona;
 
     const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, zonaActual } = useMatchesUser(idMyTeam);
-console.log(partidoAMostrar);
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (id_zona) {
@@ -74,6 +70,19 @@ console.log(partidoAMostrar);
         setSanciones(sancionesFiltradas);
     }
 
+    const tituloCategoria = (id_zona) => {
+
+        const id_categoria = zonas.find((zona) => zona.id_zona === id_zona).id_categoria;
+        const nombreCategoria = categorias.find((categoria) => categoria.id_categoria == id_categoria).nombre;
+
+        return nombreCategoria ? nombreCategoria : '';
+    }
+
+    const nombreZona = (id_zona) => {
+        const zona = zonas.find((zona) => zona.id_zona === id_zona);
+        return zona ? zona.nombre_zona : '';
+    }
+
     let tituloPartido = '';
     if (partidoEnDirecto) {
         tituloPartido = 'En directo';
@@ -84,128 +93,113 @@ console.log(partidoAMostrar);
     } else {
         tituloPartido = 'No hay partidos programados';
     }
-
+    
     return (
         <>
             <HomeContainerStyled>
                 <HomeWrapper>
                     <HomeLeftWrapper>
-                        <CategoriasListaWrapper>
+                        {ediciones.map((edicion) => (
+                            <CategoriasListaWrapper key={edicion.id_edicion}>
                             <CategoriasListaTitulo>
-                                {
-                                    ediciones.filter((e) => e.id_edicion === 1).map((edicion) => {
-                                        return <p>{edicion.nombre} {edicion.temporada}</p>
-                                    })
-                                }
-                                <span>masculino</span>
+                                <p>{edicion.nombre} {edicion.temporada}</p>
                             </CategoriasListaTitulo>
                             <CategoriasItemsWrapper>
-                                {
-                                    categorias.filter((c) => c.id_edicion === 1).map((c) => {
-                                        return <CategoriasItem to={`/categoria/posiciones/${c.id_categoria}`}>
-                                            {c.nombre}
-                                        </CategoriasItem>
-                                    })
-                                }
+                                {categorias
+                                .filter(
+                                    (categoria) =>
+                                    categoria.id_edicion === edicion.id_edicion &&
+                                    categoria.publicada === "S"
+                                )
+                                .map((categoria) => (
+                                    <CategoriasItem 
+                                    key={categoria.id_categoria} 
+                                    to={`/categoria/posiciones/${categoria.id_categoria}`}
+                                    >
+                                    {categoria.nombre}
+                                    </CategoriasItem>
+                                ))}
                             </CategoriasItemsWrapper>
-                        </CategoriasListaWrapper>
-                        <CategoriasListaWrapper>
-                            <CategoriasListaTitulo>
-                                {
-                                    ediciones.filter((e) => e.id_edicion === 2).map((edicion) => {
-                                        return <p>{edicion.nombre} {edicion.temporada}</p>
-                                    })
-                                }
-                                <span>femenino</span>
-                            </CategoriasListaTitulo>
-                            <CategoriasItemsWrapper>
-                                {
-                                    categorias.filter((c) => c.id_edicion === 2).map((c) => {
-                                        return <CategoriasItem to={`/categoria/posiciones/${c.id_categoria}`}>
-                                            {c.nombre}
-                                        </CategoriasItem>
-                                    })
-                                }
-                            </CategoriasItemsWrapper>
-                        </CategoriasListaWrapper>
-                    </HomeLeftWrapper>
-                    <HomeMediumWrapper>
-                        <Section>
-                            <h2>{tituloPartido} {tituloPartido === 'En directo' && (<CircleLive/>)}</h2>
-                            {partidoAMostrar ? (
-                                <CardPartido
-                                    rol={userRole}
-                                    partido={partidoAMostrar}
-                                />
-                            ) : (
-                                <StatsNull>
-                                    <p>No hay partidos programados para tu equipo.</p>
-                                </StatsNull>
-                            )}
-                        </Section>
-                        <Section>
-                            {fechaActual && partidosFecha.length > 0 ? (
-                                <>
-                                    <h2>{
-                                        zonaActual.tipo_zona === 'todos-contra-todos'
-                                            ? `Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`
-                                            : `${zonaActual.nombre_zona} - ${partidosFecha[0]?.nombre_categoria}`
-                                        }
-
-                                    </h2>
-                                    <CardsMatchesContainer>
-                                        <CardsMatchesWrapper>
-                                            {partidosFecha
-                                                .map((p) => (
-                                                    <CardPartido
-                                                        key={p.id_partido}
-                                                        rol={userRole}
-                                                        partido={p}
-                                                    />
-                                                ))}
-                                        </CardsMatchesWrapper>
-                                    </CardsMatchesContainer>
-                                </>
-                            ) : (
-                                <StatsNull>
-                                    <p>No hay partidos disponibles para esta fecha.</p>
-                                </StatsNull>
-                            )}
-                        </Section>
-                        {sanciones && (
-                            <Section>
-                                <h2>Sanciones</h2>
-                                <TableSanciones
-                                    data={sanciones}
-                                    dataColumns={dataSancionesColumns}
-                                />
-                            </Section>
-                        )}
-                    </HomeMediumWrapper>
-                    <HomeRightWrapper>
-                        {posiciones && zonasFiltradas ? (
-                            <Section>
-                                <CategoriasListaWrapper>
-                                    <CategoriasListaTitulo>
-                                        <p>Serie A - Libre</p>
-                                        <span>Liguilla</span>
-                                    </CategoriasListaTitulo>
-                                    <TablaPosicionesRoutes
-                                        data={posiciones}
-                                        id_categoria={2}
-                                        // zona={zonasFiltradas}
-                                        dataColumns={dataPosicionesTemporadaColumnsMinus}
-                                    />
-                                </CategoriasListaWrapper>
-                                
-                            </Section>
+                            </CategoriasListaWrapper>
+                        ))}
+                </HomeLeftWrapper>
+                <HomeMediumWrapper>
+                    <Section>
+                        <h2>{tituloPartido} {tituloPartido === 'En directo' && (<CircleLive/>)}</h2>
+                        {partidoAMostrar ? (
+                            <CardPartido
+                                rol={userRole}
+                                partido={partidoAMostrar}
+                            />
                         ) : (
-                            <SpinerContainer>
-                                <TailSpin width='40' height='40' color='#2AD174' />
-                            </SpinerContainer>
+                            <StatsNull>
+                                <p>No hay partidos programados para tu equipo.</p>
+                            </StatsNull>
                         )}
-                        <DreamteamUser fecha={fechaActual} id_categoria={partidoAMostrar?.id_categoria} zona={zonasFiltradas}/>
-                    </HomeRightWrapper>
+                    </Section>
+                    <Section>
+                        {fechaActual && partidosFecha.length > 0 ? (
+                            <>
+                                <h2>{
+                                    zonaActual.tipo_zona === 'todos-contra-todos'
+                                        ? `Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`
+                                        : `${zonaActual.nombre_zona} - ${partidosFecha[0]?.nombre_categoria}`
+                                    }
+
+                                </h2>
+                                <CardsMatchesContainer>
+                                    <CardsMatchesWrapper>
+                                        {partidosFecha
+                                            .map((p) => (
+                                                <CardPartido
+                                                    key={p.id_partido}
+                                                    rol={userRole}
+                                                    partido={p}
+                                                />
+                                            ))}
+                                    </CardsMatchesWrapper>
+                                </CardsMatchesContainer>
+                            </>
+                        ) : (
+                            <StatsNull>
+                                <p>No hay partidos disponibles para esta fecha.</p>
+                            </StatsNull>
+                        )}
+                    </Section>
+                    {sanciones && (
+                        <Section>
+                            <h2>Sanciones</h2>
+                            <TableSanciones
+                                data={sanciones}
+                                dataColumns={dataSancionesColumns}
+                            />
+                        </Section>
+                    )}
+                </HomeMediumWrapper>
+                <HomeRightWrapper>
+                    {posiciones && zonasFiltradas ? (
+                        <Section>
+                            <CategoriasListaWrapper>
+                                <CategoriasListaTitulo>
+                                    <p>{tituloCategoria(id_zona)}</p>
+                                    <span>{nombreZona(id_zona)}</span>
+                                </CategoriasListaTitulo>
+                                <TablaPosicionesRoutes
+                                    data={posiciones}
+                                    id_categoria={2}
+                                    // zona={zonasFiltradas}
+                                    dataColumns={dataPosicionesTemporadaColumnsMinus}
+                                />
+                            </CategoriasListaWrapper>
+                            
+                        </Section>
+                    ) : (
+                        <SpinerContainer>
+                            <TailSpin width='40' height='40' color='#2AD174' />
+                        </SpinerContainer>
+                    )}
+                    <DreamteamUser fecha={fechaActual} id_categoria={partidoAMostrar?.id_categoria} zona={zonasFiltradas}/>
+                </HomeRightWrapper>
                 </HomeWrapper>
             </HomeContainerStyled>
         </>

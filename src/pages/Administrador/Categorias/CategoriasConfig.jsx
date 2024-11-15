@@ -49,6 +49,9 @@ const EdicionesConfig = () => {
         tipo_futbol: categoriaFiltrada.tipo_futbol,
         duracion_tiempo: categoriaFiltrada.duracion_tiempo,
         duracion_entretiempo: categoriaFiltrada.duracion_entretiempo,
+        puntos_victoria: categoriaFiltrada.puntos_victoria,
+        puntos_empate: categoriaFiltrada.puntos_empate,
+        puntos_derrota: categoriaFiltrada.puntos_derrota,
     });
 
     const isFormEmpty = !formState.nombre_categoria.trim();
@@ -58,7 +61,10 @@ const EdicionesConfig = () => {
         formState.genero != categoriaFiltrada.genero ||
         formState.tipo_futbol != categoriaFiltrada.tipo_futbol ||
         formState.duracion_tiempo != categoriaFiltrada.duracion_tiempo ||
-        formState.duracion_entretiempo != categoriaFiltrada.duracion_entretiempo
+        formState.duracion_entretiempo != categoriaFiltrada.duracion_entretiempo ||
+        formState.puntos_victoria != categoriaFiltrada.puntos_victoria ||
+        formState.puntos_empate != categoriaFiltrada.puntos_empate ||
+        formState.puntos_derrota != categoriaFiltrada.puntos_derrota
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const { isDeleteModalOpen, openDeleteModal, closeDeleteModal } = useModalsCrud();
@@ -97,8 +103,13 @@ const EdicionesConfig = () => {
             tipo_futbol: formState.tipo_futbol,
             duracion_tiempo: formState.duracion_tiempo,
             duracion_entretiempo: formState.duracion_entretiempo,
-            id_categoria: id_categoria
+            id_categoria: id_categoria,
+            puntos_victoria: formState.puntos_victoria,
+            puntos_empate: formState.puntos_empate,
+            puntos_derrota: formState.puntos_derrota
         }
+        console.log(data);
+
         await actualizar(data);
     };
 
@@ -169,6 +180,7 @@ const EdicionesConfig = () => {
                             >
                             </Select>
                         </ModalFormInputContainer>
+                        
                         <ModalFormInputContainer>
                             tipo de futbol
                             <Select 
@@ -203,8 +215,70 @@ const EdicionesConfig = () => {
                             >
                             </Select>
                         </ModalFormInputContainer>
-                        </ModalFormWrapper>
-                        <ModalFormWrapper>
+                    </ModalFormWrapper>
+                    <ModalFormWrapper>
+                        <ModalFormInputContainer>
+                            puntos victoria
+                            <Select 
+                                name={'puntos_victoria'}
+                                data={[
+                                    { puntos_victoria: 0, nombre: "0 puntos" },
+                                    { puntos_victoria: 1, nombre: "1 punto" },
+                                    { puntos_victoria: 2, nombre: "2 puntos" },
+                                    { puntos_victoria: 3, nombre: "3 puntos" },
+                                    { puntos_victoria: 4, nombre: "4 puntos" },
+                                    { puntos_victoria: 5, nombre: "5 puntos" },
+                                    { puntos_victoria: 6, nombre: "6 puntos" }
+                                ]}
+                                icon={<TbNumber className='icon-select'/>}
+                                id_={"puntos_victoria"}
+                                column='nombre'
+                                value={formState.puntos_victoria}
+                                onChange={handleFormChange}
+                            />
+                        </ModalFormInputContainer>
+                        <ModalFormInputContainer>
+                            puntos empate
+                            <Select 
+                                name={'puntos_empate'}
+                                data={[
+                                    { puntos_empate: 0, nombre: "0 puntos" },
+                                    { puntos_empate: 1, nombre: "1 punto" },
+                                    { puntos_empate: 2, nombre: "2 puntos" },
+                                    { puntos_empate: 3, nombre: "3 puntos" },
+                                    { puntos_empate: 4, nombre: "4 puntos" },
+                                    { puntos_empate: 5, nombre: "5 puntos" },
+                                    { puntos_empate: 6, nombre: "6 puntos" }
+                                ]}
+                                icon={<TbNumber className='icon-select'/>}
+                                id_={"puntos_empate"}
+                                column='nombre'
+                                value={formState.puntos_empate}
+                                onChange={handleFormChange}
+                            />
+                        </ModalFormInputContainer>
+                        <ModalFormInputContainer>
+                            puntos derrotas
+                            <Select 
+                                name={'puntos_derrota'}
+                                data={[
+                                    { puntos_derrota: 0, nombre: "0 puntos" },
+                                    { puntos_derrota: 1, nombre: "1 punto" },
+                                    { puntos_derrota: 2, nombre: "2 puntos" },
+                                    { puntos_derrota: 3, nombre: "3 puntos" },
+                                    { puntos_derrota: 4, nombre: "4 puntos" },
+                                    { puntos_derrota: 5, nombre: "5 puntos" },
+                                    { puntos_derrota: 6, nombre: "6 puntos" }
+                                ]}
+                                icon={<TbNumber className='icon-select'/>}
+                                id_={"puntos_derrota"}
+                                column='nombre'
+                                value={formState.puntos_derrota}
+                                onChange={handleFormChange}
+                            />
+                        </ModalFormInputContainer>
+                    </ModalFormWrapper>
+                    <ModalFormWrapper>
                         <ModalFormInputContainer>
                             duración de cada tiempo
                             <Input 

@@ -6,6 +6,7 @@ import { URLImages } from '../../utils/utils';
 import { MenuPosicionesContainer, MenuPosicionesItemFilter } from '../Content/ContentStyles';
 
 const BracketEliminacionDirecta = ({ id_categoria }) => {
+
     const { escudosEquipos, nombresEquipos } = useEquipos();
     const partidos = useSelector(state => state.partidos.data);
     const zonas = useSelector(state => state.zonas.data);
@@ -54,7 +55,8 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
 
         return <p>{nombreLocal} / {nombreVisita}</p>;
     };
-
+    console.log(zonas[0]);
+    
     return (
         <>
             <MenuPosicionesContainer>
@@ -83,9 +85,8 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
                                         (partido.estado === "F" && partido.goles_local === partido.goles_visita && partido.pen_local < partido.pen_visita);
             
             const equipoVisitaPerdedor = (partido.estado === "F" && partido.goles_visita < partido.goles_local) || 
-                                         (partido.estado === "S" && partido.goles_visita < partido.goles_local) ||
-                                         (partido.estado === "F" && partido.goles_local === partido.goles_visita && partido.pen_visita < partido.pen_local);
-            
+                                        (partido.estado === "S" && partido.goles_visita < partido.goles_local) ||
+                                        (partido.estado === "F" && partido.goles_local === partido.goles_visita && partido.pen_visita < partido.pen_local);
 
                                         return (
                                             <div key={partido.id_partido} className="match">

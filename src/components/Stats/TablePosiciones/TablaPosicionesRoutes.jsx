@@ -3,10 +3,8 @@ import { FormatoDetalleItem, TablaFormatoDetalle, TablaPosiciones, TableContaine
 import { Column } from 'primereact/column';
 import { URLImages } from '../../../utils/utils';
 import { useSelector } from 'react-redux';
-import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import { useNavigate } from 'react-router-dom';
-import { SpinerContainer } from '../../../Auth/SpinerStyles';
-import { TailSpin } from 'react-loader-spinner';
+
 
 const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)

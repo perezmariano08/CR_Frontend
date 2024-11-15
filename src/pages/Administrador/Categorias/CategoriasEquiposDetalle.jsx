@@ -394,15 +394,15 @@ const CategoriasEquiposDetalle = () => {
                     id_equipo: id_equipo, // Reemplaza esto con el id del equipo actual
                     id_edicion: categoriaFiltrada.id_edicion, // Reemplaza con la edición actual
                     id_categoria: equipoFiltrado.id_categoria // Reemplaza con la categoría actual
-                });
-    
-                console.log(`Jugador con DNI ${dni} agregado correctamente.`);
+                })
+                
             }
             setIsImporting(false)
             toast.success("Importación completada correctamente.");
             dispatch(fetchJugadores());
             dispatch(fetchPlanteles());
             dispatch(fetchEquipos())
+            dispatch(fetchTemporadas())
             closeImportModal()
         } catch (error) {
             console.error("Error durante la importación:", error);

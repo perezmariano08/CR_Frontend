@@ -92,36 +92,36 @@ const useMatchesUser = (idEquipo) => {
             (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
     )
     .sort((a, b) => new Date(a.dia) - new Date(b.dia))[0]; // Ordenar por fecha más cercana
+    
+    const ultimoPartido = partidos
+        .filter(
+            (partido) => 
+                (partido.estado === 'F' || partido.estado === 'T') && // Estado de "Finalizado" o "Terminado"
+                (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
+        )
+        .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0]; // Ordenar por fecha más reciente
 
-const ultimoPartido = partidos
-    .filter(
-        (partido) => 
-            (partido.estado === 'F' || partido.estado === 'T') && // Estado de "Finalizado" o "Terminado"
-            (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
-    )
-    .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0]; // Ordenar por fecha más reciente
+    const partidoEnDirecto = partidos
+        .filter(
+            (partido) => 
+                partido.estado === 'C' && // Estado de "En directo"
+                (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
+        )
+        .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0]; // Ordenar por fecha más reciente
 
-const partidoEnDirecto = partidos
-    .filter(
-        (partido) => 
-            partido.estado === 'C' && // Estado de "En directo"
-            (partido.id_equipoLocal === miEquipo?.id_equipo || partido.id_equipoVisita === miEquipo?.id_equipo)
-    )
-    .sort((a, b) => new Date(b.dia) - new Date(a.dia))[0]; // Ordenar por fecha más reciente
-
-const partidoAMostrar = partidoEnDirecto || proximoPartido || ultimoPartido || partidos[0] || null;
+    const partidoAMostrar = partidoEnDirecto || proximoPartido || ultimoPartido || partidos[0] || null;
 
         
-// Filtrar partidos por jornada y zona
-const partidosFecha = partidos
-    .filter(partido => partido.id_zona === zonaActual?.id_zona && partido.jornada === fechaActual)
-    .sort((a, b) => {
-        // Primero en vivo, luego pendientes, luego finalizados
-        const statusOrder = { 'C': 1, 'P': 2, 'F': 3, 'T': 3 };
-        return statusOrder[a.estado] - statusOrder[b.estado] || new Date(a.dia) - new Date(b.dia);
-    });
+    // Filtrar partidos por jornada y zona
+    const partidosFecha = partidos
+        .filter(partido => partido.id_zona === zonaActual?.id_zona && partido.jornada === fechaActual)
+        .sort((a, b) => {
+            // Primero en vivo, luego pendientes, luego finalizados
+            const statusOrder = { 'C': 1, 'P': 2, 'F': 3, 'T': 3 };
+            return statusOrder[a.estado] - statusOrder[b.estado] || new Date(a.dia) - new Date(b.dia);
+        });
 
-    return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, partidos, zonaActual };
-}
+        return { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, partidos, zonaActual };
+    }
 
 export default useMatchesUser;
