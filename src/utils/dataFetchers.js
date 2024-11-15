@@ -259,3 +259,55 @@ export const determinarVentaja = async (id_zona, vacante) => {
         return false
     }
 }
+
+export const getPartidosCategoria = async (id_categoria) => {
+    try {
+        // Cambia a GET y envía los parámetros como query
+        const response = await Axios.get(`${URL}/admin/get-partidos-categoria`, {
+            params: { id_categoria } // Pasar los parámetros aquí
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener los partidos de la zona:", error);
+    }
+};
+
+export const getPartidosZona = async (id_zona, vacante) => {
+    try {
+        // Cambia a GET y envía los parámetros como query
+        const response = await Axios.get(`${URL}/admin/get-partido-zona`, {
+            params: { id_zona, vacante } // Pasar los parámetros aquí
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener los partidos de la zona:", error);
+    }
+};
+
+export const insertarFase = async (data) => {
+    try {
+        const response = await Axios.post(`${URL}/admin/create-fases`, data);
+    } catch (error) {
+        console.error("Error al insertar la fase:", error);
+    }
+};
+
+export const getIdPartidosZona = async (id_zona) => {
+    try {
+        const response = await Axios.get(`${URL}/admin/get-partidos-zona`, {
+            params: { id_zona }
+        });
+        return response.data;
+    } catch (error) {
+        return []; // Retorna un array vacío en caso de error
+    }
+};
+
+export const getEtapas = async () => {
+    try {
+        const response = await Axios.get(`${URL}/admin/get-etapas`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener las etapas:", error);
+    }
+};

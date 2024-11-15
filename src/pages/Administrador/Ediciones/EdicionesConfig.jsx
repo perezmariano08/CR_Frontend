@@ -37,9 +37,8 @@ const EdicionesConfig = () => {
     const [formState, handleFormChange, resetForm] = useForm({ 
         nombre_edicion: edicionFiltrada.nombre,
         temporada: edicionFiltrada.temporada,
-        puntos_victoria: edicionFiltrada.puntos_victoria,
-        puntos_empate: edicionFiltrada.puntos_empate,
-        puntos_derrota: edicionFiltrada.puntos_derrota,
+        cantidad_eventuales: edicionFiltrada.cantidad_eventuales,
+        partidos_eventuales: edicionFiltrada.partidos_eventuales,
         apercibimientos: edicionFiltrada.apercibimientos,
         puntos_descuento: edicionFiltrada.puntos_descuento,
     });
@@ -49,9 +48,8 @@ const EdicionesConfig = () => {
     const isFormChanges = 
         formState.nombre_edicion !== edicionFiltrada.nombre ||
         formState.temporada != edicionFiltrada.temporada ||
-        formState.puntos_victoria != edicionFiltrada.puntos_victoria ||
-        formState.puntos_empate != edicionFiltrada.puntos_empate ||
-        formState.puntos_derrota != edicionFiltrada.puntos_derrota ||
+        formState.cantidad_eventuales != edicionFiltrada.cantidad_eventuales ||
+        formState.partidos_eventuales != edicionFiltrada.partidos_eventuales ||
         formState.apercibimientos != edicionFiltrada.apercibimientos ||
         formState.puntos_descuento != edicionFiltrada.puntos_descuento
 
@@ -77,9 +75,6 @@ const EdicionesConfig = () => {
             return;
         }
 
-        console.log(edicionesList);
-        
-
         if (edicionesList.some(a => a.nombre_temporada === nombre_temporada.trim()) && !isFormChanges) {
             toast.error(`No se puede actualizar, esa edición ya existe.`);
             return
@@ -88,15 +83,15 @@ const EdicionesConfig = () => {
         const data = {
             nombre: formState.nombre_edicion,
             temporada: formState.temporada,
-            puntos_victoria: formState.puntos_victoria,
-            puntos_empate: formState.puntos_empate,
-            puntos_derrota: formState.puntos_derrota,
+            cantidad_eventuales: formState.cantidad_eventuales,
+            partidos_eventuales: formState.partidos_eventuales,
             id_edicion: id_edicion,
             apercibimientos: formState.apercibimientos,
             puntos_descuento: formState.puntos_descuento,
         }
 
         console.log(data);
+
         await actualizar(data);
     };
 
@@ -172,91 +167,82 @@ const EdicionesConfig = () => {
                                 
                     <ModalFormWrapper>
                         <ModalFormInputContainer>
-                        puntos por victoria
+                        Cantidad de eventuales
                         <Select 
-                            name={'puntos_victoria'}
+                            name={'cantidad_eventuales'}
                             data={[
                                 {
-                                    puntos_victoria: 0,
-                                    nombre: "No se otorgan",
+                                    cantidad_eventuales: 0,
+                                    nombre: "1 jugador",
                                 },
                                 {
-                                    puntos_victoria: 1,
-                                    nombre: "1 punto",
+                                    cantidad_eventuales: 1,
+                                    nombre: "2 jugadores",
                                 },
                                 {
-                                    puntos_victoria: 2,
-                                    nombre: "2 puntos",
+                                    cantidad_eventuales: 2,
+                                    nombre: "3 jugadores",
                                 },
                                 {
-                                    puntos_victoria: 3,
-                                    nombre: "3 puntos",
-                                }
+                                    cantidad_eventuales: 3,
+                                    nombre: "4 jugadores",
+                                },
+                                {
+                                    cantidad_eventuales: 4,
+                                    nombre: "5 jugadores",
+                                },
+                                {
+                                    cantidad_eventuales: 5,
+                                    nombre: "6 jugadores",
+                                },
                             ]}
                             icon={<TbNumber className='icon-select'/>}
-                            id_={"puntos_victoria"}
+                            id_={"cantidad_eventuales"}
                             column='nombre'
-                            value={formState.puntos_victoria}
+                            value={formState.cantidad_eventuales}
                             onChange={handleFormChange}
                         >
                         </Select>
                     </ModalFormInputContainer>
                     <ModalFormInputContainer>
-                        puntos por empate
+                        Partidos por eventual
                         <Select 
-                            name={'puntos_empate'}
+                            name={'partidos_eventuales'}
                             data={[
                                 {
-                                    puntos_empate: 0,
-                                    nombre: "No se otorgan",
+                                    partidos_eventuales: 0,
+                                    nombre: "Sin limite",
                                 },
                                 {
-                                    puntos_empate: 1,
-                                    nombre: "1 punto",
+                                    partidos_eventuales: 1,
+                                    nombre: "1 partido",
                                 },
                                 {
-                                    puntos_empate: 2,
-                                    nombre: "2 puntos",
+                                    partidos_eventuales: 2,
+                                    nombre: "2 partidos",
                                 },
                                 {
-                                    puntos_empate: 3,
-                                    nombre: "3 puntos",
-                                }
+                                    partidos_eventuales: 3,
+                                    nombre: "3 partidos",
+                                },
+                                {
+                                    partidos_eventuales: 4,
+                                    nombre: "4 partidos",
+                                },
+                                {
+                                    partidos_eventuales: 5,
+                                    nombre: "5 partidos",
+                                },
+                                {
+                                    partidos_eventuales: 6,
+                                    nombre: "6 partidos",
+                                },
+                                
                             ]}
                             icon={<TbNumber className='icon-select'/>}
-                            id_={"puntos_empate"}
+                            id_={"partidos_eventuales"}
                             column='nombre'
-                            value={formState.puntos_empate}
-                            onChange={handleFormChange}
-                        >
-                        </Select>
-                    </ModalFormInputContainer>
-                    <ModalFormInputContainer>
-                        puntos por derrota
-                        <Select 
-                            name={'puntos_derrota'}
-                            data={[
-                                {
-                                    puntos_derrota: 0,
-                                    nombre: "No se otorgan",
-                                },
-                                {
-                                    puntos_derrota: 1,
-                                    nombre: "1 punto",
-                                },
-                                {
-                                    puntos_derrota: 2,
-                                    nombre: "2 puntos",
-                                },
-                                {
-                                    puntos_derrota: 3,
-                                    nombre: "3 puntos",
-                                }
-                            ]}
-                            icon={<TbNumber className='icon-select'/>}
-                            id_={"puntos_derrota"}
-                            column='nombre'
-                            value={formState.puntos_derrota}
+                            value={formState.partidos_eventuales}
                             onChange={handleFormChange}
                         >
                         </Select>

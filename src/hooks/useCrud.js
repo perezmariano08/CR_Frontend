@@ -44,13 +44,15 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             });
             if (response.status === 200) {
                 setIsUpdating(false);
-                toast.success(successMessage);
+                const mensaje = response.data.mensaje;
+                toast.success(mensaje || successMessage);
                 dispatch(fetchAction());
             }
         } catch (error) {
             setIsUpdating(false);
+            const errorMensaje = error.response.data.mensaje;
             console.error(`Error al verificar o agregar.`, error);
-            toast.error(errorMessage);
+            toast.error(errorMensaje || errorMessage);
         }
     };
 

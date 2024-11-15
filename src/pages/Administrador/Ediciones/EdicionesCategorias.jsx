@@ -26,6 +26,8 @@ import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { EstadoBodyTemplate, LinkBodyTemplate } from '../../../components/Table/TableStyles';
 import Skeleton from 'react-loading-skeleton';
+import { TbNumber } from "react-icons/tb";
+
 
 const EdicionesCategorias = () => {
     const dispatch = useDispatch();
@@ -39,6 +41,9 @@ const EdicionesCategorias = () => {
         tipo_futbol: 7,
         duracion_tiempo: 25,
         duracion_entretiempo: 5,
+        puntos_victoria: 3,
+        puntos_empate: 1,
+        puntos_derrota: 0,
     });
     const isFormEmpty = !formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo;
 
@@ -73,7 +78,6 @@ const EdicionesCategorias = () => {
         ),
     }));
 
-
     // CREAR
     const { crear, isSaving } = useCrud(
         `${URL}/user/crear-categoria`, fetchCategorias, 'Registro creado correctamente.', "Error al crear el registro."
@@ -105,16 +109,18 @@ const EdicionesCategorias = () => {
             id_edicion: formState.id_edicion,
             nombre: formState.nombre_categoria.trim(),
             genero: formState.genero,
+            puntos_victoria: formState.puntos_victoria,
+            puntos_empate: formState.puntos_empate,
+            puntos_derrota: formState.puntos_derrota,
             tipo_futbol: formState.tipo_futbol,
             duracion_tiempo: formState.duracion_tiempo,
             duracion_entretiempo: formState.duracion_entretiempo
         };
-        
+
         await crear(data);
         closeCreateModal();
         resetForm()
     };
-    
     
     useEffect(() => {
         dispatch(fetchEdiciones());
@@ -266,8 +272,70 @@ const EdicionesCategorias = () => {
                                         >
                                         </Select>
                                     </ModalFormInputContainer>
-                                    </ModalFormWrapper>
-                                    <ModalFormWrapper>
+                                </ModalFormWrapper>
+                                <ModalFormWrapper>
+                                    <ModalFormInputContainer>
+                                        puntos victoria
+                                        <Select 
+                                            name={'puntos_victoria'}
+                                            data={[
+                                                { puntos_victoria: 0, nombre: "0 puntos" },
+                                                { puntos_victoria: 1, nombre: "1 punto" },
+                                                { puntos_victoria: 2, nombre: "2 puntos" },
+                                                { puntos_victoria: 3, nombre: "3 puntos" },
+                                                { puntos_victoria: 4, nombre: "4 puntos" },
+                                                { puntos_victoria: 5, nombre: "5 puntos" },
+                                                { puntos_victoria: 6, nombre: "6 puntos" }
+                                            ]}
+                                            icon={<TbNumber className='icon-select'/>}
+                                            id_={"puntos_victoria"}
+                                            column='nombre'
+                                            value={formState.puntos_victoria}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        puntos empate
+                                        <Select 
+                                            name={'puntos_empate'}
+                                            data={[
+                                                { puntos_empate: 0, nombre: "0 puntos" },
+                                                { puntos_empate: 1, nombre: "1 punto" },
+                                                { puntos_empate: 2, nombre: "2 puntos" },
+                                                { puntos_empate: 3, nombre: "3 puntos" },
+                                                { puntos_empate: 4, nombre: "4 puntos" },
+                                                { puntos_empate: 5, nombre: "5 puntos" },
+                                                { puntos_empate: 6, nombre: "6 puntos" }
+                                            ]}
+                                            icon={<TbNumber className='icon-select'/>}
+                                            id_={"puntos_empate"}
+                                            column='nombre'
+                                            value={formState.puntos_empate}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        puntos derrotas
+                                        <Select 
+                                            name={'puntos_derrota'}
+                                            data={[
+                                                { puntos_derrota: 0, nombre: "0 puntos" },
+                                                { puntos_derrota: 1, nombre: "1 punto" },
+                                                { puntos_derrota: 2, nombre: "2 puntos" },
+                                                { puntos_derrota: 3, nombre: "3 puntos" },
+                                                { puntos_derrota: 4, nombre: "4 puntos" },
+                                                { puntos_derrota: 5, nombre: "5 puntos" },
+                                                { puntos_derrota: 6, nombre: "6 puntos" }
+                                            ]}
+                                            icon={<TbNumber className='icon-select'/>}
+                                            id_={"puntos_derrota"}
+                                            column='nombre'
+                                            value={formState.puntos_derrota}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
+                                </ModalFormWrapper>
+                                <ModalFormWrapper>
                                     <ModalFormInputContainer>
                                         duración de cada tiempo
                                         <Input 

@@ -235,13 +235,11 @@ export const VacanteWrapper = styled.div`
     transition: all .2s ease-in;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; */
 
     &:hover {
         background-color: var(--gray-300);
     }
-
-    
 
     &.cruce {
         border-color: orange;
@@ -321,6 +319,10 @@ export const VacanteWrapper = styled.div`
                     color: var(--black);
                     &.eliminar {
                         background-color: var(--danger);
+                        color: var(--white);
+                    }
+                    &.vaciar {
+                        background-color: var(--export);
                         color: var(--white);
                     }
                 }

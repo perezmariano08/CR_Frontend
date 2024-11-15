@@ -8,6 +8,13 @@ export const EliminacionDirectaWrapper = styled.div`
     gap: 20px;
     overflow-x: auto; /* Cambiar scroll a auto para que el scroll aparezca solo cuando sea necesario */
 
+    .etapa-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
     .penales {
         font-size: 12px;
         margin-left: 2px;
