@@ -262,7 +262,8 @@ const actualizarDato = async () => {
             id_categoria: categoriaFiltrada.id_categoria,
             id_zona: formState.zona
         };
-        
+        console.log(data.dia);
+
         await crear(data);
         closeCreateModal();
         resetForm()
@@ -592,11 +593,11 @@ const actualizarDato = async () => {
                                     Equipo Visitante
                                     <Select 
                                         name={'equipo_visita'}
-                                        data={equiposCategoria}
+                                        data={equiposTemporada.filter((e) => e.id_zona == formState.zona)}
                                         placeholder={'Seleccionar equipo'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
-                                        column='nombre'
+                                        column='nombre_equipo'
                                         value={formState.equipo_visita}
                                         onChange={handleFormChange}
                                     >

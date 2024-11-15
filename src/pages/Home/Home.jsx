@@ -19,29 +19,44 @@ import { URLImages } from '../../utils/utils.js';
 import DreamteamUser from '../User/Dreamteam/DreamteamUser.jsx';
 import { Carousel } from 'primereact/carousel';
 import TablaPosicionesRoutes from '../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
+import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice.js';
 
 const Home = () => {
     const dispatch = useDispatch();
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const userRole = 3
+    
     useEffect(() => {
         dispatch(fetchEquipos());
         dispatch(fetchCategorias());
         dispatch(fetchEdiciones());
+        dispatch(fetchTemporadas());
     }, [dispatch]);
 
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
-    
     const equipos = useSelector((state) => state.equipos.data);
-    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
-    const id_zona = miEquipo?.id_zona;
+    const temporadas = useSelector((state) => state.temporadas.data);
 
     const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, zonaActual } = useMatchesUser(idMyTeam);
 
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
+
+    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
+    const categoriaMiEquipo = temporadas
+    .filter((t) => t.id_equipo === idMyTeam)
+    .reduce((max, current) => 
+        current.id_categoria > max ? current.id_categoria : max, 
+        0
+    );
+    const zonaFiltrada = zonas.find((z) => {
+        return z.id_categoria === categoriaMiEquipo && z.fase === 1;
+    });
+
+    const id_zona = zonaFiltrada?.id_zona;
+
 
     useEffect(() => {
         if (id_zona) {

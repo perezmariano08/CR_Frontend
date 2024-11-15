@@ -279,7 +279,7 @@ const CategoriasFormato = () => {
         const vacantesOcupadas = contarVacantesOcupadas(Number(formState.id_zona));
         const tipoActualizacion = determinarTipoActualizacion(formState.cantidad_equipos, formState.id_zona)
 
-        if (formState.tipo_zona === 'eliminacion-directa' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
+        if (formState.tipo_zona === 'eliminacion-directa' || formState.tipo_zona === 'eliminacion-directa-ida-vuelta' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
             toast.error("En zonas de eliminación directa el número de equipos debe ser par.");
             return;
         }
@@ -300,7 +300,7 @@ const CategoriasFormato = () => {
             return;
         }
 
-        if (formState.tipo_zona === 'eliminacion-directa' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
+        if (formState.tipo_zona === 'eliminacion-directa' || formState.tipo_zona === 'eliminacion-directa-ida-vuelta' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
             toast.error("El número de equipos debe ser par.");
             return;
         }
@@ -335,7 +335,7 @@ const CategoriasFormato = () => {
             return;
         }
 
-        if (formState.tipo_zona === 'eliminacion-directa' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
+        if (formState.tipo_zona === 'eliminacion-directa' || formState.tipo_zona === 'eliminacion-directa-ida-vuelta' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
             toast.error("El numero de equipos debe ser par");
             return;
         }
@@ -530,7 +530,7 @@ const CategoriasFormato = () => {
                 id_zona: id_zona,
                 vacante: numeroVacante
             };
-        } else if (zonaFiltrada.tipo_zona === 'eliminacion-directa') {
+        } else if (zonaFiltrada.tipo_zona === 'eliminacion-directa' || zonaFiltrada.tipo_zona === 'eliminacion-directa-ida-vuelta') {
 
             if (partidosZona.length === 0) {
                 toast.error("No se encontraron partidos para esta zona.");
@@ -665,6 +665,7 @@ const CategoriasFormato = () => {
                                                             </p>
                                                             {z.tipo_zona === 'todos-contra-todos' && 'Todos contra todos'}
                                                             {z.tipo_zona === 'eliminacion-directa' && 'Eliminacion directa'}
+                                                            {z.tipo_zona === 'eliminacion-directa-ida-vuelta' && 'Eliminacion directa (Ida y Vuelta)'}
 
                                                             <span
                                                                 className={

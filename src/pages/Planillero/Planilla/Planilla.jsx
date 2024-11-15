@@ -33,12 +33,9 @@ import { insertarMvp } from '../../../utils/dataFetchers.js';
 
 const Planilla = () => {
     const dispatch = useDispatch();
-    const socket = useWebSocket();
-
     const descripcionRedux = useSelector((state) => state.planillero.planilla.descripcionPartido);
 
     const [mvpSelected, setMvpSelected] = useState(0);
-    const [jugadoresDestacadosLocal, setJugadoresDestacadosLocal] = useState([]); // Nuevo estado local para jugadores destacados
     const jugadoresDestacados = useSelector((state) => state.planillero.jugadoresDestacados);
 
     const searchParams = new URLSearchParams(window.location.search);
