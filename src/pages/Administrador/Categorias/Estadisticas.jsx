@@ -16,10 +16,11 @@ import { getPosicionesTemporada, getSanciones, getZonas } from '../../../utils/d
 import TablePosiciones from '../../../components/Stats/TablePosiciones/TablePosiciones';
 import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../../components/Stats/Data/Data';
 import TableSanciones from '../../../components/Stats/TableSanciones/TableSanciones';
+import TablePosicionesRoutes from '../../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
 
 const Estadisticas = () => {
     const dispatch = useDispatch();
-    const { id_categoria } = useParams(); // Obtenemos el id desde la URL
+    const { id_categoria } = useParams();
     
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
@@ -92,9 +93,9 @@ const Estadisticas = () => {
                     <ResumenItemTitulo>
                         <p>Posiciones</p>
                     </ResumenItemTitulo>
-                        <TablePosiciones
+                        <TablePosicionesRoutes
                             data={posiciones}
-                            zona={zonasFiltradas}
+                            id_categoria={id_categoria}
                             dataColumns={dataPosicionesTemporadaColumns}
                         />
                 </ResumenItemWrapper>

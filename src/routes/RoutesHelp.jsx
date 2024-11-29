@@ -3,7 +3,10 @@ import { BrowserRouter, Routes as ReactDomRoutes, Route } from "react-router-dom
 import LayoutAdmin from '../components/Layout/LayoutAdmin';
 import LayoutPrivate from '../components/Layout/LayoutPrivate';
 import Layout from '../components/Layout/Layout';
+import Onboarding from '../pages/Onboarding/Onboarding';
+import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
+import MyTeam from '../pages/MyTeam/MyTeam';
 import Stats from '../pages/Stats/Stats';
 import News from '../pages/News/News';
 import More from '../pages/More/More';
@@ -38,7 +41,12 @@ import CategoriasConfig from '../pages/Administrador/Categorias/CategoriasConfig
 import CategoriasFormato from '../pages/Administrador/Categorias/CategoriasFormato';
 import CategoriasEquiposDetalle from '../pages/Administrador/Categorias/CategoriasEquiposDetalle';
 import CategoriasFixturePartido from '../pages/Administrador/Categorias/CategoriasFixturePartido';
-
+import UserCategoriasPosiciones from '../pages/User/Categorias/UserCategoriasPosiciones';
+import UserCategoriasFixture from '../pages/User/Categorias/UserCategoriasFixture';
+import UserCategoriasGoleadores from '../pages/User/Categorias/UserCategoriasGoleadores';
+import UserCategoriasAsistentes from '../pages/User/Categorias/UserCategoriasAsistentes';
+import UserCategoriasExpulsados from '../pages/User/Categorias/UserCategoriasExpulsados';
+import UserCategorias from '../pages/User/Categorias/UserCategorias';
 import Perfil from '../pages/User/Perfil/Perfil';
 import ConfirmEmailChange from '../pages/User/Verificar/ConfirmEmailChange';
 import LegajosJugadores from '../pages/Administrador/Legajos/LegajosJugadores';
@@ -49,15 +57,7 @@ import Estadisticas from '../pages/Administrador/Categorias/Estadisticas';
 import UserCategoriasPlayOff from '../pages/User/Categorias/UserCategoriasPlayOff';
 
 const Home = lazy(()=> import('../pages/Home/Home'));
-const Login = lazy(()=> import('../pages/Login/Login'));
-const Onboarding = lazy(()=> import('../pages/Onboarding/Onboarding'));
-const MyTeam = lazy(()=> import('../pages/MyTeam/MyTeam'));
-const UserCategoriasPosiciones = lazy(() => import('../pages/User/Categorias/UserCategoriasPosiciones')) ;
-const UserCategoriasFixture = lazy(() => import('../pages/User/Categorias/UserCategoriasFixture')) ;
-const UserCategoriasGoleadores = lazy(() => import('../pages/User/Categorias/UserCategoriasGoleadores')) ;
-const UserCategoriasAsistentes = lazy(() => import('../pages/User/Categorias/UserCategoriasAsistentes')) ;
-const UserCategoriasExpulsados = lazy(() => import('../pages/User/Categorias/UserCategoriasExpulsados')) ;
-const UserCategorias = lazy(() => import('../pages/User/Categorias/UserCategorias')) ;
+
 
 const Routes = () => {
 
@@ -67,72 +67,15 @@ const Routes = () => {
                 <ReactDomRoutes>
                     {/* Rutas Públicas */}
                     <Route element={<PublicRoute/>}>
-
-                    <Route
-                        path='/'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <Home />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/my-team'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <MyTeam />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-
-                    <Route
-                        path='/onboarding'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <Onboarding />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-                    <Route
-                        path='/login'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <Login />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-                    <Route
-                        path='/forgot-password'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <ForgotPassword />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-                    <Route
-                        path='/create-password'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <Step2 />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-
-                        
-                        {/* <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} /> */}
+                        <Route path='/onboarding' element={<Layout> <Onboarding/> </Layout>} />
+                        <Route path='/login' element={<Layout> <Login/> </Layout>} />
+                        <Route path='/' element={<LayoutPrivate> <Home/> </LayoutPrivate>} />
+                        <Route path='/my-team' element={<LayoutPrivate> <MyTeam/> </LayoutPrivate>} />
+                        <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} />
+                        <Route path='/forgot-password' element={<Layout> <ForgotPassword/> </Layout>} />
                         {/* <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} /> */}
+                        <Route path='/create-password' element={<Layout> <Step2/> </Layout>} />
+                        
                         {/* <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} /> */}
                         {/* <Route path='/confirm-email-change' element={<Layout> <ConfirmEmailChange/> </Layout>} /> */}
                         {/* <Route path='/my-team/partidos' element={<LayoutPrivate> <MyTeamPartidos/> </LayoutPrivate>} /> */}
@@ -140,86 +83,14 @@ const Routes = () => {
                         {/* <Route path='/more' element={<LayoutAux> <More/> </LayoutAux>} /> */}
                     </Route>
 
-                    <Route
-                        path='/stats-match'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <MatchStats />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categoria/estadisticas/asistentes/:id_page'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategoriasAsistentes />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categoria/estadisticas/goleadores/:id_page'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategoriasGoleadores />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categoria/estadisticas/expulsados/:id_page'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategoriasExpulsados />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categoria/posiciones/:id_page'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategoriasPosiciones />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categoria/fixture/:id_page'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategoriasFixture />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categoria/playoff/:id_page'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategoriasPlayOff />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/categorias'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
-                                    <UserCategorias />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
+                    <Route path='/stats-match' element={<LayoutPrivate> <MatchStats/> </LayoutPrivate>} />
+                    <Route path='/categoria/estadisticas/asistentes/:id_page' element={<LayoutPrivate> <UserCategoriasAsistentes/> </LayoutPrivate>} />
+                    <Route path='/categoria/estadisticas/goleadores/:id_page' element={<LayoutPrivate> <UserCategoriasGoleadores/> </LayoutPrivate>} />
+                    <Route path='/categoria/estadisticas/expulsados/:id_page' element={<LayoutPrivate> <UserCategoriasExpulsados/> </LayoutPrivate>} />
+                    <Route path='/categoria/posiciones/:id_page' element={<LayoutPrivate> <UserCategoriasPosiciones/> </LayoutPrivate>} />
+                    <Route path='/categoria/fixture/:id_page' element={<LayoutPrivate> <UserCategoriasFixture/> </LayoutPrivate>} />
+                    <Route path='/categoria/playoff/:id_page' element={<LayoutPrivate> <UserCategoriasPlayOff/> </LayoutPrivate>} />
+                    <Route path='/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
 
                     {/* Rutas Privadas */}
                     <Route element={<ProtectedRoute />}>

@@ -10,6 +10,7 @@ const useBdPartido = (idPartido) => {
         pen_visita: penales?.penal_visita,
         descripcion: descToMatch,
     };
+    console.log(bd_partido);
     
     return { bd_partido };
 }

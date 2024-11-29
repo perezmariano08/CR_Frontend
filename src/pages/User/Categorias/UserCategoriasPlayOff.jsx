@@ -13,6 +13,7 @@ import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 import BracketEliminacionDirecta from '../../../components/BracketEliminacionDirecta/BracketEliminacionDirecta';
 import { LoaderIcon } from 'react-hot-toast';
+import CopaOro from '../../../components/Icons/CopaOro';
 
 const UserCategoriasPlayOff = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -26,7 +27,7 @@ const UserCategoriasPlayOff = () => {
     const zonas = useSelector((state) => state.zonas.data);
     const loadingZonas = useSelector((state) => state.zonas.loading); // Estado de carga
 
-    const zonasPlayOff = zonas.filter((z) => z.tipo_zona === 'eliminacion-directa');
+    const zonasPlayOff = zonas.filter((z) => (z.tipo_zona === 'eliminacion-directa' || z.tipo_zona === 'eliminacion-directa-ida-vuelta'));
     const categoriaFiltrada = useMemo(() => categorias.find((c) => c.id_categoria === id_categoria), [categorias, id_categoria]);
     const edicionFiltrada = useMemo(() => ediciones.find((e) => e.id_edicion === categoriaFiltrada?.id_edicion), [ediciones, categoriaFiltrada]);
 

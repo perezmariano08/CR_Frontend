@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper } from './HomeStyles';
 import Section from '../../components/Section/Section';
@@ -57,6 +57,16 @@ const Home = () => {
 
     const id_zona = zonaFiltrada?.id_zona;
 
+    const tablaMemoizada = useMemo(() => {
+        if (!posiciones) return null;
+        return (
+            <TablaPosicionesRoutes
+                data={posiciones}
+                id_categoria={2}
+                dataColumns={dataPosicionesTemporadaColumnsMinus}
+            />
+        );
+    }, [posiciones]);
 
     useEffect(() => {
         if (id_zona) {
@@ -157,7 +167,7 @@ const Home = () => {
                             <>
                                 <h2>{
                                     zonaActual.tipo_zona === 'todos-contra-todos'
-                                        ? `Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`
+                                        ? `Fecha ${fechaActual} - ${zonaActual.nombre_categoria} - ${zonaActual.nombre_edicion}`
                                         : `${zonaActual.nombre_zona} - ${partidosFecha[0]?.nombre_categoria}`
                                     }
 
@@ -199,12 +209,7 @@ const Home = () => {
                                     <p>{tituloCategoria(id_zona)}</p>
                                     <span>{nombreZona(id_zona)}</span>
                                 </CategoriasListaTitulo>
-                                <TablaPosicionesRoutes
-                                    data={posiciones}
-                                    id_categoria={2}
-                                    // zona={zonasFiltradas}
-                                    dataColumns={dataPosicionesTemporadaColumnsMinus}
-                                />
+                                {tablaMemoizada}
                             </CategoriasListaWrapper>
                             
                         </Section>

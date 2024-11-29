@@ -23,11 +23,13 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
                 }
             });
             if (response.status === 200) {
-                toast.success(successMessage);
+                const mensaje = response.data.mensaje;
+                toast.success(mensaje || successMessage);
                 dispatch(fetchAction())
             }
         } catch (error) {
-            toast.error(errorMessage);
+            const errorMensaje = error.response.data.mensaje;
+            toast.error(errorMensaje || errorMessage);
             console.error(error);
         } finally {
             setIsSaving(false);
@@ -102,12 +104,18 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
     const eliminarPorId = async (id) => {
         setIsDeleting(true);
         try {
-            await Axios.post(url, {id} );
-            toast.success('Registro eliminado correctamente.');
+            const response = await Axios.post(url, {id}, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+            } );
+            const mensaje = response.data.mensaje;
+            toast.success(mensaje);
             dispatch(fetchAction());
         } catch (error) {
+            const errorMensaje = response.data.mensaje;
             console.error("Delete error:", error);
-            toast.error(errorMessage);
+            toast.error(errorMensaje || errorMessage);
         } finally {
             setIsDeleting(false);
         }
@@ -116,12 +124,14 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
     const eliminarPorData = async (data) => {
         setIsDeleting(true);
         try {
-            await Axios.post(url, data);
-            toast.success('Registro eliminado correctamente.');
+            const response = await Axios.post(url, data);
+            const mensaje = response.data.mensaje;
+            toast.success(mensaje || 'Registro eliminado correctamente.');
             dispatch(fetchAction());
         } catch (error) {
+            const errorMensaje = error.response.data.mensaje;
             console.error("Delete error:", error);
-            toast.error(errorMessage);
+            toast.error(errorMensaje || errorMessage);
         } finally {
             setIsDeleting(false);
         }

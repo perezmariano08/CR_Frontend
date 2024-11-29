@@ -61,6 +61,7 @@ const CategoriasEquiposDetalle = () => {
     const [jugadorExistente, setJugadorExistente] = useState(null);
     
     const equipoFiltrado = temporadas.find(equipo => equipo.id_equipo == id_equipo && equipo.id_categoria == id_categoria);
+
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == equipoFiltrado.id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     

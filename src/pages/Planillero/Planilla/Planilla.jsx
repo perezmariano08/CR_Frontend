@@ -30,6 +30,8 @@ import { FaPlay, FaRegStopCircle } from "react-icons/fa";
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice.js';
 import { useWebSocket } from '../../../Auth/WebSocketContext.jsx';
 import { insertarMvp } from '../../../utils/dataFetchers.js';
+import CardPartidoIda from '../../../components/Stats/CardPartidoIda/CardPartidoIda.jsx';
+import { obtenerTipoPartido } from '../../../components/Stats/statsHelpers.js';
 
 const Planilla = () => {
     const dispatch = useDispatch();
@@ -54,7 +56,8 @@ const Planilla = () => {
         handleToastStartMatch,
         formacionesConNombreApellido,
         suspenderPartido,
-        estadoPartido
+        estadoPartido,
+        partidoIda
     } = usePlanilla(partidoId);
     
     const handleChangeDescripcion = (e) => {
@@ -107,11 +110,18 @@ const Planilla = () => {
         );
     }
 
+    const esVuelta = obtenerTipoPartido(matchCorrecto)
+
     return (
         <PlanillaContainerStyled className='container'>
             <MatchStatsWrapper className='wrapper'>
                 <Section>
                     <h2>Ficha de partido</h2>
+                    {
+                        esVuelta === 'vuelta' && (
+                            <CardPartidoIda partido={partidoIda} />
+                        )
+                    }
                     <CardFinalPartido idPartido={partidoId} />
                 </Section>
 

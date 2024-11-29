@@ -81,6 +81,7 @@ export const ModalFormInputContainer = styled.div`
         color: var(--red);
     }
 `
+
 export const SelectContainer = styled.span`
     
 `
