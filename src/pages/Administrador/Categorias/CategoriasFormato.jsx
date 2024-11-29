@@ -1,12 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
-import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
-import { ActionsCrudButtons } from '../../../components/ActionsCrud/ActionsCrudStyles';
 import Button from '../../../components/Button/Button';
-import { FiPlus } from 'react-icons/fi';
 import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
-import { LuDownload, LuUpload } from 'react-icons/lu';
-import Table from '../../../components/Table/Table';
 import { ContentNavWrapper, ContentTitle, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
@@ -14,40 +9,29 @@ import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
-import { dataEdicionesColumns } from '../../../Data/Ediciones/DataEdiciones';
-import Axios from 'axios';
 import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
-import Papa from 'papaparse';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearSelectedRows } from '../../../redux/SelectedRows/selectedRowsSlice';
-import ModalImport from '../../../components/Modals/ModalImport/ModalImport';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
-import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
-import { CategoriasEdicionEmpty, TablasTemporadaContainer, TablaTemporada } from '../Ediciones/edicionesStyles';
 import useForm from '../../../hooks/useForm';
-import { TbPlayFootball } from 'react-icons/tb';
 import Select from '../../../components/Select/Select';
 import { LiaAngleDownSolid } from "react-icons/lia";
 import { GoKebabHorizontal } from "react-icons/go";
-
-import { TbNumber } from "react-icons/tb";
 import { BsCalendar2Event } from "react-icons/bs";
-import { NavLink, useParams } from 'react-router-dom';
-import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
+import { NavLink, useParams } from 'react-router-dom';;
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
-import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { CategoriaFormatoWrapper, EquipoExiste, EquipoExisteDivider, EquipoExisteEscudo, EquipoExisteItem, EquipoExisteLista, EquipoNoExiste, FaseDivider, FormatoFaseTitulo, FormatoFaseWrapper, FormatoZona, FormatoZonaContainer, FormatoZonaInfo, FormatoZonasWrapper, FormatoZonaVacantes, VacanteEquipo, VacanteWrapper } from './categoriasStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { fetchFases } from '../../../redux/ServicesApi/fasesSlice';
-import { getEtapas, getIdPartidosZona, getPartidosCategoria, getPartidosZona, insertarFase } from '../../../utils/dataFetchers';
+import { checkEquipoPlantel, getEtapas, getIdPartidosZona, getPartidosCategoria, getPartidosZona, insertarFase } from '../../../utils/dataFetchers';
 import useFetchData from './useFetchData';
+import Switch from '../../../components/UI/Switch/Switch';
 
 const CategoriasFormato = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -59,12 +43,9 @@ const CategoriasFormato = () => {
     const categoriasList = useSelector((state) => state.categorias.data);
     const equiposList = useSelector((state) => state.equipos.data);
     const zonas = useSelector((state) => state.zonas.data);
-    // const partidosCategoria = partidos.filter((p) => p.id_categoria == id_categoria)
-    
     const temporadas = useSelector((state) => state.temporadas.data);
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
     const fases = useSelector((state) => state.fases.data);
-
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
 
@@ -83,6 +64,8 @@ const CategoriasFormato = () => {
         etapa: null,
         vacante: null,
         id_edicion: edicionFiltrada.id_edicion,
+        campeon: 'N',
+        equipo_campeon: null,
     });
 
     //Modales
@@ -90,10 +73,11 @@ const CategoriasFormato = () => {
     const [isAsignarVacantePlayOff, setAsignarVacantePlayOff] = useState(false);
     const [isEliminarVacante, setEliminarVacante] = useState(false);
     const [isVaciarVacante, setVaciarVacante] = useState(false);
+    const [isCheckPlantel, setCheckPlantel ] = useState(false);
+    const [isDeleteFase, setDeleteFase] = useState(false);
 
     const [numeroVacante, setNumeroVacante] = useState('');
     const [id_zona, setIdZona] = useState('');
-    const [idEliminar, setidEliminar] = useState(null)
 
     const [zonaExpandida, setZonaExpandida] = useState(null);
     const [crearEquipo, setCrearEquipo] = useState(false);
@@ -119,6 +103,12 @@ const CategoriasFormato = () => {
     const openVaciarVacante = () => setVaciarVacante(true);
     const closeVaciarVacante = () => setVaciarVacante(false);
 
+    const openCheckPlantel = () => setCheckPlantel(true);
+    const closeCheckPlantel = () => setCheckPlantel(false);
+
+    const openDeleteFase = () => setDeleteFase(true);
+    const closeDeleteFase = () => setDeleteFase(false);
+
     const {
         isCreateModalOpen, openCreateModal, closeCreateModal,
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
@@ -133,6 +123,15 @@ const CategoriasFormato = () => {
         [formState.zonas_select]
     );
     
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true); // Activar el estado de carga
+        dispatch(fetchFases(id_categoria)).finally(() => {
+            setLoading(false); // Desactivar el estado de carga cuando finalice la acción
+        });
+    }, [id_categoria, dispatch]);
+
     const { data: partidosCategoria, loading: loadingPartidosCategoria, error: errorPartidosCategoria } = useFetchData(
         () => getPartidosCategoria(id_categoria), 
         [id_categoria, triggerFetch]
@@ -215,6 +214,8 @@ const CategoriasFormato = () => {
             tipo_zona: zona.tipo_zona,
             etapa: etapaEncontrada.id_etapa,
             cantidad_equipos: zona.cantidad_equipos,
+            campeon: zona.campeon !== 'N' ? 'S' : 'N',
+            equipo_campeon: zona.id_equipo_campeon,
         };
         setInitialZona(zonaDefault);
         setFormState(zonaDefault);
@@ -233,7 +234,9 @@ const CategoriasFormato = () => {
             formState.nombre_zona?.trim() === initialZona.nombre_zona?.trim() &&
             formState.tipo_zona === initialZona.tipo_zona &&
             formState.cantidad_equipos == initialZona.cantidad_equipos &&
-            formState.etapa == initialZona.etapa
+            formState.etapa == initialZona.etapa &&
+            formState.campeon == initialZona.campeon &&
+            formState.equipo_campeon == null
         ) {
             setIsValid(false);
         } else {
@@ -247,21 +250,30 @@ const CategoriasFormato = () => {
     
     const contarVacantesOcupadas = (zonaId) => {
         const cantidadEquiposZona = zonas.find(z => z.id_zona == zonaId).cantidad_equipos;
-        const cantidadEquiposTemporada = temporadas.filter((t) => t.id_zona == zonaId).length;
-        
+        const cantidadEquiposTemporada = temporadas.filter((t) => t.id_zona == zonaId && t.id_equipo != null).length;
+    
+        // Usamos un Set para evitar contar duplicados
+        const partidosContados = new Set();
+    
         const cantidadEquiposPartidos = partidosCategoria.reduce((count, partido) => {
             if (partido.id_zona === zonaId) {
-                // Sumar 1 si id_partido_previo_local o id_partido_previo_visita está ocupado
-                if (partido.id_partido_previo_local) count += 1;
-                if (partido.id_partido_previo_visita) count += 1;
+                // Si el partido tiene un id_partido_previo_local o id_partido_previo_visita no duplicado
+                if (partido.id_partido_previo_local && !partidosContados.has(partido.id_partido_previo_local)) {
+                    partidosContados.add(partido.id_partido_previo_local);  // Marcamos como contado
+                    count += 1;
+                }
+                if (partido.id_partido_previo_visita && !partidosContados.has(partido.id_partido_previo_visita)) {
+                    partidosContados.add(partido.id_partido_previo_visita);  // Marcamos como contado
+                    count += 1;
+                }
             }
             return count;
         }, 0);
     
         const vacantesOcupadas = cantidadEquiposTemporada + cantidadEquiposPartidos;
-    
+
         return Math.min(vacantesOcupadas, cantidadEquiposZona);
-    };
+    };    
     
     const determinarTipoActualizacion = (cantidadNueva, idZona) => {
         const cantidadVieja = zonas.find((z) => z.id_zona == idZona).cantidad_equipos;
@@ -279,10 +291,14 @@ const CategoriasFormato = () => {
         const vacantesOcupadas = contarVacantesOcupadas(Number(formState.id_zona));
         const tipoActualizacion = determinarTipoActualizacion(formState.cantidad_equipos, formState.id_zona)
 
-        if (formState.tipo_zona === 'eliminacion-directa' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
-            toast.error("En zonas de eliminación directa el número de equipos debe ser par.");
+        if (
+            (formState.tipo_zona === 'eliminacion-directa' || formState.tipo_zona === 'eliminacion-directa-ida-vuelta') &&
+            parseInt(formState.cantidad_equipos) % 2 !== 0
+        ) {
+            toast.error("En zonas de eliminación directa o eliminación directa ida y vuelta el número de equipos debe ser par.");
             return;
         }
+        
 
         if (vacantesOcupadas > parseInt(formState.cantidad_equipos)) {
             const exceso = vacantesOcupadas - parseInt(formState.cantidad_equipos);
@@ -300,18 +316,23 @@ const CategoriasFormato = () => {
             return;
         }
 
-        if (formState.tipo_zona === 'eliminacion-directa' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
+        if (
+            (formState.tipo_zona === 'eliminacion-directa' || formState.tipo_zona === 'eliminacion-directa-ida-vuelta') &&
+            parseInt(formState.cantidad_equipos) % 2 !== 0
+        ) {
             toast.error("El número de equipos debe ser par.");
             return;
         }
-
+        
         const data = {
             id_zona: formState.id_zona,
             nombre_zona: formState.nombre_zona,
             tipo_zona: formState.tipo_zona,
             etapa: formState.etapa,
             cantidad_equipos: formState.cantidad_equipos,
-            tipo: tipoActualizacion
+            tipo: tipoActualizacion,
+            campeon: formState.campeon,
+            id_equipo_campeon: formState.campeon === 'N' ? null : formState.equipo_campeon,
         };
 
         await actualizar(data);
@@ -321,7 +342,7 @@ const CategoriasFormato = () => {
 
     // CREAR
     const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-zona-vacantes-partidos`, fetchZonas, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/user/crear-zona-vacantes-partidos`, fetchZonas
     );
 
     const agregarRegistro = async () => {
@@ -335,11 +356,14 @@ const CategoriasFormato = () => {
             return;
         }
 
-        if (formState.tipo_zona === 'eliminacion-directa' && parseInt(formState.cantidad_equipos) % 2 !== 0) {
-            toast.error("El numero de equipos debe ser par");
+        if (
+            (formState.tipo_zona === 'eliminacion-directa' || formState.tipo_zona === 'eliminacion-directa-ida-vuelta') &&
+            parseInt(formState.cantidad_equipos) % 2 !== 0
+        ) {
+            toast.error("El número de equipos debe ser par");
             return;
         }
-
+        
         const data = {
             id_categoria: id_categoria,
             nombre: formState.nombre_zona.trim(),
@@ -348,6 +372,7 @@ const CategoriasFormato = () => {
             fase: faseEstado,
             tipo_zona: formState.tipo_zona,
             id_edicion: formState.id_edicion,
+            campeon: formState.campeon
         };
 
         await crear(data);
@@ -357,15 +382,13 @@ const CategoriasFormato = () => {
 
     // CREAR
     const { crear: guardarEquipo, isSaving: isSavingCrearEquipo } = useCrud(
-        `${URL}/user/crear-equipo`, fetchTemporadas, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/user/crear-equipo`, fetchTemporadas
     );
 
     // Para el segundo formulario de creación
     const { crear: asignarTemporada, isSaving: isSavingAsignacionEquipo } = useCrud(
         `${URL}/user/insertar-equipo-temporada`,
-        fetchTemporadas,
-        'Equipo asignado correctamente.',
-        "Error al asignar el equipo a la vacante."
+        fetchTemporadas
     );
 
     const agregarEquipo = async () => {
@@ -399,7 +422,7 @@ const CategoriasFormato = () => {
 
     // CREAR
     const { crear: guardarVacantePlayOff, isSaving: isSavingVacantePlayOff } = useCrud(
-        `${URL}/admin/guardar-vacante-play-off`, fetchTemporadas, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/admin/guardar-vacante-play-off`, fetchTemporadas
     );
 
     const agregarPlayOffVacante = async () => {
@@ -447,49 +470,64 @@ const CategoriasFormato = () => {
         try {
             await fetchVaciarVacante(data);
             closeAndClearForm(closeVaciarVacante);
+            window.location.reload();
     
         } catch (error) {
             console.error('Error al vaciar vacante:', error);
         }
     };
 
+    // ELIMINAR VACANTE
+    const { eliminarPorData , isDeleting: isDeletingVacante} = useCrud(
+        `${URL}/admin/eliminar-zona`, fetchZonas
+    );
+
     // ELIMINAR
     const eliminarZona = (id_zona) => {
-        openDeleteModal()
-        setidEliminar(id_zona)
-    }
+        const partidosVacante = contarVacantesOcupadas(id_zona)
 
-    const eliminarVacante = (id_zona, vacante) => {
-
-        if (verificarVacante(id_zona, vacante)) {
-            toast.error('Debe vaciar la vacante antes de eliminarla');
+        const idPartidoAsociado = partidosCategoria.filter((partido) => {
+            const idPartidoPrevioLocal = partido.id_partido_previo_local;
+            const idPartidoPrevioVisita = partido.id_partido_previo_visita;
+    
+            return (
+                (idPartidoPrevioLocal && partidosCategoria.some(p => p.id_partido === idPartidoPrevioLocal && p.id_zona === id_zona)) ||
+                (idPartidoPrevioVisita && partidosCategoria.some(p => p.id_partido === idPartidoPrevioVisita && p.id_zona === id_zona))
+            );
+        });
+    
+        if (!id_zona) {
+            toast.error('Falta el ID de la zona');
             return;
         }
 
-        const tipoZona = zonas.find(z => z.id_zona == id_zona).tipo_zona;
-        openEliminarVacante()
+        if (partidosVacante > 0) {
+            toast.error('Debe vaciar las vacantes de la zona antes de eliminarla');
+            return;
+        }
+
+        if (idPartidoAsociado.length > 0) {
+            toast.error('No se puede eliminar la zona porque tiene partidos asociados');
+            return;
+        }
+
+        openDeleteModal()
         setFormState({
-            id_zona: id_zona,
-            vacante: vacante,
-            tipo_zona: tipoZona,
+            ...formState,
+            id_zona: id_zona
         })
     }
 
-    const { actualizar: deleteVacante, isDeleting: isDeletingVacante } = useCrud(
-        `${URL}/admin/eliminar-vacante`, fetchTemporadas
+    const { eliminarPorId , isDeleting} = useCrud(
+        `${URL}/admin/eliminar-zona`, fetchZonas
     );
 
     const eliminarRegistros = async () => {
-        const data = {
-            id_zona: formState.id_zona,
-            vacante: formState.vacante,
-            tipo_zona: formState.tipo_zona,
-        };
-        console.log(data);
-        return;
+        const id_zona = formState.id_zona;
+
         try {
-            await deleteVacante(data);
-            closeAndClearForm(closeEliminarVacante);
+            await eliminarPorId(id_zona);
+            closeAndClearForm(closeDeleteModal);
         } catch (error) {
             console.error("Error eliminando zona:", error);
         }
@@ -501,7 +539,6 @@ const CategoriasFormato = () => {
         dispatch(fetchEquipos());
         dispatch(fetchZonas());
         dispatch(fetchTemporadas());
-        dispatch(fetchFases(id_categoria));
 
         if (isAsignarEquipoZona) {
             // Cada vez que se abra el modal, resetear el estado a false
@@ -510,6 +547,7 @@ const CategoriasFormato = () => {
         }
     }, [isAsignarEquipoZona]);
 
+    // Agregar equipo a la vacante
     const asignarRegistro = async (id_equipo) => {
         // Verificar si el equipo ya está asignado a la vacante
         if (
@@ -530,13 +568,13 @@ const CategoriasFormato = () => {
                 id_zona: id_zona,
                 vacante: numeroVacante
             };
-        } else if (zonaFiltrada.tipo_zona === 'eliminacion-directa') {
+        } else if (zonaFiltrada.tipo_zona === 'eliminacion-directa' || zonaFiltrada.tipo_zona === 'eliminacion-directa-ida-vuelta') {
 
             if (partidosZona.length === 0) {
                 toast.error("No se encontraron partidos para esta zona.");
                 return;
             }
-
+        
             data = {
                 id_categoria: formState.id_categoria,
                 id_edicion: edicionFiltrada.id_edicion,
@@ -550,6 +588,7 @@ const CategoriasFormato = () => {
         await asignarTemporada(data);
         closeEquipoZona();
         resetForm();
+        await checkTeamToAddPlantel(id_equipo, edicionFiltrada.id_edicion);
     };
 
     // Función para manejar la expansión
@@ -562,14 +601,13 @@ const CategoriasFormato = () => {
         setCrearEquipo(true);
     };
 
-    const insertarNuevaFase = () => {
+    const insertarNuevaFase = async () => {
         const data = {
             id_categoria: id_categoria,
             numero_fase: fases.length + 1,
         };
-        insertarFase(data);
+        await insertarFase(data);
         dispatch(fetchFases(id_categoria));
-
     }
 
     const agregarVacantePlayOff = async (fase, vacante, id_zona) => {
@@ -618,6 +656,132 @@ const CategoriasFormato = () => {
         };
     };
 
+    const [dataEquipo, setDataEquipo] = useState([]);
+
+    const checkTeamToAddPlantel = async (id_equipo, id_edicion) => {
+        try {
+            const response = await checkEquipoPlantel(id_equipo, id_edicion);
+    
+            if (!response || response.data === undefined) {
+                console.error("Error en la consulta:", response?.mensaje || "Error desconocido");
+                return;
+            }
+    
+            if (response.data.length === 0) {
+                return;
+            }
+    
+            // Si hay datos, abre el check para el plantel
+            const data = response.data.map((r) => {
+                return {
+                    id_equipo: id_equipo,
+                    id_categoria: parseInt(id_categoria),
+                    id_categoria_previo: r.id_categoria,
+                    id_edicion: r.id_edicion,
+                    nombre_edicion: r.nombre_edicion,
+                    jugadores: r.total_jugadores,
+                }
+            });
+
+            setDataEquipo(data)
+            openCheckPlantel();
+        } catch (error) {
+            console.error("Error al verificar el plantel:", error);
+        }
+    };
+    
+    // CREAR
+    const { crear: asignar, isSaving: asignando } = useCrud(
+        `${URL}/admin/copiar-planteles-temporada`
+    );
+    
+    const asignarPlantel = async (dataEquipo) => {
+
+        const {id_equipo, id_categoria_previo, id_categoria} = dataEquipo;
+        const id_edicion = edicionFiltrada.id_edicion;
+
+        if (!id_equipo || !id_categoria_previo || !id_categoria || !id_edicion) {
+            toast.error("Faltan datos importantes");
+            return;
+        }
+
+        const data = {
+            id_equipo: id_equipo,
+            id_categoria_previo: id_categoria_previo,
+            id_categoria: id_categoria,
+            id_edicion: id_edicion,
+        };
+
+        asignar(data);
+        closeCheckPlantel();
+        resetForm();
+    }
+
+    // ELIMINAR FASE
+    const { eliminarPorId: deleteFase, isDeleting: isDeletingFase} = useCrud(
+        `${URL}/admin/eliminar-fase`, fetchCategorias
+    );
+
+    const setEliminarFase = (numero_fase) => {
+        const isZonasinFase = zonas.some((z) => z.id_categoria == id_categoria && z.fase == numero_fase)
+
+        if (!id_categoria || !numero_fase) {
+            toast.error('Error al eliminar la fase');
+            return;
+        }
+
+        if (isZonasinFase) {
+            toast.error('Debes eliminar las zonas asociadas a esta fase antes de eliminarla');
+            return;
+        }
+
+        setFormState({
+            ...formState,
+            fase: numero_fase
+        })
+
+        openDeleteFase();
+
+    }
+
+    const eliminarFase = async () => {
+
+        if (!id_categoria || !formState.fase) {
+            toast.error('Error al eliminar la fase');
+            return;
+        }
+
+        const data = {
+            id_categoria: id_categoria,
+            numero_fase: formState.fase
+        }
+        
+        await deleteFase(data);
+        resetForm();
+        closeDeleteFase();
+        dispatch(fetchFases(id_categoria));
+
+    }
+
+    const filtrarEquiposZona = (id_zona) => {
+        const equiposData = [{
+            nombre: 'Seleccione un equipo',
+            id_equipo: null,
+        }];
+        const equiposTemporada = temporadas.filter((t) => t.id_equipo != null && t.id_zona == id_zona);
+
+        equiposTemporada.forEach((e) => {
+            const equipo = equiposList.find((eq) => eq.id_equipo == e.id_equipo);
+            if (equipo) {
+                equiposData.push({
+                    id_equipo: e.id_equipo,
+                    nombre: equipo.nombre,
+                });
+            }
+        })
+        return equiposData;
+    }
+    
     return (
         <Content>
             <MenuContentTop>
@@ -629,13 +793,22 @@ const CategoriasFormato = () => {
             </MenuContentTop>
             <CategoriasMenuNav id_categoria={id_categoria} />
             <CategoriaFormatoWrapper>
-                {fases.length > 0
-                    ? fases.map((fase) => (
+                { !loading && fases.length > 0 ? (
+                    fases.map((fase) => (
                         <div key={`fase-${fase.numero_fase}`}>
                             <FormatoFaseWrapper>
                                 <FormatoFaseTitulo>
                                     Fase {fase.numero_fase}
-                                    <GoKebabHorizontal style={{ transform: 'rotate(90deg)' }} />
+                                    <div className='relative' onClick={(e) => e.stopPropagation()}>
+                                        <GoKebabHorizontal className='kebab' />
+                                        <div className='modales'>
+                                            <div
+                                                onClick={() => setEliminarFase(fase.numero_fase)}
+                                                className='eliminar'>
+                                                Eliminar
+                                            </div>
+                                        </div>
+                                    </div>
                                 </FormatoFaseTitulo>
                                 <Button bg={'success'} onClick={() => handleSetFaseEstado(fase.numero_fase)}>
                                     Agregar zona
@@ -665,6 +838,7 @@ const CategoriasFormato = () => {
                                                             </p>
                                                             {z.tipo_zona === 'todos-contra-todos' && 'Todos contra todos'}
                                                             {z.tipo_zona === 'eliminacion-directa' && 'Eliminacion directa'}
+                                                            {z.tipo_zona === 'eliminacion-directa-ida-vuelta' && 'Eliminacion directa (Ida y Vuelta)'}
 
                                                             <span
                                                                 className={
@@ -673,6 +847,19 @@ const CategoriasFormato = () => {
                                                                         : 'incompleto'
                                                                 }>
                                                                 {`${vacantesOcupadas} / ${z.cantidad_equipos} vacantes ocupadas`}
+                                                            </span>
+                                                            <span
+                                                                className={
+                                                                    z.id_equipo_campeon
+                                                                    ? 'campeon'
+                                                                    : 'sin-campeon'
+                                                                }
+                                                            >
+                                                                {
+                                                                    z.campeon === 'S' && (
+                                                                        `Campeón: ${z.id_equipo_campeon ? nombresEquipos(z.id_equipo_campeon) : 'Sin definir'}`
+                                                                    )
+                                                                }
                                                             </span>
                                                         </FormatoZonaInfo>
 
@@ -701,14 +888,20 @@ const CategoriasFormato = () => {
                                                             );
 
                                                             const { resultado, etiqueta } = obtenerResultadoYEtiquetaVacante(numeroZona, vacante);
-                                                            const partidoAsignado = partidosCategoria.find(
-                                                                (p) => p.id_zona === z.id_zona && (p.vacante_local === vacante || p.vacante_visita === vacante)
-                                                            );
-                                                                                                                        
+                                                            const partidoAsignado = partidosCategoria.find((p) => {
+                                                                if (vacante === p.vacante_local) {
+                                                                    return p.id_zona === z.id_zona && p.id_partido_previo_local !== null;
+                                                                } else if (vacante === p.vacante_visita) {
+                                                                    return p.id_zona === z.id_zona && p.id_partido_previo_visita !== null;
+                                                                }
+                                                                return false;
+                                                            });
+                                                            
+
                                                             return (
                                                                 <VacanteWrapper
                                                                     key={`vacante-${index}`}
-                                                                    className={[partidoAsignado ? 'cruce' : '',equipoAsignado ? 'equipo' : '' ].join(' ')}
+                                                                    className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'equipo' : '' ].join(' ')}
                                                                     onClick={() => {
                                                                         if (z.tipo_zona === 'todos-contra-todos') {
                                                                             agregarEquipoZona(z.id_zona, vacante);
@@ -745,9 +938,8 @@ const CategoriasFormato = () => {
                                                                     </>
                                                                     )}
                                                                     <div
-                                                                        className={[partidoAsignado ? 'cruce' : '',equipoAsignado ? 'vacante-texto existe' : 'vacante-texto' ].join(' ')}
+                                                                        className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'vacante-texto existe' : 'vacante-texto' ].join(' ')}
                                                                     >
-
                                                                         A{vacante}
                                                                     </div>
                                                                     <div
@@ -758,16 +950,15 @@ const CategoriasFormato = () => {
                                                                             <div className='editar' onClick={() => agregarEquipoZona(z.id_zona, vacante, 'update')}>
                                                                                 Reemplazar equipo
                                                                             </div>
-                                                                            <div
-                                                                                onClick={() => openModalVaciarVacante(z.id_zona, vacante)}
-                                                                                className='vaciar'>
-                                                                                Vaciar vacante
-                                                                            </div>
-                                                                            <div
-                                                                                onClick={() =>eliminarVacante(z.id_zona,vacante)}
-                                                                                className='eliminar'>
-                                                                                Eliminar vacante
-                                                                            </div>
+                                                                            {
+                                                                                (partidoAsignado || equipoAsignado) && (
+                                                                                    <div
+                                                                                        onClick={() => openModalVaciarVacante(z.id_zona, vacante)}
+                                                                                        className='vaciar'>
+                                                                                        Vaciar vacante
+                                                                                    </div>                                                              
+                                                                                )
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 </VacanteWrapper>
@@ -783,7 +974,9 @@ const CategoriasFormato = () => {
                             <FaseDivider />
                         </div>
                     ))
-                    : ''}
+                ) : (
+                    ''
+                )}
 
                 <FormatoFaseWrapper>
                     <Button bg={'success'} onClick={insertarNuevaFase}>
@@ -807,8 +1000,8 @@ const CategoriasFormato = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={agregarPlayOffVacante} disabled={isSaving}>
-                                    {isSavingCrearEquipo ? (
+                                <Button color={"success"} onClick={agregarPlayOffVacante} disabled={isSavingVacantePlayOff}>
+                                    {isSavingVacantePlayOff ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
                                             Guardando
@@ -922,18 +1115,18 @@ const CategoriasFormato = () => {
                                                 id_tipo_zona: 'eliminacion-directa',
                                                 tipo_zona: "Eliminación Directa"
                                             },
-                                            {
-                                                id_tipo_zona: 'eliminacion-directa-ida-vuelta',
-                                                tipo_zona: "Eliminación Directa (Ida y Vuelta)"
-                                            },
+                                            // {
+                                            //     id_tipo_zona: 'eliminacion-directa-ida-vuelta',
+                                            //     tipo_zona: "Eliminación Directa (Ida y Vuelta)"
+                                            // },
                                             {
                                                 id_tipo_zona: 'todos-contra-todos',
                                                 tipo_zona: "Todos Contra Todos"
                                             },
-                                            {
-                                                id_tipo_zona: 'todos-contra-todos-ida-vuelta',
-                                                tipo_zona: "Todos Contra Todos (Ida y Vuelta)"
-                                            },
+                                            // {
+                                            //     id_tipo_zona: 'todos-contra-todos-ida-vuelta',
+                                            //     tipo_zona: "Todos Contra Todos (Ida y Vuelta)"
+                                            // },
                                         ]}
                                         icon={<IoShieldHalf className='icon-select' />}
                                         id_={"id_tipo_zona"}
@@ -952,6 +1145,15 @@ const CategoriasFormato = () => {
                                         column='nombre'
                                         value={formState.etapa}
                                         onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    ¿La zona tendrá campeon?
+                                    <Switch
+                                        isChecked={formState.campeon === 'S'}
+                                        onChange={(e) => handleFormChange({
+                                            target: { name: 'campeon', value: e.target.checked ? 'S' : 'N' }
+                                        })}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
@@ -1050,7 +1252,17 @@ const CategoriasFormato = () => {
                                                                 {e.nombre}
                                                             </EquipoExisteEscudo>
                                                             <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
-                                                                Seleccionar
+                                                            {isSavingAsignacionEquipo ? (
+                                                                <>
+                                                                    <LoaderIcon size="small" color='green' />
+                                                                    Agregando
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <IoCheckmark />
+                                                                    Seleccionar
+                                                                </>
+                                                            )}
                                                             </Button>
                                                         </EquipoExisteItem>
                                                     ))
@@ -1114,7 +1326,7 @@ const CategoriasFormato = () => {
                     <>
                         <ModalDelete
                             text={
-                                `¿Estas seguro que quieres eliminar la fase?`}
+                                `¿Estas seguro que quieres eliminar la zona? Esta acción eliminara tambien todos los partidos asociados a esta zona.`}
                             animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
@@ -1126,7 +1338,7 @@ const CategoriasFormato = () => {
                                         No
                                     </Button>
                                     <Button color={"success"} onClick={eliminarRegistros} disabled={''}>
-                                        {isDeletingVacante ? (
+                                        {isDeleting ? (
                                             <>
                                                 <LoaderIcon size="small" color='green' />
                                                 Eliminando
@@ -1235,8 +1447,8 @@ const CategoriasFormato = () => {
                                     <IoClose />
                                     Cancelar
                                 </Button>
-                                <Button color={"success"} onClick={actualizarRegistro} disabled={isSaving || !isValid}>
-                                    {isSaving ? (
+                                <Button color={"success"} onClick={actualizarRegistro} disabled={isUpdating || !isValid}>
+                                    {isUpdating ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
                                             Actualizando
@@ -1272,18 +1484,18 @@ const CategoriasFormato = () => {
                                                 id_tipo_zona: 'eliminacion-directa',
                                                 tipo_zona: "Eliminación Directa"
                                             },
-                                            {
-                                                id_tipo_zona: 'eliminacion-directa-ida-vuelta',
-                                                tipo_zona: "Eliminación Directa (Ida y Vuelta)"
-                                            },
+                                            // {
+                                            //     id_tipo_zona: 'eliminacion-directa-ida-vuelta',
+                                            //     tipo_zona: "Eliminación Directa (Ida y Vuelta)"
+                                            // },
                                             {
                                                 id_tipo_zona: 'todos-contra-todos',
                                                 tipo_zona: "Todos Contra Todos"
                                             },
-                                            {
-                                                id_tipo_zona: 'todos-contra-todos-ida-vuelta',
-                                                tipo_zona: "Todos Contra Todos (Ida y Vuelta)"
-                                            },
+                                            // {
+                                            //     id_tipo_zona: 'todos-contra-todos-ida-vuelta',
+                                            //     tipo_zona: "Todos Contra Todos (Ida y Vuelta)"
+                                            // },
                                         ]}
                                         icon={<IoShieldHalf className='icon-select' />}
                                         id_={"id_tipo_zona"}
@@ -1305,6 +1517,31 @@ const CategoriasFormato = () => {
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
+                                    ¿La zona tendrá campeón?
+                                    <Switch
+                                        isChecked={formState.campeon !== 'N'}
+                                        onChange={(e) => handleFormChange({
+                                            target: { name: 'campeon', value: e.target.checked ? 'S' : 'N' }
+                                        })}
+                                    />
+                                </ModalFormInputContainer>
+                                {
+                                    formState.campeon === 'S' && (
+                                        <ModalFormInputContainer>
+                                            Seleccione un campeón
+                                            <Select
+                                                name={'equipo_campeon'}
+                                                data={filtrarEquiposZona(formState.id_zona)}
+                                                icon={<IoShieldHalf className='icon-select' />}
+                                                id_={"id_equipo"}
+                                                column='nombre'
+                                                value={formState.equipo_campeon}
+                                                onChange={handleFormChangeWithValidation}
+                                            />
+                                        </ModalFormInputContainer>
+                                    )
+                                }
+                                <ModalFormInputContainer>
                                     cantidad de equipos
                                     <Input
                                         name='cantidad_equipos'
@@ -1320,6 +1557,96 @@ const CategoriasFormato = () => {
                     />
                     <Overlay onClick={closeUpdateModal} />
                 </>
+                )
+            }
+            {
+                isCheckPlantel && ( 
+                    <>
+                        <ModalCreate initial={{ opacity: 0 }}
+                            animate={{ opacity: isCheckPlantel ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            title={`Asignar plantel`}
+                            onClickClose={() => closeAndClearForm(closeCheckPlantel)}
+                            buttons={
+                                <Button color={"danger"} onClick={() => closeAndClearForm(closeCheckPlantel)}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                            }
+                            texto={
+                                <>
+                                    <p>Hemos detectado que el equipo ya tiene un plantel en el torneo. ¿Quieres agregarlo?</p>
+                                    {
+                                        dataEquipo.length > 0 && (
+                                            <>
+                                                {dataEquipo.map((d) => (
+                                                    <>
+                                                        <EquipoExisteItem key={d.id_edicion}>
+                                                            <EquipoExisteEscudo>
+                                                                <img src={`${URLImages}${escudosEquipos(dataEquipo[0].id_equipo)}`} alt={nombresEquipos(dataEquipo[0].id_equipo)} />
+                                                                <p>Edición: <span>{d.nombre_edicion}</span> <br />Total jugadores: <span>{d.jugadores}</span></p>
+                                                            </EquipoExisteEscudo>
+                                                            <Button color={'success'} onClick={() => asignarPlantel(d)}>
+                                                                {
+                                                                    asignando ? (
+                                                                        <LoaderIcon size="small" color='green' />
+                                                                    ) : (
+                                                                        <>
+                                                                            <IoCheckmark />
+                                                                            Asignar plantel
+                                                                        </>
+                                                                    )
+                                                                }
+                                                            </Button>
+                                                        </EquipoExisteItem>
+                                                    </>
+                                                ))}
+                                            </>
+                                        )
+                                    }
+                                </>
+                            }
+                        />
+                        <Overlay onClick={() => closeAndClearForm(closeCheckPlantel)} />
+                    </>
+                )
+            }
+            {
+                isDeleteFase && (
+                    <>
+                        <ModalDelete
+                            text={
+                                `¿Estas seguro que quieres eliminar la fase?`}
+                            animate={{ opacity: isDeleteFase ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            onClickClose={closeDeleteFase}
+                            buttons={
+                                <>
+                                    <Button color={"danger"} onClick={closeDeleteFase}>
+                                        <IoClose />
+                                        No
+                                    </Button>
+                                    <Button color={"success"} onClick={eliminarFase} disabled={''}>
+                                        {isDeletingFase ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                                Eliminando
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Si
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            }
+                        />
+                        <Overlay onClick={closeDeleteModal} />
+                    </>
+
                 )
             }
         </Content>

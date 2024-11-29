@@ -204,8 +204,6 @@ export const FormacionEquipoImg = styled.div`
     }
 `
 
-
-
 export const ContentUserContainer = styled.div`
     display: flex;
     width: 100%;
@@ -234,6 +232,48 @@ export const ContentUserTituloContainerStyled = styled.div`
     width: 100%;
     overflow: hidden;
 `;
+
+export const ReferenciasContainer = styled.div`
+    padding: 20px;
+    display: flex;
+    border-radius: 15px;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+    background-color: var(--gray-400);
+`
+
+export const ReferenciasItemContainer = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    flex-direction: column;
+`
+
+export const ReferenciasItem = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+
+    span {
+        display: inline-block; /* Asegura que el span se comporte como un bloque */
+        width: 10px; /* Ancho del círculo */
+        height: 10px; /* Alto del círculo, igual al ancho */
+        padding: 5px; /* Opcional, pero puede desbalancear el círculo si no se ajusta bien */
+        border-radius: 50%; /* Esto hace que sea redondeado */
+        background-color: var(--yellow); /* Color del círculo */
+    }
+    
+    span.interzonal {
+        background-color: var(--green); /* Color para la clase "interzonal" */
+    }
+
+    p {
+        font-size: 12px;
+    }
+`
 
 export const ContentUserTituloContainer = styled.div`
     display: flex;
@@ -455,6 +495,7 @@ export const JornadasFixturePartido = styled.div`
 
 
 export const JornadasFixturePartidoEquipo = styled.div`
+    position: relative;
     display: flex;
     gap: 10px;
     min-width: 200px;
@@ -483,6 +524,20 @@ export const JornadasFixturePartidoEquipo = styled.div`
     @media (max-width: 568px) {
         font-size: 12px;
     }
+
+    .ventaja { 
+        color: var(--yellow);
+    }
+
+    .interzonal { 
+        position: absolute;
+        right: 0;
+        top: 0; /* Si quieres que esté en la parte superior del contenedor */
+        z-index: 1; /* Asegúrate de que no se superponga a otros elementos */
+        width: auto; /* O ajusta el ancho según sea necesario */
+        color: var(--green);
+    }
+
 `;
 
 export const GanadorPerdedorContainer = styled.div`

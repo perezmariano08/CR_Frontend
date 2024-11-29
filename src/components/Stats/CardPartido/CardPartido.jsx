@@ -3,7 +3,7 @@ import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTea
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
-import { URLImages } from '../../../utils/utils.js';
+import { formatDate, formatTime, URLImages } from '../../../utils/utils.js';
 import { getZonas } from '../../../utils/dataFetchers.js';
 import { MdOutlineWatchLater } from "react-icons/md";
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
@@ -36,20 +36,6 @@ const CardPartido = ({ partido, rol }) => {
     const viewStatsOfTheMatch = (e) => {
         e.preventDefault();
         navigate(`/stats-match?id=${partido.id_partido}`);
-    };
-
-    const formatTime = (time) => {
-        if (!time) return '00:00';
-        const [hours, minutes] = time.split(':');
-        return `${hours}:${minutes}`;
-    };
-
-    const formatDate = (dateTime) => {
-        const date = new Date(dateTime);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
     };
 
     const formattedDate = formatDate(partido.dia);

@@ -154,6 +154,7 @@ export const CategoriaFormatoWrapper = styled.div`
     border-radius: 10px;
     overflow-y: scroll;
     background-color: var(--gray-400);
+    overflow-y: hidden;
 `
 
 export const FormatoFaseWrapper = styled.div`
@@ -182,6 +183,65 @@ export const FormatoFaseTitulo = styled.div`
     padding: 12px 24px;
     justify-content: space-between;
     border-radius: 10px;
+
+    .kebab {
+        transform: rotate(90deg);
+        font-size: 18px;
+    }
+
+    .relative {
+        position: relative;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        transition: all .2s ease-in;
+
+        .modales {
+            position: absolute;
+            display: none;
+            right: 0;
+            top: 30px;
+            background-color: var(--gray-200);
+            width: 150px;
+            z-index: 2;
+
+            div {
+                padding: 10px;
+                width: 100%;
+                transition: all .2s ease-in;
+                color: var(--white);
+
+                &:hover {
+                    background-color: var(--green);
+                    color: var(--black);
+                    &.eliminar {
+                        background-color: var(--danger);
+                        color: var(--white);
+                    }
+                }
+            }
+        }
+
+        &:hover {
+            /* Puedes agregar aquí estilos adicionales si lo necesitas */
+            color: var(--black);
+            background-color: var(--green);
+        }
+
+        /* Ocultar el modal por defecto */
+        .modales {
+            display: none;
+        }
+
+        /* Mostrar el modal cuando se hace hover en el contenedor relativo */
+        &:hover .modales {
+            display: block;
+        }
+    }
 `
 
 export const FormatoZonasWrapper = styled.div`
@@ -269,7 +329,7 @@ export const VacanteWrapper = styled.div`
         background-color: var(--import);
         top: 0;
         left: 0;
-        font-size: 14px; /* Ajusta el tamaño del texto si es necesario */
+        font-size: 14px;
         font-weight: bold;
         border-radius: 0 0 5px;
 
@@ -451,6 +511,12 @@ export const FormatoZonaInfo = styled.div`
         &.completo {
             color: var(--green);
         }
+        &.campeon {
+            color: var(--green);
+        }
+        &.sin-campeon {
+            color: var(--import);
+        }
     }
 `
 
@@ -492,6 +558,11 @@ export const EquipoExisteEscudo = styled.div`
     img {
         width: 30px;
     }
+
+    span {
+        color: var(--green);
+        font-weight: bold;
+    }
 `
 
 export const EquipoNoExiste = styled.div`
@@ -511,3 +582,60 @@ export const EquipoNoExiste = styled.div`
         color: var(--white);
     }
 `
+export const GroupContainerCheckBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`
+
+export const CheckBoxContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    background-color: var(--gray-300);
+    border-radius: 5px;
+    padding: 10px;
+`
+export const LabelCheckBox = styled.label`
+    display: flex;
+    align-items: center;
+    /* gap: 5px; */
+    width: 25%;
+    justify-content: space-between;
+`
+export const CustomCheckBox = styled.input`
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    position: relative;
+    background-color: ${(props) => (props.checked ? 'var(--green)' : 'transparent')};
+    transition: all 0.3s ease;
+
+    &:checked::before {
+        content: '';
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 10px;
+        height: 10px;
+        background-color: white;
+        border-radius: 2px;
+    }
+
+    &:not(:checked) {
+        background-color: transparent;
+    }
+
+    &:hover {
+        border-color: var(--green);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+`;

@@ -9,6 +9,7 @@ import { toggleStateMatch } from '../redux/Matches/matchesSlice.js';
 import { URL } from '../utils/utils.js';
 import axios from 'axios';
 import { useWebSocket } from '../Auth/WebSocketContext.jsx';
+import { obtenerTipoPartido } from '../components/Stats/statsHelpers.js';
 
 export const usePlanilla = (partidoId) => {
     const dispatch = useDispatch();
@@ -22,6 +23,7 @@ export const usePlanilla = (partidoId) => {
     const [bdIncidencias, setBdIncidencias] = useState(null);
     const [jugadoresDescatadosBd, setJugadoresDestacadosBd] = useState();
     const [estadoPartido, setEstadoPartido] = useState();
+    const [partidoIda, setPartidoIda] = useState(null);
 
     const socket = useWebSocket();
 
@@ -56,6 +58,17 @@ export const usePlanilla = (partidoId) => {
             const foundMatch = match.find(p => p.id_partido === partidoId);
             setMatchCorrecto(foundMatch);
     }, [match, partidoId]);
+
+    useEffect(() => {
+        const partidoEncontrado = match.find((partido) => partido.id_partido == partidoId);
+        setMatchCorrecto(partidoEncontrado);
+        
+        if (partidoEncontrado && obtenerTipoPartido(partidoEncontrado) == 'vuelta') {
+            const partidoIda = match.find((p) => p.id_partido == partidoEncontrado.ida);
+            setPartidoIda(partidoIda);
+        }
+
+    }, [partidoId, match]);
 
     useEffect(() => {
         const actualizarMatchCorrecto = (informacion) => {
@@ -343,6 +356,7 @@ export const usePlanilla = (partidoId) => {
         formacionesConNombreApellido,
         setJugadoresDestacadosBd,
         suspenderPartido,
-        estadoPartido
+        estadoPartido,
+        partidoIda
     };
 };
