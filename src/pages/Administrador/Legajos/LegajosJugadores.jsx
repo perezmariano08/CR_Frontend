@@ -42,7 +42,6 @@ const LegajosJugadores = () => {
         dispatch(fetchTemporadas())
     }, []);
 
-    console.log(jugadores);
     
     const columns = [
         {

@@ -7,11 +7,11 @@ import { TailSpin } from 'react-loader-spinner';
 const ProtectedRoute = ({ roles }) => {
     const { isAuthenticated, userRole, loading } = useAuth();
 
-    if (loading) {
-        return <SpinerContainer>
-            <TailSpin width='40' height='40' color='#2AD174' />
-        </SpinerContainer>;
-    }
+    // if (loading) {
+    //     return <SpinerContainer>
+    //         <TailSpin width='40' height='40' color='#2AD174' />
+    //     </SpinerContainer>;
+    // }
 
     if (!isAuthenticated) {
         return <Navigate to="/" />;

@@ -35,6 +35,7 @@ const Home = () => {
 
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
+    const equipos = useSelector((state) => state.equipos.data);
     const temporadas = useSelector((state) => state.temporadas.data);
 
     const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, zonaActual } = useMatchesUser(idMyTeam);
@@ -53,7 +54,6 @@ const Home = () => {
         return z.id_categoria === categoriaMiEquipo && z.fase === 1;
     });
 
-    const id_zona = zonaFiltrada?.id_zona;
     
     const tablaMemoizada = useMemo(() => {
         if (!posiciones) return null;

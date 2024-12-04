@@ -47,6 +47,7 @@ export const GlobalStyles = createGlobalStyle`
     body {
         color: var(--white);
         height: auto !important;
+        background-color: var(--black-950);
     }
 
     /* Aplica estilos a los campos autocompletados */

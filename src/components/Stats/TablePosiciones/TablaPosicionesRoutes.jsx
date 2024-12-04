@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 
-const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
+const TablePosicionesRoutes = ({ small, data, dataColumns, id_categoria }) => {
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     const navigate = useNavigate();
@@ -143,6 +143,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 emptyMessage="No hay datos disponibles"
                 rowClassName={rowClassName}
                 removableSort
+                className={small && 'small'}
             >
                 {dataColumns.map((col) => (
                     <Column
@@ -159,7 +160,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 ))}
             </TablaPosiciones>
             {
-                id_categoria === 1 && <TablaFormatoDetalle>
+                !small && id_categoria === 1 && <TablaFormatoDetalle>
                     <FormatoDetalleItem>
                         <span className='green'></span>
                         <p>Clasifica a Semifinal Copa Oro</p>
@@ -171,7 +172,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 </TablaFormatoDetalle>
             }
             {
-                id_categoria === 2 && <TablaFormatoDetalle>
+                !small && id_categoria === 2 && <TablaFormatoDetalle>
                     <FormatoDetalleItem>
                         <span className='green'></span>
                         <p>Asciende directo a Serie A</p>
@@ -195,7 +196,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 </TablaFormatoDetalle>
             }
             {
-                id_categoria === 3 && <TablaFormatoDetalle>
+                !small && id_categoria === 3 && <TablaFormatoDetalle>
                     <FormatoDetalleItem>
                         <span className='green'></span>
                         <p>Clasifica a Cuartos Copa Oro</p>
@@ -211,7 +212,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 </TablaFormatoDetalle>
             }
             {
-                id_categoria === 4 && <TablaFormatoDetalle>
+                !small && id_categoria === 4 && <TablaFormatoDetalle>
                     <FormatoDetalleItem>
                         <span className='green'></span>
                         <p>Ascenso a Serie C y Clasifica a Semifinal Copa Oro</p>
@@ -227,7 +228,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 </TablaFormatoDetalle>
             }
             {
-                id_categoria === 5 && <TablaFormatoDetalle>
+                !small && id_categoria === 5 && <TablaFormatoDetalle>
                     <FormatoDetalleItem>
                         <span className='orange'></span>
                         <p>Clasifica a Cuartos Oro (1° y 2° tienen ventaja deportiva)</p>
@@ -239,7 +240,7 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                 </TablaFormatoDetalle>
             }
             {
-                id_categoria === 6 && <TablaFormatoDetalle>
+                !small && id_categoria === 6 && <TablaFormatoDetalle>
                     <FormatoDetalleItem>
                         <span className='green'></span>
                         <p>Ascenso a Serie A y Clasifica a Semifinal Copa Oro</p>

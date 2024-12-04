@@ -9,6 +9,7 @@ import { FaUserCircle } from "react-icons/fa";
 import Select from '../Select/Select';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice';
+import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice';
 import { useEquipos } from '../../hooks/useEquipos';
 import { URL, URLImages } from '../../utils/utils';
 import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice';
@@ -19,9 +20,14 @@ export const Navbar = () => {
     const navigate = useNavigate();
 
     const { escudosEquipos } = useEquipos();
-    const equiposList = useSelector((state) => state.equipos.data)
+    const equipos = useSelector((state) => state.equipos.data)
     const temporadas = useSelector((state) => state.temporadas.data)
-    // const equiposFiltrados = equiposList.filter(equipo => equipo.id_categoria !== null);
+
+    const equiposFiltrados = equipos.filter((equipo) => 
+        temporadas.some((temporada) => temporada.id_equipo === equipo.id_equipo)
+    );
+    
+
     const teamSelected = useSelector((state) => state.newUser.equipoSeleccionado)
     const [isOpenModalSettings, setModalSettings] = useState(false)
     // const [teamSelected, setTeamSelected] = useState(1);

@@ -97,6 +97,7 @@ export const TeamContainer = styled.div`
     width: 40%;
     gap: 10px;
     padding: 0px 20px;
+
     @media (max-width: 968px) {
         gap: 5px;
         width: 100%;
