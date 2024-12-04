@@ -34,11 +34,25 @@ export const TableTeamWrapper = styled(DataTable)`
     }
 
     td, th {
-        padding: 0 15px 10px 25px;
+        padding: 0 24px 10px 24px;
         background: var(--gray-400) !important;
         border: none;
         min-width: 30px;
         font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    th.p-sortable-column {
+        text-align: end;
+        &:nth-child(2) {
+            .p-column-header-content {
+                width: 100% !important;
+                display: flex;
+                align-items: center;
+                justify-content: end;
+                width: fit-content;
+            }
+        }
     }
 
     .player {

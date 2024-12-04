@@ -10,6 +10,18 @@ export const formatPartidoDateTime = dateString => {
     return `${day}/${month}/${year}`;
 }
 
+export const formatearDiaSinAño= dateString => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return '00-00-0000 00:00:00';
+    }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${day}/${month}`;
+}
+
 export const formatHour = timeString => {
     // Verificar si el formato es válido (hh:mm:ss)
     if (/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
@@ -35,4 +47,18 @@ export const convertirFecha = (fecha) => {
     // Si la fecha viene en formato DD/MM/YYYY, la convertimos
     const [dia, mes, anio] = fecha.split('/');
     return `${anio}-${mes}-${dia}`;
+};
+
+export const formatearFecha = (fecha) => {
+    try {
+        const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
+        // Crear un objeto Date desde el string ISO
+        const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', opciones);
+
+        // Reemplazar puntos y ajustar estilo
+        return fechaFormateada.replace('.', '');
+    } catch (error) {
+        console.error("Error formateando fecha:", error);
+        return "Fecha no disponible";
+    }
 };

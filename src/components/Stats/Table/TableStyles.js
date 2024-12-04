@@ -5,7 +5,6 @@ export const TableContainerStyled = styled.div`
     display: flex;
     flex-direction: column;
     background-color: var(--gray-400);
-    border-radius: 20px;
     overflow: hidden;
     padding: 20px 0;
     gap: 20px;
@@ -69,7 +68,7 @@ export const TableWrapper = styled(DataTable)`
         background: var(--gray-400) !important;
         border: none;
         text-align: center;
-        min-width: 30px
+        min-width: 30px;
     }
 
     th {
@@ -247,6 +246,28 @@ export const TablaPosiciones = styled(DataTable)`
         justify-content: start;
     }
 
+    &.small {
+        td, th {
+            font-size: 0.9em;
+        }
+        tr th.p-sortable-column:nth-child(1){
+            width: 40px;
+        }
+
+        // Estadisticas puntos
+        tr th.p-sortable-column:nth-child(3), 
+        tr th.p-sortable-column:nth-child(4), 
+        tr th.p-sortable-column:nth-child(5), 
+        tr th.p-sortable-column:nth-child(6), 
+        tr th.p-sortable-column:nth-child(7), 
+        tr th.p-sortable-column:nth-child(8),
+        tr th.p-sortable-column:nth-child(9),
+        tr th.p-sortable-column:nth-child(10),
+        tr th.p-sortable-column:nth-child(11) {
+            width: 30px;
+        }
+    }
+
     // Estadisticas puntos
     tr th.p-sortable-column:nth-child(1){
         width: 50px;
@@ -339,7 +360,6 @@ export const TablaPosiciones = styled(DataTable)`
 `
 
 export const EstadisticaTabla = styled.div`
-    border: 1px solid red;
     background-color: var(--gray-100);
 `
 
@@ -384,5 +404,39 @@ export const FormatoDetalleItem = styled.div`
     p {
         font-size: 12px;
         color: var(--gray-100);
+    }
+`
+
+export const JugadorSancionadoBodyTemplate = styled.div`
+    display: flex;
+    gap: 10px;
+    min-width: 200px;
+    align-items: center;
+    padding: 5px 0;
+    
+    img { 
+        height: 20px;
+    }
+
+    .detalle {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-transform: uppercase;
+        font-weight: 500;
+        span {
+            color: var(--black-500);
+            font-size: 12px;
+        }
+    }
+`
+
+export const JugadorSancionadoNumeroFechas = styled.div`
+    display: flex;
+    text-align: end;
+    justify-content: end;
+    gap: 5px;
+    span {
+        font-weight: 700;
     }
 `

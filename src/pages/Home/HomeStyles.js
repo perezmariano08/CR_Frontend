@@ -33,7 +33,7 @@ export const HomeWrapper = styled.div`
 export const HomeLeftWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 20%;
+    width: 100%;
     gap: 20px;
     @media (max-width: 1160px) {
         width: 30%;
@@ -46,8 +46,8 @@ export const HomeLeftWrapper = styled.div`
 export const HomeMediumWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    max-width: 50%;
-    gap: 40px;
+    min-width: 500px;
+    gap: 20px;
     @media (max-width: 1160px) {
         width: 70%;
         max-width: 100%;
@@ -55,6 +55,7 @@ export const HomeMediumWrapper = styled.div`
 
     @media (max-width: 968px) {
         width: 100%;
+        min-width: auto;
     }  
 `;
 
@@ -82,7 +83,7 @@ export const CircleLive = styled.span`
 export const HomeRightWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 20%;
+    width: 100%;
     gap: 40px;
     h2 {
         display: none
@@ -228,7 +229,6 @@ export const CategoriasListaTitulo = styled.div`
     border-bottom: 1px solid var(--black-800);
     display: flex;
     flex-direction: column;
-    color: var(--green);
     gap: 5px;
     p {
         font-weight: 700;
@@ -255,5 +255,76 @@ export const CategoriasItem = styled(NavLink)`
     color: var(--white);
     &:hover {
         background-color: var(--black-800);
+    }
+`
+
+export const SectionHome = styled.div`
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px;
+`
+
+export const SectionHomeTitle = styled.div`
+    display: flex;
+    padding: 16px 24px;
+    font-weight: 700;
+    background-color: var(--black-800);
+    gap: 5px;
+    span {
+        color: var(--black-300);
+    }
+`
+
+export const CardPartidosDia = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: var(--black-900);
+`
+
+export const CardPartidosDiaTitle = styled.div`
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--black-800);
+    font-weight: 600;
+`
+
+export const PartidosDiaFiltrosWrapper = styled.div`
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`
+
+export const PartidosDiaFiltro = styled.button`
+    padding: 8px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    background-color: var(--black-800);
+    border: none;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+
+    &.active {
+        background-color: var(--black-50);
+        color: var(--black-950);
+    }
+
+    &:hover {
+        background-color: var(--black-700);
+
+        &.active {
+            background-color: var(--black-50);
+        }
     }
 `

@@ -1,5 +1,5 @@
 import React, { memo }from 'react';
-import { TableContainerStyled, TableTitle, TableTitleDivider } from '../Table/TableStyles';
+import { JugadorSancionadoBodyTemplate, TableContainerStyled, TableTitle, TableTitleDivider } from '../Table/TableStyles';
 import {TableTeamWrapper} from '../TableTeam/TableTeam'
 import { Column } from 'primereact/column';
 import { URLImages } from '../../../utils/utils';
@@ -15,28 +15,22 @@ const TableSanciones = memo(({ data, dataColumns }) => {
     }
 
     const jugadorBodyTemplate = (rowData) => (
-        <div className="player" style={{ minWidth: '140px' }}>
+        <JugadorSancionadoBodyTemplate>
             <img 
                 src={`${URLImages}${getEscudoEquipo(rowData.id_equipo)}`} 
                 alt={rowData.nombre_completo} 
             />
             <span>{rowData.jugador}</span>
-        </div>
+        </JugadorSancionadoBodyTemplate>
     );
 
     const nombreTorneo = data[0]?.edicion;
 
     return (
         <TableContainerStyled>
-            <TableTitle>
-                <h3>{nombreTorneo}</h3>
-                <p>Tribunal de disciplina</p>
-            </TableTitle>
-            <TableTitleDivider />
             <TableTeamWrapper
                 value={data}
                 emptyMessage="No hay datos disponibles"
-                paginator
                 rows={10}
                 rowsPerPageOptions={[5, 10, 20]}
             >
@@ -47,7 +41,7 @@ const TableSanciones = memo(({ data, dataColumns }) => {
                         header={col.header}
                         sortable
                         style={{ width: 'auto' }}
-                        body={col.field === 'jugador' ? jugadorBodyTemplate : null}
+                        body={col.body}
                     />
                 ))}
             </TableTeamWrapper>
