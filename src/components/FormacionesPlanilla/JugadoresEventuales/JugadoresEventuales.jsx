@@ -27,7 +27,6 @@ const JugadoresEventuales = () => {
     const [foundPlayer, setFoundPlayer] = useState({});
     const [isDisabled, setIsDisabled] = useState(false);
     const [selectedPlayer, setSelectedPlayer] = useState('');
-    const [originalDni, setOriginalDni] = useState('');
 
     const {
         dorsalValue,
@@ -48,7 +47,6 @@ const JugadoresEventuales = () => {
     } = userJugadorEventualStates();
     
     const {
-        generateId,
         searchDorsal,
         checkMaxPlayersQuantity,
         verificarJugador,
@@ -94,7 +92,7 @@ const JugadoresEventuales = () => {
     
         const repeatType = await searchDorsal(trimmedDorsal, trimmedDni, dataJugadorEventual);
         const isEditing = isEnabledEdit;
-    
+        
         if (maxQuantityPlayers || isEditing) {
             switch (repeatType) {
                 case false:
@@ -116,20 +114,9 @@ const JugadoresEventuales = () => {
                         setLoading(false);
                         return toast.error('El jugador está sancionado');
                     }
-                    
-                    let jugadorExistente = eventualExistente ? eventualExistente : regularExistente;
+
                     let newPlayer;
     
-                    // if (jugadorExistente) {
-                    //     newPlayer = {
-                    //         ID: jugadorExistente.id_jugador,
-                    //         Nombre: `${jugadorExistente.nombre} ${jugadorExistente.apellido}`,
-                    //         DNI: trimmedDni,
-                    //         Dorsal: trimmedDorsal,
-                    //         status: true,
-                    //         eventual: 'S',
-                    //     };
-                    // } else {
                         newPlayer = {
                             id_partido: idPartido,
                             id_equipo: idCurrentTeam,
@@ -140,11 +127,9 @@ const JugadoresEventuales = () => {
                             estado: 'A',
                             eventual: 'S',
                         };
-                    // }
-                    // console.log(newPlayer);
+
                     try {
                         await insertarJugadorEventual(newPlayer);
-                        // dispatch(addEventualPlayer({ idPartido: idPartido, teamId: idCurrentTeam, player: newPlayer }));
                         dispatch(setDisabledStateInfoPlayerEvent());
                         dispatch(toggleHiddenPlayerEvent());
                         toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
@@ -193,26 +178,6 @@ const JugadoresEventuales = () => {
         dispatch(toggleHiddenPlayerEvent());
     };
     
-    // Función que maneja la selección de un jugador en el Select
-    const handlePlayerSelect = (event) => {
-        const selectedPlayerId = event.target.value;
-        setSelectedPlayer(selectedPlayerId); // Guardamos la selección del jugador
-        const selectedPlayer = jugadoresEventualesEquipo.find(player => player.id_jugador == selectedPlayerId);
-        
-        if (selectedPlayer) {
-            setNameValue(selectedPlayer.nombre || '');
-            setSurNameValue(selectedPlayer.apellido || '');
-            setDniValue(selectedPlayer.dni || '');
-            setDorsalValue(selectedPlayer.dorsal || '');
-            setIsDisabled(true); // Bloqueamos los campos de nombre y apellido
-        } else {
-            setDorsalValue('');
-            setDniValue('');
-            setNameValue('');
-            setSurNameValue('');
-            setIsDisabled(false); // Desbloqueamos si no hay selección
-        }
-    };
 
     const handleDniBlur = async () => {
         if (dniValue.trim()) {

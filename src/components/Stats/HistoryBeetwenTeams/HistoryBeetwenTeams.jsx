@@ -4,31 +4,31 @@ import { AlignmentDivider } from '../Alignment/AlignmentStyles'
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { URLImages } from '../../../utils/utils';
 import { calcularEstadisticas } from './helper';
+import { useEquipos } from '../../../hooks/useEquipos';
 
-const HistoryBeetwenTeams = ({ partidosEntreEquipos, idLocal, idVisita }) => {
+const HistoryBeetwenTeams = ({ partidosEntreEquipos, id_partido }) => {
 
-    const ids = [idLocal, idVisita];
-    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(ids);
-
-    const estadisticas = calcularEstadisticas(partidosEntreEquipos);
+    const { nombresEquipos, escudosEquipos } = useEquipos();
+    const partidoActual = partidosEntreEquipos.find(p => p.id_partido === id_partido)
+    const estadisticas = calcularEstadisticas(partidosEntreEquipos, partidoActual?.id_equipoLocal, partidoActual?.id_equipoVisita);
 
     return (
         <HistoryMatchesWrapper>
                 <HistoryTop>
-                    <img src={`${URLImages}/${getEscudoEquipo(idLocal)}`} alt={getNombreEquipo(idLocal)} />
+                    <img src={`${URLImages}/${escudosEquipos(partidoActual?.id_equipoLocal)}`} alt={nombresEquipos(partidoActual?.id_equipoLocal)} />
                     <h3>Historial</h3>
-                    <img src={`${URLImages}/${getEscudoEquipo(idVisita)}`} alt={getNombreEquipo(idVisita)} />
+                    <img src={`${URLImages}/${escudosEquipos(partidoActual?.id_equipoVisita)}`} alt={nombresEquipos(partidoActual?.id_equipoLocal)} />
                 </HistoryTop>
             <AlignmentDivider />
             <HistoryMatchesContainer>
                 <HistoryStatsWrapper>
                     <HistoryStatsContainer>
                         <StatsHistory>
-                            {estadisticas.victoriasLocal}
+                            {estadisticas.victoriasEquipoA}
                         </StatsHistory>
                         <InfoStats>
                             <h2>Victorias</h2>
-                            <p>{estadisticas.porcentajeVictoriasLocal}%</p>
+                            <p>{estadisticas.porcentajeVictoriasEquipoA}%</p>
                         </InfoStats>
                     </HistoryStatsContainer>
 
@@ -44,11 +44,11 @@ const HistoryBeetwenTeams = ({ partidosEntreEquipos, idLocal, idVisita }) => {
 
                     <HistoryStatsContainer>
                         <StatsHistory>
-                            {estadisticas.victoriasVisita}
+                            {estadisticas.victoriasEquipoB}
                         </StatsHistory>
                         <InfoStats>
                             <h2>Victorias</h2>
-                            <p>{estadisticas.porcentajeVictoriasVisita}%</p>
+                            <p>{estadisticas.porcentajeVictoriasEquipoB}%</p>
                         </InfoStats>
                     </HistoryStatsContainer>
 
