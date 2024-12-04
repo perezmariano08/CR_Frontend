@@ -186,6 +186,7 @@ const Home = () => {
                         ) : (
                             <StatsNull>
                                 <p>No hay partidos disponibles para esta fecha.</p>
+                                
                             </StatsNull>
                         )}
                     </Section>
