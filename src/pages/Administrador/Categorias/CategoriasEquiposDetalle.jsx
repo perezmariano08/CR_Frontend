@@ -74,12 +74,18 @@ const CategoriasEquiposDetalle = () => {
     const [fileData, setFileData] = useState(null);
     // Referencia del input
     const fileInputRef = useRef(null);
+
     const { 
         isCreateModalOpen, openCreateModal, closeCreateModal, 
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
         isUpdateModalOpen, openUpdateModal, closeUpdateModal,
         isDescripcionModalOpen, openDescripcionModal, closeDescripcionModal,
     } = useModalsCrud();
+
+    const [isEditarEquipo, setEditarEquipo] = useState(false);
+    const openEditarEquipo = () => setEditarEquipo(true);
+    const closeEditarEquipo = () => setEditarEquipo(false);
+    
 
     // Manejo del form
     const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
@@ -91,10 +97,13 @@ const CategoriasEquiposDetalle = () => {
         posicion_jugador: '',
         id_equipo: id_equipo,
         id_jugador: '',
-        jugador_eventual: ''
+        jugador_eventual: '',
+        nombre_equipo: equipoFiltrado.nombre_equipo.trim()
     });
-
+    const isEquipoCambio = formState.nombre_equipo == equipoFiltrado.nombre_equipo
+    
     const [id_jugadorSeleccionado, setId_jugadorSeleccionado] = useState(null);
+
     // Planteles Data
     const plantelesList = useSelector((state) => state.planteles.data);
 
@@ -239,6 +248,29 @@ const CategoriasEquiposDetalle = () => {
 
     const handleSubmit = () => {
         manejarActualizarApercibimientos(); // Llama a la función al enviar el formulario
+    };
+
+    const { actualizar: actualizarEquipo, isUpdating: isUpdatingEquipo } = useCrud(
+        `${URL}/admin/update-equipo`, fetchEquipos, 'Equipo actualizado correctamente.', "Error al actualizar el equipo."
+    );
+
+    const manejarEditarEquipo = async () => {
+        const data = {
+            id_equipo: id_equipo,
+            nombre: formState.nombre_equipo.trim(),
+        };
+        try {
+            await actualizarEquipo(data); // Reutiliza el hook para actualizar
+            dispatch(fetchTemporadas())
+        } catch (error) {
+            console.error("Error al actualizar los apercibimientos:", error);
+        } finally {
+            closeEditarEquipo() 
+        }
+    }
+
+    const handleEditarEquipo = () => {
+        manejarEditarEquipo(); // Llama a la función al enviar el formulario
     };
     
     // CREAR
@@ -433,6 +465,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchPlanteles());
         dispatch(fetchJugadores());
         dispatch(fetchTemporadas());
+        
     }, [dispatch]);
 
     return (
@@ -451,7 +484,7 @@ const CategoriasEquiposDetalle = () => {
                     <img src={`${URLImages}${escudosEquipos(equipoFiltrado.id_equipo)}`} alt={equipoFiltrado.nombre} />
                     <h1>{nombresEquipos(equipoFiltrado.id_equipo)}</h1>
                 </EquipoWrapper>
-                <Button bg="success" color="white">
+                <Button bg="success" color="white" onClick={openEditarEquipo}>
                     <p>Editar equipo</p>
                 </Button>
             </EquipoDetalleInfo>
@@ -894,6 +927,57 @@ const CategoriasEquiposDetalle = () => {
                             }
                         />
                         <Overlay onClick={closeDescripcionModal} />
+                    </>
+                )
+            }
+            {
+                isEditarEquipo && (
+                    <>
+                        <ModalCreate 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: isEditarEquipo ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            title={`Editar equipo`}
+                            onClickClose={closeEditarEquipo}
+                            buttons={
+                                <>
+                                    <Button color={"danger"} onClick={closeEditarEquipo}>
+                                        <IoClose />
+                                        Cancelar
+                                    </Button>
+                                    <Button color={"success"} onClick={handleEditarEquipo} disabled={isEquipoCambio || isUpdatingEquipo}>
+                                        {isUpdatingEquipo ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                                Actualizando
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Guardar
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            }
+                            form={
+                                <>
+                                    <ModalFormInputContainer>
+                                        Nombre
+                                        <Input 
+                                            name='nombre_equipo'
+                                            type='text' 
+                                            placeholder="Escriba el nombre..." 
+                                            icon={<PiUser className='icon-input'/>} 
+                                            value={formState.nombre_equipo}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
+                                </>
+                            }
+                        />
+                        <Overlay onClick={closeEditarEquipo} />
                     </>
                 )
             }
