@@ -172,28 +172,44 @@ const EdicionesConfig = () => {
                             name={'cantidad_eventuales'}
                             data={[
                                 {
-                                    cantidad_eventuales: 0,
+                                    cantidad_eventuales: 1,
                                     nombre: "1 jugador",
                                 },
                                 {
-                                    cantidad_eventuales: 1,
+                                    cantidad_eventuales: 2,
                                     nombre: "2 jugadores",
                                 },
                                 {
-                                    cantidad_eventuales: 2,
+                                    cantidad_eventuales: 3,
                                     nombre: "3 jugadores",
                                 },
                                 {
-                                    cantidad_eventuales: 3,
+                                    cantidad_eventuales: 4,
                                     nombre: "4 jugadores",
                                 },
                                 {
-                                    cantidad_eventuales: 4,
+                                    cantidad_eventuales: 5,
                                     nombre: "5 jugadores",
                                 },
                                 {
-                                    cantidad_eventuales: 5,
+                                    cantidad_eventuales: 6,
                                     nombre: "6 jugadores",
+                                },
+                                {
+                                    cantidad_eventuales: 7,
+                                    nombre: "7 jugadores",
+                                },
+                                {
+                                    cantidad_eventuales: 8,
+                                    nombre: "8 jugadores",
+                                },
+                                {
+                                    cantidad_eventuales: 9,
+                                    nombre: "9 jugadores",
+                                },
+                                {
+                                    cantidad_eventuales: 10,
+                                    nombre: "10 jugadores",
                                 },
                             ]}
                             icon={<TbNumber className='icon-select'/>}

@@ -101,6 +101,18 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
             }
         }
 
+        if (id_categoria === 47) {
+            if (rowData.pos === 1) {
+                colorClass = 'orange'; // Campeón
+            } else if (rowData.pos === 2) {
+                colorClass = 'orange'; // Campeón
+            } else if (rowData.pos === 3) {
+                colorClass = 'blue'; // Campeón
+            } else if (rowData.pos === 4) {
+                colorClass = 'blue'; // Campeón
+            }
+        }
+
     
         return (
             <div className='pos'>
@@ -239,6 +251,18 @@ const TablePosicionesRoutes = ({ data, dataColumns, id_categoria }) => {
                     <FormatoDetalleItem>
                         <span className='blue'></span>
                         <p>Clasifica a Octavos Copa Oro</p>
+                    </FormatoDetalleItem>
+                </TablaFormatoDetalle>
+            }
+            {
+                id_categoria === 47 && <TablaFormatoDetalle>
+                    <FormatoDetalleItem>
+                        <span className='orange'></span>
+                        <p>Clasifican a Cuartos Copa Oro</p>
+                    </FormatoDetalleItem>
+                    <FormatoDetalleItem>
+                        <span className='blue'></span>
+                        <p>Clasifican a Cuartos Copa Plata</p>
                     </FormatoDetalleItem>
                 </TablaFormatoDetalle>
             }

@@ -109,7 +109,6 @@ const UserCategoriasFixture = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
     const zonasFiltradas = zonas.filter(zona => zona.id_categoria === id_categoria);
-    console.log(zonasFiltradas);
     
     const handlePreviousJornada = () => {
         const currentIndex = jornadasDisponibles.indexOf(jornadaActual);

@@ -35,7 +35,6 @@ const Home = () => {
 
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
-    const equipos = useSelector((state) => state.equipos.data);
     const temporadas = useSelector((state) => state.temporadas.data);
 
     const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, zonaActual } = useMatchesUser(idMyTeam);
@@ -44,7 +43,6 @@ const Home = () => {
     const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
 
-    const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
     const categoriaMiEquipo = temporadas
     .filter((t) => t.id_equipo === idMyTeam)
     .reduce((max, current) => 
@@ -56,13 +54,13 @@ const Home = () => {
     });
 
     const id_zona = zonaFiltrada?.id_zona;
-
+    
     const tablaMemoizada = useMemo(() => {
         if (!posiciones) return null;
         return (
             <TablaPosicionesRoutes
                 data={posiciones}
-                id_categoria={2}
+                id_categoria={categoriaMiEquipo}
                 dataColumns={dataPosicionesTemporadaColumnsMinus}
             />
         );

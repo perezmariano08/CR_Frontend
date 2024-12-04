@@ -16,23 +16,66 @@ const CardFinalPartido = ({ idPartido }) => {
     const { matchCorrecto: partido, bdIncidencias, estadoPartido } = usePlanilla(idPartido);
 
     const { nombresEquipos, escudosEquipos } = useEquipos();
-
     const procesarGoles = (incidencias) => {
         if (!partido) return { local: [], visita: [] };
-        
-        // Si el estado del partido es 'S', usar directamente los goles del partido
-        if (partido.estado === 'S') {
-            return {
-                local: Array(partido.goles_local).fill({ nombre: 'Gol' }), // Genera un arreglo con tantos elementos como goles locales
-                visita: Array(partido.goles_visita).fill({ nombre: 'Gol' }) // Genera un arreglo con tantos elementos como goles de visita
-            };
-        }
     
         const goles = {
             local: [],
             visita: []
         };
     
+        // Si el estado del partido es 'S', usar directamente los goles del partido
+        if (partido.estado === 'S') {
+            return {
+                local: Array(partido.goles_local).fill({ nombre: 'Gol' }),
+                visita: Array(partido.goles_visita).fill({ nombre: 'Gol' })
+            };
+        }
+    
+        // Si el estado del partido es 'F', incluir los datos de las incidencias con goles
+        if (partido.estado === 'F') {
+            incidencias?.forEach((incidencia) => {
+                if (incidencia.tipo === 'Gol') {
+                    const gol = {
+                        minuto: incidencia.minuto,
+                        id_jugador: incidencia.id_jugador,
+                        nombre: incidencia.nombre,
+                        apellido: incidencia.apellido,
+                        penal: incidencia.penal === 'S' || incidencia.penal === 'si',
+                        enContra: incidencia.en_contra === 'S' || incidencia.en_contra === 'si'
+                    };
+    
+                    if (incidencia.id_equipo === partido.id_equipoLocal) {
+                        if (gol.enContra) {
+                            goles.visita.push(gol);
+                        } else {
+                            goles.local.push(gol);
+                        }
+                    } else if (incidencia.id_equipo === partido.id_equipoVisita) {
+                        if (gol.enContra) {
+                            goles.local.push(gol);
+                        } else {
+                            goles.visita.push(gol);
+                        }
+                    }
+                }
+            });
+    
+            // Si no hay incidencias que coincidan, usar los valores genéricos
+            while (goles.local.length < partido.goles_local) {
+                goles.local.push({ nombre: '', minuto: null });
+            }
+            while (goles.visita.length < partido.goles_visita) {
+                goles.visita.push({ nombre: '', minuto: null });
+            }
+    
+            goles.local.sort((a, b) => a.minuto - b.minuto || 0);
+            goles.visita.sort((a, b) => a.minuto - b.minuto || 0);
+    
+            return goles;
+        }
+    
+        // Procesar incidencias para los estados que no sean 'S' o 'F'
         incidencias?.forEach((incidencia) => {
             if (incidencia.tipo === 'Gol') {
                 const gol = {
@@ -67,7 +110,7 @@ const CardFinalPartido = ({ idPartido }) => {
     };
     
     const golesNube = procesarGoles(bdIncidencias);
-
+    
     useEffect(() => {
         getZonas()
             .then((data) => {

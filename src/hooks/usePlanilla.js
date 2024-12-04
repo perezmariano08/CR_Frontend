@@ -123,7 +123,6 @@ export const usePlanilla = (partidoId) => {
         
     }, [partidoId]); //! CORROBORA CAMBIANDO EL ESTADO
 
-
     // WebSocket handlers for live updates of goals and other incidents
     useEffect(() => {
         const handleDorsalAsignado = async () => {
