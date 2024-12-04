@@ -16,7 +16,7 @@ const MenuBottom = () => {
 
         <MenuBottomItem to={'/categorias'}>
           <FaTrophy />
-          <h4>CATEGORIAS</h4>
+          <h4>EDICIONES</h4>
         </MenuBottomItem>
 
         <MenuBottomItem to={'/my-team'}>

@@ -51,6 +51,8 @@ import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { PiSoccerBall } from 'react-icons/pi';
 import DreamTeam from './DreamTeam';
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import Switch from '../../../components/UI/Switch/Switch';
+import { CheckBoxContainer, CustomCheckBox, GroupContainerCheckBox, LabelCheckBox } from './categoriasStyles';
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -70,6 +72,8 @@ const CategoriasFixture = () => {
         equipo_visita: '',
         goles_local: '',
         goles_visita: '',
+        pen_local: '',
+        pen_visita: '',
         jornada_actual: '',
         jornada: '',
         dia: '',
@@ -79,7 +83,9 @@ const CategoriasFixture = () => {
         planillero: '',
         zona: '',
         id_partido: '',
-        estado: ''
+        estado: '',
+        interzonal: false,
+        ventaja_deportiva: false
     });
     // const isFormEmpty = !formState.nombre_categoria.trim();
 
@@ -92,7 +98,7 @@ const CategoriasFixture = () => {
     } = useModalsCrud();
     const [descripcion, setIsDescripcion] = useState(false);
 
-
+    const [isEditarPartido, setEditarPartido] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
      // Estado de los botones que realizan una accion en la base de datos
     const [isImporting, setIsImporting] = useState(false);
@@ -100,6 +106,8 @@ const CategoriasFixture = () => {
     const [fileKey, setFileKey] = useState(0);
     const [fileName, setFileName] = useState(false);
     const [fileData, setFileData] = useState(null);
+    const [partidoOriginal, setPartidoOriginal] = useState(null); // Guardar datos originales del partido
+
     // Referencia del input
     const fileInputRef = useRef(null);
 
@@ -121,14 +129,23 @@ const CategoriasFixture = () => {
     const partidosList = useSelector((state) => state.partidos.data);
     const equiposList = useSelector((state) => state.equipos.data);
     const temporadas = useSelector((state) => state.temporadas.data);
-    
     const zonas = useSelector((state) => state.zonas.data);
-    
     const usuarios = useSelector((state) => state.usuarios.data);
     
     const planilleros = usuarios.filter((u) => u.id_rol === 2)
-    
+    const tipoZonaFiltrada = zonas.find((z) => z.id_zona == formState.zona)?.tipo_zona;
+
+    const closeAndClearForm = (closeModal) => {
+        closeModal()
+        resetForm();
+    };
+
     const handleSetJornadaActual = (jornada) => {
+        if (zonasFiltradas.length === 0) {
+            toast.error("Debes crear una zona antes de crear un partido.");
+            return;
+        }
+
         setFormState((prevFromSate) => ({
             ...prevFromSate,
             jornada_actual: jornada
@@ -147,17 +164,26 @@ const CategoriasFixture = () => {
     }, []);
 
     // ACTUALIZAR
-    const [idEditar, setidEditar] = useState(null) 
-
     const editarPartido = (id_partido) => {
         const partidoAEditar = partidosCategoria.find((partido) => partido.id_partido === id_partido)
-        
+
         if (partidoAEditar) {
+
+            setPartidoOriginal({
+                goles_local: partidoAEditar.goles_local,
+                goles_visita: partidoAEditar.goles_visita,
+                pen_local: partidoAEditar.pen_local,
+                pen_visita: partidoAEditar.pen_visita,
+                ventaja_deportiva: partidoAEditar.ventaja_deportiva,
+            });
+
             setFormState({
                 equipo_local: partidoAEditar.id_equipoLocal,
                 equipo_visita: partidoAEditar.id_equipoVisita,
                 goles_local: partidoAEditar.goles_local,
                 goles_visita: partidoAEditar.goles_visita,
+                pen_local: partidoAEditar.pen_local,
+                pen_visita: partidoAEditar.pen_visita,
                 jornada: partidoAEditar.jornada,
                 dia: partidoAEditar.dia,
                 hora: partidoAEditar.hora,
@@ -167,52 +193,84 @@ const CategoriasFixture = () => {
                 planillero: partidoAEditar.id_planillero,
                 zona: partidoAEditar.id_zona,
                 id_partido: partidoAEditar.id_partido,
+                interzonal: partidoAEditar.interzonal === 'S' ? true : false,
+                ventaja_deportiva: partidoAEditar.ventaja_deportiva,
             });
             
             openUpdateModal()
+            setEditarPartido(true);
         }
     }
-        
+
     // Función de actualización en el cliente
     const { actualizar, isUpdating } = useCrud(
         `${URL}/user/actualizar-partido`, fetchPartidos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
 
-const actualizarDato = async () => {
-    // Convertir la fecha a formato YYYY-MM-DD si es necesario
-    const diaPartido = formState.dia ? new Date(formState.dia).toLocaleDateString('en-CA') : '';
-
-    const data = { 
-        id_equipoLocal: formState.equipo_local, 
-        id_equipoVisita: formState.equipo_visita, 
-        goles_local: formState.goles_local, 
-        goles_visita: formState.goles_visita, 
-        jornada: formState.jornada, 
-        dia: diaPartido, 
-        hora: formState.hora,
-        cancha: formState.cancha,
-        arbitro: formState.arbitro,
-        id_planillero: formState.planillero,
-        id_edicion: edicionFiltrada.id_edicion,
-        id_categoria: categoriaFiltrada.id_categoria,
-        id_zona: formState.zona,
-        estado: formState.estado,
-        id_partido: formState.id_partido
+    const actualizarDato = async () => {
+        // Convertir la fecha a formato YYYY-MM-DD si es necesario
+        const diaPartido = formState.dia ? new Date(formState.dia).toLocaleDateString('en-CA') : '';
+    
+        let interzonal = formState.interzonal ? 'S' : 'N';
+    
+        const data = { 
+            id_equipoLocal: formState.equipo_local, 
+            id_equipoVisita: formState.equipo_visita, 
+            goles_local: formState.goles_local, 
+            goles_visita: formState.goles_visita, 
+            pen_local: formState.pen_local, 
+            pen_visita: formState.pen_visita,
+            jornada: formState.jornada, 
+            dia: diaPartido, 
+            hora: formState.hora,
+            cancha: formState.cancha,
+            arbitro: formState.arbitro,
+            id_planillero: formState.planillero,
+            id_edicion: edicionFiltrada.id_edicion,
+            id_categoria: categoriaFiltrada.id_categoria,
+            id_zona: formState.zona,
+            estado: formState.estado,
+            id_partido: formState.id_partido,
+            interzonal: interzonal,
+            ventaja_deportiva: formState.ventaja_deportiva
+        };
+    
+        const estadoCambiado = 
+            (formState.estado === 'F' || formState.estado === 'S') &&
+            partidoOriginal.estado !== formState.estado;
+    
+        const datosCambiados =
+            partidoOriginal.goles_local != formState.goles_local ||
+            partidoOriginal.goles_visita != formState.goles_visita ||
+            partidoOriginal.pen_local != formState.pen_local ||
+            partidoOriginal.pen_visita != formState.pen_visita ||
+            partidoOriginal.ventaja_deportiva != formState.ventaja_deportiva;
+    
+        const activarSP =
+            (estadoCambiado || datosCambiados) &&
+            (tipoZonaFiltrada === 'eliminacion-directa' ||
+                tipoZonaFiltrada === 'eliminacion-directa-ida-vuelta');
+    
+        if (activarSP) {
+            data.actualizar_partido = true;
+        }
+    
+        try {
+            await actualizar(data);
+            closeUpdateModal();
+    
+            setEditarPartido(false);
+            resetForm();
+        } catch (error) {
+            console.error('Error al actualizar el dato:', error);
+        }
     };
     
-    try {
-        await actualizar(data);
-        closeUpdateModal();
-        resetForm()
-    } catch (error) {
-        console.error('Error al actualizar el dato:', error);
-    }
-};
 
     const [id_partidoEliminar, setIdPartidoEliminar] = useState(null);
     // ELIMINAR
     const { eliminarPorId, isDeleting } = useCrud(
-        `${URL}/user/eliminar-partido`, fetchPartidos, 'Registro eliminado correctamente.', "Error al eliminar el registro."
+        `${URL}/user/eliminar-partido`, fetchPartidos
     );
 
     const eliminarRegistros = async () => {
@@ -227,7 +285,7 @@ const actualizarDato = async () => {
 
     // CREAR
     const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-partido`, fetchPartidos, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/user/crear-partido`, fetchPartidos
     );
 
     const agregarRegistro = async () => {
@@ -240,13 +298,18 @@ const actualizarDato = async () => {
             !formState.dia ||
             !formState.hora
         ) {
-            toast.error("Completá los campos.");
+            toast.error("Debes completar todos los campos del formulario para guardar");
             return;
         }
 
         if (formState.equipo_local === formState.equipo_visita) {
             toast.error("No se puede crear un partido con los mismos equipos.");
             return;
+        }
+
+        let interzonal = 'N'
+        if (formState.interzonal) {
+            interzonal = 'S'
         }
         
         const data = {
@@ -260,9 +323,11 @@ const actualizarDato = async () => {
             id_planillero: formState.planillero ? formState.planillero : null,
             id_edicion: edicionFiltrada.id_edicion,
             id_categoria: categoriaFiltrada.id_categoria,
-            id_zona: formState.zona
+            id_zona: formState.zona,
+            interzonal: interzonal,
+            ventaja_deportiva: formState.ventaja_deportiva
         };
-        
+
         await crear(data);
         closeCreateModal();
         resetForm()
@@ -347,7 +412,7 @@ const actualizarDato = async () => {
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const partidosCategoria = partidosList.filter((partido) => partido.id_categoria == id_categoria)
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == categoriaFiltrada.id_categoria)
-
+    
     // Agregar acciones a la tabla
     const partidosListLink = partidosCategoria.map(partido => ({
         ...partido,
@@ -431,6 +496,7 @@ const actualizarDato = async () => {
     };
 
     const openImportModal = () => setIsImportModalOpen(true);
+
     const closeImportModal = () => {
         setFileName(""); // Restablece el nombre del archivo cuando se cierra el modal
         setFileData(null); // Restablece los datos del archivo cuando se cierra el modal
@@ -447,6 +513,67 @@ const actualizarDato = async () => {
         openDescripcionModal()
         mensaje ? setIsDescripcion(mensaje) : setIsDescripcion("No hay descripción del partido")
     }
+
+    // No permite elegir el mismo equipo local y visitante
+    useEffect(() => {
+        if (!isEditarPartido) {
+            if (formState.equipo_local) {
+    
+            setFormState((prevState) => ({
+                ...prevState,
+                equipo_visita: '',
+            }));
+            }
+        }
+    }, [formState.equipo_local]);
+    
+    const mostrarEquipos = (equipos) => {
+        if (!equipos) {
+            toast.error("No se encontraron equipos");
+            return;
+        }
+    
+        const zonaElegida = zonas.find((z) => z.id_zona == formState.zona);
+        
+        if (formState.interzonal) {
+            const equiposInterzonal = equipos.filter(
+                (equipo) =>
+                    equipo.id_categoria == zonaElegida.id_categoria &&
+                    zonas.find((z) => z.id_zona == equipo.id_zona)?.fase == zonaElegida?.fase
+            );
+
+            return equiposInterzonal;
+        } else {
+            const equiposZona = equipos.filter((equipo) => equipo.id_zona == formState.zona);
+            return equiposZona;
+        }
+    };
+
+    const validarRenderVentaja = () => {
+        const tipoZonaFiltrada = zonas.find((z) => z.id_zona == formState.zona)?.tipo_zona;
+        
+        return formState.equipo_local && formState.equipo_visita && tipoZonaFiltrada !== 'todos-contra-todos';
+    };
+    
+    const isValid = validarRenderVentaja();
+
+    const determinarInstancia = (id_zona, jornada) => {
+        const zonaFiltrada = zonas?.find((z) => z.id_zona == id_zona);
+        if (!zonaFiltrada) {
+            return 'Zona no encontrada';
+        }
+    
+        if (zonaFiltrada.tipo_zona === 'todos-contra-todos') {
+            return `Fecha ${jornada}`;
+        }
+    
+        if (zonaFiltrada.fase === 1) {
+            return 1;
+        }
+    
+        return `${zonaFiltrada.nombre_zona} - (Fecha ${jornada})` || 'Nombre no disponible';
+    };
+    
     return (
         <Content>
             <MenuContentTop>
@@ -465,7 +592,7 @@ const actualizarDato = async () => {
                                 <Button onClick={() => cambiarFecha('anterior')} disabled={jornada - 1 === 0}>
                                     <LiaAngleLeftSolid  />
                                 </Button>
-                                <span>Fecha {jornada}</span>
+                                <span>{determinarInstancia(partidosJornada[0].id_zona, jornada)}</span>
                                 <Button onClick={() => cambiarFecha('siguiente')} disabled={partidosListLink.filter((p) => p.jornada === jornada + 1).length === 0}>
                                     <LiaAngleRightSolid  />
                                 </Button>
@@ -537,10 +664,10 @@ const actualizarDato = async () => {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                         title={`Agregar partido`}
-                        onClickClose={closeCreateModal}
+                        onClickClose={() => closeAndClearForm(closeCreateModal)}
                         buttons={
                             <>
-                                <Button color={"danger"} onClick={closeCreateModal}>
+                                <Button color={"danger"} onClick={() => closeAndClearForm(closeCreateModal)}>
                                     <IoClose />
                                     Cancelar
                                 </Button>
@@ -574,11 +701,25 @@ const actualizarDato = async () => {
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
+                                {
+                                    tipoZonaFiltrada === 'todos-contra-todos' && (
+                                        <ModalFormInputContainer>
+                                            Interzonal
+                                            <Switch
+                                                disabled={!formState.zona}
+                                                isChecked={formState.interzonal}
+                                                onChange={(e) => handleFormChange({
+                                                    target: { name: 'interzonal', value: e.target.checked }
+                                                })}
+                                            />
+                                        </ModalFormInputContainer>
+                                    )
+                                }
                                 <ModalFormInputContainer>
                                     Equipo Local
                                     <Select 
                                         name={'equipo_local'}
-                                        data={equiposTemporada.filter((e) => e.id_zona == formState.zona)}
+                                        data={mostrarEquipos(equiposTemporada.filter((e) => e.id_equipo != formState.equipo_visita))}
                                         placeholder={'Seleccionar equipo'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
@@ -592,16 +733,51 @@ const actualizarDato = async () => {
                                     Equipo Visitante
                                     <Select 
                                         name={'equipo_visita'}
-                                        data={equiposCategoria}
+                                        data={mostrarEquipos(equiposTemporada.filter((e) => e.id_equipo != formState.equipo_local))}
                                         placeholder={'Seleccionar equipo'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
-                                        column='nombre'
+                                        column='nombre_equipo'
                                         value={formState.equipo_visita}
                                         onChange={handleFormChange}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
+                                {
+                                    isValid && (
+                                        <ModalFormInputContainer>
+                                        Ventaja Deportiva
+                                        <GroupContainerCheckBox>
+                                            <CheckBoxContainer>
+                                            <LabelCheckBox>
+                                                {nombresEquipos(parseInt(formState.equipo_local))}
+                                                <CustomCheckBox 
+                                                type="checkbox" 
+                                                checked={formState.ventaja_deportiva === formState.equipo_local}
+                                                onChange={() => setFormState({ 
+                                                    ...formState, 
+                                                    ventaja_deportiva: formState.ventaja_deportiva === formState.equipo_local ? null : formState.equipo_local 
+                                                })}
+                                                />
+                                            </LabelCheckBox>
+                                            </CheckBoxContainer>
+                                            <CheckBoxContainer>
+                                            <LabelCheckBox>
+                                                {nombresEquipos(parseInt(formState.equipo_visita))}
+                                                <CustomCheckBox 
+                                                type="checkbox" 
+                                                checked={formState.ventaja_deportiva === formState.equipo_visita}
+                                                onChange={() => setFormState({ 
+                                                    ...formState, 
+                                                    ventaja_deportiva: formState.ventaja_deportiva === formState.equipo_visita ? null : formState.equipo_visita 
+                                                })}
+                                                />
+                                            </LabelCheckBox>
+                                            </CheckBoxContainer>
+                                        </GroupContainerCheckBox>
+                                        </ModalFormInputContainer>
+                                    )
+                                }
                                 <ModalJornadaContainer>
                                     <ModalFormInputContainer>
                                         Jornada actual
@@ -688,7 +864,7 @@ const actualizarDato = async () => {
                             </>
                         }
                     />
-                    <Overlay onClick={closeCreateModal} />
+                    <Overlay onClick={() => closeAndClearForm(closeCreateModal)} />
                 </>
             }
             {
@@ -824,67 +1000,150 @@ const actualizarDato = async () => {
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
+                                {
+                                    tipoZonaFiltrada === 'todos-contra-todos' && (
+                                        <ModalFormInputContainer>
+                                            Interzonal
+                                            <Switch
+                                                disabled={!formState.zona}
+                                                isChecked={formState.interzonal}
+                                                onChange={(e) => handleFormChange({
+                                                    target: { name: 'interzonal', value: e.target.checked }
+                                                })}
+                                            />
+                                        </ModalFormInputContainer>
+                                    )
+                                }
                                 <ModalFormInputContainer>
                                     Equipo Local
                                     <Select 
                                         name={'equipo_local'}
-                                        data={equiposCategoria}
+                                        data={mostrarEquipos(equiposTemporada.filter((e) => e.id_equipo != formState.equipo_visita))}
                                         placeholder={'Seleccionar equipo'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
-                                        column='nombre'
+                                        column='nombre_equipo'
                                         value={formState.equipo_local}
                                         onChange={handleFormChange}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Goles local
-                                    <Input 
-                                        name='goles_local'
-                                        type='number' 
-                                        placeholder="Ejemplo: 1" 
-                                        icon={<PiSoccerBall className='icon-input'/>} 
-                                        value={formState.goles_local}
-                                        onChange={handleFormChange}
-                                    />
-                                </ModalFormInputContainer>
+                                <ModalFormWrapper>
+                                    <ModalFormInputContainer>
+                                        Goles local
+                                        <Input 
+                                            name='goles_local'
+                                            type='number' 
+                                            placeholder="Ejemplo: 1" 
+                                            icon={<PiSoccerBall className='icon-input'/>} 
+                                            value={formState.goles_local}
+                                            onChange={handleFormChange}
+                                        />
+                                    </ModalFormInputContainer>
+                                    {
+                                        (tipoZonaFiltrada === 'eliminacion-directa' || tipoZonaFiltrada === 'eliminacion-directa-ida-vuelta') && (
+                                            <ModalFormInputContainer>
+                                                Penales local
+                                                <Input 
+                                                    name='pen_local'
+                                                    type='number' 
+                                                    placeholder="Ejemplo: 1" 
+                                                    icon={<PiSoccerBall className='icon-input'/>} 
+                                                    value={formState.pen_local}
+                                                    onChange={handleFormChange}
+                                                />
+                                            </ModalFormInputContainer>
+                                        )
+                                    }
+                                </ModalFormWrapper>
                                 <ModalFormInputContainer>
                                     Equipo Visitante
                                     <Select 
                                         name={'equipo_visita'}
-                                        data={equiposCategoria}
+                                        data={mostrarEquipos(equiposTemporada.filter((e) => e.id_equipo != formState.equipo_local))}
                                         placeholder={'Seleccionar equipo'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_equipo"}
-                                        column='nombre'
+                                        column='nombre_equipo'
                                         value={formState.equipo_visita}
                                         onChange={handleFormChange}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Goles visita
-                                    <Input 
-                                        name='goles_visita'
-                                        type='number' 
-                                        placeholder="Ejemplo: 1" 
-                                        icon={<PiSoccerBall className='icon-input'/>} 
-                                        value={formState.goles_visita}
-                                        onChange={handleFormChange}
-                                    />
-                                </ModalFormInputContainer>
+                                <ModalFormWrapper>
                                     <ModalFormInputContainer>
-                                        Jornada
+                                        Goles visita
                                         <Input 
-                                            name='jornada'
+                                            name='goles_visita'
                                             type='number' 
                                             placeholder="Ejemplo: 1" 
-                                            icon={<BsCalendar2Event className='icon-input'/>} 
-                                            value={formState.jornada}
+                                            icon={<PiSoccerBall className='icon-input'/>} 
+                                            value={formState.goles_visita}
                                             onChange={handleFormChange}
                                         />
                                     </ModalFormInputContainer>
+                                    {
+                                        (tipoZonaFiltrada === 'eliminacion-directa' || tipoZonaFiltrada === 'eliminacion-directa-ida-vuelta') && (
+                                            <ModalFormInputContainer>
+                                                Penales visita
+                                                <Input 
+                                                    name='pen_visita'
+                                                    type='number' 
+                                                    placeholder="Ejemplo: 1" 
+                                                    icon={<PiSoccerBall className='icon-input'/>} 
+                                                    value={formState.pen_visita}
+                                                    onChange={handleFormChange}
+                                                />
+                                            </ModalFormInputContainer>
+                                        )
+                                    }
+                                </ModalFormWrapper>
+                                {
+                                    isValid && (
+                                        <ModalFormInputContainer>
+                                        Ventaja Deportiva
+                                        <GroupContainerCheckBox>
+                                            <CheckBoxContainer>
+                                            <LabelCheckBox>
+                                                {nombresEquipos(parseInt(formState.equipo_local))}
+                                                <CustomCheckBox 
+                                                type="checkbox" 
+                                                checked={formState.ventaja_deportiva === formState.equipo_local}
+                                                onChange={() => setFormState({ 
+                                                    ...formState, 
+                                                    ventaja_deportiva: formState.ventaja_deportiva === formState.equipo_local ? null : formState.equipo_local 
+                                                })}
+                                                />
+                                            </LabelCheckBox>
+                                            </CheckBoxContainer>
+                                            <CheckBoxContainer>
+                                            <LabelCheckBox>
+                                                {nombresEquipos(parseInt(formState.equipo_visita))}
+                                                <CustomCheckBox 
+                                                type="checkbox" 
+                                                checked={formState.ventaja_deportiva === formState.equipo_visita}
+                                                onChange={() => setFormState({ 
+                                                    ...formState, 
+                                                    ventaja_deportiva: formState.ventaja_deportiva === formState.equipo_visita ? null : formState.equipo_visita 
+                                                })}
+                                                />
+                                            </LabelCheckBox>
+                                            </CheckBoxContainer>
+                                        </GroupContainerCheckBox>
+                                        </ModalFormInputContainer>
+                                    )
+                                }
+                                <ModalFormInputContainer>
+                                    Jornada
+                                    <Input 
+                                        name='jornada'
+                                        type='number' 
+                                        placeholder="Ejemplo: 1" 
+                                        icon={<BsCalendar2Event className='icon-input'/>} 
+                                        value={formState.jornada}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Establecer nuevo día
                                     <InputCalendar

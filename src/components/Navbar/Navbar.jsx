@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { NavbarContainerStyled, NavbarList, NavbarLogo, NavbarWrapper, SelectTeamContainer, TeamContainer } from './NavbarStyles'
 import logoCR from "/Logos/logoCopaRelampago.png"
 import { IoShieldHalf } from "react-icons/io5";
@@ -13,6 +13,7 @@ import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice';
 import { useEquipos } from '../../hooks/useEquipos';
 import { URL, URLImages } from '../../utils/utils';
 import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice';
+import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice';
 
 export const Navbar = () => {
     const dispatch = useDispatch();
@@ -26,9 +27,16 @@ export const Navbar = () => {
         temporadas.some((temporada) => temporada.id_equipo === equipo.id_equipo)
     );
     
+
     const teamSelected = useSelector((state) => state.newUser.equipoSeleccionado)
     const [isOpenModalSettings, setModalSettings] = useState(false)
     // const [teamSelected, setTeamSelected] = useState(1);
+
+    // Filtrar equipos vigentes usando useMemo para mejorar rendimiento
+    const equiposFiltrados = useMemo(() => {
+        const equiposVigentesIds = new Set(temporadas.map((temporada) => temporada.id_equipo));
+        return equiposList.filter((equipo) => equiposVigentesIds.has(equipo.id_equipo));
+    }, [equiposList, temporadas]);
 
     const toggleModalSettings = () => {
         setModalSettings(!isOpenModalSettings)

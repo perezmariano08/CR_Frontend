@@ -2,37 +2,80 @@ import React, { useState, useEffect } from 'react';
 import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn, WatchContainer } from "../CardPartido/CardPartidoStyles";
 import { HiLifebuoy } from "react-icons/hi2";
 import { useSelector } from 'react-redux';
-import { URLImages } from '../../../utils/utils';
+import { formatTime, URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { MdOutlineWatchLater } from "react-icons/md";
 import { usePlanilla } from '../../../hooks/usePlanilla';
 import { getZonas } from '../../../utils/dataFetchers';
+import { renderizarTituloPartido } from '../statsHelpers';
 
 const CardFinalPartido = ({ idPartido }) => {
 
     const [zona, setZona] = useState([]);
-    const zonaTipo = zona[0]?.tipo_zona === "eliminacion-directa";
 
     const { matchCorrecto: partido, bdIncidencias, estadoPartido } = usePlanilla(idPartido);
 
     const { nombresEquipos, escudosEquipos } = useEquipos();
-
     const procesarGoles = (incidencias) => {
         if (!partido) return { local: [], visita: [] };
-        
-        // Si el estado del partido es 'S', usar directamente los goles del partido
-        if (partido.estado === 'S') {
-            return {
-                local: Array(partido.goles_local).fill({ nombre: 'Gol' }), // Genera un arreglo con tantos elementos como goles locales
-                visita: Array(partido.goles_visita).fill({ nombre: 'Gol' }) // Genera un arreglo con tantos elementos como goles de visita
-            };
-        }
     
         const goles = {
             local: [],
             visita: []
         };
     
+        // Si el estado del partido es 'S', usar directamente los goles del partido
+        if (partido.estado === 'S') {
+            return {
+                local: Array(partido.goles_local).fill({ nombre: 'Gol' }),
+                visita: Array(partido.goles_visita).fill({ nombre: 'Gol' })
+            };
+        }
+    
+        // Si el estado del partido es 'F', incluir los datos de las incidencias con goles
+        if (partido.estado === 'F') {
+            incidencias?.forEach((incidencia) => {
+                if (incidencia.tipo === 'Gol') {
+                    const gol = {
+                        minuto: incidencia.minuto,
+                        id_jugador: incidencia.id_jugador,
+                        nombre: incidencia.nombre,
+                        apellido: incidencia.apellido,
+                        penal: incidencia.penal === 'S' || incidencia.penal === 'si',
+                        enContra: incidencia.en_contra === 'S' || incidencia.en_contra === 'si'
+                    };
+    
+                    if (incidencia.id_equipo === partido.id_equipoLocal) {
+                        if (gol.enContra) {
+                            goles.visita.push(gol);
+                        } else {
+                            goles.local.push(gol);
+                        }
+                    } else if (incidencia.id_equipo === partido.id_equipoVisita) {
+                        if (gol.enContra) {
+                            goles.local.push(gol);
+                        } else {
+                            goles.visita.push(gol);
+                        }
+                    }
+                }
+            });
+    
+            // Si no hay incidencias que coincidan, usar los valores genéricos
+            while (goles.local.length < partido.goles_local) {
+                goles.local.push({ nombre: '', minuto: null });
+            }
+            while (goles.visita.length < partido.goles_visita) {
+                goles.visita.push({ nombre: '', minuto: null });
+            }
+    
+            goles.local.sort((a, b) => a.minuto - b.minuto || 0);
+            goles.visita.sort((a, b) => a.minuto - b.minuto || 0);
+    
+            return goles;
+        }
+    
+        // Procesar incidencias para los estados que no sean 'S' o 'F'
         incidencias?.forEach((incidencia) => {
             if (incidencia.tipo === 'Gol') {
                 const gol = {
@@ -67,26 +110,34 @@ const CardFinalPartido = ({ idPartido }) => {
     };
     
     const golesNube = procesarGoles(bdIncidencias);
-
+    
     useEffect(() => {
         getZonas()
             .then((data) => {
-                const zonaCorrecta = data.filter(z => z.id_zona === partido?.id_zona);
-                setZona(zonaCorrecta);
+                const zonaCorrecta = data.find(z => z.id_zona === partido?.id_zona); // Usamos find en vez de filter para obtener un objeto
+                setZona(zonaCorrecta || null); // Si no hay coincidencia, seteamos null
             })
             .catch((error) => console.error('Error fetching zonas:', error));
     }, [partido?.id_zona]);
+    
 
     if (!partido) {
         return <div>Loading...</div>;
     }
 
+    const hourFormated = formatTime(partido.hora);
+
     return (
         <CardPartidoWrapper>
             <CardPartidoTitles>
+                {zona?.tipo_zona === 'eliminacion-directa-ida-vuelta' && (
+                    <h3 className="ida-vuelta">{renderizarTituloPartido(partido, zona) || "Sin título disponible"}</h3>
+                )}
                 <h3>{`${partido.nombre_categoria} - ${partido.nombre_edicion}`}</h3>
-                <p>{`${partido.dia_nombre} ${partido.dia_numero}/${partido.mes}`} | {zonaTipo ? `${zona[0]?.nombre_zona}` : `Fecha ${partido.jornada}`} - {partido.cancha}</p>
-                </CardPartidoTitles>
+                <p>
+                    {`${partido.dia_nombre || "Día desconocido"} ${partido.dia_numero}/${partido.mes}`} - {zona?.nombre_zona || `Fecha ${partido.jornada}`} - {partido.cancha || "Cancha desconocida"}
+                </p>
+            </CardPartidoTitles>
             <CardPartidoTeams>
                 <CardPartidoTeam>
                     <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
@@ -101,11 +152,18 @@ const CardFinalPartido = ({ idPartido }) => {
                         )
                     }
                     <h4>
-                        {partido.pen_local && <span className='penales'>({partido.pen_local})</span>}
-                        {golesNube.local.length}-{golesNube.visita.length}
-                        {partido.pen_visita && <span className='penales'>({partido.pen_visita})</span>}
+                        {
+                            partido.estado === 'P' 
+                            ? <h4>{hourFormated}</h4>
+                            : (
+                                <>
+                                    {partido.pen_local && <span className='penales'>({partido.pen_local})</span>}
+                                    {golesNube.local.length}-{golesNube.visita.length}
+                                    {partido.pen_visita && <span className='penales'>({partido.pen_visita})</span>}
+                                </>
+                            )
+                        }
                     </h4>
-
                     {estadoPartido === 'P' ? (
                         <span>Programado</span>
                     ) : estadoPartido === 'T' || estadoPartido === 'F' ? (

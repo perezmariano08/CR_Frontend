@@ -37,6 +37,23 @@ export const EliminacionDirectaWrapper = styled.div`
         margin-bottom: 20px;
     }
 
+    .campeon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: var(--gray-300);
+        height: 100%;
+        padding: 20px;
+        border-radius: 20px;
+        gap: 10px;
+    }
+
+    .campeon h3 {
+        text-align: center;
+        font-weight: 800;
+        color: var(--yellow);
+    }
+
     /* Estilo para cada partido */
     .match {
         background-color: var(--gray-400);

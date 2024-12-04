@@ -15,13 +15,18 @@ export const CardPartidoWrapper = styled.div`
 export const CardPartidoTitles = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
     text-align: center;
 
     h3 {
         font-size: 13px;
         font-weight: 600;
         line-height: 12px;
+    }
+
+    .ida-vuelta {
+        font-weight: 800;
+        color: var(--green);
     }
 
     p {

@@ -191,7 +191,6 @@ export const TableFootItem = styled.div `
 
 
 // Posiciones
-
 export const TablaPosiciones = styled(DataTable)`
     padding: 10px 10px 10px 0;
     .p-column-header-content {
