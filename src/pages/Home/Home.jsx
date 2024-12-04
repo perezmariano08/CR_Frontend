@@ -157,6 +157,7 @@ const Home = () => {
         setSanciones(sancionesFiltradas);
     }
 
+    
     const tituloCategoria = (id_zona) => {        
         const categoria = zonas.find((zona) => zona.id_zona === id_zona);
         
