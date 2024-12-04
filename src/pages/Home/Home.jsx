@@ -146,7 +146,6 @@ const Home = () => {
         return z.id_categoria === categoriaMiEquipo && z.fase === 1;
     });
 
-    const id_zona = zonaFiltrada?.id_zona;
     
     const tablaMemoizada = useMemo(() => {
         if (!posiciones) return null;
