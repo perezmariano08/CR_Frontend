@@ -13,7 +13,6 @@ import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice';
 import { useEquipos } from '../../hooks/useEquipos';
 import { URL, URLImages } from '../../utils/utils';
 import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice';
-import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice';
 
 export const Navbar = () => {
     const dispatch = useDispatch();
@@ -23,9 +22,7 @@ export const Navbar = () => {
     const equipos = useSelector((state) => state.equipos.data)
     const temporadas = useSelector((state) => state.temporadas.data)
 
-    const equiposFiltrados = equipos.filter((equipo) => 
-        temporadas.some((temporada) => temporada.id_equipo === equipo.id_equipo)
-    );
+    
     
 
     const teamSelected = useSelector((state) => state.newUser.equipoSeleccionado)
@@ -35,8 +32,8 @@ export const Navbar = () => {
     // Filtrar equipos vigentes usando useMemo para mejorar rendimiento
     const equiposFiltrados = useMemo(() => {
         const equiposVigentesIds = new Set(temporadas.map((temporada) => temporada.id_equipo));
-        return equiposList.filter((equipo) => equiposVigentesIds.has(equipo.id_equipo));
-    }, [equiposList, temporadas]);
+        return equipos.filter((equipo) => equiposVigentesIds.has(equipo.id_equipo));
+    }, [equipos, temporadas]);
 
     const toggleModalSettings = () => {
         setModalSettings(!isOpenModalSettings)
