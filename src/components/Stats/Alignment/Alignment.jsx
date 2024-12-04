@@ -10,6 +10,10 @@ const Alignment = ({ formaciones, partido }) => {
   const localPlayers = formaciones?.local || [];
   const visitantePlayers = formaciones?.visitante || [];
 
+  if (formaciones?.local.length === 0 && formaciones?.visitante.length === 0) {
+    return ''
+  }
+
   return (
     <AlignmentWrapper>
       <h3>Formaciones</h3>

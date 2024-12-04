@@ -237,8 +237,7 @@ const Categorias = () => {
                         title={`Publicar categoria`}
                         onClickClose={closeUpdateModal}
                         texto={
-                            `Si estás listo, publicá tu categoría para que sea visible en la app TIMBO Player y en la página web de tu torneo.
-Esta acción sólo se puede deshacer mientras no haya resultados confirmados de partidos.`
+                            `Deseas publicar la categoria ${categoriaFiltrada.nombre}? Esta acción mostará la categoria en la página web del torneo.`
                         }
                         buttons={
                             <>

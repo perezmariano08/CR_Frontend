@@ -4,6 +4,8 @@ import { EliminacionDirectaWrapper } from './BracketEliminacionDirectaStyles';
 import { useEquipos } from '../../hooks/useEquipos';
 import { URLImages } from '../../utils/utils';
 import { MenuPosicionesContainer, MenuPosicionesItemFilter } from '../Content/ContentStyles';
+import CopaOro from '../Icons/CopaOro';
+import CopaPlata from '../Icons/CopaPlata';
 
 const BracketEliminacionDirecta = ({ id_categoria }) => {
 
@@ -12,11 +14,12 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
     const zonas = useSelector(state => state.zonas.data);
 
     const [etapaSeleccionada, setEtapaSeleccionada] = useState(null);
+    const [idEtapaSeleccionada, setIdEtapaSeleccionada] = useState(null);
     
     // Procesar zonas para obtener solo las de la categoría seleccionada y fases ordenadas
     const zonasPorEtapa = React.useMemo(() => {
         const fasesOrdenadas = zonas
-            .filter(z => z.tipo_zona === 'eliminacion-directa' && z.id_categoria === id_categoria)
+            .filter(z => (z.tipo_zona === 'eliminacion-directa' || z.tipo_zona === 'eliminacion-directa-ida-vuelta') && z.id_categoria === id_categoria)
             .sort((a, b) => a.fase - b.fase);
         
         return fasesOrdenadas.reduce((acc, zona) => {
@@ -34,13 +37,21 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
     useEffect(() => {
         if (Object.keys(zonasPorEtapa).length > 0) {
             setEtapaSeleccionada(Object.values(zonasPorEtapa)[0].nombre_etapa);
+            setIdEtapaSeleccionada(Object.values(zonasPorEtapa)[0].zonas[0].id_etapa);
         } else {
             setEtapaSeleccionada(null);
+            setIdEtapaSeleccionada(null);    
         }
     }, [zonasPorEtapa]);
 
     const handleEtapaChange = (nombre_etapa) => {
         setEtapaSeleccionada(nombre_etapa);
+        
+        // Actualizar el idEtapaSeleccionada cuando cambias de etapa
+        const etapa = Object.values(zonasPorEtapa).find(etapa => etapa.nombre_etapa === nombre_etapa);
+        if (etapa) {
+            setIdEtapaSeleccionada(etapa.zonas[0].id_etapa);  // Asegúrate de seleccionar el id_etapa correcto
+        }
     };
 
     const traerEquiposPartidoPrevio = (id_partido) => {    
@@ -55,8 +66,34 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
 
         return <p>{nombreLocal} / {nombreVisita}</p>;
     };
-    console.log(zonas[0]);
-    
+
+    //! FALTA RENDERIZAR LOS GOLES GLOBALES (TENER EN CUENTA PENALES)
+    const calcularGolesGlobales = (id_partido, id_equipo) => {
+        const partido = partidos.find(p => p.id_partido === id_partido);
+        if (!partido) return 0;
+
+        // Buscar partidos de ida y vuelta
+        const partidoIda = partidos.find(p => p.id_partido === partido.ida);
+        const partidoVuelta = partidos.find(p => p.id_partido === partido.vuelta);
+
+        let golesIda = 0, golesVuelta = 0;
+
+        // Calcular goles en el partido de ida (puede ser por vacante)
+        if (partidoIda) {
+            golesIda = (partidoIda.id_equipoLocal === id_equipo ? partidoIda.goles_local : partidoIda.goles_visita);
+        }
+
+        // Calcular goles en el partido de vuelta (puede ser por vacante)
+        if (partidoVuelta) {
+            golesVuelta = (partidoVuelta.id_equipoLocal === id_equipo ? partidoVuelta.goles_local : partidoVuelta.goles_visita);
+        }
+
+        // Sumar goles de ida y vuelta
+        return golesIda + golesVuelta;
+    };
+
+    const zonaFiltradaCampeon = zonas.filter((z) => z.id_categoria === id_categoria && z.id_etapa === idEtapaSeleccionada && z.campeon === 'S')
+
     return (
         <>
             <MenuPosicionesContainer>
@@ -71,6 +108,22 @@ const BracketEliminacionDirecta = ({ id_categoria }) => {
                 ))}
             </MenuPosicionesContainer>
             <EliminacionDirectaWrapper>
+            {
+                    zonaFiltradaCampeon.length > 0 && zonaFiltradaCampeon[0].campeon === 'S' && zonaFiltradaCampeon[0].id_equipo_campeon && (
+                        <div className='campeon'>
+                            <h3>Campeón</h3>
+                            {
+                                etapaSeleccionada === 'Copa Oro' ? (
+                                    <CopaOro width={120} image={`${URLImages}/${escudosEquipos(zonaFiltradaCampeon[0].id_equipo_campeon)}`} text={nombresEquipos(zonaFiltradaCampeon[0].id_equipo_campeon)} />
+                                ) : (
+                                    <CopaPlata width={120} image={`${URLImages}/${escudosEquipos(zonaFiltradaCampeon[0].id_equipo_campeon)}`} text={nombresEquipos(zonaFiltradaCampeon[0].id_equipo_campeon)} />
+                                )
+                            }
+
+                            <h3>{nombresEquipos(zonaFiltradaCampeon[0].id_equipo_campeon)}</h3>
+                        </div>
+                    )
+            }
                 {Object.values(zonasPorEtapa).map(({ zonas, nombre_etapa }) => (
                     (etapaSeleccionada === nombre_etapa) && (
                         zonas.map((zona) => (

@@ -20,16 +20,23 @@ const MatchStats = () => {
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
 
-    const [formaciones, setFormaciones] = useState([]);
+    const [formaciones, setFormaciones] = useState({ local: [], visitante: [] });
     const [incidencias, setIncidencias] = useState(null);
-    const [activeTab, setActiveTab] = useState('Previa');
+    const [activeTab, setActiveTab] = useState(() => 
+        formaciones?.local.length > 0 && formaciones?.visitante.length > 0 ? 'Previa' : 'Cara a cara'
+    );
     const [loading, setLoading] = useState(true);
-
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find(p => p.id_partido === partidoId);
     const jugadores = useSelector((state) => state.jugadores.data);
 
     const { partidosJugados, partidosEntreEquipos } = useMatchOlds(partido?.id_equipoLocal, partido?.id_equipoVisita);
+
+    useEffect(() => {
+        if (activeTab === 'Previa' && (!formaciones?.local.length || !formaciones?.visitante.length)) {
+            setActiveTab('Cara a cara');
+        }
+    }, [formaciones]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -88,7 +95,11 @@ const MatchStats = () => {
                 </Section>
 
                 <Navigate>
-                    <p className={activeTab === 'Previa' ? 'active' : ''} onClick={() => setActiveTab('Previa')}>Previa</p>
+                    {
+                        formaciones?.local.length > 0 && formaciones?.visitante.length > 0 && partido.estado !== 'S' && (
+                            <p className={activeTab === 'Previa' ? 'active' : ''} onClick={() => setActiveTab('Previa')}>Previa</p>
+                        )
+                    }
                     <p className={activeTab === 'Cara a cara' ? 'active' : ''} onClick={() => setActiveTab('Cara a cara')}>Cara a cara</p>
                 </Navigate>
 
@@ -104,10 +115,10 @@ const MatchStats = () => {
 
                 {activeTab === 'Cara a cara' && (
                     <>
-                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
+                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} id_partido={partidoId} />
                         {
                             partidosEntreEquipos.length > 0 && (
-                                <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos} idLocal={localTeamId} idVisita={visitingTeamId} />
+                                <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos}/>
                             )
                         }
                     </>

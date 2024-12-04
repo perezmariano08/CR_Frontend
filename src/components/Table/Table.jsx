@@ -48,14 +48,12 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         return `${day}/${month}/${year}`;
     }
 
-    // Traer equipos
     const roles = useSelector((state) => state.roles.data)
     const nombreRol = (idRol) => {
         const rol = roles.find((rol) => rol.id_rol === idRol);
         return rol ? rol.nombre : null;
     };
 
-    // Traer equipos
     const equipos = useSelector((state) => state.equipos.data)
     const escudosEquipos = (idEquipo) => {
         const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
@@ -72,7 +70,6 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         const usuario = usuarios.find((usuario) => usuario.id_usuario === idUsuario);
         return usuario ? usuario.img : null;
     };
-
 
     const imagenUsuariosBody = rowData => (
         <div className="td-user" style={{minWidth: '200px'}}>
@@ -98,7 +95,6 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
         );
     };
     
-
     const rolBodyTemplate = rowData => {
         return nombreRol(rowData.id_rol)
     }

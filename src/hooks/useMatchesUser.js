@@ -65,22 +65,28 @@ const useMatchesUser = (idEquipo) => {
 
     useEffect(() => {
         if (partidos.length > 0 && miEquipo) {
-            // Filtra los partidos del equipo en la misma zona
+            // Filtrar partidos del equipo
             const partidosZonaEquipo = partidos.filter(
                 (partido) => partido.id_equipoLocal === miEquipo.id_equipo || partido.id_equipoVisita === miEquipo.id_equipo
             );
     
             if (partidosZonaEquipo.length > 0) {
-                // Encuentra la jornada más alta en los partidos de este equipo
-                const partidoJornadaAlta = partidosZonaEquipo.reduce((prev, current) => 
-                    (current.jornada > prev.jornada ? current : prev), partidosZonaEquipo[0]);
+                // Encuentra el partido con el id_zona más alto, y en caso de empate, el más reciente por fecha
+                const partidoUltimaZona = partidosZonaEquipo.reduce((prev, current) => {
+                    if (current.id_zona > prev.id_zona) {
+                        return current;
+                    } else if (current.id_zona === prev.id_zona) {
+                        // Si tienen el mismo id_zona, desempatar por fecha (suponiendo formato ISO 8601)
+                        return new Date(current.fecha) > new Date(prev.fecha) ? current : prev;
+                    }
+                    return prev;
+                }, partidosZonaEquipo[0]);
     
-                // Guarda la jornada y zona del partido con la jornada más alta
-                setFechaActual(partidoJornadaAlta.jornada);
+                // Actualizar la fecha actual (jornada) y la zona actual
+                setFechaActual(partidoUltimaZona.jornada);
     
-                // Si necesitas guardar la zona también
-                const zonaPartidoAltaJornada = zonas.find(zona => zona.id_zona === partidoJornadaAlta.id_zona);
-                setZonaActual(zonaPartidoAltaJornada);
+                const zonaUltima = zonas.find(zona => zona.id_zona === partidoUltimaZona.id_zona);
+                setZonaActual(zonaUltima);
             }
         }
     }, [partidos, miEquipo, zonas]);

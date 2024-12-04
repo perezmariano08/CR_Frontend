@@ -1,29 +1,24 @@
-import Axios from "axios";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { URL } from "../utils/utils";
 import { traerPartidosEventuales, verificarCategoriaJugadorEventual, verificarJugadorEventual } from "../utils/dataFetchers";
 import { fetchJugadores } from "../redux/ServicesApi/jugadoresSlice";
-import { toast, LoaderIcon } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { useEffect } from "react";
-import userJugadorEventualStates from "./userJugadorEventualStates";
 import { usePlanilla } from "./usePlanilla";
 
 const useJugadorEventual = () => {
-    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
-
-    const { matchCorrecto, bdFormaciones } = usePlanilla(idPartido);
 
     const dispatch = useDispatch();
-    const idCurrentTeam = useSelector((state) => state.planillero.playerEvent.idPlayerTeam);
 
-    const matchState = useSelector((state) => state.match);
-    // const matchCorrecto = matchState.find((match) => match.ID === idPartido);
+    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
+    const { matchCorrecto, bdFormaciones } = usePlanilla(idPartido);
+
+    const idCurrentTeam = useSelector((state) => state.planillero.playerEvent.idPlayerTeam);
 
     const equipoCorrecto = matchCorrecto?.id_equipoLocal === idCurrentTeam ? matchCorrecto?.id_equipoLocal : matchCorrecto?.id_equipoVisita;
 
     const isEnabledEdit = useSelector((state) => state.planillero.playerEventData.state);
-    const jugadores = useSelector((state) => state.jugadores.data);
+
     const id_categoria = matchCorrecto?.id_categoria;
 
     const [bdEventual, setBdEventual] = useState([]);
@@ -97,45 +92,21 @@ const useJugadorEventual = () => {
             return false; // No coincide nada
         }
     };
+
+    console.log(bdFormaciones);
     
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
             const jugadoresEquipo = Array.isArray(bdFormaciones) ? bdFormaciones.filter((j) => j.id_equipo === equipoCorrecto) : [];
             const eventualPlayersCounts = jugadoresEquipo.filter(player => player.eventual === 'S').length;
+            console.log(eventualPlayersCounts);
+            
             setMaxQuantityPlayers(eventualPlayersCounts < 5);
         }
     };
     
     const verificarJugador = (dni) => {
 
-        // Verificar si el DNI ya existe en jugadores regulares (no eventuales) del equipo actual
-        // const jugadorExistenteRegular = jugadores.find(
-        //     (jugador) => jugador.DNI === dni && jugador.eventual === 'N'
-        // );
-    
-        // if (jugadorExistenteRegular) {
-        //     toast.error('El jugador ya existe en jugadores regulares (no eventuales) del equipo actual');
-        //     return false;
-        // }
-    
-        // Verificar si el DNI ya ha sido agregado como eventual en el equipo contrario en el mismo partido
-        // const equipoContrario = matchCorrecto.Local.id_equipo === idCurrentTeam
-        //     ? matchCorrecto.Visitante
-        //     : matchCorrecto.Local;
-    
-        // const jugadorExistenteEnOtroEquipo = equipoContrario.Player.find(
-        //     (jugador) => jugador.DNI === dni && jugador.eventual === 'S'
-        // );
-
-        // const jugadorExistenteEnOtroEquipo = equipoContrario.Player.find(
-        //     (jugador) => jugador.DNI === dni
-        // );
-    
-        // if (jugadorExistenteEnOtroEquipo) {
-        //     toast.error('El jugador eventual ya está registrado en el equipo rival');
-        //     return false;
-        // }
-    
         // Verificar si el jugador tiene menos de 3 partidos eventuales jugados en la temporada actual
         const jugadorEventualEnTemporada = bdEventual.filter((j) => 
             j.dni === dni && j.id_equipo === idCurrentTeam

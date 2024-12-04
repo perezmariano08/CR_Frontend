@@ -73,6 +73,10 @@ const Incidents = ({ formaciones, partidoId }) => {
     }
   };
 
+  if (incidentes?.length === 0) {
+    return ''
+  }
+  
   return (
     <IndicentsWrapper>
       <h3>Incidencias</h3>

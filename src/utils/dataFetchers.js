@@ -311,3 +311,17 @@ export const getEtapas = async () => {
         console.error("Error al obtener las etapas:", error);
     }
 };
+
+export const checkEquipoPlantel = async (idEquipo, idEdicion) => {
+    try {
+        const response = await Axios.get(`${URL}/admin/check-equipo-plantel`, {
+            params: {
+                id_equipo: idEquipo,
+                id_edicion: idEdicion
+            }
+        });
+        return response.data
+    } catch (error) {
+        console.error("Error al consultar el plantel del equipo:", error);
+    }
+}

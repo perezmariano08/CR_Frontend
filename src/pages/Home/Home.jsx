@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro } from './HomeStyles';
 import Section from '../../components/Section/Section';
@@ -30,6 +30,7 @@ import { TablePosicionesSkeletonWrapper } from '../../components/Stats/TablePosi
 import { JugadorSancionadoBodyTemplate, JugadorSancionadoNumeroFechas } from '../../components/Stats/Table/TableStyles.js';
 import { useEquipos } from '../../hooks/useEquipos.js';
 import { GiDivert } from 'react-icons/gi';
+import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice.js';
 
 const Home = () => {
     // Fecha actual
@@ -45,6 +46,12 @@ const Home = () => {
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const userRole = 3
     
+    useEffect(() => {
+        dispatch(fetchEquipos());
+        dispatch(fetchCategorias());
+        dispatch(fetchEdiciones());
+        dispatch(fetchTemporadas());
+    }, [dispatch]);
 
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
@@ -128,6 +135,29 @@ const Home = () => {
     const [posiciones, setPosiciones] = useState(null);
     const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
+
+    const categoriaMiEquipo = temporadas
+    .filter((t) => t.id_equipo === idMyTeam)
+    .reduce((max, current) => 
+        current.id_categoria > max ? current.id_categoria : max, 
+        0
+    );
+    const zonaFiltrada = zonas.find((z) => {
+        return z.id_categoria === categoriaMiEquipo && z.fase === 1;
+    });
+
+    const id_zona = zonaFiltrada?.id_zona;
+    
+    const tablaMemoizada = useMemo(() => {
+        if (!posiciones) return null;
+        return (
+            <TablaPosicionesRoutes
+                data={posiciones}
+                id_categoria={categoriaMiEquipo}
+                dataColumns={dataPosicionesTemporadaColumnsMinus}
+            />
+        );
+    }, [posiciones]);
 
     useEffect(() => {
         if (id_zona) {
@@ -542,7 +572,7 @@ const Home = () => {
                             <>
                                 <h2>{
                                     zonaActual.tipo_zona === 'todos-contra-todos'
-                                        ? `Fecha ${fechaActual} - ${partidosFecha[0]?.nombre_categoria}`
+                                        ? `Fecha ${fechaActual} - ${zonaActual.nombre_categoria} - ${zonaActual.nombre_edicion}`
                                         : `${zonaActual.nombre_zona} - ${partidosFecha[0]?.nombre_categoria}`
                                     }
 
@@ -595,6 +625,7 @@ const Home = () => {
                                     // zona={zonasFiltradas}
                                     dataColumns={dataPosicionesTemporadaColumnsMinus}
                                 />
+                                {tablaMemoizada}
                             </CategoriasListaWrapper>
                             
                         </Section>
