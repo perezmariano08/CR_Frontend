@@ -7,15 +7,19 @@ import { TbRectangleVerticalFilled } from "react-icons/tb";
 import { URLImages } from '../../../utils/utils';
 import { AlignmentDivider, AlignmentTeam, AlignmentTeams } from '../Alignment/AlignmentStyles';
 import toast, { Toaster } from 'react-hot-toast';
+import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
+import { useWebSocket } from '../../../Auth/WebSocketContext';
+import { usePlanilla } from '../../../hooks/usePlanilla';
 import { useAuth } from '../../../Auth/AuthContext';
-import { setActionToDelete, setActionToEdit, setEnabledActionEdit, setModalType, toggleModal } from '../../../redux/Planillero/planilleroSlice';
-import { useEquipos } from '../../../hooks/useEquipos';
 
-const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
+const Incidents = ({ formaciones, partidoId }) => {
   const { userRole } = useAuth();
+  const { bdIncidencias: incidentes } = usePlanilla(partidoId);
   const dispatch = useDispatch();
-
   const [realTimeIncidencias, setRealTimeIncidencias] = useState([]);
+  const partidos = useSelector((state) => state.partidos.data);
+  const partido = partidos.find((partido) => partido.id_partido === partidoId);
+  const socket = useWebSocket();
 
   // Manejo de incidencias locales
   useEffect(() => {
@@ -24,10 +28,13 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
     }
   }, [incidentes]);
 
-  const mejorJugador = formaciones.find(f => +f.id_jugador === +partido.id_jugador_destacado);
+  const mejorJugador = [
+    ...(formaciones.local || []),
+    ...(formaciones.visitante || [])
+  ].find(jugador => jugador.id_jugador === partido.jugador_destacado);
 
   // Hook nombres y escudos equipos
-  const { nombresEquipos, escudosEquipos } = useEquipos();
+  const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
 
   const renderActionIcon = (action) => {
     switch (action.tipo) {
@@ -45,9 +52,10 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
   const handleDeleteAction = (action) => {
     
     if (partido.estado !== 'F') {
-      dispatch(setActionToDelete({ type: action.tipo, id_action: action.id_accion, id_equipo: action.id_equipo, id_jugador: action.id_jugador }));
-      dispatch(toggleModal('modalConfirmation'));
-      dispatch(setModalType('deleteAction'));
+      dispatch(toggleHiddenModal());
+      dispatch(setActionToDelete(action));
+      dispatch(setCurrentStateModal('action'));
+
     } else {
       toast.error('El partido ya ha sido cargado en la base de datos');
     }
@@ -56,9 +64,9 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
   const handleEditAccion = (action) => {
 
     if (partido.estado !== 'F') {
+      dispatch(setActionToEdit(action));
       dispatch(setEnabledActionEdit());
-      dispatch(setActionToEdit({ type: action.tipo, id_action: action.id_accion, minute: action.minuto }));
-      dispatch(toggleModal('ActionTime'));
+      dispatch(toggleHiddenTime());
     } else {
       toast.error('El partido ya ha sido cargado en la base de datos');
     }
@@ -75,15 +83,15 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
       <AlignmentTeams>
         <AlignmentTeam className='local'>
           <img 
-              src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} 
-              alt={`${nombresEquipos(partido.id_equipoLocal)}`}/>
-            <h3>{`${nombresEquipos(partido.id_equipoLocal)}`}</h3>
+              src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
+              alt={`${getNombreEquipo(partido.id_equipoLocal)}`}/>
+            <h3>{`${getNombreEquipo(partido.id_equipoLocal)}`}</h3>
         </AlignmentTeam>
         <AlignmentTeam className='visita'>
-          <h3>{`${nombresEquipos(partido.id_equipoVisita)}`}</h3>
+          <h3>{`${getNombreEquipo(partido.id_equipoVisita)}`}</h3>
           <img 
-              src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} 
-              alt={`${nombresEquipos(partido.id_equipoVisita)}`}/>
+              src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
+              alt={`${getNombreEquipo(partido.id_equipoVisita)}`}/>
         </AlignmentTeam>
       </AlignmentTeams>
       <IndicentsContainer>

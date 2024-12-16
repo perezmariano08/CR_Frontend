@@ -1,16 +1,16 @@
 import React from 'react';
 import { AlignmentDivider, AlignmentLocal, AlignmentPlayer, AlignmentPlayerContainer, AlignmentTeam, AlignmentTeams, AlignmentVisit, AlignmentWrapper } from './AlignmentStyles';
 import { URLImages } from '../../../utils/utils';
-import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
+import { useEquipos } from '../../../hooks/useEquipos';
 
 const Alignment = ({ formaciones, partido }) => {
   // Hook para nombres y escudos de equipos
-  const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
+  const { nombresEquipos, escudosEquipos } = useEquipos();
   // Jugadores locales y visitantes
-  const localPlayers = formaciones?.local || [];
-  const visitantePlayers = formaciones?.visitante || [];
+  const localPlayers = formaciones.filter(f => f.id_equipo === partido.id_equipoLocal && f.dorsal);
+  const visitantePlayers = formaciones.filter(f => f.id_equipo === partido.id_equipoVisita && f.dorsal);
 
-  if (formaciones?.local.length === 0 && formaciones?.visitante.length === 0) {
+  if (localPlayers.length === 0 && visitantePlayers.length === 0) {
     return ''
   }
 
@@ -21,16 +21,16 @@ const Alignment = ({ formaciones, partido }) => {
       <AlignmentTeams>
         <AlignmentTeam>
           <img 
-            src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
-            alt={getNombreEquipo(partido.id_equipoLocal)}
+            src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} 
+            alt={nombresEquipos(partido.id_equipoLocal)}
           />
-          <h3>{getNombreEquipo(partido.id_equipoLocal)}</h3>
+          <h3>{nombresEquipos(partido.id_equipoLocal)}</h3>
         </AlignmentTeam>
         <AlignmentTeam>
-          <h3>{getNombreEquipo(partido.id_equipoVisita)}</h3>
+          <h3>{nombresEquipos(partido.id_equipoVisita)}</h3>
           <img 
-            src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
-            alt={getNombreEquipo(partido.id_equipoVisita)}
+            src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} 
+            alt={nombresEquipos(partido.id_equipoVisita)}
           />
         </AlignmentTeam>
       </AlignmentTeams>

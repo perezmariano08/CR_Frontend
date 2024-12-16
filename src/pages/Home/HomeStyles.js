@@ -19,6 +19,8 @@ export const HomeWrapper = styled.div`
     
     &.planilla {
         flex-direction: column;
+        align-items: center;
+        width: 100%;
     }
     @media (max-width: 1160px) {
         gap: 20px;
@@ -46,6 +48,23 @@ export const HomeLeftWrapper = styled.div`
 export const HomeMediumWrapper = styled.div`
     display: flex;
     flex-direction: column;
+    min-width: 500px;
+    gap: 20px;
+    @media (max-width: 1160px) {
+        width: 70%;
+        max-width: 100%;
+    }  
+
+    @media (max-width: 968px) {
+        width: 100%;
+        min-width: auto;
+    }  
+`;
+
+export const HomeWrapperPlanillero = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     min-width: 500px;
     gap: 20px;
     @media (max-width: 1160px) {
@@ -263,6 +282,10 @@ export const SectionHome = styled.div`
     flex-direction: column;
     overflow: hidden;
     border-radius: 20px;
+    
+    &.planilla {
+        width: 100%;
+    }
 `
 
 export const SectionHomeTitle = styled.div`

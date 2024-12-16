@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoStats, CardPartidoDivider, WatchContainer } from './CardPartidoStyles';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
+// import { toggleIdMatch } from '../../../redux/Planillero/planilleroSlice.js';
 import { formatDate, formatTime, URLImages } from '../../../utils/utils.js';
 import { getZonas } from '../../../utils/dataFetchers.js';
 import { MdOutlineWatchLater } from "react-icons/md";
@@ -29,7 +29,7 @@ const CardPartido = ({ partido, rol }) => {
 
     const handlePlanillarClick = (e) => {
         e.preventDefault();
-        dispatch(toggleIdMatch(partido.id_partido));
+        // dispatch(toggleIdMatch(partido.id_partido));
         navigate(`/planillero/planilla?id=${partido.id_partido}`);
     };
 

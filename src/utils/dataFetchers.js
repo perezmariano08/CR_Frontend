@@ -54,17 +54,6 @@ export const getEstadisticasTemporada = async (estadistica, id_categoria) => {
     }
 };
 
-export const getFormaciones = async (partidoId) => {
-    try {
-        const res = await Axios.get(`${URL}/user/get-partidos-formaciones?id_partido=${partidoId}`, {
-            withCredentials: true
-        });
-        return res.data;
-    } catch (error) {
-        console.error('Error en el front', error);
-    }
-};
-
 export const getIndicencias = async (partidoId) => {
     try {
         const res = await Axios.get(`${URL}/user/get-partidos-incidencias?id_partido=${partidoId}`, {
@@ -120,9 +109,9 @@ export const getSanciones = async () => {
     }
 }
 
-export const verificarCategoriaJugadorEventual = async (dni, id_categoria, id_equipo, id_partido) => {
+export const verificarCategoriaJugadorEventual = async (dni, id_categoria, id_equipo) => {
     try {
-        const response = await Axios.get(`${URL}/user/get-jugador-eventual-categoria?dni=${dni}&id_categoria=${id_categoria}&id_equipo=${id_equipo}&id_partido=${id_partido}`);
+        const response = await Axios.get(`${URL}/user/get-jugador-eventual-categoria?dni=${dni}&id_categoria=${id_categoria}&id_equipo=${id_equipo}`);
         return response.data;
     } catch (error) {
         console.error('Error en la petición', error);
@@ -140,9 +129,9 @@ export const traerNovedades = async (id_rol) => {
     }
 }
 
-export const traerJugadoresDestacados = async (id_categoria, jornada) => {
+export const traerJugadoresDestacados = async (id_partido) => {
     try {
-        const response = await Axios.get(`${URL}/user/get-jugadores-destacados?id_categoria=${id_categoria}&jornada=${jornada}`)
+        const response = await Axios.get(`${URL}/planilla/get-jugadores-destacados?id_partido=${id_partido}`)
         return response.data;
     } catch (error) {
         console.error('Error en la peticion', error);
@@ -180,39 +169,9 @@ export const traerJugadoresPorCategoria = async (id_categoria, jornada) => {
     }
 }
 
-export const verificarJugadores = async (id_partido) => {
-    try {
-        const response = await Axios.get(`${URL}/user/verificar-comienzo-partido?id_partido=${id_partido}`)
-        return response.data;
-    } catch (error) {
-        console.error('Error en la peticion', error);
-        return false
-    }
-}
-
-export const insertarJugadorDestacado = async (id_categoria, id_partido, jugador) => {
-    try {
-        const response = await Axios.post(`${URL}/user/insertar-jugador-destacado?id_partido=${id_partido}&id_categoria=${id_categoria}`, jugador)
-        return response.data;
-    } catch (error) {
-        console.error('Error en la peticion', error);
-        return false
-    }
-}
-
-export const eliminarJugadorDestacado = async (id_categoria, id_partido, id_jugador) => {
-    try {
-        const response = await Axios.delete(`${URL}/user/eliminar-jugador-destacado?id_partido=${id_partido}&id_categoria=${id_categoria}&id_jugador=${id_jugador}`)
-        return response.data;
-    } catch (error) {
-        console.error('Error en la peticion', error);
-        return false
-    }
-}
-
 export const insertarMvp = async (id_partido, id_jugador) => {
     try {
-        const response = await Axios.put(`${URL}/user/insertar-mvp-partido?id_partido=${id_partido}&id_jugador=${id_jugador}`)
+        const response = await Axios.put(`${URL}/planilla/insertar-mvp-partido?id_partido=${id_partido}&id_jugador=${id_jugador}`)
         return response.data;
     } catch (error) {
         console.error('Error en la peticion', error);
@@ -222,7 +181,7 @@ export const insertarMvp = async (id_partido, id_jugador) => {
 
 export const insertarJugadorEventual = async (jugador_eventual) => {
     try {
-        const response = await Axios.post(`${URL}/user/insertar-jugador-eventual`, jugador_eventual)
+        const response = await Axios.post(`${URL}/planilla/insertar-jugador-eventual`, jugador_eventual)
         return response.data;
     } catch (error) {
         console.error('Error en la peticion', error);
@@ -325,3 +284,157 @@ export const checkEquipoPlantel = async (idEquipo, idEdicion) => {
         console.error("Error al consultar el plantel del equipo:", error);
     }
 }
+
+export const getIncidenciasPlanilla = async (id_partido) => {
+    try {
+        const res = await Axios.get(`${URL}/planilla/get-partidos-incidencias?id_partido=${id_partido}`);
+        return res.data[0];
+    } catch (error) {
+        console.error("Error al consultar las incidencias del partido", error);
+    }
+}
+
+export const getFormaciones = async (partidoId) => {
+    try {
+        const res = await Axios.get(`${URL}/planilla/get-partido-formaciones?id_partido=${partidoId}`, {
+            withCredentials: true
+        });
+        return res.data;
+    } catch (error) {
+        console.error('Error en el front', error);
+    }
+};
+
+export const firmaJugador = async (id_partido, id_jugador, dorsal) => {
+    try {
+        const res = await Axios.post(`${URL}/planilla/firma-jugador`, { id_partido, id_jugador, dorsal });
+        return res.data;
+    } catch (error) {
+        console.error('Error en el front', error);
+    }
+};
+
+export const insertarJugadorDestacado = async (id_categoria, id_partido, id_equipo, id_jugador) => {
+    try {
+        const response = await Axios.post(`${URL}/planilla/insertar-jugador-destacado`, { id_categoria, id_partido, id_equipo, id_jugador })
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const eliminarJugadorDestacado = async (id_categoria, id_partido, id_jugador) => {
+    try {
+        const response = await Axios.delete(`${URL}/planilla/eliminar-jugador-destacado`, {
+            params: { id_categoria, id_partido, id_jugador }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false;
+    }
+};
+
+export const borrarFirmaJugador = async (id_partido, id_jugador) => {
+    try {
+        const response = await Axios.delete(`${URL}/planilla/delete-firma-jugador`, {
+            params: { id_partido, id_jugador }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false;
+    }
+};
+
+export const borrarIncidencia = async (tipo, id_partido, id_accion, id_equipo, id_jugador) => { 
+    try {
+        const response = await Axios.delete(`${URL}/planilla/eliminar-${tipo}`, {
+            params: { id_partido, id_accion, id_equipo, id_jugador }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false;
+    }
+}
+
+export const getEdicion = async (id_edicion) => {
+    try {
+        const response = await Axios.get(`${URL}/planilla/get-edicion`, {
+            params: { id_edicion }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false;
+    }
+};
+
+export const checkPartidosEventual = async (id_partido, dni) => {
+    try {
+        const response = await Axios.get(`${URL}/planilla/check-partidos-eventual`, { params: { id_partido, dni } });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false;
+    }
+};
+
+export const verificarJugadores = async (id_partido) => {
+    try {
+        const response = await Axios.get(`${URL}/planilla/verificar-comienzo-partido?id_partido=${id_partido}`)
+        return response.data;
+    } catch (error) {
+        console.error('Error en la peticion', error);
+        return false
+    }
+}
+
+export const actualizarEstadoPartido = async (id_partido) => {
+    try {
+        const response = await Axios.put(`${URL}/planilla/actualizar-estado-partido`, { id_partido });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return { mensaje: "Error al actualizar el estado del partido" }
+    }
+};
+
+export const actualizarPartido = async (data) => {
+    try {
+        const response = await Axios.put(`${URL}/planilla/actualizar-partido`, { data });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return { mensaje: "Error al actualizar el estado del partido" }
+    }
+}
+
+export const suspenderPartido = async (token, data) => {
+    try {
+        const response = await Axios.put(`${URL}/planilla/suspender-partido`, data, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error en la petición', error);
+        return { mensaje: "Error al suspender el partido" }
+    }
+}
+
+export const updateSancionados = async (token) => {
+    try {
+        await Axios.post(`${URL}/planilla/calcular-expulsiones`, {}, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+    } catch (error) {
+        toast.error('Error al actualizar las sanciones.');
+        console.error('Error al actualizar las sanciones:', error);
+    }
+};

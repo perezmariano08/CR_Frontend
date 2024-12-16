@@ -11,7 +11,8 @@ export const ActionConfirmedContainer = styled.div`
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
-    `
+`
+
 export const ActionConfirmedWrapper = styled.div`
     max-width: 700px;
     width: 80%;
@@ -43,6 +44,27 @@ export const ActionsContainer = styled.div`
 
     &.large {
         width: 100%;
+    }
+`
+
+export const TitleContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 5px;
+
+    h3 {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    span {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 700;
+    }
+    .limite {
+        color: var(--red);
     }
 `
 
@@ -78,6 +100,7 @@ export const ActionOptionContainer = styled.div`
     }
 
 `
+
 export const ActionNext = styled.button`
     display: flex;
     padding: 10px 12px;
@@ -137,8 +160,15 @@ export const AssistOptContainer = styled.div`
     gap: 5px;
 `
 export const ButtonContainer = styled.div`
+align-items: center;
     display: flex;
     gap: 10px;
+
+    p {
+        color: var(--red);
+        font-size: 12px;
+        max-width: 50%;
+    }
 `
 
 export const TextContainer = styled.div`

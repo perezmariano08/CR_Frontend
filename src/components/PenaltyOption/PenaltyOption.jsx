@@ -9,16 +9,21 @@ import { setPenales } from '../../redux/Planillero/planilleroSlice';
 const PenaltyOption = ({ partido }) => {
     const dispatch = useDispatch();
 
-    const penalLocalState = useSelector((state) => state.planillero.penales?.penal_local || 0);
-    const penalVisitaState = useSelector((state) => state.planillero.penales?.penal_visita || 0);
+    const penalLocalState = useSelector((state) => state.planillero.penales?.penal_local);
+    const penalVisitaState = useSelector((state) => state.planillero.penales?.penal_visita);
     
     const [showInputs, setShowInputs] = useState(false);
-    const [penalLocal, setPenalLocal] = useState(penalLocalState);
-    const [penalVisita, setPenalVisita] = useState(penalVisitaState);
+    const [penalLocal, setPenalLocal] = useState(penalLocalState || 0);
+    const [penalVisita, setPenalVisita] = useState(penalVisitaState || 0);
 
     const { nombresEquipos, escudosEquipos } = useEquipos();
 
-    // Cargar los valores de penales del estado global al montar el componente
+    useEffect(() => {
+        if (penalLocalState != null && penalVisitaState != null) {
+            setShowInputs(true);
+        }
+    }, [penalLocalState, penalVisitaState]);
+
     useEffect(() => {
         setPenalLocal(penalLocalState);
         setPenalVisita(penalVisitaState);
@@ -27,14 +32,18 @@ const PenaltyOption = ({ partido }) => {
     const handleCheckboxChange = () => {
         const newShowInputs = !showInputs;
         setShowInputs(newShowInputs);
-
+    
         if (!newShowInputs) {
+            setPenalLocal(null);
+            setPenalVisita(null);
+            dispatch(setPenales({ penalLocal: null, penalVisita: null }));
+        } else {
             setPenalLocal(0);
             setPenalVisita(0);
-            dispatch(setPenales({ penalLocal: null, penalVisita: null }));
+            dispatch(setPenales({ penalLocal, penalVisita }));
         }
     };
-
+    
     const handleLocalChange = (e) => {
         const value = e.target.value;
 
@@ -62,7 +71,7 @@ const PenaltyOption = ({ partido }) => {
                 <AlignmentDivider />
                 <OptionsContainer>
                     <OptionContainer>
-                        <CustomCheckbox id="penalty" onChange={handleCheckboxChange} />
+                        <CustomCheckbox id="penalty" checked={showInputs} onChange={handleCheckboxChange} />
                         <CheckboxLabel htmlFor="penalty">Definición por penales</CheckboxLabel>
                     </OptionContainer>
                     <HiddenOptionContainer show={showInputs}>

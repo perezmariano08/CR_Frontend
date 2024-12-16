@@ -1,329 +1,105 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  dorsal: {
-    hidden: true,
-    playerSelected: null,
-    playerSelectedName: null
+  modal: null,
+  modalType: '',
+  jugador: null,
+  id_equipo: null,
+  action: {
+    type: null,
+    detail: null,
   },
-  asist: {
-    hidden: true,
-    dataGol: {}
+  enabledActionEdit: false,
+  actionToEdit: {
+    type: null,
+    id_action: null,
+    minute: null,
   },
-  planilla: {
-    hidden: true,
-    navigationSource: '',
-    localTeam: null,
-    dorsalPlayer: null,
-    playerSelected: null,
-    actionPlayer: null,
-    playerName: null,
-    actions: [],
-    descripcionPartido: '',
+  actionToDelete: {
+    type: null,
+    id_action: null,
+    id_equipo: null,
+    id_jugador: null,
   },
-  planillaTime: {
-    hidden: true,
-    newTime: ''
-  },
-  modal: {
-    hidden: true,
-    hiddenSusp: true,
-    modalState: null,
-    dorsalDelete: null,
-    idDorsalDelete: null,
-    currentTeam: null,
-  },
-  actionToDelete: null,
-  actionEdit: null,
-  actionEditEnabled: false,
-  infoDelete: {
-    idPartido: null,
-    idEquipo: null,
-    idJugador: null
-  },
-  playerEvent: {
-    hidden: true,
-    idPlayerTeam: null,
-  },
-  playerEventData: {
-    state: null,
-    dorsal: null,
-    dni: null,
-    nombre: null,
-    apellido: null
-  },
-  timeMatch: {
-    matchState: null,
-    idMatch: null,
-    desc: null,
-    jugador_destacado: [],
-    mvp: null,
-  },
-  expulsadoData: {
-    idJugador: null,
-    tipo: null,
-    descripcion: null,
-  },
+  mvpSelected: null,
   penales: {
     penal_local: 0,
     penal_visita: 0
   },
-  jugadoresDestacados: [],
+  description: null,
 };
 
 const planilleroSlice = createSlice({
   name: 'planillero',
   initialState,
   reducers: {
-      setJugadoresDestacados: (state, action) => {
-        state.jugadoresDestacados = action.payload;
+    toggleModal: (state, action) => {
+      state.modal = state.modal === action.payload ? null : action.payload;
     },
-    agregarJugadorDestacadoRedux: (state, action) => {
-        state.jugadoresDestacados.push(action.payload);
+    setModalType: (state, action) => {
+      state.modalType = action.payload;
     },
-    eliminarJugadorDestacadoRedux: (state, action) => {
-        state.jugadoresDestacados = state.jugadoresDestacados.filter(j => j.id_jugador !== action.payload);
+    closeModal: (state) => {
+      state.modal = null;
     },
-    setTipoExpulsion: (state , action) => {
-      state.expulsadoData.tipo = action.payload
+    setJugador: (state, action) => {
+      state.jugador = action.payload;
     },
-    setDescripcionPartido(state, action) {
-      state.planilla.descripcionPartido = action.payload;
+    setIdEquipo: (state, action) => {
+      state.id_equipo = action.payload;
     },
-    resetAssist: (state) => {
-      state.asist.dataGol = {
-          penal: null,
-          enContra: null,
-          withAssist: null,
-          idAssist: null
+    setAction: (state, action) => {
+      state.action = {
+        ...state.action,
+        ...action.payload,
       };
     },
-    handleBestPlayerOfTheMatch: (state, action) => {
-      state.timeMatch.jugador_destacado = action.payload;
-    },
-    handleMvpSlice: (state, action) => {
-      state.timeMatch.mvp = action.payload;
-    },
-    toggleHiddenDorsal: (state) => {
-      state.dorsal.hidden = !state.dorsal.hidden;
-    },
-    toggleHiddenAsist: (state) => {
-      state.asist.hidden = !state.asist.hidden;
-    },
-    setNavigationSource: (state, action) => {
-      state.planilla.navigationSource = action.payload;
-    },
-    toggleHiddenAction: (state) => {
-      state.planilla.hidden = !state.planilla.hidden;
-    },
-    setNewTime: (state, action) => {
-      state.planillaTime.newTime = action.payload;
-    },
-    toggleHiddenTime: (state) => {
-      state.planillaTime.hidden = !state.planillaTime.hidden;
-    },
-    setPlayerSelected: (state, action) => {
-      state.dorsal.playerSelected = action.payload;
-    },
-    setPlayerSelectedAction: (state, action) => {
-      state.planilla.playerSelected = action.payload;
-    },
-    setActionPlayer: (state, action) => {
-      state.planilla.actionPlayer = action.payload;
-    },
-    setdorsalPlayer: (state, action) => {
-      state.planilla.dorsalPlayer = action.payload;
-    },
-    setNamePlayer: (state, action) => {
-      state.planilla.playerName = action.payload;
-    },
-    setIsLocalTeam: (state, action) => {
-      state.planilla.localTeam = action.payload;
-    },
-    handleConfirm: (state, action) => {
-      const { partidoId, isLocalTeam, idJugador, nombreJugador, dorsal, accion, minuto } = action.payload;
-
-      // Agregar la nueva acción
-      let nuevaAccion = { partidoId, isLocalTeam, idJugador, nombreJugador, dorsal, accion, minuto };
-
-      const isGolEnContra = state.asist.dataGol.enContra;
-
-      if (isGolEnContra) {
-          nuevaAccion.isLocalTeam = !isLocalTeam;
-      }
-
-      if (accion === 'Gol') {
-          nuevaAccion.golDetails = state.asist.dataGol;
-      }
-
-      state.planilla.actions.push(nuevaAccion);
-
-      state.planilla.actions.sort((a, b) => {
-          const minuteA = parseInt(a.minuto);
-          const minuteB = parseInt(b.minuto);
-
-          if (minuteA < minuteB) {
-              return -1;
-          }
-          if (minuteA > minuteB) {
-              return 1;
-          }
-          return 0;
-      });
-  },         
-    setNamePlayerSelected: (state, action) => {
-      state.dorsal.playerSelectedName = action.payload;
-    },
-    setNewAssist: (state, action) => {
-      state.asist.dataGol = action.payload;
-    },
-    toggleIdMatch: (state, action) => {
-      state.timeMatch.idMatch = action.payload
-    },
-    toggleHiddenModal: (state) => {
-      state.modal.hidden = !state.modal.hidden;
-    },
-    toggleHiddenModalSuspender: (state) => {
-      state.modal.hiddenSusp = !state.modal.hiddenSusp;
-    },     
-    setActionToDelete: (state, action) => {
-      state.actionToDelete = action.payload;
-    },
-    deleteAction: (state, action) => {
-      const { editedAction, isEdit } = action.payload;
-
-      if (isEdit) {
-        state.planilla.actions = state.planilla.actions.map(act => {
-          if (areActionsEqual(act, state.actionToDelete)) {
-            return { ...editedAction };
-          }
-          return act;
-        });
-      } else {
-        state.planilla.actions = state.planilla.actions.filter(act => !areActionsEqual(act, state.actionToDelete));
-      }
-      state.actionToDelete = null;
-
-      function areActionsEqual(action1, action2) {
-        if (!isEdit) {
-          return action1.idJugador === action2.idJugador && action1.minuto === action2.minuto;
-        } else {
-          return action1.idJugador === action2.idJugador
-        }
-
-      }
-    },
     setActionToEdit: (state, action) => {
-      state.actionEdit = action.payload;
+      state.actionToEdit = {
+        ...state.actionToEdit,
+        ...action.payload,
+      };
+    },
+    setActionToDelete: (state, action) => {
+      state.actionToDelete = {
+        ...state.actionToDelete,
+        ...action.payload,
+      };
     },
     setEnabledActionEdit: (state) => {
-      state.actionEditEnabled = true;
+      state.enabledActionEdit = true;
     },
     setDisabledActionEdit: (state) => {
-      state.actionEditEnabled = false;
+      state.enabledActionEdit = false;
     },
-    setCurrentStateModal: (state, action) => {
-      state.modal.modalState = action.payload;
-    },
-    setCurrentDorsalDelete: (state, action) => {
-      state.modal.dorsalDelete = action.payload;
-    },
-    setCurrentIdDorsalDelete: (state, action) => {
-      state.modal.idDorsalDelete = action.payload;
-    },
-    setCurrentCurrentTeamPlayerDelete: (state, action) => {
-      state.modal.currentTeam = action.payload;
-    },
-    eliminarAccionesPorDorsal: (state, action) => {
-      const { dorsal, isLocalTeam } = action.payload;
-      state.planilla.actions = state.planilla.actions.filter((accion) => {
-        return !(accion.dorsal === dorsal && accion.isLocalTeam === isLocalTeam);
-      });
-    },
-    toggleHiddenPlayerEvent: (state) => {
-      state.playerEvent.hidden = !state.playerEvent.hidden
-    },
-    handleTeamPlayer: (state, action) => {
-      state.playerEvent.idPlayerTeam = action.payload
-    },
-    setInfoDelete: (state, action) => {
-      const {idPartido, idEquipo, idJugador} = action.payload;
-      state.infoDelete.idPartido = idPartido;
-      state.infoDelete.idEquipo = idEquipo;
-      state.infoDelete.idJugador = idJugador;
-    },
-    setInfoPlayerEvent: (state, action) => {
-      const {dni, dorsal, nombre, apellido} = action.payload;
-      state.playerEventData.dni = dni;
-      state.playerEventData.dorsal = dorsal;
-      state.playerEventData.nombre = nombre;
-      state.playerEventData.apellido = apellido;
-    },
-    setEnabledStateInfoPlayerEvent: (state) => {
-      state.playerEventData.state = true;
-    },
-    setDisabledStateInfoPlayerEvent: (state) => {
-      state.playerEventData.state = false;
-    },
-    setDescOfTheMatch: (state, action) => {
-      state.timeMatch.desc = action.payload;
+    handleMvpSelected: (state, action) => {
+      state.mvpSelected = action.payload;
     },
     setPenales: (state, action) => {
       const { penalLocal, penalVisita } = action.payload;
       state.penales.penal_local = penalLocal;
       state.penales.penal_visita = penalVisita;
     },
+    setDescripcionPartido: (state, action) => {
+      state.description = action.payload;
+    },
   }
 });
 
 export const {
-  toggleMatchTimes,
-  toggleHiddenDorsal,
-  setNewDorsal,
-  toggleHiddenAsist,
-  setNavigationSource,
-  toggleHiddenAction,
-  setNewTime,
-  toggleHiddenTime,
-  setPlayerSelected,
-  setPlayerSelectedAction,
-  setActionPlayer,
-  setdorsalPlayer,
-  setNamePlayer,
-  setIsLocalTeam,
-  handleConfirm,
-  setNamePlayerSelected,
-  setNewAssist,
-  // toggleStateMatch,
-  toggleHiddenModal,
-  setActionToDelete,
-  deleteAction,
-  setCurrentStateModal,
-  setCurrentDorsalDelete,
-  setCurrentIdDorsalDelete,
-  eliminarAccionesPorDorsal,
-  setCurrentCurrentTeamPlayerDelete,
-  toggleHiddenPlayerEvent,
-  handleTeamPlayer,
-  toggleIdMatch,
+  toggleModal,
+  setJugador,
+  setPenales,
+  closeModal,
+  setAction,
+  setModalType,
+  setIdEquipo,
   setActionToEdit,
   setEnabledActionEdit,
   setDisabledActionEdit,
-  setInfoDelete,
-  setInfoPlayerEvent,
-  setEnabledStateInfoPlayerEvent,
-  setDisabledStateInfoPlayerEvent,
-  setDescOfTheMatch,
-  handleBestPlayerOfTheMatch,
-  setTipoExpulsion,
-  resetAssist,
-  handleMvpSlice,
-  setPenales,
-  toggleHiddenModalSuspender,
-  setDescripcionPartido,
-  setJugadoresDestacados,
-  agregarJugadorDestacadoRedux,
-  eliminarJugadorDestacadoRedux,
+  setActionToDelete,
+  handleMvpSelected,
+  setDescripcionPartido
 } = planilleroSlice.actions;
 
 export default planilleroSlice.reducer;

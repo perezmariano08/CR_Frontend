@@ -592,7 +592,7 @@ const CategoriasFixture = () => {
                                 <Button onClick={() => cambiarFecha('anterior')} disabled={jornada - 1 === 0}>
                                     <LiaAngleLeftSolid  />
                                 </Button>
-                                <span>{determinarInstancia(partidosJornada[0].id_zona, jornada)}</span>
+                                <span>{determinarInstancia(partidosJornada[0]?.id_zona, jornada)}</span>
                                 <Button onClick={() => cambiarFecha('siguiente')} disabled={partidosListLink.filter((p) => p.jornada === jornada + 1).length === 0}>
                                     <LiaAngleRightSolid  />
                                 </Button>

@@ -1,55 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, IconClose } from '../ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-import { setNewTime, toggleHiddenTime, toggleHiddenAction, toggleHiddenAsist, setEnabledActionEdit, setDisabledActionEdit, resetAssist } from '../../../redux/Planillero/planilleroSlice';
-import { addActionToPlayer, editActionToPlayer } from '../../../redux/Matches/matchesSlice';
 import { io } from 'socket.io-client';
 import { URL } from '../../../utils/utils';
 import axios from 'axios';
 import { useWebSocket } from '../../../Auth/WebSocketContext';
 import { toast } from 'react-hot-toast'; // Importar toast
+import { setAction, setActionToEdit, setDisabledActionEdit, toggleModal } from '../../../redux/Planillero/planilleroSlice';
 
-const ActionConfirmed = () => {
+const ActionConfirmed = ({ id_partido }) => {
     const dispatch = useDispatch();
-    const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
-    const hiddenTime = useSelector((state) => state.planillero.planillaTime.hidden);
-    const navigationSource = useSelector((state) => state.planillero.planilla.navigationSource);
-    const { newTime } = useSelector((state) => state.planillero.planillaTime);
-    const accionDetail = useSelector((state) => state.planillero.asist.dataGol);
-    const actionToDelete = useSelector((state) => state.planillero.actionToDelete);
-    const { localTeam, playerSelected, playerName, dorsalPlayer, actionPlayer } = useSelector((state) => state.planillero.planilla);
-    const actionToEdit = useSelector((state) => state.planillero.actionEdit);
-    const enabledEdit = useSelector((state) => state.planillero.actionEditEnabled);
-    const sanctionType = useSelector((state) => state.planillero.expulsadoData.tipo);
-
     const socket = useWebSocket();
 
-    const [inputValue, setInputValue] = useState("");
-    const [loading, setLoading] = useState(false); // Estado para controlar el loading
-    const [originalMinute, setOriginalMinute] = useState(""); // Guardar el minuto original
+    const modal = useSelector((state) => state.planillero.modal);
+    const jugador = useSelector((state) => state.planillero.jugador);
+    const action = useSelector((state) => state.planillero.action);
+
+    const enabledEdit = useSelector((state) => state.planillero.enabledActionEdit);
+    const actionEdit = useSelector((state) => state.planillero.actionToEdit);
+    
+    const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [notChanges, setNotChanges] = useState(false);
+    
+    const originalTime = useRef(actionEdit.minute)
 
     useEffect(() => {
-        // Autocompletar con el minuto de la acción a editar si enabledEdit es true
-        if (enabledEdit && actionToEdit && actionToEdit.Minuto) {
-            setInputValue(actionToEdit.Minuto.toString());
-            setOriginalMinute(actionToEdit.Minuto);
-        } else {
-            setInputValue(""); // Limpiar si no es edición
+        if (enabledEdit) {
+            setInputValue(actionEdit.minute || '');
+        } else if (modal === 'ActionTime') {
+            setInputValue('');
         }
-    }, [enabledEdit, actionToEdit]);
+    }, [enabledEdit, modal]);
+    
+    useEffect(() => {
+        if (enabledEdit) {
+            setNotChanges(+inputValue !== +originalTime.current);
+        } else {
+            setNotChanges(inputValue !== '');
+        }
+    }, [inputValue, enabledEdit]);
+    
+    useEffect(() => {
+        if (enabledEdit && actionEdit.minute != null) {
+            originalTime.current = actionEdit.minute;
+        }
+    }, [enabledEdit, actionEdit]);
+    
+    const closeModal = () => {
+        dispatch(toggleModal());
+        dispatch(setAction({ type: null, detail: null }));
+        if (enabledEdit) {
+            dispatch(setDisabledActionEdit());
+        }
+    }
 
-    const handleBack = () => {
-        if (navigationSource === 'Assisted') {
-            dispatch(toggleHiddenAsist());
-            dispatch(toggleHiddenTime());
-        } else {
-            dispatch(toggleHiddenAction());
-            dispatch(toggleHiddenTime());
+    const handleBackModal = () => {
+        if (enabledEdit) {
+            dispatch(setDisabledActionEdit());
+            closeModal();
+            return;
         }
-    };
+        if (action.type === 'gol') {
+            dispatch(toggleModal('ActionDetailGol'));
+            return;
+        } else if (action.type === 'roja') {
+            dispatch(toggleModal('ActionDetailRoja'));
+            return;
+        }
+        dispatch(toggleModal('ActionType'));
+        return
+    }
 
     const handleInputChange = (value) => {
         if (/^\d{0,2}$/.test(value) || value === '') {
@@ -59,102 +83,138 @@ const ActionConfirmed = () => {
     
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
-            dispatch(toggleHiddenTime());
-            setInputValue('');
+            closeModal();
         }
     };
 
-    const handleTimeConfirm = async () => {
-
-        const actionData = enabledEdit
-            ? {
-                ...actionToEdit,
-                minuto: inputValue,
-                id_partido: partidoId
-            }
-            : {
-                idPartido: partidoId,
-                isLocalTeam: localTeam,
-                idJugador: playerSelected,
-                nombreJugador: playerName,
-                dorsal: dorsalPlayer,
-                accion: actionPlayer,
-                minuto: inputValue,
-                detail: accionDetail,
-                tipoExpulsion: actionPlayer === 'Roja' ? sanctionType : null
+    const handleConfirm = async () => {
+        try {
+            setLoading(true);
+            const data = {
+                id_partido: id_partido,
+                id_jugador: jugador.id_jugador,
+                id_equipo: jugador.id_equipo,
+                action: action.type,
+                detail: action.detail,
+                minute: +inputValue,
             };
 
-        try {
-            setLoading(true); // Iniciar loading
-            const loadingToastId = toast.loading('Procesando...'); // Agregar el toast loading
-    
-            const url = enabledEdit ? `${URL}/user/editar-accion` : `${URL}/user/insertar-accion`;
-            const response = await axios.post(url, actionData);
-    
-            socket.emit(enabledEdit ? 'editarAccion' : 'nuevaAccion', actionData);
-        
-            dispatch(setNewTime(inputValue));
-            dispatch(toggleHiddenTime());
-            dispatch(setDisabledActionEdit());
-            dispatch(resetAssist());
+            let accion;
+
+            if (action.type === 'gol') {
+                accion = 'gol';
+            } else if (action.type === 'amarilla') {
+                accion = 'amarilla';
+            } else if (action.type === 'roja') {
+                accion = 'roja';
+            }
+            
+            // !manejar mensajes desde el back
+            const res = await axios.post(`${URL}/planilla/insertar-${accion}`, data);
+            
+            toast.success(res.data.mensaje);
+
+            closeModal();
+            dispatch(setAction({ type: null, detail: null }));
             setInputValue('');
-    
-            toast.dismiss(loadingToastId); // Cerrar el loader
-            toast.success(enabledEdit ? 'Acción editada con éxito' : 'Acción procesada con éxito');
         } catch (error) {
-            console.error('Error al enviar la acción:', error);
-            toast.dismiss(loadingToastId); // Cerrar el loader
-            toast.error('Error al procesar la acción');
+
+            toast.error(error.response?.data?.mensaje || 'Error al insertar la acción');
         } finally {
-            setLoading(false); // Finalizar loading
+            setLoading(false);
         }
-    };
-    
-    const isButtonDisabled = !inputValue.trim() || inputValue === originalMinute.toString() || loading;
+    }
+
+    const handleConfirmEdit = async () => {
+        try {
+            setLoading(true);
+            const data = {
+                id_accion: actionEdit.id_action,
+                minute: +inputValue,
+            };
+
+            let accion;
+
+            if (actionEdit.type === 'Gol') {
+                accion = 'gol';
+            } else if (actionEdit.type === 'Amarilla') {
+                accion = 'amarilla';
+            } else if (actionEdit.type === 'Roja') {
+                accion = 'roja';
+            }
+
+            // !manejar mensajes desde el back
+            const res = await axios.put(`${URL}/planilla/actualizar-${accion}`, data);
+            toast.success(res.data.mensaje);
+
+            closeModal();
+            dispatch(setActionToEdit({ type: null, id_action: null, minute: null }));
+            dispatch(setDisabledActionEdit())
+            setInputValue('');
+        } catch (error) {
+            const message = error.response?.data?.mensaje || 'Error desconocido';
+            toast.error(message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <>
-            {!hiddenTime && (
+            {modal === 'ActionTime' && (
                 <ActionConfirmedContainer onClick={handleOverlayClick}>
                     <ActionConfirmedWrapper>
                         <ActionBackContainer>
-                            <ActionBack onClick={handleBack}>
-                                <HiArrowLeft onClick={() => {
-                                    dispatch(setDisabledActionEdit());
-                                }}/>
+                            <ActionBack onClick={handleBackModal}>
+                                <HiArrowLeft/>
                                 <p>Volver</p>
                             </ActionBack>
                             <IconClose>
-                                <HiMiniXMark onClick={() => {
-                                    dispatch(toggleHiddenTime());
-                                    dispatch(setDisabledActionEdit());
-                                }}/>
+                                <HiMiniXMark onClick={closeModal}/>
                             </IconClose>
                         </ActionBackContainer>
                         <ActionTitle>
-                            <h3>Indique el minuto de la acción</h3>
+                            {
+                                enabledEdit ? (
+                                    <h3>Editar minuto de la acción</h3>
+                                ) : (
+                                    <h3>Indique el minuto de la acción</h3>
+                                )
+                            }
                             <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer>
                             <Input2 
-                                placeholder={"ej: 00:00"}
+                                placeholder={"ej: 15"}
                                 value={inputValue}
                                 onValueChange={handleInputChange}
                                 numeric={true}
                             />
                         </ActionsContainer>
-                        <ActionNext
-                            disabled={isButtonDisabled} // Asegúrate de usar la propiedad 'disabled' correctamente
-                            className={isButtonDisabled ? 'disabled' : ''} // Aplica la clase 'disabled' correctamente
-                            onClick={handleTimeConfirm}
-                        >
-                            {loading ? 'Procesando...' : 'Confirmar'}
-                        </ActionNext>
+                        {
+                            enabledEdit ? (
+                                <ActionNext
+                                    className={!inputValue || !notChanges ? 'disabled' : ''}
+                                    onClick={handleConfirmEdit}
+                                    disabled={!inputValue || !notChanges}
+                                >
+                                    {loading ? 'Editando...' : 'Editar'}
+                                </ActionNext>
+                            ) : (
+                                <ActionNext
+                                    className={!inputValue || !notChanges ? 'disabled' : ''}
+                                    onClick={handleConfirm}
+                                    disabled={!inputValue || !notChanges}
+                                >
+                                    {loading ? 'Procesando...' : 'Confirmar'}
+                                </ActionNext>
+                            )
+                        }
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>
             )}
         </>
     );
-};
+}
 
 export default ActionConfirmed;

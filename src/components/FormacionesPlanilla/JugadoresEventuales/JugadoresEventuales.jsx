@@ -1,33 +1,28 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { setDisabledStateInfoPlayerEvent, toggleHiddenPlayerEvent } from '../../../redux/Planillero/planilleroSlice';
-import { addEventualPlayer } from '../../../redux/Matches/matchesSlice';
-import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, IconClose, SelectEventual, TitleInputContainer } from '../ActionConfirmed/ActionConfirmedStyles';
+import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ActionsContainer, ButtonContainer, IconClose, TitleContainer, TitleInputContainer } from '../ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
 import { toast, LoaderIcon } from 'react-hot-toast';
+import { checkPartidosEventual, getEdicion, insertarJugadorEventual, verificarCategoriaJugadorEventual } from '../../../utils/dataFetchers';
+import { toggleModal } from '../../../redux/Planillero/planilleroSlice';
+import useFetch from '../../../hooks/useFetch';
 import userJugadorEventualStates from '../../../hooks/userJugadorEventualStates';
-import useJugadorEventual from '../../../hooks/useJugadorEventual';
-import { insertarJugadorEventual } from '../../../utils/dataFetchers';
 
-const JugadoresEventuales = () => {
+const JugadoresEventuales = ({ partido, formaciones }) => {
     const dispatch = useDispatch();
-    const hiddenPlayer = useSelector((state) => state.planillero.playerEvent.hidden);
-    const idCurrentTeam = useSelector((state) => state.planillero.playerEvent.idPlayerTeam);
-    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
-    const matchState = useSelector((state) => state.match);
-    const dataJugadorEventual = useSelector((state) => state.planillero.playerEventData);
-    const isEnabledEdit = useSelector((state) => state.planillero.playerEventData.state);
-    const matchCorrecto = matchState.find((match) => match.ID === idPartido);
-    const equipoCorrecto = matchCorrecto?.Local.id_equipo === idCurrentTeam ? matchCorrecto.Local : matchCorrecto.Visitante;
-    
-    const [loading, setLoading] = useState();
+    const id_categoria = partido.id_categoria;
+
+    const modal = useSelector((state) => state.planillero.modal);
+    const id_equipo = useSelector((state) => state.planillero.id_equipo);
+
     const [loadingDni, setLoadingDni] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [foundPlayer, setFoundPlayer] = useState({});
     const [isDisabled, setIsDisabled] = useState(false);
-    const [selectedPlayer, setSelectedPlayer] = useState('');
-
+    const [partidosJugados, setPartidosJugados] = useState(0);
+    
     const {
         dorsalValue,
         setDorsalValue,
@@ -37,153 +32,29 @@ const JugadoresEventuales = () => {
         setNameValue,
         surNameValue,
         setSurNameValue,
-        handleInputChange,
-        handleInputChangeDni,
-        handleInputName,
-        handleInputSurName,
-        isAnyValueEmpty,
-        validateFields,
-        capitalizeFirstLetter
-    } = userJugadorEventualStates();
-    
-    const {
-        searchDorsal,
-        checkMaxPlayersQuantity,
-        verificarJugador,
-        jugadoresEventualesEquipo,
-        maxQuantityPlayers,
-        bdEventual,
-        checkPlayerExists,
-    } = useJugadorEventual();
+        handleDorsalChange,
+        handleDniChange,
+        handleNameChange,
+        handleSurNameChange} = userJugadorEventualStates();
 
-    useEffect(() => {
-        if (dataJugadorEventual && isEnabledEdit) {
-            setDorsalValue(dataJugadorEventual.dorsal);
-            setDniValue(dataJugadorEventual.dni);
-            setNameValue(dataJugadorEventual.nombre);
-            setSurNameValue(dataJugadorEventual.apellido);
-        } else {
-            setDorsalValue('');
-            setDniValue('');
-            setNameValue('');
-            setSurNameValue('');
-        }
-    }, [dataJugadorEventual]);
-    
-    const handleNext = async () => {
-        setLoading(true);
-    
-        if (isAnyValueEmpty()) {
-            toast.error('Todos los campos son obligatorios');
-            setLoading(false);
-            return;
-        }
-    
-        const trimmedDorsal = dorsalValue.trim();
-        const trimmedDni = dniValue.trim();
-        const trimmedName = capitalizeFirstLetter(nameValue.trim());
-        const trimmedSurName = capitalizeFirstLetter(surNameValue.trim());
-    
-        // Validate the fields
-        if (!validateFields()) {
-            setLoading(false);
-            return;
-        }
-    
-        const repeatType = await searchDorsal(trimmedDorsal, trimmedDni, dataJugadorEventual);
-        const isEditing = isEnabledEdit;
-        
-        if (maxQuantityPlayers || isEditing) {
-            switch (repeatType) {
-                case false:
-                    const jugadorApto = await verificarJugador(trimmedDni);
-                    
-                    if (!jugadorApto) {
-                        setDorsalValue('');
-                        setDniValue('');
-                        setNameValue('');
-                        setSurNameValue('');
-                        setLoading(false);
-                        return;
-                    }
-                    
-                    let eventualExistente = bdEventual.find(jugador => jugador.dni === trimmedDni);
-                    let regularExistente = foundPlayer.found && !foundPlayer.matchCategory ? foundPlayer.jugador : null;
-    
-                    if (eventualExistente?.sancionado === 'S' || regularExistente?.sancionado === 'S')  {
-                        setLoading(false);
-                        return toast.error('El jugador está sancionado');
-                    }
+    const { data: fetchEdicion, loading: loadingEdicion, error: errorEdicion } = useFetch(getEdicion, partido.id_edicion);
+    const edicion = fetchEdicion?.[0];
 
-                    let newPlayer;
-    
-                        newPlayer = {
-                            id_partido: idPartido,
-                            id_equipo: idCurrentTeam,
-                            nombre: trimmedName,
-                            apellido: trimmedSurName,
-                            dni: trimmedDni,
-                            dorsal: trimmedDorsal,
-                            estado: 'A',
-                            eventual: 'S',
-                        };
-
-                    try {
-                        await insertarJugadorEventual(newPlayer);
-                        dispatch(setDisabledStateInfoPlayerEvent());
-                        dispatch(toggleHiddenPlayerEvent());
-                        toast.success(isEnabledEdit ? 'Jugador eventual actualizado' : 'Jugador eventual creado');
-                    } catch (error) {
-                        console.error('Error al insertar jugador eventual:', error);
-                        toast.error('Ocurrió un error al crear el jugador eventual');
-                    } finally {
-                        setLoading(false);
-                        // Limpiamos inputs
-                        setDorsalValue('');
-                        setDniValue('');
-                        setNameValue('');
-                        setSurNameValue('');
-                    }
-                    break;
-                case '1':
-                    setLoading(false);
-                    toast.error('DNI y Dorsal ya existentes');
-                    break;
-                case '2':
-                    setLoading(false);
-                    toast.error('Dorsal existente');
-                    break;
-                case '3':
-                    setLoading(false);
-                    toast.error('DNI existente');
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            toast.error('Alcanzaste el límite de jugadores eventuales');
-            setDorsalValue('');
-            setDniValue('');
-            setNameValue('');
-            setSurNameValue('');
-        }
-    };
-    
-    useEffect(() => {
-        checkMaxPlayersQuantity();
-    }, [equipoCorrecto]);
-
-    const closeModal = () => {
-        dispatch(setDisabledStateInfoPlayerEvent());
-        dispatch(toggleHiddenPlayerEvent());
-    };
+    if (loadingEdicion) {
+        return <LoaderIcon />;
+    }
     
 
     const handleDniBlur = async () => {
         if (dniValue.trim()) {
             setLoadingDni(true);
             try {
-                const playerExists = await checkPlayerExists(dniValue.trim(), parseInt(equipoCorrecto.id_equipo), idPartido);
+                const playerExists = await checkPlayerExists(dniValue.trim(), id_equipo);
+                const checkEventual = await checkPartidosEventual(partido.id_partido, dniValue.trim());
+                
+                if (checkEventual) {
+                    setPartidosJugados(checkEventual.partidos_jugados);
+                }
                 
                 if (playerExists.found) {
                     setIsDisabled(true);
@@ -199,6 +70,8 @@ const JugadoresEventuales = () => {
                     }
                 } else {
                     setIsDisabled(false);
+                    setNameValue('');
+                    setSurNameValue('');
                     setFoundPlayer({});
                 }
             } catch (error) {
@@ -208,18 +81,101 @@ const JugadoresEventuales = () => {
         }
     };
 
-    // Función que maneja el cambio de DNI
-    const handleDniChange = (value) => {
-        handleInputChangeDni(value);
-        setIsDisabled(false); // Desbloquear campos de nombre y apellido si se modifica el DNI
-        setFoundPlayer({});
-        setSelectedPlayer(''); // Volvemos a la posición inicial del Select
+    const checkPlayerExists = async (dni, id_equipo) => {
+        try {
+            if (id_categoria) {
+                const data = await verificarCategoriaJugadorEventual(dni, id_categoria, id_equipo);
+                return data;
+            }
+    
+        } catch (error) {
+            console.error('Error al verificar el jugador eventual:', error);
+        }
+    };
+
+    const closeModal = () => {
+        dispatch(toggleModal());
+        clearForm();
+    }
+
+    const handleOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            closeModal();
+        }
+    };
+
+    // !validar la cantidad permitida de jugadores eventuales.
+    // !antes de avanzar, validar la cantidad de partidos del jugador eventual.
+
+    const isDorsalInUse = formaciones?.find(f => +f.id_equipo === +id_equipo +f.dorsal === +dorsalValue);
+    const isEmptyInputs =
+        dorsalValue.trim() === '' || 
+        dniValue.trim() === '' || 
+        nameValue.trim() === '' || 
+        surNameValue.trim() === '';
+
+    const cantidadEventualesPartido = formaciones?.filter(f => f.eventual === 'S' && f.id_equipo === id_equipo && f.dorsal).length;
+    const isEnabledCantidadEventuales = cantidadEventualesPartido >= edicion.cantidad_eventuales;
+
+    const handleNext = async () => {
+
+        if (isEmptyInputs) {
+            return toast.error('Todos los campos son obligatorios');
+        }
+        if (isDorsalInUse) return toast.error('Dorsal existente, por favor ingrese otro');
+
+        try {
+            setLoading(true);
+
+            const nombreParseado = capitalizeFirstLetter(nameValue.trim());
+            const apellidoParseado = capitalizeFirstLetter(surNameValue.trim());
+
+            const data = {
+                id_partido: partido.id_partido,
+                id_equipo: id_equipo,
+                nombre: nombreParseado,
+                apellido: apellidoParseado,
+                dni: dniValue.trim(),
+                dorsal: dorsalValue.trim(),
+                estado: 'A',
+                eventual: 'S'
+            }
+    
+            const response = await insertarJugadorEventual(data);
+            if (response.success) { 
+                toast.success(response.message)
+            } else {
+                toast.error(response.message)
+            }
+
+            clearForm();
+            dispatch(toggleModal())
+
+        } catch (error) {
+            console.error('Error creando el jugador eventual', error);
+            toast.error('Error al crear el jugador eventual')
+        } finally { 
+            setLoading(false);
+        }
+    }
+
+    const clearForm = () => {
+        setDorsalValue('');
+        setDniValue('');
+        setNameValue('');
+        setSurNameValue('');
+        setPartidosJugados(null);
+    }
+
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     };
 
     return (
         <>
-            {!hiddenPlayer && (
-                <ActionConfirmedContainer>
+            {modal === 'jugadorEventual' && (
+                <ActionConfirmedContainer onClick={handleOverlayClick}>
                     <ActionConfirmedWrapper>
                         <ActionBackContainer>
                             <ActionBack>
@@ -234,25 +190,18 @@ const JugadoresEventuales = () => {
                             <h3>Añadir jugadores eventuales</h3>
                             <AlignmentDivider />
                         </ActionTitle>
+                        <TitleContainer>
+                            <h3>Cantidad de eventuales permitidos: <span className={isEnabledCantidadEventuales ? 'limite' : ''}>{edicion.cantidad_eventuales} / {cantidadEventualesPartido}</span></h3>
+                            <h3>Límite de partidos permitidos por eventual: <span>{partidosJugados} / {edicion.partidos_eventuales} </span></h3>
+                        </TitleContainer>
                         <ActionsContainer className='large'>
-                            {/* <TitleInputContainer>
-                                <p>J.E existentes</p>
-                                <SelectEventual onChange={handlePlayerSelect}>
-                                    <option value="">Seleccione un jugador</option>
-                                    {jugadoresEventualesEquipo.map(player => (
-                                        <option key={player.id_jugador} value={player.id_jugador}>
-                                            {`${player.nombre} ${player.apellido}`}
-                                        </option>
-                                    ))}
-                                </SelectEventual>
-                            </TitleInputContainer> */}
                             <TitleInputContainer>
                                 <p>Dorsal</p>
                                 <Input2
                                     value={dorsalValue}
-                                    onValueChange={handleInputChange}
+                                    onValueChange={handleDorsalChange}
                                     placeholder={'Ingrese el Dorsal'}
-                                    numeric={true}
+                                    type={'text'}
                                 />
                             </TitleInputContainer>
                             <TitleInputContainer>
@@ -262,10 +211,10 @@ const JugadoresEventuales = () => {
                                     onValueChange={handleDniChange}
                                     placeholder={'Ingrese el DNI'}
                                     onBlur={handleDniBlur}
-                                    numeric={true}
                                     loading={loadingDni}
-                                    error={foundPlayer.matchCategory} // Condición de error cuando exista un problema con el jugador
-                                    success={!foundPlayer.matchCategory} // Condición de éxito si no hay problema con el jugador
+                                    error={foundPlayer.matchCategory}
+                                    success={!foundPlayer.matchCategory}
+                                    type={'text'}
                                 />
                             </TitleInputContainer>
                             <TitleInputContainer>
@@ -273,9 +222,10 @@ const JugadoresEventuales = () => {
                             <Input2
                                 label="Nombre"
                                 value={nameValue}
-                                onValueChange={handleInputName}
+                                onValueChange={handleNameChange}
                                 placeholder={'Ingrese el nombre'}
                                 disabled={isDisabled}
+                                type={'text'}
                                 // success={foundPlayer ? !foundPlayer.matchCategory : ''}
                             />
                         </TitleInputContainer>
@@ -284,19 +234,26 @@ const JugadoresEventuales = () => {
                             <Input2
                                 label="Apellido"
                                 value={surNameValue}
-                                onValueChange={handleInputSurName}
+                                onValueChange={handleSurNameChange}
                                 placeholder={'Ingrese el apellido'}
                                 disabled={isDisabled}
                                 // success={foundPlayer ? !foundPlayer.matchCategory : ''}
                             />
                         </TitleInputContainer>
                         </ActionsContainer>
-                        <ActionNext
-                            onClick={handleNext}
-                            className={foundPlayer.matchCategory || loading ? 'disabled' : '' || loadingDni ? 'disabled' : ''}
-                        >
-                            {loading ? <LoaderIcon /> : 'Siguiente'}
-                        </ActionNext>
+                        <ButtonContainer>
+                            <ActionNext
+                                onClick={handleNext}
+                                className={foundPlayer.matchCategory || isEmptyInputs || loading || isEnabledCantidadEventuales? 'disabled' : '' || loadingDni ? 'disabled' : ''}
+                            >
+                                {loading ? <LoaderIcon /> : 'Siguiente'}
+                            </ActionNext>
+                            {
+                                isEnabledCantidadEventuales && (
+                                    <p>Llegaste a la cantidad de eventuales permitida en la edición</p>
+                                )
+                            }
+                        </ButtonContainer>
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>
             )}

@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { getFormaciones, getIndicencias, traerJugadoresDestacados, verificarJugadores } from '../utils/dataFetchers.js';
+import { setCurrentStateModal, setDescOfTheMatch, setJugadoresDestacados, toggleHiddenModal, toggleHiddenModalSuspender, toggleIdMatch } from '../redux/Planillero/planilleroSlice.js';
 import { fetchPartidos } from '../redux/ServicesApi/partidosSlice.js';
 import { alignmentTeamToFinish } from '../pages/Planillero/Planilla/helpers.js';
+import { toggleStateMatch } from '../redux/Matches/matchesSlice.js';
 import { URL } from '../utils/utils.js';
 import axios from 'axios';
 import { useWebSocket } from '../Auth/WebSocketContext.jsx';
@@ -32,9 +34,9 @@ export const usePlanilla = (partidoId) => {
         }
     }, [matchCorrecto]);
 
-    // useEffect(() => {
-    //     dispatch(toggleIdMatch(partidoId));
-    // }, [dispatch, partidoId]);
+    useEffect(() => {
+        dispatch(toggleIdMatch(partidoId));
+    }, [dispatch, partidoId]);
 
     useEffect(() => {
         dispatch(fetchPartidos());
@@ -294,47 +296,47 @@ export const usePlanilla = (partidoId) => {
         }
     };
 
-    // useEffect(() => {
-    //     const cargarJugadoresDestacados = async (idPartido) => {
-    //         try {
-    //             const destacados = await traerJugadoresDestacados(matchCorrecto.id_categoria, matchCorrecto.jornada);
-    //             const jugadoresFiltrados = destacados
-    //                 .filter(j => j.id_partido === idPartido)
-    //                 .map(j => ({
-    //                     ...j,
-    //                     nombre_completo: `${j.nombre} ${j.apellido}`, // Agregar nombre_completo
-    //                 }));
+    useEffect(() => {
+        const cargarJugadoresDestacados = async (idPartido) => {
+            try {
+                const destacados = await traerJugadoresDestacados(matchCorrecto.id_categoria, matchCorrecto.jornada);
+                const jugadoresFiltrados = destacados
+                    .filter(j => j.id_partido === idPartido)
+                    .map(j => ({
+                        ...j,
+                        nombre_completo: `${j.nombre} ${j.apellido}`, // Agregar nombre_completo
+                    }));
     
-    //             // Aquí usas dispatch para actualizar el slice de Redux
-    //             // dispatch(setJugadoresDestacados(jugadoresFiltrados));
+                // Aquí usas dispatch para actualizar el slice de Redux
+                dispatch(setJugadoresDestacados(jugadoresFiltrados));
     
-    //         } catch (error) {
-    //             console.error('Error al cargar jugadores destacados:', error);
-    //         }
-    //     };
+            } catch (error) {
+                console.error('Error al cargar jugadores destacados:', error);
+            }
+        };
     
-    //     // Carga inicial de jugadores
-    //     if (matchCorrecto) {
-    //         cargarJugadoresDestacados(matchCorrecto.id_partido);
-    //     }
+        // Carga inicial de jugadores
+        if (matchCorrecto) {
+            cargarJugadoresDestacados(matchCorrecto.id_partido);
+        }
     
-    //     const handleJugadorInsertado = (idPartido) => {
-    //         if (matchCorrecto?.id_partido === idPartido) {
-    //             cargarJugadoresDestacados(idPartido); // Reutilizamos la misma función
-    //         }
-    //     };
+        const handleJugadorInsertado = (idPartido) => {
+            if (matchCorrecto?.id_partido === idPartido) {
+                cargarJugadoresDestacados(idPartido); // Reutilizamos la misma función
+            }
+        };
     
-    //     // Escuchar eventos de socket solo si matchCorrecto está disponible
-    //     if (socket && matchCorrecto) {
-    //         socket.on('jugadoresDestacadosActualizados', handleJugadorInsertado);
-    //     }
+        // Escuchar eventos de socket solo si matchCorrecto está disponible
+        if (socket && matchCorrecto) {
+            socket.on('jugadoresDestacadosActualizados', handleJugadorInsertado);
+        }
     
-    //     return () => {
-    //         if (socket) {
-    //             socket.off('jugadoresDestacadosActualizados', handleJugadorInsertado);
-    //         }
-    //     };
-    // }, [matchCorrecto, socket, dispatch]);
+        return () => {
+            if (socket) {
+                socket.off('jugadoresDestacadosActualizados', handleJugadorInsertado);
+            }
+        };
+    }, [matchCorrecto, socket, dispatch]);
     
     const formacionesConNombreApellido = partido && bdFormaciones ? alignmentTeamToFinish(partido, bdFormaciones) : null;
     

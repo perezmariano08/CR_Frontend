@@ -24,18 +24,18 @@ export const IncidentLocal = styled.div`
     align-items: center;
 
     h3 {
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
     }
 
     &i,svg {
         color: var(--green);
-        font-size: 15px;
+        font-size: 17px;
     }
 
     h4 {
-        font-size: 12px;
-        font-weight: 300;
+        font-size: 15px;
+        font-weight: 400;
     }
 
     p {
@@ -65,11 +65,11 @@ export const IconContainer = styled.div`
     gap: 5px;
 
     i,svg {
-        font-size: 12px;
+        font-size: 16px;
     }
 
     .delete {
         color: var(--red);
-        font-size: 14px;
+        font-size: 16px;
     }
 `

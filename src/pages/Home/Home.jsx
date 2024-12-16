@@ -164,23 +164,6 @@ const Home = () => {
         // Verifica que se encontró la categoría y concatena los nombres
         return categoria ? `${categoria.nombre_edicion} - ${categoria.nombre_categoria}` : '';
     }
-
-    const nombreZona = (id_zona) => {
-        const zona = zonas.find((zona) => zona.id_zona === id_zona);
-        return zona ? zona.nombre_zona : '';
-    }
-
-    let tituloPartido = '';
-    if (partidoEnDirecto) {
-        tituloPartido = 'En directo';
-    } else if (proximoPartido) {
-        tituloPartido = 'Próximo Partido';
-    } else if (ultimoPartido) {
-        tituloPartido = 'Último Partido';
-    } else {
-        tituloPartido = 'No hay partidos programados';
-    }
-
     
     useEffect(() => {
         dispatch(fetchEquipos());
@@ -190,7 +173,6 @@ const Home = () => {
         dispatch(fetchTemporadas());
     }, [dispatch]);
 
-    
     
     const sancionadosColumns = [
         {
