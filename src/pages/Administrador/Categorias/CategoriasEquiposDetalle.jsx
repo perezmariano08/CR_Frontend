@@ -9,7 +9,7 @@ import { LuDownload, LuUpload } from 'react-icons/lu';
 import Table from '../../../components/Table/Table';
 import { ContentNavWrapper, ContentTitle, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { InputRadioContainer, InputRadioWrapper, ModalFormInputContainer, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
+import { InputRadioContainer, InputRadioWrapper, ModalFormInputContainer, ModalFormInputImg, ModalFormWrapper } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
@@ -44,6 +44,7 @@ import { useEquipos } from '../../../hooks/useEquipos';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { IoAlertCircle } from "react-icons/io5";
 import { RiAlarmWarningLine } from "react-icons/ri";
+import { MdOutlineImage } from 'react-icons/md';
 
 
 const CategoriasEquiposDetalle = () => {
@@ -54,6 +55,7 @@ const CategoriasEquiposDetalle = () => {
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
+    const equipos = useSelector((state) => state.equipos.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const temporadas = useSelector((state) => state.temporadas.data);
     const jugadoresList = useSelector((state) => state.jugadores.data);
@@ -84,7 +86,11 @@ const CategoriasEquiposDetalle = () => {
 
     const [isEditarEquipo, setEditarEquipo] = useState(false);
     const openEditarEquipo = () => setEditarEquipo(true);
-    const closeEditarEquipo = () => setEditarEquipo(false);
+    const closeEditarEquipo = () => {
+        setPreviewImage(false);
+        setEditarEquipo(false)
+    }
+
     
 
     // Manejo del form
@@ -100,7 +106,6 @@ const CategoriasEquiposDetalle = () => {
         jugador_eventual: '',
         nombre_equipo: equipoFiltrado.nombre_equipo.trim()
     });
-    const isEquipoCambio = formState.nombre_equipo == equipoFiltrado.nombre_equipo
     
     const [id_jugadorSeleccionado, setId_jugadorSeleccionado] = useState(null);
 
@@ -255,13 +260,22 @@ const CategoriasEquiposDetalle = () => {
     );
 
     const manejarEditarEquipo = async () => {
+        if (img.name == equipoFiltrado.img){
+            toast.error("El archivo tiene el mismo nombre");
+            return
+        }        
+
         const data = {
             id_equipo: id_equipo,
             nombre: formState.nombre_equipo.trim(),
+            img: `/uploads/Equipos/${img.name}`
         };
         try {
+            uploadFile(img)
             await actualizarEquipo(data); // Reutiliza el hook para actualizar
             dispatch(fetchTemporadas())
+            setImageFile(null); // Restablece el archivo de imagen
+            setPreviewImage(null)
         } catch (error) {
             console.error("Error al actualizar los apercibimientos:", error);
         } finally {
@@ -468,6 +482,57 @@ const CategoriasEquiposDetalle = () => {
         
     }, [dispatch]);
 
+    const uploadFile = async (file) => {
+        if (!file) {
+            console.error("No se seleccionó ningún archivo");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append("image", file);
+    
+        try {
+            const response = await fetch("http://localhost:3001/upload", {
+                method: "POST",
+                body: formData,
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Error al subir archivo: ${response.statusText}`);
+            }
+    
+            const data = await response.json();
+            console.log("Archivo subido exitosamente:", data);
+            return data; // Devuelve la respuesta para manejarla externamente si es necesario
+        } catch (error) {
+            console.error("Error al subir archivo:", error.message);
+        }
+    };
+    
+
+
+    const [imageFile, setImageFile] = useState(null); // Estado para almacenar el archivo de imagen
+    const [img, setImg] = useState("");
+    const [previewImage, setPreviewImage] = useState("");
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImg(file)
+            // Crear una URL de vista previa para la imagen seleccionada
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+        }
+    };
+
+    
+
+    const isEquipoCambio = formState.nombre_equipo == equipoFiltrado.nombre_equipo
+    const isImgCambio = img
     return (
         <Content>
             <MenuContentTop>
@@ -946,7 +1011,7 @@ const CategoriasEquiposDetalle = () => {
                                         <IoClose />
                                         Cancelar
                                     </Button>
-                                    <Button color={"success"} onClick={handleEditarEquipo} disabled={isEquipoCambio || isUpdatingEquipo}>
+                                    <Button color={"success"} onClick={handleEditarEquipo}>
                                         {isUpdatingEquipo ? (
                                             <>
                                                 <LoaderIcon size="small" color='green' />
@@ -963,6 +1028,22 @@ const CategoriasEquiposDetalle = () => {
                             }
                             form={
                                 <>
+                                    <ModalFormInputContainer>
+                                        Logo (Opcional)
+                                        <ModalFormInputImg>
+                                            {previewImage ?
+                                                <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                                                :  
+                                                <img src={`${URLImages}${escudosEquipos(equipoFiltrado.id_equipo)}`} alt={equipoFiltrado.nombre} style={{ width: '80px', height: '80px' }} />
+                                            }
+                                            <Input 
+                                                type='file' 
+                                                accept="image/*"
+                                                onChange={(event) => handleImageUpload(event)}
+                                                icon={<MdOutlineImage className='icon-input'/>}
+                                            />
+                                        </ModalFormInputImg>
+                                    </ModalFormInputContainer>
                                     <ModalFormInputContainer>
                                         Nombre
                                         <Input 

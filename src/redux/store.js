@@ -16,6 +16,7 @@ import categoriasReducer from "./ServicesApi/categoriasSlice";
 import temporadasReducer from "./ServicesApi/temporadasSlice"
 import divisionesReducer from "./ServicesApi/divisionesSlice"
 import jugadoresReducer from "./ServicesApi/jugadoresSlice"
+import jugadoresDestacadosReducer from "./ServicesApi/jugadoresDestacadosSlice"
 import usuariosReducer from "./ServicesApi/usuariosSlice"
 import partidosReducer from "./ServicesApi/partidosSlice"
 import equiposReducer from "./ServicesApi/equiposSlice"
@@ -50,6 +51,7 @@ const reducers = combineReducers({
     planteles: plantelesReducer,
     zonas: zonasReducer,
     fases: fasesReducer,
+    jugadoresDestacados: jugadoresDestacadosReducer
 });
 
 const persistConfig = {

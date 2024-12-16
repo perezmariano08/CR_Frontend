@@ -143,7 +143,7 @@ const CardPartidoGenerico = ({
                             }
                         </CardPartidoGenericoRojas>
                         <CardPartidoGenericoGoles>
-                            {estado === "P" ? '-' : estado === "C" ? "0" : goles_local}
+                            {estado === "P" ? '-' : goles_local}
                             {pen_local && (
                                 <CardPartidoGenericoPenales>
                                     ({pen_local})
@@ -171,7 +171,7 @@ const CardPartidoGenerico = ({
                             }
                         </CardPartidoGenericoRojas>
                         <CardPartidoGenericoGoles>
-                            {estado === "P" ? '-' : estado === "C" ? "0" : goles_visita}
+                            {estado === "P" ? '-' : goles_visita}
                             {pen_visita && (
                                 <CardPartidoGenericoPenales>
                                     ({pen_visita})

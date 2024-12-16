@@ -72,7 +72,7 @@ const Routes = () => {
                         path='/'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <Home />
                                 </Suspense>
                             </LayoutPrivate>
@@ -82,7 +82,7 @@ const Routes = () => {
                         path='/my-team'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <MyTeam />
                                 </Suspense>
                             </LayoutPrivate>
@@ -93,7 +93,7 @@ const Routes = () => {
                         path='/onboarding'
                         element={
                             <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <Onboarding />
                                 </Suspense>
                             </Layout>
@@ -103,7 +103,7 @@ const Routes = () => {
                         path='/login'
                         element={
                             <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <Login />
                                 </Suspense>
                             </Layout>
@@ -113,7 +113,7 @@ const Routes = () => {
                         path='/forgot-password'
                         element={
                             <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <ForgotPassword />
                                 </Suspense>
                             </Layout>
@@ -123,7 +123,7 @@ const Routes = () => {
                         path='/create-password'
                         element={
                             <Layout>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <Step2 />
                                 </Suspense>
                             </Layout>
@@ -144,7 +144,7 @@ const Routes = () => {
                         path='/stats-match'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <MatchStats />
                                 </Suspense>
                             </LayoutPrivate>
@@ -154,7 +154,7 @@ const Routes = () => {
                         path='/categoria/estadisticas/asistentes/:id_page'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategoriasAsistentes />
                                 </Suspense>
                             </LayoutPrivate>
@@ -164,7 +164,7 @@ const Routes = () => {
                         path='/categoria/estadisticas/goleadores/:id_page'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategoriasGoleadores />
                                 </Suspense>
                             </LayoutPrivate>
@@ -174,7 +174,7 @@ const Routes = () => {
                         path='/categoria/estadisticas/expulsados/:id_page'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategoriasExpulsados />
                                 </Suspense>
                             </LayoutPrivate>
@@ -184,7 +184,7 @@ const Routes = () => {
                         path='/categoria/posiciones/:id_page'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategoriasPosiciones />
                                 </Suspense>
                             </LayoutPrivate>
@@ -194,7 +194,7 @@ const Routes = () => {
                         path='/categoria/fixture/:id_page'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategoriasFixture />
                                 </Suspense>
                             </LayoutPrivate>
@@ -204,7 +204,7 @@ const Routes = () => {
                         path='/categoria/playoff/:id_page'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategoriasPlayOff />
                                 </Suspense>
                             </LayoutPrivate>
@@ -214,7 +214,7 @@ const Routes = () => {
                         path='/categorias'
                         element={
                             <LayoutPrivate>
-                                <Suspense fallback={<div>Loading...</div>}>
+                                <Suspense fallback={<div></div>}>
                                     <UserCategorias />
                                 </Suspense>
                             </LayoutPrivate>

@@ -75,3 +75,101 @@ export const SelectWrapper = styled.select`
         }
     }
 `
+
+// SELECT NUEVO
+export const SelectContainer = styled.div`
+    position: relative;
+    display: inline-block;
+    width: 100%;
+`;
+
+export const Selected = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1e1e1e;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 16px 24px;
+`;
+
+export const Logo = styled.img`
+    width: 20px;
+    margin-right: 8px;
+    border-radius: 50%;
+`;
+
+export const OptionsList = styled.ul`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #1e1e1e;
+    margin: 5px 0;
+    padding: 0;
+    list-style: none;
+    max-height: 350px;
+    overflow-y: auto;
+    border-radius: 10px;
+    z-index: 10;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: ${({ isOpen }) => (isOpen ? "block" : "none")};
+    
+
+    /* Estilos personalizados para la barra de desplazamiento */
+    &::-webkit-scrollbar {
+        width: 8px; /* Ancho de la barra */
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #2a2a2a; /* Color del fondo del track */
+        border-radius: 10px; /* Bordes redondeados */
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #555; /* Color del "thumb" */
+        border-radius: 10px; /* Bordes redondeados */
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #777; /* Color del "thumb" al pasar el mouse */
+    }
+
+    /* Compatibilidad con Firefox */
+    scrollbar-width: thin; /* Ancho del scrollbar */
+    scrollbar-color: #555 #2a2a2a; /* thumb color y track background */
+`;
+
+
+export const Option = styled.li`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    &:hover {
+        background-color: #333;
+    }
+
+    img {
+        width: 16px;
+    }
+
+    &.active {
+        background-color: #333;
+        color: var(--green);
+    }
+`;
+
+export const Arrow = styled.span`
+    margin-left: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: ${({ isOpen }) => (isOpen ? "rotate(180deg)" : "rotate(0deg)")};
+    transition: transform 0.3s;
+`;

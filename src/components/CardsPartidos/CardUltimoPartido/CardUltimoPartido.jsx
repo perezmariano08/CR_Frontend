@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { CardUltimoPartidoDescripcion, CardUltimoPartidoDetalle, CardUltimoPartidoDiaJornada, CardUltimoPartidoEquipos, CardUltimoPartidoInfo, CardUltimoPartidoLink, CardUltimoPartidoPenales, CardUltimoPartidoResultado, CardUltimoPartidoWrapper } from './CardUltimoPartidoStyles';
+import { CardUltimoPartidoDescripcion, CardUltimoPartidoDetalle, CardUltimoPartidoDiaJornada, CardUltimoPartidoEquipos, CardUltimoPartidoInfo, CardUltimoPartidoLink, CardUltimoPartidoPenales, CardUltimoPartidoResultado, CardUltimoPartidoResultadoVivo, CardUltimoPartidoWrapper } from './CardUltimoPartidoStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { formatearFecha, formatHour } from '../../../utils/formatDateTime';
 import { Skeleton } from 'primereact/skeleton';
 import { NavLink } from 'react-router-dom';
 
-const CardUltimoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, id_equipoLocal, id_equipoVisita, jornada, goles_local, goles_visita, pen_local, pen_visita, hora}) => {
+const CardUltimoPartido = ({ miEquipo, estado, id_partido, nombre_edicion, dia, id_equipoLocal, id_equipoVisita, jornada, goles_local, goles_visita, pen_local, pen_visita, hora}) => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
     const [loading, setLoading] = useState(true);
 
@@ -62,9 +62,23 @@ const CardUltimoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, id_equip
                             <p className={miEquipo === id_equipoVisita ? 'my-team' : ''}>{nombresEquipos(id_equipoVisita)}</p>
                         </CardUltimoPartidoEquipos>
                     </CardUltimoPartidoDescripcion>
-
+                    {/* {
+                        estado === "C" && (
+                            <div>
+                                
+                            </div>
+                        )
+                    } */}
                     {/* Mostrar el resultado del partido si ya está cargado */}
                     <CardUltimoPartidoResultado>
+                        {
+                            estado === "C" && (
+                            <CardUltimoPartidoResultadoVivo>
+                                en juego
+                                <span className='vivo'></span>
+                            </CardUltimoPartidoResultadoVivo>
+                            )
+                        }
                         {goles_local} - {goles_visita}
                         {pen_local || pen_visita && <CardUltimoPartidoPenales>
                             ({pen_local} - {pen_visita})
