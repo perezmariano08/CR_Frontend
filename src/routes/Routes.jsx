@@ -260,8 +260,8 @@ const Routes = () => {
                                 path="/planillero/categorias"
                                 element={
                                 <LayoutPrivate>
-                                    <Suspense fallback={<div>Cargando...</div>}>
-                                    <UserCategorias />
+                                    <Suspense fallback={<div></div>}>
+                                        <UserCategorias />
                                     </Suspense>
                                 </LayoutPrivate>
                                 }

@@ -7,7 +7,10 @@ export const LayoutContainerStyled = styled.main`
 
 export const PrivateLayoutContainerStyled = styled.main`
     width: 100%;
-    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
     /* @media (max-width: 968px) {
         padding-bottom: 90px;
     } */
