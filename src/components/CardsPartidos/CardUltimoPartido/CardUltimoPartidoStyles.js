@@ -48,6 +48,11 @@ export const CardUltimoPartidoDiaJornada = styled.div`
             color: var(--black-500);
         }
     }
+
+    .vivo {
+        font-size: 10px;
+        color: var(--green);
+    }
 `
 
 export const CardUltimoPartidoEquipos= styled.div`
@@ -74,7 +79,56 @@ export const CardUltimoPartidoResultado= styled.div`
     font-size: 24px;
     font-weight: 700;
     background-color: var(--black-800);
+    position: relative;
 `
+
+export const CardUltimoPartidoResultadoVivo = styled.div`
+    color: var(--green);
+    font-size: 10px;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: -30px;
+    display: flex;
+    flex-direction: column;
+
+    .vivo {
+        width: 40%;
+        height: 1px;
+        position: relative;
+        overflow: hidden;
+        
+        &:after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: var(--green);
+            animation: vivo-animation 1s infinite ease-in-out;
+        }
+    }
+
+    @keyframes vivo-animation {
+        0% {
+            width: 0;
+            left: 0;
+        }
+        50% {
+            width: 100%;
+            left: 0;
+        }
+        100% {
+            width: 0;
+            left: 100%;
+        }
+    }
+`
+
+
 
 export const CardUltimoPartidoPenales= styled.div`
     font-size: 8px;

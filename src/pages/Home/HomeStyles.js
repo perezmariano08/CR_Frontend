@@ -84,7 +84,7 @@ export const HomeRightWrapper = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 40px;
+    gap: 20px;
     h2 {
         display: none
     }
@@ -326,5 +326,32 @@ export const PartidosDiaFiltro = styled.button`
         &.active {
             background-color: var(--black-50);
         }
+    }
+`
+
+
+export const DreamTeamTitulo = styled.div`
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--black-800);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
+
+export const DreamTeamTorneo = styled.div`
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+
+    p {
+        font-weight: 400;
+    }
+
+    span {
+        font-size: 12px;
+        color: var(--black-400);
+        text-transform: uppercase;
     }
 `
