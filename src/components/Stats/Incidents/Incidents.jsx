@@ -10,6 +10,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../../Auth/AuthContext';
 import { setActionToDelete, setActionToEdit, setEnabledActionEdit, setModalType, toggleModal } from '../../../redux/Planillero/planilleroSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
+import { SpinerContainer } from '../../../Auth/SpinerStyles';
+import { TailSpin } from 'react-loader-spinner';
 
 const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
   const { userRole } = useAuth();
@@ -24,7 +26,15 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
     }
   }, [incidentes]);
 
-  const mejorJugador = formaciones.find(f => +f.id_jugador === +partido.id_jugador_destacado);
+    if (!partido) {
+        return (
+            <SpinerContainer>
+                <TailSpin width='40' height='40' color='#2AD174' />
+            </SpinerContainer>
+        );
+    }
+
+  const mejorJugador = formaciones?.find(f => +f.id_jugador === +partido.jugador_destacado);
 
   // Hook nombres y escudos equipos
   const { nombresEquipos, escudosEquipos } = useEquipos();

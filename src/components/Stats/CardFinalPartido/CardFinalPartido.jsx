@@ -11,7 +11,7 @@ import { useZonaPartido } from '../../../hooks/planilla/useZonaPartido';
 const CardFinalPartido = ({ partido, incidencias }) => {
 
     if (!partido || !incidencias) {
-        return <div>Loading...</div>;
+        return '';
     }
 
     //custom hooks

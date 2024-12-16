@@ -3,38 +3,51 @@ import { CardPartidosDia, CardPartidosDiaTitle, HomeMediumWrapper, HomeWrapper, 
 import { HomePlanilleroContainer } from './HomePlanilleroStyles';
 import { useAuth } from '../../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
-import useFetchMatches from '../../../hooks/useFetchMatches';
 import { PartidosGenericosContainer } from '../../../components/CardsPartidos/CardPartidoGenerico/CardPartidosGenericoStyles';
 import CardPartidoGenerico from '../../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico';
 import { fetchPartidosPlanillero } from '../../../redux/ServicesApi/partidosSlice';
+import { useWebSocket } from '../../../Auth/WebSocketContext';
 
 const HomePlanillero = () => {
     const dispatch = useDispatch();
     const { userId } = useAuth();
+    const socket = useWebSocket();
     const token = localStorage.getItem('token');
 
     useEffect(() => {
         dispatch(fetchPartidosPlanillero({ id_planillero: userId, token }));
     }, [])
 
+    useEffect(() => {
+        const handeSuspenderPartido = (data) => {
+            dispatch(fetchPartidosPlanillero({ id_planillero: userId, token }));
+        }
+
+        if (socket) {
+            socket.on('suspender-partido', handeSuspenderPartido);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off('suspender-partido', handeSuspenderPartido);
+            }
+        }
+    }, [socket, userId])
+
     const partidos = useSelector((state) => state.partidos.data_planillero);
 
     const [isPending, setIsPending] = useState(true); 
-
-    // Custom Hooks
-    useFetchMatches((partidos) => partidos.id_planillero === userId);
-    // useMessageWelcome(userName, showWelcomeToast, setShowWelcomeToast);
 
     const partidosPendientes = partidos
         .filter((partido) => partido.id_planillero === userId && partido.estado !== 'F' && partido.estado !== 'S')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosPlanillados = partidos
-        .filter((partido) => partido.id_planillero === userId && partido.estado === 'F' || partido.estado === 'S')
+        .filter((partido) => +partido.id_planillero === +userId && partido.estado === 'F' || partido.estado === 'S')
         .sort((a, b) => new Date(a.dia) - new Date(b.dia));
 
     const partidosFiltrados = isPending ? partidosPendientes : partidosPlanillados;
-
+    
     const handleToggleChange = () => {
         //pendientes es FALSE
         setIsPending(!isPending);
@@ -62,7 +75,21 @@ const HomePlanillero = () => {
                 </CardPartidosDia>
                 <SectionHome className='planilla'>
                     <SectionHomeTitle>
-                        Partidos a planillar
+                    {
+                        isPending ? (
+                            partidosFiltrados.length === 0 ? (
+                                <>No hay partidos pendientes</>
+                            ) : (
+                                <>Partidos pendientes</>
+                            )
+                        ) : (
+                            partidosFiltrados.length === 0 ? (
+                                <>No hay partidos planillados</>
+                            ) : (
+                                <>Partidos planillados</>
+                            )
+                        )
+                    }
                     </SectionHomeTitle>
                     <PartidosGenericosContainer>
                     {partidosFiltrados

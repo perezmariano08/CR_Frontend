@@ -787,7 +787,6 @@ const Home = () => {
                                                 }}
                                             />
                                         </DreamTeamTitulo>
-                                        {/* Muestra los jugadores de la jornada seleccionada */}
                                         <DreamTeamCard jugadores={jornadas[jornadaActual]} />
                                     </div>
                                 );

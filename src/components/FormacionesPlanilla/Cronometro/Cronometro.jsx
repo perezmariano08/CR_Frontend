@@ -3,24 +3,21 @@ import { ButtonsContainer, CronometroH1, CronometroWrapper } from "./CronometroS
 import { HiArrowPath, HiMiniPauseCircle, HiMiniPlayCircle } from "react-icons/hi2";
 import { useSelector } from "react-redux";
 
-function Cronometro() {
+function Cronometro({ partido }) {
   const [diff, setDiff] = useState(null);
   const [initial, setInitial] = useState(null);
   const [paused, setPaused] = useState(true);
 
-  // const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
-  const match = useSelector((state) => state.match);
-  const matchCorrecto = match.find((m) => m.ID === partidoId);
-  const matchState = matchCorrecto?.matchState;
+  const estadoPartido = partido.estado;
 
   useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem(`cronometroData_${partidoId}`));
+    const savedData = JSON.parse(localStorage.getItem(`cronometroData_${partido.id_partido}`));
     if (savedData) {
       setInitial(savedData.initial);
       setDiff(savedData.diff);
       setPaused(savedData.paused);
     }
-  }, [partidoId]);
+  }, [partido.id_partido]);
 
   const tick = () => {
     if (!paused) {
@@ -45,7 +42,7 @@ function Cronometro() {
     setInitial(null);
     setDiff(null);
     setPaused(true);
-    localStorage.removeItem(`cronometroData_${partidoId}`);
+    localStorage.removeItem(`cronometroData_${partido.id_partido}`);
   };
 
   useEffect(() => {
@@ -57,18 +54,18 @@ function Cronometro() {
 
   useEffect(() => {
     localStorage.setItem(
-      `cronometroData_${partidoId}`,
+      `cronometroData_${partido.id_partido}`,
       JSON.stringify({ initial, diff, paused })
     );
-  }, [initial, diff, paused, partidoId]);
+  }, [initial, diff, paused, partido.id_partido]);
 
   useEffect(() => {
-    if (matchState === "isStarted" && !initial) {
+    if (estadoPartido === "C" && !initial) {
       start();
-    } else if (matchState === "isFinish") {
+    } else if (estadoPartido === "T") {
       pause();
     }
-  }, [matchState]);
+  }, [estadoPartido]);
 
   return (
       <CronometroWrapper>

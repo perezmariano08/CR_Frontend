@@ -6,10 +6,11 @@ import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
 import { closeModal } from '../../../redux/Planillero/planilleroSlice';
-import { firmaJugador } from '../../../utils/dataFetchers';
+import { checkPartidosEventual, firmaJugador, getEdicion } from '../../../utils/dataFetchers';
 import { useWebSocket } from '../../../Auth/WebSocketContext';
+import useFetch from '../../../hooks/useFetch';
 
-const EditDorsal = ({ id_partido, formaciones }) => {
+const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
 
     const dispatch = useDispatch();
     const socket = useWebSocket();
@@ -19,6 +20,10 @@ const EditDorsal = ({ id_partido, formaciones }) => {
     const isEdit = jugador?.dorsal !== null;
 
     const [dorsalValue, setDorsalValue] = useState(isEdit ? jugador?.dorsal : '');
+    const [partidosJugados, setPartidosJugados] = useState(0);
+
+    const { data: fetchEdicion, loading: loadingEdicion, error: errorEdicion } = useFetch(getEdicion, id_edicion);
+    const edicion = fetchEdicion?.[0];
 
     useEffect(() => {
         setDorsalValue(jugador?.dorsal || '');
@@ -54,6 +59,11 @@ const EditDorsal = ({ id_partido, formaciones }) => {
             return;
         }
 
+        if (partidosJugados >= edicion.partidos_eventuales) {
+            toast.error('No puedes asignar el dorsal porque el jugador llegó a la cantidad máxima de partidos eventuales permitidos');
+            return;
+        }
+
         try {
             setLoading(true);
             //verificar que el dorsal no este en uso
@@ -79,6 +89,14 @@ const EditDorsal = ({ id_partido, formaciones }) => {
             setLoading(false)
         }
     };
+
+    useEffect(() => {
+        const checkPartidos = async () => {
+            const data = await checkPartidosEventual(id_partido, jugador.dni);
+            setPartidosJugados(data.partidos_jugados);
+        }
+        checkPartidos();
+    }, []);
     
     return (
         <>
@@ -100,6 +118,13 @@ const EditDorsal = ({ id_partido, formaciones }) => {
                             <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer>
+                            {
+                                jugador.eventual === 'S' && (
+                                    <ErrorTextContainer>
+                                        <h3>Partidos jugados como eventual: <span>{partidosJugados} / {edicion?.partidos_eventuales} </span></h3>
+                                    </ErrorTextContainer>
+                                )
+                            }
                             <TextContainer>
                                 <h4>Dorsal</h4>
                             </TextContainer>

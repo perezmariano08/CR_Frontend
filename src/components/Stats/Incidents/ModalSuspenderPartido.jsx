@@ -5,10 +5,9 @@ import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
 import toast, { LoaderIcon, Toaster } from 'react-hot-toast';
 import { useEquipos } from '../../../hooks/useEquipos';
-import axios from 'axios';
-import { URL } from '../../../utils/utils';
 import { toggleModal } from '../../../redux/Planillero/planilleroSlice';
 import { actualizarPartidoVacante, suspenderPartido, updateSancionados } from '../../../utils/dataFetchers';
+import { useNavigate } from 'react-router-dom';
 
 const ModalSuspenderPartido = ({ partido }) => {
     const token = localStorage.getItem('token');
@@ -16,6 +15,8 @@ const ModalSuspenderPartido = ({ partido }) => {
     const modal = useSelector((state) => state.planillero.modal);
     const [loading, setLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState('equipoLocalNoSePresento'); 
+
+    const navigate = useNavigate();
 
     const { nombresEquipos } = useEquipos();
 
@@ -73,9 +74,9 @@ const ModalSuspenderPartido = ({ partido }) => {
             console.error('Error al suspender el partido:', error);
         } finally {
             setLoading(false);
-            // setTimeout(() => {
-            //     window.location.reload();
-            // }, 2000)
+            setTimeout(() => {
+                navigate('/planillero');
+            }, 2000);
         }
     };
 

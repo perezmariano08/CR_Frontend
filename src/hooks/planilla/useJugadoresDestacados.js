@@ -63,6 +63,7 @@ const useJugadoresDestacados = (id_partido, estadoPartido, toast) => {
 
 
     const handleMvp = async (e) => {
+        
         if (estadoPartido !== 'T') {
             return toast.error('Finaliza el partido para seleccionar un MVP');
         }
