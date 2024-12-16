@@ -7,12 +7,12 @@ const MenuBottomPlanillero = () => {
   return (
     <MenuBottomContainerStyled>
       <MenuBottomWrapper>
-        <MenuBottomItem to={'/planillero'}>
+        <MenuBottomItem to={'/planillero'} end>
           <HiHome/>
           <h4>HOME</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/planiller/categorias'}>
+        <MenuBottomItem to={'/planillero/categorias'}>
           <FaTrophy/>
           <h4>CATEGORÍAS</h4>
         </MenuBottomItem>

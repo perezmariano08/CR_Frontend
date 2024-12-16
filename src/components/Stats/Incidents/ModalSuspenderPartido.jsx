@@ -4,22 +4,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
 import toast, { LoaderIcon, Toaster } from 'react-hot-toast';
-import { toggleHiddenModal, toggleHiddenModalSuspender } from '../../../redux/Planillero/planilleroSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
 import axios from 'axios';
 import { URL } from '../../../utils/utils';
+import { toggleModal } from '../../../redux/Planillero/planilleroSlice';
+import { actualizarPartidoVacante, suspenderPartido, updateSancionados } from '../../../utils/dataFetchers';
 
 const ModalSuspenderPartido = ({ partido }) => {
-    const token = localStorage.getItem('token'); // Obtener el token
+    const token = localStorage.getItem('token');
     const dispatch = useDispatch();
-    const hiddenModal = useSelector((state) => state.planillero.modal.hiddenSusp);
+    const modal = useSelector((state) => state.planillero.modal);
     const [loading, setLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState('equipoLocalNoSePresento'); 
 
     const { nombresEquipos } = useEquipos();
 
     const handleModalCancel = () => {
-        dispatch(toggleHiddenModalSuspender());
+        dispatch(toggleModal());
     };
 
     const handleOptionChange = (e) => {
@@ -61,27 +62,26 @@ const ModalSuspenderPartido = ({ partido }) => {
         }
 
         try {
-            const response = await axios.put(`${URL}/user/suspender-partido`, partidoData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            toast.success(response.data);
+            const response = await suspenderPartido(token, partidoData);
+            await updateSancionados(token);
+            await actualizarPartidoVacante(partido.id_partido)
+            
+            toast.success(response.mensaje);
             handleModalCancel();
         } catch (error) {
             toast.error('Error al suspender el partido');
             console.error('Error al suspender el partido:', error);
         } finally {
             setLoading(false);
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000)
+            // setTimeout(() => {
+            //     window.location.reload();
+            // }, 2000)
         }
     };
 
     return (
         <>
-            {!hiddenModal && (
+            {modal === 'modalSuspender' && (
                 <ActionConfirmedContainer>
                     <ActionConfirmedWrapper>
                         <ActionBack>

@@ -256,9 +256,18 @@ const Routes = () => {
 
                         {/* Planillero */}
                         <Route element={<ProtectedRoute roles={[2]} />}>
+                            <Route
+                                path="/planillero/categorias"
+                                element={
+                                <LayoutPrivate>
+                                    <Suspense fallback={<div>Cargando...</div>}>
+                                    <UserCategorias />
+                                    </Suspense>
+                                </LayoutPrivate>
+                                }
+                            />
                             <Route path='/planillero' element={<LayoutPrivate> <HomePlanillero/> </LayoutPrivate>} />
                             <Route path='/planillero/planilla' element={<LayoutPrivate> <Planilla/> </LayoutPrivate>} />
-                            <Route path='/planiller/categorias' element={<LayoutPrivate> <UserCategorias/> </LayoutPrivate>} />
                             <Route path='planillero/mi-perfil' element={<LayoutPrivate> <Perfil/> </LayoutPrivate>} />
 
                             {/* <Route path='/categoria/estadisticas/asistentes/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasAsistentes/> </PrivateLayoutPlanillero>} />

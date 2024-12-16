@@ -1,193 +1,117 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNext, ActionTitle, ButtonContainer } from '../../FormacionesPlanilla/ActionConfirmed/ActionConfirmedStyles';
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
-import { toggleHiddenModal, handleBestPlayerOfTheMatch, handleMvpSlice, setDescripcionPartido, setJugadoresDestacados, setPenales } from '../../../redux/Planillero/planilleroSlice';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
-import useBdPartido from './customHook/useBdPartido';
-import useGenerarBdFormaciones from './customHook/useGenerarBdFormaciones';
-import useGenerarBdStats from './customHook/useGenerarBdStats';
-import useGenerarBdEventual from './customHook/useGenerarBdEventual';
-import useOperationMatch from './customHook/useOperationMatch';
-import useGenerarBdDreamTeam from './customHook/useGenerarBdDreamTeam';
-import { useWebSocket } from '../../../Auth/WebSocketContext';
-import { URL } from '../../../utils/utils';
-import axios from 'axios';
-import { actualizarPartidoVacante } from '../../../utils/dataFetchers';
+import { actualizarEstadoPartido, actualizarPartido, actualizarPartidoVacante, borrarFirmaJugador, borrarIncidencia, updateSancionados } from '../../../utils/dataFetchers';
+import { setActionToDelete, setDescripcionPartido, setJugador, toggleModal } from '../../../redux/Planillero/planilleroSlice';
 
 const ModalConfirmation = () => {
-    const socket = useWebSocket();
+    const token = localStorage.getItem('token');
     const dispatch = useDispatch();
-    const hiddenModal = useSelector((state) => state.planillero.modal.hidden);
-    const stateModal = useSelector((state) => state.planillero.modal.modalState);
-    const deleteDorsal = useSelector((state) => state.planillero.modal.dorsalDelete);
-    const actionToDelete = useSelector((state) => state.planillero.actionToDelete);
-    const idPartido = useSelector((state) => state.planillero.timeMatch.idMatch);
-    const infoDelete = useSelector((state) => state.planillero.infoDelete);
-    const jugadorDestacado = useSelector((state) => state.planillero.timeMatch.mvp);
 
-    const token = localStorage.getItem('token')
+    const searchParams = new URLSearchParams(window.location.search);
+    const id_partido = parseInt(searchParams.get('id'));
+
+    const modal = useSelector((state) => state.planillero.modal);
+    const modalType = useSelector((state) => state.planillero.modalType);
+    const jugador = useSelector((state) => state.planillero.jugador);
+    const actionToDelete = useSelector((state) => state.planillero.actionToDelete);
+    const descripcionRedux = useSelector((state) => state.planillero.description);
+    const penal_local = useSelector((state) => state.planillero.penales?.penal_local);
+    const penal_visita = useSelector((state) => state.planillero.penales?.penal_visita);
+    const mvpSelectedRedux = useSelector((state) => state.planillero.mvpSelected);
 
     const [loading, setLoading] = useState(false);
 
-    //Custom Hooks
-    const {bd_partido} = useBdPartido(idPartido);
-    const {bd_formaciones} = useGenerarBdFormaciones(idPartido);
-    const {bd_goles, bd_rojas, bd_amarillas, bd_asistencias} = useGenerarBdStats(idPartido);
-    const {bd_jugadores_eventuales} = useGenerarBdEventual(idPartido);
-    const {bd_dreamTeam} = useGenerarBdDreamTeam(idPartido);
+    const closeAndClearModal = () => {
+        dispatch(toggleModal());
+        dispatch(setJugador(null));
+        dispatch(setActionToDelete({ type: null, id_action: null, id_equipo: null, id_jugador: null }));
+        dispatch(setDescripcionPartido(null))
+    }
 
-    // Envío a la base de datos
-    const { 
-        updateMatch, 
-        updateSancionados,
-    } = useOperationMatch(bd_jugadores_eventuales, bd_partido, bd_formaciones, bd_goles, bd_rojas, bd_amarillas, bd_asistencias, bd_dreamTeam);
-
-    // Escuchar cambios en el MVP a través del socket
-    useEffect(() => {
-        const handleMvpUpdate = (nuevoMvp) => {
-            dispatch(handleMvpSlice(nuevoMvp));
-        };
-
-        socket.on('mvpActualizado', handleMvpUpdate);
-
-        return () => {
-            socket.off('mvpActualizado', handleMvpUpdate); // Limpieza del evento al desmontar
-        };
-    }, [dispatch, socket]);
-
-    const handleDeleteDorsal = async (idPartido, idEquipo, playerId) => {
-        try {
-            // await dispatch(deletePlayerDorsal({ idPartido, idEquipo, idJugador: playerId }));
-            await axios.delete(`${URL}/user/borrar-firma-jugador`, { data: { idPartido, idJugador: playerId }});
-            // Emitir el socket si lo necesitas
-            socket.emit('dorsalEliminado', { idPartido, idJugador: playerId, dorsal: '' });
-        } catch (error) {
-            console.error('Error al eliminar el dorsal:', error);
-            toast.error('Error al eliminar el dorsal');
+    const handleOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            closeAndClearModal();
         }
     };
 
-    const borrarAccion = async () => {
+    let text = ''
+    if (modalType === 'deleteDorsal') {
+        text = `¿Estás seguro de que quieres eliminar el dorsal del jugador ${jugador?.dorsal}? Esta acción eliminara todas las acciones del jugador y no podrá ser revertida.`;
+    } else if (modalType === 'deleteAction') {
+        text = `¿Estás seguro que quieres eliminar esta incidencia? Esta acción no podrá ser revertida.`;
+    } else if (modalType === 'matchPush') { 
+        text = '¿Estás seguro que quieres subir el partido? Esta acción no podrá ser revertida.';
+    }
+    
+    const handleNext = async () => {
+        setLoading(true);
         try {
-            const response = await axios.post(`${URL}/user/eliminar-accion?id_partido=${idPartido}`, actionToDelete);
-            toast.success('Acción eliminada', { duration: 4000 });
-            socket.emit('eliminarAccion', actionToDelete);
-        } catch (error) {
-            console.error('Error al eliminar la acción:', error);
-            toast.error('Error al eliminar la acción');
-        }
-    };
+            if (modalType === 'deleteDorsal') {
+                const res = await borrarFirmaJugador(id_partido, jugador?.id_jugador);
+                toast.success(res.mensaje);
+                window.location.reload();
+            } else if (modalType === 'deleteAction') {
+                let accion;
+                if (actionToDelete.type === 'Gol') {
+                    accion = 'gol';
+                } else if (actionToDelete.type === 'Amarilla') {
+                    accion = 'amarilla';
+                } else if (actionToDelete.type === 'Roja') {                
+                    accion = 'roja';
+                }
+                const res = await borrarIncidencia(accion, id_partido, actionToDelete.id_action, actionToDelete.id_equipo, actionToDelete.id_jugador);
+                toast.success(res.mensaje);
+            } else if (modalType === 'matchPush') {
 
-    const actualizarEstadoPartido = async (partidoId) => {
-        try {
-            const response = await axios.post(`${URL}/user/actualizar-estado-partido`, { idPartido: partidoId });
-            // toast.success('Estado del partido actualizado con éxito');
-            socket.emit('estadoPartidoActualizado', { idPartido: partidoId, nuevoEstado: response.data.nuevoEstado });
-            // setTimeout(() => {
-            //     window.location.reload();
-            // }, 2000);
-        } catch (error) {
-            console.error('Error al actualizar el estado del partido:', error);
-            toast.error('Error al actualizar el estado del partido');
-        }
-    };
+                const data = {
+                    id_partido: id_partido,
+                    descripcion: descripcionRedux,
+                    pen_local: penal_local,
+                    pen_visita: penal_visita,
+                }
 
-    const handleModalConfirm = async () => {
-        try {
-            setLoading(true);
-            switch(stateModal) {
-                case 'action':
-                    // dispatch(deleteActionToPlayer({ actionToDelete }));
-                    await borrarAccion();
-                    dispatch(toggleHiddenModal());
-                    break;
-                case 'dorsal':
-                    await handleDeleteDorsal(infoDelete.idPartido, infoDelete.idEquipo, infoDelete.idJugador);
-                    dispatch(toggleHiddenModal());
-                    toast.success('Dorsal eliminado', { duration: 4000 });
-                    setTimeout(() => {
-                        window.location.reload(); // Esta línea solo se ejecuta aquí
-                    }, 500)
-                    break;
-                case 'matchFinish':
-                    // dispatch(toggleStateMatch(idPartido));
-                    dispatch(toggleHiddenModal());
-                    toast.success('Partido Finalizado', { duration: 4000 });
-                    break;
-                case 'matchPush':
-                    if (jugadorDestacado) {
+                if (mvpSelectedRedux) {
 
-                        await updateMatch();
-                        await updateSancionados();
-                        await actualizarEstadoPartido(idPartido);
-                        await actualizarPartidoVacante(idPartido);
+                    await actualizarEstadoPartido(id_partido);
+                    await actualizarPartido(data);
+                    await actualizarPartidoVacante(id_partido);
+                    await updateSancionados(token);
 
-                        dispatch(setDescripcionPartido(''));
-                        dispatch(toggleHiddenModal());
-                        dispatch(handleBestPlayerOfTheMatch(null));
-                        dispatch(handleMvpSlice(null));
-                        dispatch(setJugadoresDestacados([]))
-                        dispatch(setPenales({ penalLocal: null, penalVisita: null }));
-
-                        toast.success('Partido subido correctamente en la base de datos');
-                    } else {
-                        toast.error('Se debe seleccionar el MVP antes de finalizar');
-                        dispatch(toggleHiddenModal());
-                    }
-                    break;
-                default:
-                    break;
+                    toast.success('Partido subido correctamente');
+                } else {
+                    toast.error('Debe seleccionar un jugador MVP antes de finalizar el partido');
+                }
             }
+            closeAndClearModal();
         } catch (error) {
-            toast.error('Ocurrio un error durante la operacion');
-            console.error('Error: ', error);
+            console.error(error);
+            toast.error(res.data.mensaje || "Ocurrió un error. Por favor, inténtalo de nuevo.");
         } finally {
             setLoading(false);
         }
     };
     
-    let modalTitle;
-    switch (stateModal) {
-        case 'action':
-            modalTitle = '¿Estás seguro de que quieres eliminar la acción?';
-            break;
-        case 'dorsal':
-            modalTitle = `¿Estás seguro de que quieres eliminar el dorsal ${deleteDorsal}? Las acciones de este jugador serán eliminadas.`;
-            break;
-        case 'matchFinish':
-            modalTitle = '¿Estás seguro que quieres finalizar el partido?';
-            break;
-        case 'matchPush':
-            modalTitle = '¿Estás seguro que quieres enviar el partido? No podrás editar una vez finalizado';
-            break;
-        default:
-            modalTitle = '';
-            break;
-    }
-
-    const handleModalCancel = () => {
-        dispatch(toggleHiddenModal());
-    };
-
     return (
         <>
-            {!hiddenModal && (
-                <ActionConfirmedContainer>
+            {modal === 'modalConfirmation' && (
+                <ActionConfirmedContainer onClick={handleOverlayClick}>
                     <ActionConfirmedWrapper>
                         <ActionBack>
-                            <HiArrowLeft onClick={handleModalCancel}/>
+                            <HiArrowLeft onClick={closeAndClearModal}/>
                             <p>Volver</p>
                         </ActionBack>
                         <ActionTitle>
-                            {modalTitle}
+                            {text}
                             <AlignmentDivider />
                         </ActionTitle>
                         <ButtonContainer>
                             {
                                 !loading ? (
-                                <ActionNext onClick={handleModalConfirm}>
+                                <ActionNext onClick={handleNext}>
                                     Confirmar
                                 </ActionNext>
                                 ) : 
@@ -197,7 +121,7 @@ const ModalConfirmation = () => {
                                 </ActionNext>
                                 )
                             }
-                            <ActionNext onClick={handleModalCancel} className="cancel">
+                            <ActionNext onClick={closeAndClearModal} className="cancel">
                                 Cancelar
                             </ActionNext>
                         </ButtonContainer>

@@ -93,8 +93,6 @@ const useJugadorEventual = () => {
         }
     };
 
-    console.log(bdFormaciones);
-    
     const checkMaxPlayersQuantity = () => {
         if (equipoCorrecto) {
             const jugadoresEquipo = Array.isArray(bdFormaciones) ? bdFormaciones.filter((j) => j.id_equipo === equipoCorrecto) : [];

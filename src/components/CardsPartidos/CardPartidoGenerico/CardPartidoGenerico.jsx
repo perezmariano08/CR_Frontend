@@ -30,7 +30,8 @@ const CardPartidoGenerico = ({
     dia,
     jornada,
     miEquipo,
-    hora
+    hora,
+    id_planillero
 }) => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
@@ -39,7 +40,8 @@ const CardPartidoGenerico = ({
     // Expulsados
     const expulsados = useSelector((state) => state.expulsados.data);
     const expulsadosPartido = expulsados.filter((e) => e.id_partido == id_partido)
-
+    console.log(expulsadosPartido);
+    
     // Fecha actual
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
     const partidoDia = new Date(dia).toISOString().split('T')[0];
@@ -87,8 +89,10 @@ const CardPartidoGenerico = ({
         );
     }
 
+    const rutaPartido = id_planillero ? `/planillero/planilla?id=${id_partido}` : `/stats-match?id=${id_partido}`;
+
     return (
-        <CardPartidoGenericoWrapper to={`/stats-match?id=${id_partido}`}>
+        <CardPartidoGenericoWrapper to={rutaPartido}>
             {estado === 'F' && (
                 <CardPartidoGenericoResultado className="finalizado">
                     final

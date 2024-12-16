@@ -8,7 +8,7 @@ function Cronometro() {
   const [initial, setInitial] = useState(null);
   const [paused, setPaused] = useState(true);
 
-  const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
+  // const partidoId = useSelector((state) => state.planillero.timeMatch.idMatch);
   const match = useSelector((state) => state.match);
   const matchCorrecto = match.find((m) => m.ID === partidoId);
   const matchState = matchCorrecto?.matchState;

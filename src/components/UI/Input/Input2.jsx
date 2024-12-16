@@ -5,12 +5,12 @@ import { LoaderIcon } from 'react-hot-toast';
 const Input2 = ({ 
     placeholder, 
     children, 
-    type = "text", 
+    type, 
     value, 
     onChange, 
     onValueChange, 
     onBlur, 
-    numeric = false, 
+    numeric, 
     disabled, 
     loading, 
     error, 
@@ -50,7 +50,6 @@ const Input2 = ({
                 value={value}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                inputMode={numeric ? "numeric" : "text"}
                 disabled={disabled}
                 className={inputClass}  // Aplicar las clases solo si es touched
             />

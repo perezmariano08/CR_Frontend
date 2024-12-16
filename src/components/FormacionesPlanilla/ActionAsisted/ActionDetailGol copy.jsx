@@ -5,11 +5,10 @@ import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Select2 from '../../UI/Select/Select2';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setActionToEdit, setDisabledActionEdit, setNewAssist, toggleHiddenAction, toggleHiddenAsist, toggleHiddenTime } from '../../../redux/Planillero/planilleroSlice';
 import { usePlanilla } from '../../../hooks/usePlanilla';
 import { useWebSocket } from '../../../Auth/WebSocketContext';
 
-const ActionAsisted = () => {
+const ActionDetailGol = () => {
     const dispatch = useDispatch();
     const socket = useWebSocket();
     const hiddenAsist = useSelector((state) => state.planillero.asist.hidden);
@@ -223,4 +222,4 @@ const ActionAsisted = () => {
     );
 }
 
-export default ActionAsisted;
+export default ActionDetailGol;
