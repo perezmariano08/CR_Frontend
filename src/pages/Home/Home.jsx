@@ -35,6 +35,7 @@ import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice.js';
 import DreamTeamCard from '../../components/DreamTeamCard/DreamTeamCard.jsx';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { fetchJugadoresDestacados } from '../../redux/ServicesApi/jugadoresDestacadosSlice.js';
+import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice.js';
 
 const Home = () => {
     // Fecha actual
@@ -95,7 +96,7 @@ const Home = () => {
             temp.tipo_zona === "todos-contra-todos" // Filtra por tipo de zona
         )
         .at(-1)?.id_zona // Toma el primer registro y accede a `id_zona`
-    : null;
+    : 74;
     
     
     
@@ -263,6 +264,7 @@ const Home = () => {
         dispatch(fetchPartidos());
         dispatch(fetchTemporadas());
         dispatch(fetchJugadoresDestacados());
+        dispatch(fetchJugadores());
     }, [dispatch]);
 
 
@@ -753,7 +755,7 @@ const Home = () => {
                         )}
                     </HomeMediumWrapper>
                     <HomeRightWrapper>
-                        <CategoriasListaWrapper>
+                        {/* <CategoriasListaWrapper>
                             <CategoriasListaTitulo>
                                 <p>Dream Team</p>
                             </CategoriasListaTitulo>
@@ -791,7 +793,7 @@ const Home = () => {
                                     </div>
                                 );
                             })}
-                        </CategoriasListaWrapper>
+                        </CategoriasListaWrapper> */}
                         {posiciones && zonasFiltradas ? (
                             <Section>
                                 <CategoriasListaWrapper>

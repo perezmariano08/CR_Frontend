@@ -5,7 +5,7 @@ export const CategoriasWrapper = styled.div`
     display: flex;
     align-items: center;
     gap: 16px;
-    justify-content: space-between;
+    justify-content: center;
     max-width: 1260px;
     padding: 24px 30px;
     
@@ -24,6 +24,7 @@ export const CategoriasContainer = styled.div`
     flex-direction: column;
     width: 100%;
     gap: 20px;
+    justify-content: center;
 
     @media (max-width: 1160px) {
         width: 100%;

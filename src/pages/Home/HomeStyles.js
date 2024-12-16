@@ -350,6 +350,10 @@ export const PartidosDiaFiltro = styled.button`
             background-color: var(--black-50);
         }
     }
+
+    @media (max-width: 500px) {
+        font-size: 12px;
+    }
 `
 
 

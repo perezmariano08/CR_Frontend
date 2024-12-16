@@ -9,6 +9,9 @@ export const CardProximoPartidoWrapper = styled(NavLink)`
     flex-direction: column;
     text-transform: uppercase;
     background-color: var(--black-900);
+    @media (max-width: 500px) {
+        padding: 12px 14px;
+    }
 
     &.empty {
         text-transform: none;
@@ -23,6 +26,13 @@ export const ProximoPartidoInfo = styled.div`
 
     img {
         height: 58px;
+        
+    }
+    
+    @media (max-width: 500px) {
+        img {
+            height: 40px;
+        }
     }
 `
 
@@ -50,6 +60,12 @@ export const ProximoPartidoEquipos = styled.div`
             color: var(--green);
         }
     }
+
+    @media (max-width: 500px) {
+        p {
+            font-size: 18px;
+        }
+    }
 `
 
 export const ProximoPartidoDiaJornada = styled.div`
@@ -72,7 +88,8 @@ export const ProximoPartidoCancha = styled.div`
     justify-content: center;
     align-items: center;
     font-size: 12px;
-
+    text-align: center;
+    margin-left: 15px;
     svg {
         color: var(--green);
         font-size: 30px;
@@ -91,6 +108,9 @@ export const ProximoPartidoCuentaRegresivaWrapper = styled.div`
     align-items: center;
     padding: 10px 0;
     gap: 30px;
+    @media (max-width: 500px) {
+        gap: 25px;
+    }
 `
 
 
@@ -110,6 +130,17 @@ export const ProximoPartidoCuentaRegresivaItem = styled.div`
 
     span {
         font-size: 10px;
+    }
+
+    @media (max-width: 500px) {
+        p {
+            font-size: 25px;
+            font-weight: 600;
+        }
+
+        span {
+            font-size: 8px;
+        }
     }
 `
 
