@@ -73,7 +73,6 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
     const deleteDorsalAndActionsPlayer = (player) => {
 
         if (partido.estado === 'F') return toast.error('No se puede editar con el partido cargado');
-        if (partido.estado === 'P') return toast.error('Debes comenzar el partido para ejecutar esta acción');
 
         dispatch(setJugador(player));
         dispatch(toggleModal('modalConfirmation'));

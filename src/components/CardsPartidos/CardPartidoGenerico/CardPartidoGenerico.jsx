@@ -36,11 +36,11 @@ const CardPartidoGenerico = ({
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
+    const token = localStorage.getItem('token');
 
     // Expulsados
     const expulsados = useSelector((state) => state.expulsados.data);
     const expulsadosPartido = expulsados.filter((e) => e.id_partido == id_partido)
-    console.log(expulsadosPartido);
     
     // Fecha actual
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
@@ -89,7 +89,7 @@ const CardPartidoGenerico = ({
         );
     }
 
-    const rutaPartido = id_planillero ? `/planillero/planilla?id=${id_partido}` : `/stats-match?id=${id_partido}`;
+    const rutaPartido = token ? `/planillero/planilla?id=${id_partido}` : `/stats-match?id=${id_partido}`;
 
     return (
         <CardPartidoGenericoWrapper to={rutaPartido}>

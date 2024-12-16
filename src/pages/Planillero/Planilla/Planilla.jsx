@@ -59,10 +59,7 @@ const Planilla = () => {
         dispatch(setDescripcionPartido(e.target.value));
     };
 
-    useEffect(() => {
-        dispatch(fetchPartidos());
-    }, [dispatch]);
-    
+
     if (!partidoFiltrado || !incidencias || !formaciones) {
         return (
             <SpinerContainer>
@@ -72,7 +69,8 @@ const Planilla = () => {
     }
 
     const esVuelta = obtenerTipoPartido(partidoFiltrado)
-
+    console.log(partidoFiltrado.estado);
+    
     return (
         <PlanillaContainerStyled className='container'>
             <MatchStatsWrapper className='wrapper'>
@@ -88,7 +86,7 @@ const Planilla = () => {
 
                 {partidoFiltrado.estado !== 'S' && (
                     <>
-                        {/* <Cronometro /> */}
+                        <Cronometro partido={partidoFiltrado} />
                         {partidoFiltrado.estado === 'F' && (
                             <Alignment formaciones={formaciones} partido={partidoFiltrado} />
                         )}
@@ -112,6 +110,8 @@ const Planilla = () => {
                                         column="nombre_completo"
                                         value={mvpSelectedRedux}
                                         planilla={true}
+                                        disabled={estadoPartido !== 'T'}
+                                        
                                     />
                                 </SelectContainerStyled>
 
@@ -185,7 +185,7 @@ const Planilla = () => {
             <ActionDetailRoja formaciones={formaciones}/>
             <ActionTime id_partido={partidoId}/>
 
-            <EditDorsal id_partido={partidoId} formaciones={formaciones} />
+            <EditDorsal id_partido={partidoId} formaciones={formaciones} id_edicion={partidoFiltrado.id_edicion} />
             <ModalConfirmation />
             <JugadoresEventuales partido={partidoFiltrado} formaciones={formaciones} />
 

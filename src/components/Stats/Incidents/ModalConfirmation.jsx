@@ -5,7 +5,7 @@ import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { actualizarEstadoPartido, actualizarPartido, actualizarPartidoVacante, borrarFirmaJugador, borrarIncidencia, updateSancionados } from '../../../utils/dataFetchers';
-import { setActionToDelete, setDescripcionPartido, setJugador, toggleModal } from '../../../redux/Planillero/planilleroSlice';
+import { handleMvpSelected, setActionToDelete, setDescripcionPartido, setJugador, toggleModal } from '../../../redux/Planillero/planilleroSlice';
 
 const ModalConfirmation = () => {
     const token = localStorage.getItem('token');
@@ -22,7 +22,7 @@ const ModalConfirmation = () => {
     const penal_local = useSelector((state) => state.planillero.penales?.penal_local);
     const penal_visita = useSelector((state) => state.planillero.penales?.penal_visita);
     const mvpSelectedRedux = useSelector((state) => state.planillero.mvpSelected);
-
+    
     const [loading, setLoading] = useState(false);
 
     const closeAndClearModal = () => {
@@ -30,6 +30,7 @@ const ModalConfirmation = () => {
         dispatch(setJugador(null));
         dispatch(setActionToDelete({ type: null, id_action: null, id_equipo: null, id_jugador: null }));
         dispatch(setDescripcionPartido(null))
+        dispatch(handleMvpSelected(null));
     }
 
     const handleOverlayClick = (event) => {
