@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getIncidenciasPlanilla } from "../../utils/dataFetchers";
 import { useWebSocket } from "../../Auth/WebSocketContext";
 
-export const useIncidencias = (id_partido, eventosSocket = []) => {
+export const useIncidencias = (token = null, id_partido, eventosSocket = []) => {
     const [incidencias, setIncidencias] = useState(null);
     const [loading, setLoading] = useState(true);
     const socket = useWebSocket();
@@ -11,7 +11,7 @@ export const useIncidencias = (id_partido, eventosSocket = []) => {
         if (!id_partido) return;
         setLoading(true);
         try {
-            const data = await getIncidenciasPlanilla(id_partido);
+            const data = await getIncidenciasPlanilla(id_partido, token);
             setIncidencias([...data]);
         } catch (error) {
             console.error("Error fetching incidencias:", error);
@@ -29,7 +29,6 @@ export const useIncidencias = (id_partido, eventosSocket = []) => {
         if (!socket || eventosSocket.length === 0) return;
 
         const handleSocketEvent = async (data) => {
-            console.log('me ejecute', data);
             await fetchIncidencias();
         };
 

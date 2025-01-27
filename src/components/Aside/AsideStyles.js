@@ -10,7 +10,7 @@ export const AsideContainerStyled = styled(motion.aside)`
     width: 16rem;
     background-color: var(--gray-500);
     font-size: 14px;
-    z-index: 2; // para asegurarse de que esté encima del contenido
+    z-index: 3;
 
     @media (max-width: 968px) {
         width: 100%;

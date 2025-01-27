@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import CardFinalPartido from '../../components/Stats/CardFinalPartido/CardFinalPartido';
 import Section from "../../components/Section/Section";
@@ -14,32 +14,45 @@ import HistoryBeetwenTeams from '../../components/Stats/HistoryBeetwenTeams/Hist
 import MatchsBetweenTeams from '../../components/Stats/MatchsBetweenTeams/MatchsBetweenTeams';
 import { useIncidencias } from '../../hooks/planilla/useIncidencias';
 import { useFormaciones } from '../../hooks/planilla/useFormaciones';
-import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice';
+import { obtenerTipoPartido } from '../../components/Stats/statsHelpers';
+import usePartido from '../../hooks/planilla/usePartido';
+import CardPartidoIda from '../../components/Stats/CardPartidoIda/CardPartidoIda';
 
 const MatchStats = () => {
-    const dispatch = useDispatch();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
-
-    const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
-
-    const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId)
-
-    const [activeTab, setActiveTab] = useState(() => 
-        formaciones?.length > 0 && formaciones?.length > 0 ? 'Previa' : 'Cara a cara'
-    );
-
     const partidos = useSelector((state) => state.partidos.data);
     const partido = partidos.find(p => +p.id_partido === +partidoId);
 
-    const { partidosJugados, partidosEntreEquipos } = useMatchOlds(partido?.id_equipoLocal, partido?.id_equipoVisita);
+    const stableEventosSocket = useMemo(() => [
+        'insertar-gol',
+        'insertar-amarilla',
+        'insertar-roja',
+        'eliminar-gol',
+        'eliminar-amarilla',
+        'eliminar-expulsion',
+        'actualizar-gol',
+        'actualizar-amarilla',
+        'actualizar-roja',
+    ], []);
+
+    const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, stableEventosSocket);
+
+    const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId)
+
+    const [activeTab, setActiveTab] = useState('Previa');
 
     useEffect(() => {
-        if (activeTab === 'Previa' && (!formaciones?.length || !formaciones?.length)) {
+        if (formaciones?.length > 0 && partido?.estado !== 'S') {
+            setActiveTab('Previa');
+        } else {
             setActiveTab('Cara a cara');
         }
-    }, [formaciones]);
+    }, [formaciones, partido?.estado]);
+    
+
+    const { partidosJugados, partidosEntreEquipos } = useMatchOlds(partido?.id_equipoLocal, partido?.id_equipoVisita);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -55,12 +68,27 @@ const MatchStats = () => {
             </SpinerContainer>
         );
     }
+    
+    const esVuelta = obtenerTipoPartido(partido)
+    const [partidoIda, setPartidoIda] = useState(null);
 
+    useEffect(() => {
+        if (partido && obtenerTipoPartido(partido) == 'vuelta') {
+            const partidoIda = partidos.find((p) => p.id_partido == partido.ida);
+            setPartidoIda(partidoIda);
+        }
+    }, [partido.id_partido, partido]);
+    
     return (
         <MatchStatsContainer className='container'>
             <MatchStatsWrapper className='wrapper'>
                 <Section>
-                    <h2>Ficha de Partido</h2>
+                    <h2>Ficha del Partido</h2>
+                    {
+                        esVuelta === 'vuelta' && (
+                            <CardPartidoIda partido={partidoIda} />
+                        )
+                    }
                     <CardFinalPartido partido={partido} incidencias={incidencias} />
                 </Section>
 
@@ -75,17 +103,17 @@ const MatchStats = () => {
 
                 {activeTab === 'Previa' && (
                     <>
-                        {
-                        partido.estado !== 'S' && <Alignment formaciones={formaciones} partido={partido} />
-                        }
-                        {partido.estado !== 'P' && <Incidents incidencias={incidencias} formaciones={formaciones} partido={partido} />}
+                        {partido.estado !== 'S' && (
+                            <Alignment formaciones={formaciones} partido={partido} />
+                        )}
+                        {partido.estado !== 'P' && (<Incidents incidencias={incidencias} formaciones={formaciones} partido={partido}/>)}
                         {partidosJugados.length === 0 && <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />}
                     </>
                 )}
 
                 {activeTab === 'Cara a cara' && (
                     <>
-                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} id_partido={partidoId} />
+                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} partido={partido} />
                         {
                             partidosEntreEquipos.length > 0 && (
                                 <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos}/>

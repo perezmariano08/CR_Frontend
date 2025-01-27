@@ -382,3 +382,11 @@ export const DreamTeamTorneo = styled.div`
         text-transform: uppercase;
     }
 `
+
+export const NoticiasWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding: 5px 0;
+`

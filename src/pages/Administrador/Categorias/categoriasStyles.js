@@ -303,7 +303,9 @@ export const VacanteWrapper = styled.div`
 
     &.cruce {
         border-color: orange;
-        
+    }
+    &.posicion{
+        border-color: var(--yellow);
     }
     &.equipo {
         border-color: var(--green);
@@ -318,7 +320,6 @@ export const VacanteWrapper = styled.div`
         }
     }
 
-     /* Agregar un estilo para el texto A1 */
     .vacante-texto {
         position: absolute;
         display: flex;
@@ -331,14 +332,19 @@ export const VacanteWrapper = styled.div`
         left: 0;
         font-size: 14px;
         font-weight: bold;
-        border-radius: 0 0 5px;
+        border-radius: 8px 0 5px;
 
         
         &.cruce {
             background-color: orange;
             color: var(--black);
         }
-        
+
+        &.posicion {
+            background-color: var(--yellow);
+            color: var(--black);
+        }
+
         &.existe {
             background-color: var(--green);
             color: var(--black);
@@ -516,6 +522,9 @@ export const FormatoZonaInfo = styled.div`
         }
         &.sin-campeon {
             color: var(--import);
+        }
+        &.sin-terminar {
+            color: var(--red);
         }
     }
 `

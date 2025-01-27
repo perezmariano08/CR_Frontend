@@ -65,6 +65,7 @@ export const ModalFormInputContainer = styled.div`
     gap: 10px;
     font-size: 12px;
     text-transform: uppercase;
+    margin-bottom: 15px;
 
     p {
         transition: all .2s ease-in-out;
@@ -78,7 +79,14 @@ export const ModalFormInputContainer = styled.div`
     }
 
     .error {
+        display: flex;
+        align-items: center;
         color: var(--red);
+        gap: 5px;
+    }
+
+    .categoria {
+        flex-wrap: wrap;
     }
 `
 

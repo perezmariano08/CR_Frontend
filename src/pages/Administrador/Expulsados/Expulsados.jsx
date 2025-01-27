@@ -223,7 +223,13 @@ const Expulsados = () => {
                 dispatch(fetchExpulsados());
                 closeDeleteModal(); 
             } catch (error) {
-                handleError(error);
+                console.log(error);
+                if (error.response && error.response.data) {
+                    toast.error(error.response.data);
+                } else {
+                    toast.error('Error al eliminar la expulsión');
+                }
+                
             } finally {
                 setIsSaving(false);
             }
@@ -265,7 +271,6 @@ const Expulsados = () => {
             fechas_restantes: formState.fechas_restantes,
             multa: formState.multa
         };
-        console.log(data);
         await actualizar(data);
         closeUpdateModal();
     };
@@ -323,8 +328,6 @@ const Expulsados = () => {
         dispatch(fetchPlanteles());
     }, []);
 
-    console.log(expulsados);
-    
     return (
         <Content>
             <Button bg={'success'} onClick={openCreateModal}>
@@ -334,7 +337,7 @@ const Expulsados = () => {
             <TablaExpulsadosWrapper>
                 <h2>Suspensiones activas</h2>
                 {
-                    expulsados ? (
+                    expulsados.filter((e) => e.fechas_restantes > 0).length > 0 ? (
                         <Table 
                             data={expulsados.filter((e) => e.fechas_restantes > 0)} 
                             dataColumns={dataExpulsadosColumn} 
@@ -343,18 +346,24 @@ const Expulsados = () => {
                             sortable={false}
                         />
                     ) : (
-                        <p>No hay expulsiones vigentes</p>
+                        <p>No hay suspensiones vigentes</p>
                     )
                 }
             </TablaExpulsadosWrapper>
             <TablaExpulsadosWrapper>
                 <h2>Suspensiones cumplidas</h2>
-                <Table 
-                    data={expulsados.filter((e) => e.fechas_restantes === 0)} 
-                    dataColumns={dataExpulsadosColumn} 
-                    selection={false}
-                    sortable={false}
-                />
+                {
+                    expulsados.filter((e) => e.fechas_restantes === 0).length > 0 ? (
+                        <Table 
+                            data={expulsados.filter((e) => e.fechas_restantes === 0)} 
+                            dataColumns={dataExpulsadosColumn} 
+                            selection={false}
+                            sortable={false}
+                        />
+                    ) : (
+                        <p>No hay suspensiones cumplidas</p>
+                    )
+                }
             </TablaExpulsadosWrapper>
             {
                 isCreateModalOpen && <>

@@ -4,9 +4,8 @@ import Axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 
-export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
-
-    const token = localStorage.getItem('token')
+export const useCrud = (url, fetchActions, successMessage, errorMessage) => {
+    const token = localStorage.getItem('token');
 
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -14,22 +13,28 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const dispatch = useDispatch();
 
+    const executeFetchActions = () => {
+        if (Array.isArray(fetchActions)) {
+            fetchActions.forEach(action => dispatch(action()));
+        } else if (fetchActions) {
+            dispatch(fetchActions());
+        }
+    };
+
     const crear = async (data) => {
         setIsSaving(true);
         try {
             const response = await Axios.post(url, data, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.status === 200) {
                 const mensaje = response.data.mensaje;
                 toast.success(mensaje || successMessage);
-                dispatch(fetchAction())
+                executeFetchActions();
             }
         } catch (error) {
-            const errorMensaje = error.response.data.mensaje;
-            toast.error(errorMensaje || errorMessage);
+            const errorMensaje = error.response?.data?.mensaje || errorMessage;
+            toast.error(errorMensaje);
             console.error(error);
         } finally {
             setIsSaving(false);
@@ -40,26 +45,23 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
         setIsUpdating(true);
         try {
             const response = await Axios.put(url, data, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.status === 200) {
-                setIsUpdating(false);
                 const mensaje = response.data.mensaje;
                 toast.success(mensaje || successMessage);
-                dispatch(fetchAction());
+                executeFetchActions();
             }
         } catch (error) {
+            const errorMensaje = error.response?.data?.mensaje || errorMessage;
+            toast.error(errorMensaje);
+            console.error(error);
+        } finally {
             setIsUpdating(false);
-            const errorMensaje = error.response.data.mensaje;
-            console.error(`Error al verificar o agregar.`, error);
-            toast.error(errorMensaje || errorMessage);
         }
     };
 
     const importar = async (fileData, divisionesList) => {
-
         const datosExistentes = divisionesList.map(a => a.nombre);
         const nuevosDatos = fileData.filter(row => !datosExistentes.includes(row.nombre));
 
@@ -68,16 +70,15 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             try {
                 await Axios.post(url, nuevosDatos);
                 toast.success(`Se importaron ${nuevosDatos.length} registros correctamente.`);
-                dispatch(fetchAction());
-                setIsImporting(false);
+                executeFetchActions();
             } catch (error) {
-                toast.error("importErrorMessage");
+                toast.error("Error al importar los datos.");
                 console.error(error);
+            } finally {
                 setIsImporting(false);
             }
         } else {
-            toast.error(`Todos los del archivo ya existen.`);
-            setIsImporting(false);
+            toast.error(`Todos los datos del archivo ya existen.`);
         }
     };
 
@@ -85,22 +86,16 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
         setIsDeleting(true);
         try {
             await Promise.all(ids.map(id => Axios.post(url, { id })));
-    
-            const recordCount = ids.length;
-            const message = recordCount === 1
-                ? '1 registro eliminado correctamente.'
-                : `${recordCount} registros eliminados correctamente.`;
-
-            toast.success(message);
-            dispatch(fetchAction());
+            toast.success(`${ids.length} registros eliminados correctamente.`);
+            executeFetchActions();
         } catch (error) {
-            console.error("Delete error:", error);
             toast.error(errorMessage);
+            console.error(error);
         } finally {
             setIsDeleting(false);
         }
     };
-    
+
     const eliminarPorId = async (id) => {
         setIsDeleting(true);
         try {
@@ -111,9 +106,9 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             } );
             const mensaje = response.data.mensaje;
             toast.success(mensaje);
-            dispatch(fetchAction());
+            dispatch(fetchActions());
         } catch (error) {
-            const errorMensaje = response.data.mensaje;
+            const errorMensaje = response?.data?.mensaje;
             console.error("Delete error:", error);
             toast.error(errorMensaje || errorMessage);
         } finally {
@@ -127,7 +122,7 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             const response = await Axios.post(url, data);
             const mensaje = response.data.mensaje;
             toast.success(mensaje || 'Registro eliminado correctamente.');
-            dispatch(fetchAction());
+            dispatch(fetchActions());
         } catch (error) {
             const errorMensaje = error.response.data.mensaje;
             console.error("Delete error:", error);
@@ -136,7 +131,6 @@ export const useCrud = (url, fetchAction, successMessage, errorMessage) => {
             setIsDeleting(false);
         }
     };
-    
 
     return { crear, actualizar, eliminar, importar, eliminarPorId, eliminarPorData, isImporting, isDeleting, isSaving, isUpdating};
 };

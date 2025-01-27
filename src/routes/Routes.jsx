@@ -47,17 +47,22 @@ import LegajosEquipos from '../pages/Administrador/Legajos/LegajosEquipos';
 import PublicRoute from '../Auth/PublicRoute';
 import Estadisticas from '../pages/Administrador/Categorias/Estadisticas';
 import UserCategoriasPlayOff from '../pages/User/Categorias/UserCategoriasPlayOff';
+import Noticias from '../pages/Administrador/Noticias/Noticias';
+import NotFound from '../pages/NotFound/NotFound';
+import Noticia from '../pages/Administrador/Noticias/Noticia';
 
-const Home = lazy(()=> import('../pages/Home/Home'));
-const Login = lazy(()=> import('../pages/Login/Login'));
-const Onboarding = lazy(()=> import('../pages/Onboarding/Onboarding'));
-const MyTeam = lazy(()=> import('../pages/MyTeam/MyTeam'));
-const UserCategoriasPosiciones = lazy(() => import('../pages/User/Categorias/UserCategoriasPosiciones')) ;
-const UserCategoriasFixture = lazy(() => import('../pages/User/Categorias/UserCategoriasFixture')) ;
-const UserCategoriasGoleadores = lazy(() => import('../pages/User/Categorias/UserCategoriasGoleadores')) ;
-const UserCategoriasAsistentes = lazy(() => import('../pages/User/Categorias/UserCategoriasAsistentes')) ;
-const UserCategoriasExpulsados = lazy(() => import('../pages/User/Categorias/UserCategoriasExpulsados')) ;
-const UserCategorias = lazy(() => import('../pages/User/Categorias/UserCategorias')) ;
+const Home = lazy(() => import('../pages/Home/Home'));
+const Login = lazy(() => import('../pages/Login/Login'));
+const Onboarding = lazy(() => import('../pages/Onboarding/Onboarding'));
+const MyTeam = lazy(() => import('../pages/MyTeam/MyTeam'));
+const UserCategoriasPosiciones = lazy(() => import('../pages/User/Categorias/UserCategoriasPosiciones'));
+const UserCategoriasFixture = lazy(() => import('../pages/User/Categorias/UserCategoriasFixture'));
+const UserCategoriasGoleadores = lazy(() => import('../pages/User/Categorias/UserCategoriasGoleadores'));
+const UserCategoriasAsistentes = lazy(() => import('../pages/User/Categorias/UserCategoriasAsistentes'));
+const UserCategoriasExpulsados = lazy(() => import('../pages/User/Categorias/UserCategoriasExpulsados'));
+const UserCategorias = lazy(() => import('../pages/User/Categorias/UserCategorias'));
+const UserNoticias = lazy(() => import('../pages/User/Noticias/Noticias'));
+const UserNoticia = lazy(() => import('../pages/User/Noticias/UserNoticia'));
 
 const Routes = () => {
 
@@ -65,72 +70,75 @@ const Routes = () => {
         <AuthProvider>
             <BrowserRouter>
                 <ReactDomRoutes>
+
+                    <Route path="*" element={<NotFound />} />
+
                     {/* Rutas Públicas */}
-                    <Route element={<PublicRoute/>}>
+                    <Route element={<PublicRoute />}>
 
-                    <Route
-                        path='/'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div></div>}>
-                                    <Home />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
-                    <Route
-                        path='/my-team'
-                        element={
-                            <LayoutPrivate>
-                                <Suspense fallback={<div></div>}>
-                                    <MyTeam />
-                                </Suspense>
-                            </LayoutPrivate>
-                        }
-                    />
+                        <Route
+                            path='/'
+                            element={
+                                <LayoutPrivate>
+                                    <Suspense fallback={<div></div>}>
+                                        <Home />
+                                    </Suspense>
+                                </LayoutPrivate>
+                            }
+                        />
+                        <Route
+                            path='/my-team'
+                            element={
+                                <LayoutPrivate>
+                                    <Suspense fallback={<div></div>}>
+                                        <MyTeam />
+                                    </Suspense>
+                                </LayoutPrivate>
+                            }
+                        />
 
-                    <Route
-                        path='/onboarding'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div></div>}>
-                                    <Onboarding />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-                    <Route
-                        path='/login'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div></div>}>
-                                    <Login />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-                    <Route
-                        path='/forgot-password'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div></div>}>
-                                    <ForgotPassword />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
-                    <Route
-                        path='/create-password'
-                        element={
-                            <Layout>
-                                <Suspense fallback={<div></div>}>
-                                    <Step2 />
-                                </Suspense>
-                            </Layout>
-                        }
-                    />
+                        <Route
+                            path='/onboarding'
+                            element={
+                                <Layout>
+                                    <Suspense fallback={<div></div>}>
+                                        <Onboarding />
+                                    </Suspense>
+                                </Layout>
+                            }
+                        />
+                        <Route
+                            path='/login'
+                            element={
+                                <Layout>
+                                    <Suspense fallback={<div></div>}>
+                                        <Login />
+                                    </Suspense>
+                                </Layout>
+                            }
+                        />
+                        <Route
+                            path='/forgot-password'
+                            element={
+                                <Layout>
+                                    <Suspense fallback={<div></div>}>
+                                        <ForgotPassword />
+                                    </Suspense>
+                                </Layout>
+                            }
+                        />
+                        <Route
+                            path='/create-password'
+                            element={
+                                <Layout>
+                                    <Suspense fallback={<div></div>}>
+                                        <Step2 />
+                                    </Suspense>
+                                </Layout>
+                            }
+                        />
 
-                        
+
                         {/* <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} /> */}
                         {/* <Route path='/create-account' element={<Layout> <CreateAccount/> </Layout>} /> */}
                         {/* <Route path='/favorite-team' element={<Layout> <Step3/> </Layout>} /> */}
@@ -221,37 +229,63 @@ const Routes = () => {
                         }
                     />
 
+                    <Route
+                        path='/noticias'
+                        element={
+                            <LayoutPrivate>
+                                <Suspense fallback={<div></div>}>
+                                    <UserNoticias />
+                                </Suspense>
+                            </LayoutPrivate>
+                        }
+                    />
+
+                    <Route
+                        path='/noticias/:id_noticia'
+                        element={
+                            <LayoutPrivate>
+                                <Suspense fallback={<div></div>}>
+                                    <UserNoticia />
+                                </Suspense>
+                            </LayoutPrivate>
+                        }
+                    />
+
                     {/* Rutas Privadas */}
                     <Route element={<ProtectedRoute />}>
                         {/* Rutas admin */}
                         <Route element={<ProtectedRoute roles={[1]} />}>
-                            <Route path='/admin/temporadas/temporada' element={<LayoutAdmin className="page-temporadas"> <Temporadas/> </LayoutAdmin>} />
-                            <Route path='/admin/temporadas/categorias' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
-                            <Route path='/admin/temporadas/sedes' element={<LayoutAdmin> <Sedes/> </LayoutAdmin>} />
-                            <Route path='/admin/temporadas/años' element={<LayoutAdmin> <Años/> </LayoutAdmin>} />
-                            <Route path='/admin/temporadas/torneos' element={<LayoutAdmin> <Torneos/> </LayoutAdmin>} />
-                            <Route path='/admin/temporadas/divisiones' element={<LayoutAdmin> <Divisiones/> </LayoutAdmin>} />
-                            <Route path='/admin/usuarios' element={<LayoutAdmin> <Usuarios/> </LayoutAdmin>} />
-                            <Route path='/admin/jugadores' element={<LayoutAdmin> <Jugadores/> </LayoutAdmin>} />
-                            <Route path='/admin/equipos' element={<LayoutAdmin> <Equipos/> </LayoutAdmin>} />
-                            <Route path='/admin/partidos' element={<LayoutAdmin> <Partidos/> </LayoutAdmin>} />
-                            <Route path='/admin/dashboard' element={<LayoutAdmin> <Admin/> </LayoutAdmin>} />
-                            <Route path='/admin/ediciones' element={<LayoutAdmin> <Ediciones/> </LayoutAdmin>} />
-                            <Route path='/admin/ediciones/categorias/:id_edicion' element={<LayoutAdmin> <EdicionesCategorias/> </LayoutAdmin>} />
-                            <Route path='/admin/ediciones/config/:id_edicion' element={<LayoutAdmin> <EdicionesConfig/> </LayoutAdmin>} />
-                            
-                            <Route path='/admin/categorias/resumen/:id_categoria' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} />
+                            {/* <Route path='/admin/temporadas/temporada' element={<LayoutAdmin className="page-temporadas"> <Temporadas/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/temporadas/categorias' element={<LayoutAdmin> <Categorias/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/temporadas/sedes' element={<LayoutAdmin> <Sedes/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/temporadas/años' element={<LayoutAdmin> <Años/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/temporadas/torneos' element={<LayoutAdmin> <Torneos/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/temporadas/divisiones' element={<LayoutAdmin> <Divisiones/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/partidos' element={<LayoutAdmin> <Partidos/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/jugadores' element={<LayoutAdmin> <Jugadores/> </LayoutAdmin>} /> */}
+                            {/* <Route path='/admin/equipos' element={<LayoutAdmin> <Equipos/> </LayoutAdmin>} /> */}
+
+                            <Route path='/admin/dashboard' element={<LayoutAdmin> <Admin /> </LayoutAdmin>} />
+                            <Route path='/admin/noticias' element={<LayoutAdmin> <Noticias /> </LayoutAdmin>} />
+                            <Route path='/admin/noticias/:id_noticia' element={<LayoutAdmin> <Noticia /> </LayoutAdmin>} />
+                            <Route path='/admin/usuarios' element={<LayoutAdmin> <Usuarios /> </LayoutAdmin>} />
+
+                            <Route path='/admin/ediciones' element={<LayoutAdmin> <Ediciones /> </LayoutAdmin>} />
+                            <Route path='/admin/ediciones/categorias/:id_edicion' element={<LayoutAdmin> <EdicionesCategorias /> </LayoutAdmin>} />
+                            <Route path='/admin/ediciones/config/:id_edicion' element={<LayoutAdmin> <EdicionesConfig /> </LayoutAdmin>} />
+
+                            <Route path='/admin/categorias/resumen/:id_categoria' element={<LayoutAdmin> <Categorias /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/fixture/:id_categoria/' element={<LayoutAdmin> <CategoriasFixture /> </LayoutAdmin>} />
-                            <Route path='/admin/categorias/estadisticas/:id_categoria/' element={<LayoutAdmin> <Estadisticas/> </LayoutAdmin>} />
+                            <Route path='/admin/categorias/estadisticas/:id_categoria/' element={<LayoutAdmin> <Estadisticas /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/fixture/:id_categoria/detalle/:id_partido' element={<LayoutAdmin> <CategoriasFixturePartido /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/equipos/:id_categoria' element={<LayoutAdmin> <CategoriasEquipos /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/equipos/:id_categoria/detalle/:id_equipo' element={<LayoutAdmin> <CategoriasEquiposDetalle /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/config/:id_categoria' element={<LayoutAdmin> <CategoriasConfig /> </LayoutAdmin>} />
                             <Route path='/admin/categorias/formato/:id_categoria' element={<LayoutAdmin> <CategoriasFormato /> </LayoutAdmin>} />
 
-                            <Route path='/admin/sanciones/expulsados' element={<LayoutAdmin> <Expulsados/> </LayoutAdmin>} />
-                            <Route path='/admin/legajos/jugadores' element={<LayoutAdmin> <LegajosJugadores/> </LayoutAdmin>} />
-                            <Route path='/admin/legajos/equipos' element={<LayoutAdmin> <LegajosEquipos/> </LayoutAdmin>} />
+                            <Route path='/admin/sanciones/expulsados' element={<LayoutAdmin> <Expulsados /> </LayoutAdmin>} />
+                            <Route path='/admin/legajos/jugadores' element={<LayoutAdmin> <LegajosJugadores /> </LayoutAdmin>} />
+                            <Route path='/admin/legajos/equipos' element={<LayoutAdmin> <LegajosEquipos /> </LayoutAdmin>} />
                         </Route>
 
                         {/* Planillero */}
@@ -259,16 +293,16 @@ const Routes = () => {
                             <Route
                                 path="/planillero/categorias"
                                 element={
-                                <LayoutPrivate>
-                                    <Suspense fallback={<div></div>}>
-                                        <UserCategorias />
-                                    </Suspense>
-                                </LayoutPrivate>
+                                    <LayoutPrivate>
+                                        <Suspense fallback={<div></div>}>
+                                            <UserCategorias />
+                                        </Suspense>
+                                    </LayoutPrivate>
                                 }
                             />
-                            <Route path='/planillero' element={<LayoutPrivate> <HomePlanillero/> </LayoutPrivate>} />
-                            <Route path='/planillero/planilla' element={<LayoutPrivate> <Planilla/> </LayoutPrivate>} />
-                            <Route path='planillero/mi-perfil' element={<LayoutPrivate> <Perfil/> </LayoutPrivate>} />
+                            <Route path='/planillero' element={<LayoutPrivate> <HomePlanillero /> </LayoutPrivate>} />
+                            <Route path='/planillero/planilla' element={<LayoutPrivate> <Planilla /> </LayoutPrivate>} />
+                            <Route path='planillero/mi-perfil' element={<LayoutPrivate> <Perfil /> </LayoutPrivate>} />
 
                             {/* <Route path='/categoria/estadisticas/asistentes/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasAsistentes/> </PrivateLayoutPlanillero>} />
                             <Route path='/categoria/estadisticas/expulsados/:id_page' element={<PrivateLayoutPlanillero> <UserCategoriasExpulsados/> </PrivateLayoutPlanillero>} />

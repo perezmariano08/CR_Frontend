@@ -36,7 +36,6 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
 
   const mejorJugador = formaciones?.find(f => +f.id_jugador === +partido.jugador_destacado);
 
-  // Hook nombres y escudos equipos
   const { nombresEquipos, escudosEquipos } = useEquipos();
 
   const renderActionIcon = (action) => {
@@ -78,6 +77,7 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
     return ''
   }
   
+
   return (
     <IndicentsWrapper>
       <h3>Incidencias</h3>

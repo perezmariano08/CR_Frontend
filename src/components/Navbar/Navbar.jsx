@@ -35,6 +35,7 @@ export const Navbar = () => {
                     <NavbarList>
                         <li><NavLink to={'/'}>Inicio</NavLink></li>
                         <li><NavLink to={'/categorias'}>Categorias</NavLink></li>
+                        <li><NavLink to={'/noticias'}>Noticias</NavLink></li>
                         {/* <li><NavLink to={'/my-team'}>Mi Equipo</NavLink></li> */}
                         <FaUserCircle onClick={openLogin}/>
                     </NavbarList>

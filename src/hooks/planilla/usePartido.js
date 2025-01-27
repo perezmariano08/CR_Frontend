@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { useWebSocket } from "../../Auth/WebSocketContext";
 import { obtenerTipoPartido } from "../../components/Stats/statsHelpers";
 
-const usePartido = (id_partido, toast) => {
+const usePartido = (id_partido, toast, token) => {
     const dispatch = useDispatch();
     const socket = useWebSocket();
     const partidosPlanillero = useSelector((state) => state.partidos.data_planillero)
     const partido = partidosPlanillero.find((p) => p.id_partido === id_partido);
+    
+    const partidos = useSelector((state) => state.partidos.data);
 
     const [partidoFiltrado, setPartidoFiltrado] = useState(partido || null);
     const [partidoIda, setPartidoIda] = useState(null);
@@ -18,7 +20,6 @@ const usePartido = (id_partido, toast) => {
         if (!socket) return;
     
         const handleNuevoEstadoPartido = ({ id_partido: socketIdPartido, nuevoEstado }) => {
-            console.log('me ejecute', socketIdPartido, nuevoEstado);
             if (+socketIdPartido === +id_partido) {
                 setPartidoFiltrado((prevState) => ({
                     ...prevState,
@@ -51,11 +52,11 @@ const usePartido = (id_partido, toast) => {
     const handleStartMatch = async () => {
         const loadingToast = toast.loading('Actualizando el estado del partido...');
     
-        const resultadoVerificacion = await verificarJugadores(id_partido);
+        const resultadoVerificacion = await verificarJugadores(id_partido, token);
     
         if (resultadoVerificacion.sePuedeComenzar) {
                 // Usar la función actualizarEstadoPartido en lugar de axios.post
-                const response = await actualizarEstadoPartido(id_partido);
+                const response = await actualizarEstadoPartido(id_partido, token);
                     
                 if (response && response.mensaje) {
                     // Mostrar el mensaje de éxito o error según la respuesta
@@ -89,11 +90,11 @@ const usePartido = (id_partido, toast) => {
 
     // !REVISAR
     useEffect(() => {
-        if (partidoFiltrado && obtenerTipoPartido(partidoFiltrado) == 'vuelta') {
-            const partidoIda = match.find((p) => p.id_partido == partidoFiltrado.ida);
+        if (partido && obtenerTipoPartido(partido) == 'vuelta') {
+            const partidoIda = partidos.find((p) => p.id_partido == partido.ida);
             setPartidoIda(partidoIda);
         }
-    }, [id_partido, partidoFiltrado]);
+    }, [partido.id_partido, partido]);
 
     return { partidoFiltrado, handleStartMatch, pushInfoMatch, suspenderPartido, partidoIda };
 

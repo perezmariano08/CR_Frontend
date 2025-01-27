@@ -54,6 +54,8 @@ const Login = () => {
 
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
+                localStorage.setItem('id_usuario', response.data.id_user);
+
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
                 dispatch(setLogCurrentUser(true));
                 if (response.data.id_rol) {

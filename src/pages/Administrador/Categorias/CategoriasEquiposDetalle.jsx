@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import ActionsCrud from '../../../components/ActionsCrud/ActionsCrud';
@@ -45,6 +46,7 @@ import CategoriasMenuNav from './CategoriasMenuNav';
 import { IoAlertCircle } from "react-icons/io5";
 import { RiAlarmWarningLine } from "react-icons/ri";
 import { MdOutlineImage } from 'react-icons/md';
+import { uploadFile } from '../../../utils/dataFetchers';
 
 
 const CategoriasEquiposDetalle = () => {
@@ -271,10 +273,10 @@ const CategoriasEquiposDetalle = () => {
             img: `/uploads/Equipos/${img.name}`
         };
         try {
-            uploadFile(img)
-            await actualizarEquipo(data); // Reutiliza el hook para actualizar
+            uploadFile(img, 'Equipos')
+            await actualizarEquipo(data);
             dispatch(fetchTemporadas())
-            setImageFile(null); // Restablece el archivo de imagen
+            setImageFile(null);
             setPreviewImage(null)
         } catch (error) {
             console.error("Error al actualizar los apercibimientos:", error);
@@ -482,36 +484,8 @@ const CategoriasEquiposDetalle = () => {
         
     }, [dispatch]);
 
-    const uploadFile = async (file) => {
-        if (!file) {
-            console.error("No se seleccionó ningún archivo");
-            return;
-        }
     
-        const formData = new FormData();
-        formData.append("image", file);
-    
-        try {
-            const response = await fetch("http://localhost:3001/upload", {
-                method: "POST",
-                body: formData,
-            });
-    
-            if (!response.ok) {
-                throw new Error(`Error al subir archivo: ${response.statusText}`);
-            }
-    
-            const data = await response.json();
-            console.log("Archivo subido exitosamente:", data);
-            return data; // Devuelve la respuesta para manejarla externamente si es necesario
-        } catch (error) {
-            console.error("Error al subir archivo:", error.message);
-        }
-    };
-    
-
-
-    const [imageFile, setImageFile] = useState(null); // Estado para almacenar el archivo de imagen
+    const [imageFile, setImageFile] = useState(null);
     const [img, setImg] = useState("");
     const [previewImage, setPreviewImage] = useState("");
 
@@ -529,10 +503,9 @@ const CategoriasEquiposDetalle = () => {
         }
     };
 
-    
-
     const isEquipoCambio = formState.nombre_equipo == equipoFiltrado.nombre_equipo
     const isImgCambio = img
+
     return (
         <Content>
             <MenuContentTop>

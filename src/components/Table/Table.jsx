@@ -141,8 +141,6 @@ const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selecti
     }
 
     const estadoUsuarioBodyTemplate = (rowData, field) => {
-        console.log(rowData[field]);
-        
         if (rowData[field] === "A") {
             return <div className="td-estado activo">
                 Activo

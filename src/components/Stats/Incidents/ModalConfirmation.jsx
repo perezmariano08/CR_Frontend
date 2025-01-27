@@ -52,7 +52,7 @@ const ModalConfirmation = () => {
         setLoading(true);
         try {
             if (modalType === 'deleteDorsal') {
-                const res = await borrarFirmaJugador(id_partido, jugador?.id_jugador);
+                const res = await borrarFirmaJugador(id_partido, jugador?.id_jugador, token);
                 toast.success(res.mensaje);
                 window.location.reload();
             } else if (modalType === 'deleteAction') {
@@ -64,7 +64,7 @@ const ModalConfirmation = () => {
                 } else if (actionToDelete.type === 'Roja') {                
                     accion = 'roja';
                 }
-                const res = await borrarIncidencia(accion, id_partido, actionToDelete.id_action, actionToDelete.id_equipo, actionToDelete.id_jugador);
+                const res = await borrarIncidencia(accion, id_partido, actionToDelete.id_action, actionToDelete.id_equipo, actionToDelete.id_jugador, token);
                 toast.success(res.mensaje);
             } else if (modalType === 'matchPush') {
 
@@ -77,9 +77,9 @@ const ModalConfirmation = () => {
 
                 if (mvpSelectedRedux) {
 
-                    await actualizarEstadoPartido(id_partido);
-                    await actualizarPartido(data);
-                    await actualizarPartidoVacante(id_partido);
+                    await actualizarEstadoPartido(id_partido, token);
+                    await actualizarPartido(data, token);
+                    await actualizarPartidoVacante(id_partido, token);
                     await updateSancionados(token);
 
                     toast.success('Partido subido correctamente');

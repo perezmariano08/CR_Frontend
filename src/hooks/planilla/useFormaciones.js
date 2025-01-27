@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getFormaciones } from "../../utils/dataFetchers";
 import { useWebSocket } from "../../Auth/WebSocketContext";
 
-export const useFormaciones = (id_partido) => {
+export const useFormaciones = (id_partido, token) => {
     const [formaciones, setFormaciones] = useState(null);
     const [loading, setLoading] = useState(true);
     const [socketLoading, setSocketLoading] = useState({});
@@ -14,7 +14,7 @@ export const useFormaciones = (id_partido) => {
         const fetchFormaciones = async () => {
             setLoading(true);
             try {
-                const data = await getFormaciones(id_partido);
+                const data = await getFormaciones(id_partido, token);
 
                 const orderedData = [...data]
                     .sort((a, b) => {
@@ -90,7 +90,6 @@ export const useFormaciones = (id_partido) => {
         };
 
         const handleJugadorEventualCreado = (data) => { 
-            console.log('me ejecute', data);
             fetchFormaciones();
         }
 

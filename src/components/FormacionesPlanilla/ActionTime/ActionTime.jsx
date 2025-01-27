@@ -12,6 +12,7 @@ import { toast } from 'react-hot-toast'; // Importar toast
 import { setAction, setActionToEdit, setDisabledActionEdit, toggleModal } from '../../../redux/Planillero/planilleroSlice';
 
 const ActionConfirmed = ({ id_partido }) => {
+    const token = localStorage.getItem('token');
     const dispatch = useDispatch();
     const socket = useWebSocket();
 
@@ -26,7 +27,7 @@ const ActionConfirmed = ({ id_partido }) => {
     const [loading, setLoading] = useState(false);
     const [notChanges, setNotChanges] = useState(false);
     
-    const originalTime = useRef(actionEdit.minute)
+    const originalTime = useRef(actionEdit?.minute)
 
     useEffect(() => {
         if (enabledEdit) {
@@ -110,7 +111,7 @@ const ActionConfirmed = ({ id_partido }) => {
             }
             
             // !manejar mensajes desde el back
-            const res = await axios.post(`${URL}/planilla/insertar-${accion}`, data);
+            const res = await axios.post(`${URL}/planilla/insertar-${accion}`, data, { headers: { 'Authorization': `Bearer ${token}` } });
             
             toast.success(res.data.mensaje);
 
@@ -144,7 +145,7 @@ const ActionConfirmed = ({ id_partido }) => {
             }
 
             // !manejar mensajes desde el back
-            const res = await axios.put(`${URL}/planilla/actualizar-${accion}`, data);
+            const res = await axios.put(`${URL}/planilla/actualizar-${accion}`, data, { headers: { 'Authorization': `Bearer ${token}` } });
             toast.success(res.data.mensaje);
 
             closeModal();
