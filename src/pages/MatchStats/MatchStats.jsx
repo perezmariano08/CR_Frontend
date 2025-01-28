@@ -15,6 +15,7 @@ import MatchsBetweenTeams from '../../components/Stats/MatchsBetweenTeams/Matchs
 import { useIncidencias } from '../../hooks/planilla/useIncidencias';
 import { useFormaciones } from '../../hooks/planilla/useFormaciones';
 import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice';
+import JugadorDelPartido from '../../components/Stats/JugadorDelPartido/JugadorDelPartido';
 
 const MatchStats = () => {
     const dispatch = useDispatch();
@@ -60,7 +61,6 @@ const MatchStats = () => {
         <MatchStatsContainer className='container'>
             <MatchStatsWrapper className='wrapper'>
                 <Section>
-                    <h2>Ficha de Partido</h2>
                     <CardFinalPartido partido={partido} incidencias={incidencias} />
                 </Section>
 
@@ -80,17 +80,13 @@ const MatchStats = () => {
                         }
                         {partido.estado !== 'P' && <Incidents incidencias={incidencias} formaciones={formaciones} partido={partido} />}
                         {partidosJugados.length === 0 && <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />}
+                        <JugadorDelPartido formaciones={formaciones} partido={partido}/>
                     </>
                 )}
 
                 {activeTab === 'Cara a cara' && (
                     <>
                         <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} id_partido={partidoId} />
-                        {
-                            partidosEntreEquipos.length > 0 && (
-                                <MatchsBetweenTeams partidosEntreEquipos={partidosEntreEquipos}/>
-                            )
-                        }
                     </>
                 )}
             </MatchStatsWrapper>
