@@ -24,6 +24,9 @@ import { useEquipos } from '../../hooks/useEquipos.js';
 import { ContentMenuLink, ContentUserContainer, ContentUserMenuTitulo, ContentUserTituloContainer, ContentUserTituloContainerStyled, ContentUserWrapper, TablePosicionesContainer, TituloContainer, TituloText } from '../../components/Content/ContentStyles.js';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido.jsx';
+import { PartidosGenericosContainer } from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidosGenericoStyles.js';
+import CardPartidoGenerico from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico.jsx';
+import { SectionHome, SectionHomeTitle } from '../Home/HomeStyles.js';
 
 const MyTeam = () => {
     const { user } = useAuth();
@@ -110,7 +113,6 @@ const MyTeam = () => {
                                 <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`}/>
                                 <TituloText>
                                     <h1>{miEquipo?.nombre}</h1>
-                                    <p>{`${zonaFiltrada?.nombre_zona}`}</p>
                                 </TituloText>
                             </TituloContainer>
                         </ContentUserTituloContainer>
@@ -137,7 +139,6 @@ const MyTeam = () => {
                         }
 
                         <MyTeamSection>
-                            <h2>Estadísticas</h2>
                             <MyTeamMatches>
                                 <MyTeamMatchesItem className='pj'>
                                     <h4>{partidosMiEquipo.length}</h4>
@@ -164,7 +165,6 @@ const MyTeam = () => {
                     </MyTeamSectionTop>
 
                     <Section>
-                        <h2>Plantel</h2>
                         {
                             loading ? (
                                 <SpinerContainer>
@@ -176,7 +176,7 @@ const MyTeam = () => {
                         }
                     </Section>
                         
-                    <Section>
+                    {/* <Section>
                         <h2>Posiciones</h2>
                         <TablePosiciones 
                             data={posiciones} 
@@ -184,11 +184,23 @@ const MyTeam = () => {
                             id_categoria={1}
                             dataColumns={dataPosicionesTemporadaColumns}
                         />
-                    </Section>
-
-                    <Section>
+                    </Section> */}
+                    <SectionHome>
+                        <SectionHomeTitle>
+                            Últimos partidos
+                        </SectionHomeTitle>
+                        <PartidosGenericosContainer>
+                            {partidosMiEquipo
+                            .sort((a, b) => new Date(b.dia) - new Date(a.dia))
+                            
+                            .map((p) => (
+                                <CardPartidoGenerico key={p.id_partido} {...p} />
+                            ))}
+                        </PartidosGenericosContainer>
+                    </SectionHome>
+                    {/* <Section>
                         <CardOldMatches partidos={partidosMiEquipo} equipo={miEquipo}/>
-                    </Section>
+                    </Section> */}
                 </ContentUserWrapper>
             </ContentUserContainer>
         </>

@@ -2,16 +2,41 @@ import styled, { keyframes }  from "styled-components";
 
 export const CardPartidoWrapper = styled.div`
     background-color: var(--gray-400);
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
     align-items: center;
     border-radius: 20px;
     min-width: 85%;
     position: relative;
-
 `
+
+export const CardPartidoTitulo = styled.div`
+    display: flex;
+    width: 100%;
+    padding: 15px;
+    font-size: 14px;
+    justify-content: center;
+    border-bottom: 1px solid var(--black-800);
+`
+
+export const CardPartidoDetalles = styled.div`
+    display: flex;
+    width: 100%;
+    font-size: 14px;
+    gap: 15px;
+    padding: 10px;
+    justify-content: center;
+    border-bottom: 1px solid var(--black-800);
+    color: var(--black-300);
+`
+
+export const CardPartidoDetallesItem = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+`
+
 export const CardPartidoTitles = styled.div`
     display: flex;
     flex-direction: column;
@@ -62,31 +87,52 @@ export const WatchContainer = styled.span`
 
 export const CardPartidoTeams = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     width: 100%;
+    gap: 40px;
+    padding: 30px;
     align-items: center;
+    @media (max-width: 768px) {
+        padding: 25px 10px;
+    }
 `
 export const CardPartidoTeam = styled.div`
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    justify-content: center;
+    gap: 10px;
     align-items: center;
-    max-width: 80px;
-
+    width: 100%;
     img {
-        width: 60px;
+        width: 40px;
     }
 
     h4 {
-        font-size: 12px;
-        font-weight: 300;
-        min-height: 24px;
-        text-align: center;
+        font-size: 20px;
+        font-weight: 400;
+
+        &.local {
+            text-align: end;
+        }
+    }
+    &.local {
+        justify-content: end;
     }
 
     .miEquipo {
         color: var(--green);
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        &.local {
+            flex-direction: column-reverse;
+        }
+        h4 {
+            text-align: center;
+            font-size: 16px;
+        }
+        img {
+            width: 30px;
+        }
     }
 `
 export const CardPartidoInfo = styled.div`
@@ -142,11 +188,12 @@ export const CardPartidoGoalsContainer= styled.div`
     width: 100%;
     justify-content: center;
     align-items: start;
-    gap: 25px;
-    padding: 15px;
+    gap: 40px;
+    padding: 15px 15px 40px 15px;
 
     & svg, i {
-        color: var(--gray-200)
+        color: var(--gray-200);
+        width: 60px;
     }
 `
 export const CardPartidoGoalsColumn = styled.div`
@@ -154,7 +201,7 @@ export const CardPartidoGoalsColumn = styled.div`
     flex-direction: column;
     text-align: end;
     gap: 2px;
-    width: 50%;
+    width: 100%;
 
     h5 {
         font-size: 10;

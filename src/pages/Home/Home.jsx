@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro, DreamTeamTitulo, DreamTeamTorneo, NoticiasWrapper, ViewMore } from './HomeStyles';
+import CardPartido from '../../components/Stats/CardPartido/CardPartido';
+import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro, DreamTeamTitulo, DreamTeamTorneo, SelectEquipoCelular, NoticiasWrapper, ViewMore  } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
 import { getNoticias, getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
@@ -26,6 +27,7 @@ import SelectNuevo from '../../components/Select/SelectNuevo.jsx';
 import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice.js';
 import { fetchJugadoresDestacados } from '../../redux/ServicesApi/jugadoresDestacadosSlice.js';
 import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice.js';
+import SelectVistaPartido from '../../components/Select/SelectVistaPartido.jsx';
 import useFetch from '../../hooks/useFetch.js';
 import { NoticiaCategorias, NoticiaImagen, NoticiaInfoContainer, NoticiasCategoriasContainer, NoticiasContainer, NoticiasFecha, NoticiasTextoContainer, NoticiaTexto, NoticiaTitulo, ViewMoreNews } from '../Administrador/Noticias/NoticiasStyles.js';
 import { useNavigate } from 'react-router-dom';
@@ -40,6 +42,8 @@ const Home = () => {
     // Estado Filtro
     const [filtroActivo, setFiltroActivo] = useState("default"); // "default", "por_horario", "en_juego"
     const [filtroActivoSemana, setFiltroActivoSemana] = useState("default"); // "default", "por_horario", "en_juego"
+
+    const [vistaPartido, setVistaPartido] = useState("semana");
 
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -92,7 +96,9 @@ const Home = () => {
         .at(-1)?.id_zona // Toma el primer registro y accede a `id_zona`
     : 74;
     
-    // Detectar cambios en miEquipo y reiniciar la carga
+    const [idZona, setIdZona] = useState(3)
+    
+        // Detectar cambios en miEquipo y reiniciar la carga
     useEffect(() => {
         setLoading(true); // Reiniciar el estado de carga al cambiar de equipo
         const timer = setTimeout(() => setLoading(false), 1000); // Simular el tiempo de carga
@@ -167,6 +173,12 @@ const Home = () => {
             const timeB = new Date(`1970-01-01T${b.hora}`).getTime();
             return timeA - timeB; // Ordenar de más temprano a más tarde
         })
+
+        const [vistaSeleccionada, setVistaSeleccionada] = useState("dia");
+
+        const handleVistaChange = (e) => {
+            setVistaSeleccionada(e.target.value);
+        };
         
     // Filtrar partidos que no estén en partidosDia de los partidosUltimaSemana
     const partidosSemanaSinDia = partidosUltimaSemana.filter((partidoSemana) => {
@@ -179,22 +191,26 @@ const Home = () => {
     const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
 
-    useEffect(() => {
-        if (id_zona) {
-            getPosicionesTemporada(id_zona)
+    useEffect(() => {        
+        if (idZona) {
+            getPosicionesTemporada(idZona)
                 .then((data) => {
                     setPosiciones(data);
+                    console.log(posiciones);
+                    
                 })
                 .catch((error) => console.error('Error en la petición de posiciones:', error));
         }
-    }, [id_zona]);
+    }, [idZona]);
+
+    
 
     useEffect(() => {
         dispatch(fetchPartidos())
         getZonas()
             .then((data) => setZonas(data))
             .catch((error) => console.error('Error fetching zonas:', error));
-
+        
         getSanciones()
             .then((data) => sancionesActivas(data))
             .catch((error) => console.error('Error fetching sanciones:', error));
@@ -240,6 +256,72 @@ const Home = () => {
             )
         },
     ]    
+
+    const renderizarPartidos = (partidos) => {
+        if (filtroActivo === "default") {
+          return categorias
+            .filter((categoria) => categoria.publicada === "S")
+            .map((categoria) => {
+              const partidosCategoria = partidos.filter(
+                (p) => p.id_categoria === categoria.id_categoria
+              );
+    
+              if (partidosCategoria.length === 0) return null;
+    
+              return (
+                <SectionHome key={categoria.id_categoria}>
+                  <SectionHomeTitle>
+                    <span>
+                      {(() => {
+                        const edicion = ediciones.find(
+                          (e) => e.id_edicion === categoria.id_edicion
+                        );
+                        return edicion
+                          ? `${edicion.nombre} ${edicion.temporada} |`
+                          : "";
+                      })()}
+                    </span>
+                    {categoria.nombre}
+                  </SectionHomeTitle>
+                  <PartidosGenericosContainer>
+                    {partidosCategoria.map((p) => (
+                      <CardPartidoGenerico key={p.id_partido} {...p} />
+                    ))}
+                  </PartidosGenericosContainer>
+                </SectionHome>
+              );
+            });
+        }
+    
+        if (filtroActivo === "por_horario") {
+          return (
+            <SectionHome>
+              <PartidosGenericosContainer>
+                {partidos.map((p) => (
+                  <CardPartidoGenerico key={p.id_partido} {...p} />
+                ))}
+              </PartidosGenericosContainer>
+            </SectionHome>
+          );
+        }
+    
+        if (filtroActivo === "en_juego") {
+          return (
+            <SectionHome>
+              <PartidosGenericosContainer>
+                {partidos
+                  .filter((p) => p.estado === "C") // Filtrar solo partidos "C"
+                  .map((p) => (
+                    <CardPartidoGenerico key={p.id_partido} {...p} />
+                  ))}
+              </PartidosGenericosContainer>
+            </SectionHome>
+          );
+        }
+      };
+
+      
+
     
     useEffect(() => {
         dispatch(fetchEquipos());
@@ -264,6 +346,19 @@ const Home = () => {
             [categoria]: nuevaJornada,
         }));
     };
+
+    useEffect(() => {
+        // Si no hay partidos del día, cambiar automáticamente a "semana"
+        if (vistaSeleccionada === "dia" && partidosDia.length === 0) {
+            setVistaSeleccionada("semana");
+            setFiltroActivo("default"); // Activar filtro "Por categoría"
+        }
+    },  [vistaSeleccionada, partidosDia]); // Re-ejecutar si cambia la vista o la lista de partidos
+    
+    console.log(zonas);    
+    const zonasPublicadas = zonas.filter((z) => z.tipo_zona === "todos-contra-todos")
+
+    console.log(zonasPublicadas);
     
     const goToNew = (id_noticia) => {
         navigate(`/noticias/${id_noticia}`);
@@ -275,82 +370,85 @@ const Home = () => {
                 <HomeWrapper>
                     <HomeLeftWrapper>
                         <SelectNuevo options={equiposFiltrados} onChange={handleSelectChange} valueKey={'id_equipo'}/>
-                    {loading ? (
-                        <>  
-                            <CategoriasListaWrapper>
-                            <CategoriasListaTitulo>
-                                <Skeleton height="18px" width="40%" />
-                            </CategoriasListaTitulo>
-                            <CategoriasItemsWrapper>
-                                <CategoriasItem>
-                                    <Skeleton height="18px" width="50%"  />
-                                </CategoriasItem>
-                                <CategoriasItem>
-                                    <Skeleton height="18px" width="50%"  />
-                                </CategoriasItem>
-                            </CategoriasItemsWrapper>
-                        </CategoriasListaWrapper>
-                        <CategoriasListaWrapper>
-                            <CategoriasListaTitulo>
-                                <Skeleton height="18px" width="40%" />
-                            </CategoriasListaTitulo>
-                            <CategoriasItemsWrapper>
-                                <CategoriasItem>
-                                    <Skeleton height="18px" width="50%"  />
-                                </CategoriasItem>
-                                <CategoriasItem>
-                                    <Skeleton height="18px" width="50%"  />
-                                </CategoriasItem>
-                            </CategoriasItemsWrapper>
-                        </CategoriasListaWrapper>
-                        <CategoriasListaWrapper>
-                            <CategoriasListaTitulo>
-                                <Skeleton height="18px" width="40%" />
-                            </CategoriasListaTitulo>
-                            <CategoriasItemsWrapper>
-                                <CategoriasItem>
-                                    <Skeleton height="18px" width="50%"  />
-                                </CategoriasItem>
-                                <CategoriasItem>
-                                    <Skeleton height="18px" width="50%"  />
-                                </CategoriasItem>
-                            </CategoriasItemsWrapper>
-                        </CategoriasListaWrapper>
-                        </>                        
-                    ) : (
-                    // Si los datos están disponibles, mostrar la lista de categorías y ediciones
-                    ediciones.map((edicion) => {
-                        // Filtra las categorías para asegurarte de que solo aquellas publicadas sean consideradas
-                        const categoriasPublicadas = categorias.filter(
-                            (categoria) =>
-                                categoria.id_edicion === edicion.id_edicion &&
-                                categoria.publicada === "S"
-                        );
-                    
-                        // Si no hay categorías publicadas, no mostramos esta edición
-                        if (categoriasPublicadas.length === 0) return null;
-                    
-                        return (
-                            <CategoriasListaWrapper key={edicion.id_edicion}>
+                        {loading ? (
+                            <>  
+                                <CategoriasListaWrapper>
                                 <CategoriasListaTitulo>
-                                    <p>{edicion.nombre} {edicion.temporada}</p>
+                                    <Skeleton height="18px" width="40%" />
                                 </CategoriasListaTitulo>
                                 <CategoriasItemsWrapper>
-                                    {categoriasPublicadas.map((categoria) => (
-                                        <CategoriasItem 
-                                            key={categoria.id_categoria} 
-                                            to={`/categoria/posiciones/${categoria.id_categoria}`}
-                                        >
-                                            {categoria.nombre}
-                                        </CategoriasItem>
-                                    ))}
+                                    <CategoriasItem>
+                                        <Skeleton height="18px" width="50%"  />
+                                    </CategoriasItem>
+                                    <CategoriasItem>
+                                        <Skeleton height="18px" width="50%"  />
+                                    </CategoriasItem>
                                 </CategoriasItemsWrapper>
                             </CategoriasListaWrapper>
-                        );
-                    })                    
-                )}
+                            <CategoriasListaWrapper>
+                                <CategoriasListaTitulo>
+                                    <Skeleton height="18px" width="40%" />
+                                </CategoriasListaTitulo>
+                                <CategoriasItemsWrapper>
+                                    <CategoriasItem>
+                                        <Skeleton height="18px" width="50%"  />
+                                    </CategoriasItem>
+                                    <CategoriasItem>
+                                        <Skeleton height="18px" width="50%"  />
+                                    </CategoriasItem>
+                                </CategoriasItemsWrapper>
+                            </CategoriasListaWrapper>
+                            <CategoriasListaWrapper>
+                                <CategoriasListaTitulo>
+                                    <Skeleton height="18px" width="40%" />
+                                </CategoriasListaTitulo>
+                                <CategoriasItemsWrapper>
+                                    <CategoriasItem>
+                                        <Skeleton height="18px" width="50%"  />
+                                    </CategoriasItem>
+                                    <CategoriasItem>
+                                        <Skeleton height="18px" width="50%"  />
+                                    </CategoriasItem>
+                                </CategoriasItemsWrapper>
+                            </CategoriasListaWrapper>
+                            </>                        
+                        ) : (
+                        // Si los datos están disponibles, mostrar la lista de categorías y ediciones
+                        ediciones.map((edicion) => {
+                            // Filtra las categorías para asegurarte de que solo aquellas publicadas sean consideradas
+                            const categoriasPublicadas = categorias.filter(
+                                (categoria) =>
+                                    categoria.id_edicion === edicion.id_edicion &&
+                                    categoria.publicada === "S"
+                            );
+                        
+                            // Si no hay categorías publicadas, no mostramos esta edición
+                            if (categoriasPublicadas.length === 0) return null;
+                        
+                            return (
+                                <CategoriasListaWrapper key={edicion.id_edicion}>
+                                    <CategoriasListaTitulo>
+                                        <p>{edicion.nombre} {edicion.temporada}</p>
+                                    </CategoriasListaTitulo>
+                                    <CategoriasItemsWrapper>
+                                        {categoriasPublicadas.map((categoria) => (
+                                            <CategoriasItem 
+                                                key={categoria.id_categoria} 
+                                                to={`/categoria/posiciones/${categoria.id_categoria}`}
+                                            >
+                                                {categoria.nombre}
+                                            </CategoriasItem>
+                                        ))}
+                                    </CategoriasItemsWrapper>
+                                </CategoriasListaWrapper>
+                            );
+                        })                    
+                    )}
                     </HomeLeftWrapper>
                     <HomeMediumWrapper>
+                        <SelectEquipoCelular>
+                            <SelectNuevo options={equiposFiltrados} onChange={handleSelectChange} valueKey={'id_equipo'}/>
+                        </SelectEquipoCelular>
                         {/* Partido del dia de MI EQUIPO */}
                         {partidosMiEquipoHoy ? <>
                                 {
@@ -359,11 +457,12 @@ const Home = () => {
                                             {
                                                 partidosMiEquipoHoy.estado === "P" ? (
                                                     <>
-                                                        <span>Hoy juega tu equipo |</span> {nombresEquipos(miEquipo?.id_equipo)}
+                                                        <span>Hoy juega tu equipo |</span><img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}
+
                                                     </>
                                                 ) : <>
                                                     <span>Partido del día |</span>
-                                                        {nombresEquipos(miEquipo?.id_equipo)}
+                                                    <img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}
                                                     </>
                                             }
                                         </SectionHomeTitle>
@@ -391,7 +490,7 @@ const Home = () => {
                                             }) && (
                                                 <SectionHome>
                                                     <SectionHomeTitle>
-                                                        Próximo partido de {nombresEquipos(miEquipo?.id_equipo)}
+                                                        <img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}<span>| Proximo partido</span>
                                                     </SectionHomeTitle>
                                                     <CardProximoPartido 
                                                         {...partidosMiEquipo.find((p) => {
@@ -412,7 +511,7 @@ const Home = () => {
                                             ultimoPartidoMiEquipo && (
                                                 <SectionHome>
                                                     <SectionHomeTitle>
-                                                        Ultimos partidos de {nombresEquipos(miEquipo?.id_equipo)}
+                                                        <img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}<span>| Ultimos partidos</span>
                                                     </SectionHomeTitle>
                                                     <CardUltimoPartido {...ultimoPartidoMiEquipo} miEquipo={miEquipo?.id_equipo} />
                                                     <PartidosGenericosContainer>
@@ -437,169 +536,60 @@ const Home = () => {
                                 }
                             </>
                         }
+                        {/* Mostrar partidos del dia y de la semana */}
+                        {
+                            partidosDia.length > 0 || partidosUltimaSemana > 0 ? (
+                                <><CardPartidosDia>
+                                <CardPartidosDiaTitle>
+                                    <SelectVistaPartido
+                                        vistaSeleccionada={vistaSeleccionada}
+                                        setVistaSeleccionada={(vista) => {
+                                            setVistaSeleccionada(vista);
+                                            if (vista === "semana") {
+                                                setFiltroActivo("default"); // Activar "Por categoría" automáticamente
+                                            }
+                                        }}
+                                        partidosDia={partidosDia}
+                                    />
+                                </CardPartidosDiaTitle>
+                                
+                                <PartidosDiaFiltrosWrapper>
+                                    {/* Mostrar siempre el filtro "Por categoría" */}
+                                    <PartidosDiaFiltro
+                                        onClick={() => setFiltroActivo("default")}
+                                        className={filtroActivo === "default" ? "active" : ""}
+                                    >
+                                        Por categoría
+                                    </PartidosDiaFiltro>
 
-                        {/* Partidos del dia */} 
-                        {partidosDia.length > 0 ? (
-                            <>
-                                <CardPartidosDia>
-                                    <CardPartidosDiaTitle>Partidos de hoy</CardPartidosDiaTitle>
-                                    <PartidosDiaFiltrosWrapper>
-                                        <PartidosDiaFiltro
-                                            onClick={() => setFiltroActivo("default")}
-                                            className={filtroActivo === "default" ? "active" : ""}
-                                        >
-                                            Por categoría
-                                        </PartidosDiaFiltro>
-                                        <PartidosDiaFiltro
-                                            onClick={() => setFiltroActivo("en_juego")}
-                                            className={filtroActivo === "en_juego" ? "active" : ""}
-                                        >
-                                            En juego
-                                        </PartidosDiaFiltro>
-                                        <PartidosDiaFiltro
-                                            onClick={() => setFiltroActivo("por_horario")}
-                                            className={filtroActivo === "por_horario" ? "active" : ""}
-                                        >
-                                            Por horario
-                                        </PartidosDiaFiltro>
-                                        
-                                    </PartidosDiaFiltrosWrapper>
-                                </CardPartidosDia>
-                                {/* Renderizar según el filtro activo */}
-                                {filtroActivo === "default" && (
-                                    categorias
-                                        .filter((categoria) => categoria.publicada === "S")
-                                        .map((categoria) => {
-                                            const partidosCategoria = partidosDia.filter(
-                                                (p) => p.id_categoria === categoria.id_categoria
-                                            );
+                                    {/* Mostrar los filtros adicionales solo si la vista seleccionada es "dia" */}
+                                    {vistaSeleccionada === "dia" && (
+                                        <>
+                                            <PartidosDiaFiltro
+                                                onClick={() => setFiltroActivo("en_juego")}
+                                                className={filtroActivo === "en_juego" ? "active" : ""}
+                                            >
+                                                En juego
+                                            </PartidosDiaFiltro>
+                                            <PartidosDiaFiltro
+                                                onClick={() => setFiltroActivo("por_horario")}
+                                                className={filtroActivo === "por_horario" ? "active" : ""}
+                                            >
+                                                Por horario
+                                            </PartidosDiaFiltro>
+                                        </>
+                                    )}
+                                </PartidosDiaFiltrosWrapper>
+                            </CardPartidosDia>
 
-                                            if (partidosCategoria.length === 0) return null;
-
-                                            return (
-                                                <SectionHome key={categoria.id_categoria}>
-                                                    <SectionHomeTitle>
-                                                        <span>
-                                                            {(() => {
-                                                                const edicion = ediciones.find(
-                                                                    (e) => e.id_edicion === categoria.id_edicion
-                                                                );
-                                                                return edicion
-                                                                    ? `${edicion.nombre} ${edicion.temporada} |`
-                                                                    : "";
-                                                            })()}
-                                                        </span>
-                                                        {categoria.nombre}
-                                                    </SectionHomeTitle>
-                                                    <PartidosGenericosContainer>
-                                                        {partidosCategoria
-                                                            .map((p) => (
-                                                                <CardPartidoGenerico
-                                                                    key={p.id_partido}
-                                                                    {...p}
-                                                                />
-                                                            ))}
-                                                    </PartidosGenericosContainer>
-                                                </SectionHome>
-                                            );
-                                        })
-                                )}
-                                {filtroActivo === "por_horario" && (
-                                    <SectionHome>
-                                        <PartidosGenericosContainer>
-                                            {partidosDia
-                                                .map((p) => (
-                                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                                ))}
-                                        </PartidosGenericosContainer>
-                                    </SectionHome>
-                                )}
-                                {filtroActivo === "en_juego" && (
-                                    <SectionHome>
-                                        <PartidosGenericosContainer>
-                                            {partidosDia
-                                                .filter((p) => p.estado === "C") // Filtrar solo partidos "C"
-                                                .map((p) => (
-                                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                                ))}
-                                        </PartidosGenericosContainer>
-                                    </SectionHome>
-                                )}
-                            </>
-                        ) : <> {/* Sino muestra partidos de la semana */} 
-                                <CardPartidosDia>
-                                    <CardPartidosDiaTitle>Partidos de la semana en CR</CardPartidosDiaTitle>
-                                    <PartidosDiaFiltrosWrapper>
-                                        <PartidosDiaFiltro
-                                            onClick={() => setFiltroActivo("default")}
-                                            className={filtroActivo === "default" ? "active" : ""}
-                                        >
-                                            Por categoría
-                                        </PartidosDiaFiltro>
-                                    </PartidosDiaFiltrosWrapper>
-                                </CardPartidosDia>
-                                {/* Renderizar según el filtro activo */}
-                                {filtroActivo === "default" && (
-                                    categorias
-                                        .filter((categoria) => categoria.publicada === "S")
-                                        .map((categoria) => {
-                                            const partidosCategoria = partidosUltimaSemana.filter(
-                                                (p) => p.id_categoria === categoria.id_categoria
-                                            );
-
-                                            if (partidosCategoria.length === 0) return null;
-
-                                            return (
-                                                <SectionHome key={categoria.id_categoria}>
-                                                    <SectionHomeTitle>
-                                                        <span>
-                                                            {(() => {
-                                                                const edicion = ediciones.find(
-                                                                    (e) => e.id_edicion === categoria.id_edicion
-                                                                );
-                                                                return edicion
-                                                                    ? `${edicion.nombre} ${edicion.temporada} |`
-                                                                    : "";
-                                                            })()}
-                                                        </span>
-                                                        {categoria.nombre}
-                                                    </SectionHomeTitle>
-                                                    <PartidosGenericosContainer>
-                                                        {partidosCategoria
-                                                            .map((p) => (
-                                                                <CardPartidoGenerico
-                                                                    key={p.id_partido}
-                                                                    {...p}
-                                                                />
-                                                            ))}
-                                                    </PartidosGenericosContainer>
-                                                </SectionHome>
-                                            );
-                                        })
-                                )}
-                                {filtroActivo === "por_horario" && (
-                                    <SectionHome>
-                                        <PartidosGenericosContainer>
-                                            {partidosDia
-                                                .map((p) => (
-                                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                                ))}
-                                        </PartidosGenericosContainer>
-                                    </SectionHome>
-                                )}
-                                {filtroActivo === "en_juego" && (
-                                    <SectionHome>
-                                        <PartidosGenericosContainer>
-                                            {partidosDia
-                                                .filter((p) => p.estado === "C") // Filtrar solo partidos "C"
-                                                .map((p) => (
-                                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                                ))}
-                                        </PartidosGenericosContainer>
-                                    </SectionHome>
-                                )}
-                            </>
+                            {/* Renderizar partidos según la vista seleccionada */}
+                            {vistaSeleccionada === "dia" && renderizarPartidos(partidosDia)}
+                            {vistaSeleccionada === "semana" && renderizarPartidos(partidosUltimaSemana)}
+                        </> 
+                            ) : 'CR está en descanso! No hubo partidos en esta última semana'
                         }
+                        
+
 
                         {/* En caso de haber partido del dia de MI EQUIPO mostrar
                         proximo y ultimos partidos de MI EQUIPO debajo de los partidos del día*/}
@@ -613,7 +603,7 @@ const Home = () => {
                                 }) && (
                                     <SectionHome>
                                         <SectionHomeTitle>
-                                            Próximo partido de {nombresEquipos(miEquipo?.id_equipo)}
+                                            <span>Próximo partido |</span>{nombresEquipos(miEquipo?.id_equipo)}
                                         </SectionHomeTitle>
                                         <CardProximoPartido 
                                             {...partidosMiEquipo.find((p) => {
@@ -654,82 +644,8 @@ const Home = () => {
                             </>
                         }
 
-                        {/* Mostrar partidos de la ultima semana, excepto los partidos del dia */} 
-                        {partidosSemanaSinDia.length > 0 && partidosDia.length > 0 && <> 
-                                <CardPartidosDia>
-                                    <CardPartidosDiaTitle>Partidos de la semana en CR</CardPartidosDiaTitle>
-                                    <PartidosDiaFiltrosWrapper>
-                                        <PartidosDiaFiltro
-                                            onClick={() => setFiltroActivoSemana("default")}
-                                            className={filtroActivoSemana === "default" ? "active" : ""}
-                                        >
-                                            Por categoría
-                                        </PartidosDiaFiltro>
-                                    </PartidosDiaFiltrosWrapper>
-                                </CardPartidosDia>
-                                {/* Renderizar según el filtro activo */}
-                                {filtroActivoSemana === "default" && (
-                                    categorias
-                                        .filter((categoria) => categoria.publicada === "S")
-                                        .map((categoria) => {
-                                            const partidosCategoria = partidosSemanaSinDia.filter(
-                                                (p) => p.id_categoria === categoria.id_categoria
-                                            );
-                                            if (partidosCategoria.length === 0) return null;
-                                            return (
-                                                <SectionHome key={categoria.id_categoria}>
-                                                    <SectionHomeTitle>
-                                                        <span>
-                                                            {(() => {
-                                                                const edicion = ediciones.find(
-                                                                    (e) => e.id_edicion === categoria.id_edicion
-                                                                );
-                                                                return edicion
-                                                                    ? `${edicion.nombre} ${edicion.temporada} |`
-                                                                    : "";
-                                                            })()}
-                                                        </span>
-                                                        {categoria.nombre}
-                                                    </SectionHomeTitle>
-                                                    <PartidosGenericosContainer>
-                                                        {partidosCategoria
-                                                            .map((p) => (
-                                                                <CardPartidoGenerico
-                                                                    key={p.id_partido}
-                                                                    {...p}
-                                                                />
-                                                            ))}
-                                                    </PartidosGenericosContainer>
-                                                </SectionHome>
-                                            );
-                                        })
-                                )}
-                                {/* {filtroActivo === "por_horario" && (
-                                    <SectionHome>
-                                        <PartidosGenericosContainer>
-                                            {partidosSemanaSinDia
-                                                .map((p) => (
-                                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                                ))}
-                                        </PartidosGenericosContainer>
-                                    </SectionHome>
-                                )}
-                                {filtroActivo === "en_juego" && (
-                                    <SectionHome>
-                                        <PartidosGenericosContainer>
-                                            {partidosSemanaSinDia
-                                                .filter((p) => p.estado === "C") // Filtrar solo partidos "C"
-                                                .map((p) => (
-                                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                                ))}
-                                        </PartidosGenericosContainer>
-                                    </SectionHome>
-                                )} */}
-                            </>
-                        }
-                        
 
-                        {sanciones && (
+                        {sanciones && sanciones.length > 0 && (
                             <SectionHome>
                                 <SectionHomeTitle>
                                     Sanciones
@@ -740,6 +656,7 @@ const Home = () => {
                                 />
                             </SectionHome>
                         )}
+
                     </HomeMediumWrapper>
                     <HomeRightWrapper>
                         {/* <CategoriasListaWrapper>
@@ -786,9 +703,19 @@ const Home = () => {
                                 <CategoriasListaWrapper>
                                     <CategoriasListaTitulo>
                                         <p>Tabla de Posiciones</p>
-                                        <span>{tituloCategoria(id_zona)}</span>
-                                        {/* <span>{nombreZona(id_zona)}</span> */}
+                                        {/* Select dinámico */}
+                                        <select 
+                                            value={idZona} // id_zona inicial
+                                            onChange={(e) => setIdZona(e.target.value)} // Cambiar el id_zona
+                                        >
+                                            {zonasPublicadas.map((zona) => (
+                                                <option key={zona.id_zona} value={zona.id_zona}>
+                                                    {`${zona.nombre_edicion} - ${zona.nombre_categoria}`}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </CategoriasListaTitulo>
+                                    
                                     <TablaPosicionesRoutes
                                         small
                                         data={posiciones}
@@ -797,7 +724,6 @@ const Home = () => {
                                         dataColumns={dataPosicionesTemporadaColumnsMinus}
                                     />
                                 </CategoriasListaWrapper>
-                                
                             </Section>
                         ) : (
                             <Section>

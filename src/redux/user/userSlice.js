@@ -23,7 +23,7 @@ const INITIAL_STATE = {
         resend: false,
         counter: 0,
     },
-    equipoSeleccionado: 1,
+    equipoSeleccionado: null,
     dreamTeamIsEmpty: true,
 };
 

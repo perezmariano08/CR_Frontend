@@ -14,7 +14,7 @@ export const AlignmentWrapper = styled.div`
 export const AlignmentDivider = styled.div`
     height: 1px;
     width: 100%;
-    background-color: var(--gray-200);
+    background-color: var(--black-800);
 `
 export const AlignmentTeams = styled.div`
     display: flex;

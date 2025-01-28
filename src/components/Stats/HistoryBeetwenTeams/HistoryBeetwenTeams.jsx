@@ -6,6 +6,8 @@ import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { URLImages } from '../../../utils/utils';
 import { calcularEstadisticas } from './helper';
 import { useEquipos } from '../../../hooks/useEquipos';
+import CardPartidoGenerico from '../../CardsPartidos/CardPartidoGenerico/CardPartidoGenerico';
+import { PartidosGenericosContainer } from '../../CardsPartidos/CardPartidoGenerico/CardPartidosGenericoStyles';
 
 const HistoryBeetwenTeams = ({ partidosEntreEquipos, partido }) => {
     const { nombresEquipos, escudosEquipos } = useEquipos();
@@ -14,13 +16,47 @@ const HistoryBeetwenTeams = ({ partidosEntreEquipos, partido }) => {
     return (
         <HistoryMatchesWrapper>
                 <HistoryTop>
+                    <img src={`${URLImages}/${escudosEquipos(partidoActual?.id_equipoLocal)}`} alt={nombresEquipos(partidoActual?.id_equipoLocal)} />
+                    <HistoryStatsWrapper>
+                        <HistoryStatsContainer>
+                            <StatsHistory>
+                                {estadisticas.victoriasEquipoA}
+                            </StatsHistory>
+                            <InfoStats>
+                                <h2>Victorias</h2>
+                                <p>{estadisticas.porcentajeVictoriasEquipoA}%</p>
+                            </InfoStats>
+                        </HistoryStatsContainer>
+
+                        <HistoryStatsContainer>
+                            <StatsHistory>
+                                {estadisticas.empates}
+                            </StatsHistory>
+                            <InfoStats>
+                                <h2>Empates</h2>
+                                <p>{estadisticas.porcentajeEmpates}%</p>
+                            </InfoStats>
+                        </HistoryStatsContainer>
+
+                        <HistoryStatsContainer>
+                            <StatsHistory>
+                                {estadisticas.victoriasEquipoB}
+                            </StatsHistory>
+                            <InfoStats>
+                                <h2>Victorias</h2>
+                                <p>{estadisticas.porcentajeVictoriasEquipoB}%</p>
+                            </InfoStats>
+                        </HistoryStatsContainer>
+
+                    </HistoryStatsWrapper>
+                    <img src={`${URLImages}/${escudosEquipos(partidoActual?.id_equipoVisita)}`} alt={nombresEquipos(partidoActual?.id_equipoLocal)} />
                     <img src={`${URLImages}/${escudosEquipos(partido?.id_equipoLocal)}`} alt={nombresEquipos(partido?.id_equipoLocal)} />
                     <h3>Historial</h3>
                     <img src={`${URLImages}/${escudosEquipos(partido?.id_equipoVisita)}`} alt={nombresEquipos(partido?.id_equipoLocal)} />
                 </HistoryTop>
             <AlignmentDivider />
             <HistoryMatchesContainer>
-                <HistoryStatsWrapper>
+                {/* <HistoryStatsWrapper>
                     <HistoryStatsContainer>
                         <StatsHistory>
                             {estadisticas.victoriasEquipoA}
@@ -51,7 +87,12 @@ const HistoryBeetwenTeams = ({ partidosEntreEquipos, partido }) => {
                         </InfoStats>
                     </HistoryStatsContainer>
 
-                </HistoryStatsWrapper>
+                </HistoryStatsWrapper> */}
+                <PartidosGenericosContainer>
+                    {partidosEntreEquipos.map((p) => (
+                        <CardPartidoGenerico key={p.id_partido} {...p} />
+                    ))}
+                </PartidosGenericosContainer>
             </HistoryMatchesContainer>
         </HistoryMatchesWrapper>
     )

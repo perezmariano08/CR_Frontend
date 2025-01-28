@@ -3,7 +3,7 @@ import { CardOldMatchesItem, CardOldMatchesWrapper, MatchesItemDescription, Matc
 import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
-
+import CardPartidoGenerico from '../../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico'
 const MatchsBetweenTeams = ({ partidosEntreEquipos}) => {
 
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -11,6 +11,7 @@ const MatchsBetweenTeams = ({ partidosEntreEquipos}) => {
     const goToMatchStats = (id) => {
         window.location.href = `/stats-match?id=${id}`;
     }
+
 
     return (
         <CardOldMatchesWrapper>
@@ -41,6 +42,10 @@ const MatchsBetweenTeams = ({ partidosEntreEquipos}) => {
                     <p>No hay partidos entre estos dos equipos.</p>
                 )
             }
+            {/* <CardPartidoGenerico {...partidosEntreEquipos} /> */}
+            {partidosEntreEquipos.map((p) => (
+                <CardPartidoGenerico key={p.id_partido} {...p} />
+            ))}
         </CardOldMatchesWrapper>
     )
 }

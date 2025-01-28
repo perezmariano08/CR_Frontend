@@ -134,13 +134,13 @@ const Incidents = ({ incidencias: incidentes, formaciones, partido }) => {
             )}
           </IncidentLocal>
         ))}
-        {partido.estado !== 'C' && mejorJugador && (
+        {/* {partido.estado !== 'C' && mejorJugador && (
           <IncidentLocal className='mejorJugador'>
             <h3>Mejor Jugador</h3>
             <h4>{mejorJugador.nombre} {mejorJugador.apellido}</h4>
             <IoIosStar />
           </IncidentLocal>
-        )}
+        )} */}
       </IndicentsContainer>
       <Toaster />
     </IndicentsWrapper>

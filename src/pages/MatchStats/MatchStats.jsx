@@ -14,6 +14,8 @@ import HistoryBeetwenTeams from '../../components/Stats/HistoryBeetwenTeams/Hist
 import MatchsBetweenTeams from '../../components/Stats/MatchsBetweenTeams/MatchsBetweenTeams';
 import { useIncidencias } from '../../hooks/planilla/useIncidencias';
 import { useFormaciones } from '../../hooks/planilla/useFormaciones';
+import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice';
+import JugadorDelPartido from '../../components/Stats/JugadorDelPartido/JugadorDelPartido';
 import { obtenerTipoPartido } from '../../components/Stats/statsHelpers';
 import usePartido from '../../hooks/planilla/usePartido';
 import CardPartidoIda from '../../components/Stats/CardPartidoIda/CardPartidoIda';
@@ -108,11 +110,13 @@ const MatchStats = () => {
                         )}
                         {partido.estado !== 'P' && (<Incidents incidencias={incidencias} formaciones={formaciones} partido={partido}/>)}
                         {partidosJugados.length === 0 && <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />}
+                        <JugadorDelPartido formaciones={formaciones} partido={partido}/>
                     </>
                 )}
 
                 {activeTab === 'Cara a cara' && (
                     <>
+                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} id_partido={partidoId} />
                         <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} partido={partido} />
                         {
                             partidosEntreEquipos.length > 0 && (

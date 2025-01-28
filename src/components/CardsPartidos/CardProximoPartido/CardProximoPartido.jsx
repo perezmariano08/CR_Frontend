@@ -83,7 +83,12 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
         return (
             <CardProximoPartidoWrapper>
                 <ProximoPartidoInfo>
-                    <Skeleton shape="circle" height='58px' width='58px'/>
+                    <Skeleton 
+                        shape="circle" 
+                        width="58px" 
+                        height='48px'
+                        style={{ borderRadius: '50%' }} 
+                    />
                     <ProximoPartidoDetalle>
                         <ProximoPartidoDescripcion>
                             <ProximoPartidoEquipos style={{gap: '5px'}}>
@@ -103,24 +108,7 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
                 </ProximoPartidoInfo>
                 <ProximoPartidoDivisor />
                 <ProximoPartidoCuentaRegresivaWrapper>
-                    <ProximoPartidoCuentaRegresivaItem>
-                        <Skeleton width="50px" height="50px" />
-                    </ProximoPartidoCuentaRegresivaItem>
-                    <ProximoPartidoCuentaRegresivaDivisor>:</ProximoPartidoCuentaRegresivaDivisor>
-                    <ProximoPartidoCuentaRegresivaItem >
-                        <Skeleton width="50px" height="50px" />
-
-                    </ProximoPartidoCuentaRegresivaItem>
-                    <ProximoPartidoCuentaRegresivaDivisor>:</ProximoPartidoCuentaRegresivaDivisor>
-                    <ProximoPartidoCuentaRegresivaItem >
-                        <Skeleton width="50px" height="50px" />
-
-                    </ProximoPartidoCuentaRegresivaItem>
-                    <ProximoPartidoCuentaRegresivaDivisor>:</ProximoPartidoCuentaRegresivaDivisor>
-                    <ProximoPartidoCuentaRegresivaItem>
-                        <Skeleton width="50px" height="50px" />
-
-                    </ProximoPartidoCuentaRegresivaItem>
+                    <Skeleton width="80%" height="50px" />
                 </ProximoPartidoCuentaRegresivaWrapper>
             </CardProximoPartidoWrapper>
         );

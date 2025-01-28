@@ -25,6 +25,11 @@ export const CardPartidoGenericoWrapper = styled(NavLink)`
         cursor: pointer;
         background-color: var(--black-950);
     }
+
+    @media (max-width: 500px){
+        padding: 12px 16px;
+        gap: 15px;
+    }
 `
 
 export const CardPartidoGenericoResultado = styled.div`
@@ -34,6 +39,11 @@ export const CardPartidoGenericoResultado = styled.div`
     flex-direction: column;
     text-transform: uppercase;
     min-width: 50px;
+
+    @media (max-width: 500px){
+        font-size: 14px;
+        min-width: 40px;
+    }
 
     &.programado {
         gap: 2px;
@@ -135,8 +145,13 @@ export const CardPartidoGenericoEquipoDetalle = styled.div`
     }
 
     p {
+        margin-right: 20px;
         &.my-team {
             font-weight: 600;
+        }
+        @media (max-width: 500px){
+            font-size: 14px;
+            min-width: 40px;
         }
     }
 `

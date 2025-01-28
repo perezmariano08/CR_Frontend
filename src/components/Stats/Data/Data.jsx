@@ -8,8 +8,8 @@ export const dataPlantelColumns = [
     {field: 'PJ', header: "PJ"},
     {field: 'G', header: <IoIosFootball/>},
     {field: 'A', header: <GiSoccerKick/>},
-    {field: 'Am', header: <LuRectangleVertical/>},
-    {field: 'R', header: <LuRectangleVertical/>},
+    {field: 'Am', header: <LuRectangleVertical style={{color: "yellow"}}/>},
+    {field: 'R', header: <LuRectangleVertical style={{color: "red"}}/>},
 ]
 
 export const dataPosicionesTemporadaColumns = [
