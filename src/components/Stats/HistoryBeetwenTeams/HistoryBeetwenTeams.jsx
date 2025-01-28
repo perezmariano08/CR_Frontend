@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { HistoryMatchesContainer, HistoryMatchesWrapper, HistoryStatsContainer, HistoryStatsWrapper, HistoryTop, InfoStats, StatsHistory } from './HistoryBeetwenTeamsStyles'
 import { AlignmentDivider } from '../Alignment/AlignmentStyles'
@@ -9,9 +8,11 @@ import { useEquipos } from '../../../hooks/useEquipos';
 import CardPartidoGenerico from '../../CardsPartidos/CardPartidoGenerico/CardPartidoGenerico';
 import { PartidosGenericosContainer } from '../../CardsPartidos/CardPartidoGenerico/CardPartidosGenericoStyles';
 
-const HistoryBeetwenTeams = ({ partidosEntreEquipos, partido }) => {
+const HistoryBeetwenTeams = ({ partidosEntreEquipos, id_partido }) => {
+
     const { nombresEquipos, escudosEquipos } = useEquipos();
-    const estadisticas = calcularEstadisticas(partidosEntreEquipos, partido?.id_equipoLocal, partido?.id_equipoVisita);
+    const partidoActual = partidosEntreEquipos.find(p => p.id_partido === id_partido)
+    const estadisticas = calcularEstadisticas(partidosEntreEquipos, partidoActual?.id_equipoLocal, partidoActual?.id_equipoVisita);
 
     return (
         <HistoryMatchesWrapper>
@@ -50,9 +51,6 @@ const HistoryBeetwenTeams = ({ partidosEntreEquipos, partido }) => {
 
                     </HistoryStatsWrapper>
                     <img src={`${URLImages}/${escudosEquipos(partidoActual?.id_equipoVisita)}`} alt={nombresEquipos(partidoActual?.id_equipoLocal)} />
-                    <img src={`${URLImages}/${escudosEquipos(partido?.id_equipoLocal)}`} alt={nombresEquipos(partido?.id_equipoLocal)} />
-                    <h3>Historial</h3>
-                    <img src={`${URLImages}/${escudosEquipos(partido?.id_equipoVisita)}`} alt={nombresEquipos(partido?.id_equipoLocal)} />
                 </HistoryTop>
             <AlignmentDivider />
             <HistoryMatchesContainer>
