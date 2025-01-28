@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn, WatchContainer } from "../CardPartido/CardPartidoStyles";
+import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn, WatchContainer, CardPartidoTitulo, CardPartidoDetalles, CardPartidoDetallesItem } from "../CardPartido/CardPartidoStyles";
 import { HiLifebuoy } from "react-icons/hi2";
 import { formatTime, URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
@@ -7,6 +7,9 @@ import { MdOutlineWatchLater } from "react-icons/md";
 import { renderizarTituloPartido } from '../statsHelpers';
 import { calcularGolesConDetalle } from './golesHelper';
 import { useZonaPartido } from '../../../hooks/planilla/useZonaPartido';
+import { MdOutlineCalendarMonth } from "react-icons/md";
+import { GiSoccerField } from "react-icons/gi";
+import { PiSoccerBall } from "react-icons/pi";
 
 const CardFinalPartido = ({ partido, incidencias }) => {
 
@@ -26,7 +29,13 @@ const CardFinalPartido = ({ partido, incidencias }) => {
 
     return (
         <CardPartidoWrapper>
-            <CardPartidoTitles>
+            <CardPartidoTitulo>
+                {zona?.tipo_zona === 'eliminacion-directa-ida-vuelta' && (
+                    <h3 className="ida-vuelta">{renderizarTituloPartido(partido, zona) || "Sin título disponible"}</h3>
+                )}
+                <h3>{`${partido.nombre_edicion} - ${partido.nombre_categoria}`}</h3>
+            </CardPartidoTitulo>
+            {/* <CardPartidoTitles>
                 {zona?.tipo_zona === 'eliminacion-directa-ida-vuelta' && (
                     <h3 className="ida-vuelta">{renderizarTituloPartido(partido, zona) || "Sin título disponible"}</h3>
                 )}
@@ -34,11 +43,27 @@ const CardFinalPartido = ({ partido, incidencias }) => {
                 <p>
                     {`${partido.dia_nombre || "Día desconocido"} ${partido.dia_numero}/${partido.mes}`} - {zona?.nombre_zona || `Fecha ${partido.jornada}`} - {partido.cancha || "Cancha desconocida"}
                 </p>
-            </CardPartidoTitles>
+                
+            </CardPartidoTitles> */}
+            <CardPartidoDetalles>
+                <CardPartidoDetallesItem>
+                    <PiSoccerBall />
+                    {`Fecha ${partido.jornada}`}
+                </CardPartidoDetallesItem>
+                <CardPartidoDetallesItem>
+                    <MdOutlineCalendarMonth />
+                    {`${partido.dia_nombre || "Día desconocido"} ${partido.dia_numero}/${partido.mes}`}
+                </CardPartidoDetallesItem>
+                <CardPartidoDetallesItem>
+                    <GiSoccerField />
+                    {partido.cancha || "Cancha desconocida"}
+                </CardPartidoDetallesItem>
+
+            </CardPartidoDetalles>
             <CardPartidoTeams>
-                <CardPartidoTeam>
+                <CardPartidoTeam className='local'>
+                    <h4 className='local'>{nombresEquipos(partido.id_equipoLocal)}</h4>
                     <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt={nombresEquipos(partido.id_equipoLocal)} />
-                    <h4>{nombresEquipos(partido.id_equipoLocal)}</h4>
                 </CardPartidoTeam>
                 <CardPartidoInfo>
                     {
@@ -80,7 +105,6 @@ const CardFinalPartido = ({ partido, incidencias }) => {
                     <h4>{nombresEquipos(partido.id_equipoVisita)}</h4>
                 </CardPartidoTeam>
             </CardPartidoTeams>
-            <CardPartidoDivider />
             <CardPartidoGoalsContainer>
                 {partido.estado === 'S' ? (
                     <h5>{partido.descripcion && <p>{partido.descripcion}</p>}</h5>

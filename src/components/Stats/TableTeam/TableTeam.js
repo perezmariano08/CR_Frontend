@@ -10,11 +10,16 @@ export const TableTeamWrapper = styled(DataTable)`
     // Estilo del header
     .p-column-header-content {
         display: flex;
-        justify-content: start;
+        justify-content: start !important;
         align-items: center;
         gap: 4px;
         padding: 0;
+        text-align: start;
         color: var(--gray-200);
+        span {
+            text-align: start;
+            
+        }
         & :nth-child(2) {
             display: none;
         }
@@ -40,6 +45,9 @@ export const TableTeamWrapper = styled(DataTable)`
         min-width: 30px;
         font-size: 14px;
         text-transform: uppercase;
+        @media (max-width: 400px) {
+            padding: 10px;
+        }
     }
 
     th.p-sortable-column {
@@ -50,7 +58,6 @@ export const TableTeamWrapper = styled(DataTable)`
                 display: flex;
                 align-items: center;
                 justify-content: end;
-                width: fit-content;
             }
         }
     }

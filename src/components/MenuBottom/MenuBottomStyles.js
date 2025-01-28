@@ -24,6 +24,8 @@ export const MenuBottomWrapper = styled.div`
     gap: 35px;
     align-items: center;
     padding: 20px 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+
     h4 {
         font-size: 10px;
         font-weight: 400;

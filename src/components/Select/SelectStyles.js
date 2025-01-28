@@ -173,3 +173,48 @@ export const Arrow = styled.span`
     transform: ${({ isOpen }) => (isOpen ? "rotate(180deg)" : "rotate(0deg)")};
     transition: transform 0.3s;
 `;
+
+
+export const SelectVistaPartidoWrapper = styled.div`
+  position: relative;
+  padding: 16px 24px;
+  user-select: none;
+`;
+
+export const SelectVistaPartidoHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+`;
+
+export const SelectVistaPartidoIcon = styled.span`
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+`;
+
+export const SelectVistaPartidoOptions = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--black-800);
+    border-radius: 10px;
+    overflow: hidden;
+    opacity: ${({ isOpen }) => (isOpen ? 1 : 0)}; // Cambio de visibilidad con opacidad
+    visibility: ${({ isOpen }) => (isOpen ? 'visible' : 'hidden')}; // Para ocultar el contenido cuando está cerrado
+    pointer-events: ${({ isOpen }) => (isOpen ? 'auto' : 'none')}; // Desactivar interacción cuando está cerrado
+    z-index: 10;
+`;
+
+export const SelectVistaPartidoOption = styled.div`
+  padding: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--black-700);
+  }
+`;

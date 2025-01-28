@@ -28,7 +28,7 @@ export const HomeWrapper = styled.div`
     }  
 
     @media (max-width: 568px) {
-        padding: 20px;
+        padding: 15px;
     }
 `;
 
@@ -293,9 +293,17 @@ export const SectionHomeTitle = styled.div`
     padding: 16px 24px;
     font-weight: 700;
     background-color: var(--black-800);
+    align-items: center;
     gap: 5px;
     span {
         color: var(--black-300);
+    }
+
+    img {
+        height: 15px;
+        @media (max-width: 968px) {
+            display: none;
+        }  
     }
 `
 
@@ -304,17 +312,22 @@ export const CardPartidosDia = styled.div`
     display: flex;
     flex-direction: column;
     border-radius: 20px;
-    overflow: hidden;
     background-color: var(--black-900);
 `
 
 export const CardPartidosDiaTitle = styled.div`
-    padding: 16px 24px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid var(--black-800);
     font-weight: 600;
+`
+
+export const CardPartidosDiaTitleSelect = styled.select`
+    font-weight: 600;
+    border: none;
+    background-color: transparent;
+    font-size: 16px;
 `
 
 export const PartidosDiaFiltrosWrapper = styled.div`
@@ -354,6 +367,11 @@ export const PartidosDiaFiltro = styled.button`
     @media (max-width: 500px) {
         font-size: 12px;
     }
+
+    @media (max-width: 400px) {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
 `
 
 
@@ -381,4 +399,11 @@ export const DreamTeamTorneo = styled.div`
         color: var(--black-400);
         text-transform: uppercase;
     }
+`
+
+export const SelectEquipoCelular = styled.div`
+    display:none;    
+    @media (max-width: 968px) {
+        display: block;
+    }  
 `

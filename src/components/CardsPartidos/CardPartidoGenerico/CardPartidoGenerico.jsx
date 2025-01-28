@@ -62,7 +62,7 @@ const CardPartidoGenerico = ({
         return (
             <CardPartidoGenericoWrapper>
                 <CardPartidoGenericoResultado className="programado">
-                    <Skeleton width="50px" height="16px" />
+                    <Skeleton width="40px" height="16px" />
                 </CardPartidoGenericoResultado>
                 <CardPartidoGenericoDivisor />
                 <CardPartidoGenericoEquipos>

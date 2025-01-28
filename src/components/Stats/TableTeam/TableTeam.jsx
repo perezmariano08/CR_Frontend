@@ -35,14 +35,13 @@ const TableTeam = ({ data, zona, dataColumns, id_equipo }) => {
     return (
         <TableContainerStyled>
             <TableTitle>
-                <h3>{nombreTorneo}</h3>
+                <h3>Plantel {nombreTorneo}</h3>
                 <p>{zona.nombre_categoria}</p>
             </TableTitle>
             <TableTitleDivider />
             <TableTeamWrapper
                 value={data}
                 emptyMessage="No hay datos disponibles"
-                paginator
                 rows={10}
                 rowsPerPageOptions={[5, 10, 20]}
             >

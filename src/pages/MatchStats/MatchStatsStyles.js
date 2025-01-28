@@ -19,7 +19,7 @@ export const Navigate = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
 
     p {
         cursor: pointer;
@@ -33,7 +33,7 @@ export const Navigate = styled.div`
             left: 50%;
             bottom: 0;
             width: 0;
-            height: 4px;
+            height: 1px;
             background-color: var(--green);
             border-radius: 2px;
             transition: width 0.4s ease, left 0.4s ease;

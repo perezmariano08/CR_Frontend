@@ -65,11 +65,10 @@ export const MyTeamMatches = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    width: 50%;
     background-color: var(--gray-400);
     border-radius: 20px;
-    min-width: 85%;
-    padding: 34px 20px;
+    padding: 30px;
 `
 export const MyTeamMatchesItem = styled.div`
     display: flex;
