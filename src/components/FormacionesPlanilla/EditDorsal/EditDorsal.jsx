@@ -11,7 +11,7 @@ import { useWebSocket } from '../../../Auth/WebSocketContext';
 import useFetch from '../../../hooks/useFetch';
 
 const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
-
+    const token = localStorage.getItem('token');
     const dispatch = useDispatch();
     const socket = useWebSocket();
 
@@ -22,7 +22,7 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
     const [dorsalValue, setDorsalValue] = useState(isEdit ? jugador?.dorsal : '');
     const [partidosJugados, setPartidosJugados] = useState(0);
 
-    const { data: fetchEdicion, loading: loadingEdicion, error: errorEdicion } = useFetch(getEdicion, id_edicion);
+    const { data: fetchEdicion, loading: loadingEdicion, error: errorEdicion } = useFetch(getEdicion, id_edicion, token);
     const edicion = fetchEdicion?.[0];
 
     useEffect(() => {
@@ -75,29 +75,28 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
             } 
     
             //emitir el dorsal a la base
-            firmaJugador(id_partido, jugador.id_jugador, dorsalValue)
+            firmaJugador(id_partido, jugador.id_jugador, dorsalValue, token)
     
             //emitir websocket
             socket.emit('dorsalAsignado', { id_partido, id_jugador: jugador.id_jugador, dorsal: dorsalValue });
     
-
             handleCloseModal();
         } catch (error) {
             console.error('Error al guardar el dorsal en la base de datos:', error);
             toast.error('Error al guardar el dorsal, intente nuevamente');
         } finally {
-            setLoading(false)
+            setTimeout(() => setLoading(false), 1000);
         }
     };
 
     useEffect(() => {
         const checkPartidos = async () => {
-            const data = await checkPartidosEventual(id_partido, jugador.dni);
+            const data = await checkPartidosEventual(id_partido, jugador.dni, token);
             setPartidosJugados(data.partidos_jugados);
         }
         checkPartidos();
     }, []);
-    
+
     return (
         <>
             {modal === 'EditDorsal' && (

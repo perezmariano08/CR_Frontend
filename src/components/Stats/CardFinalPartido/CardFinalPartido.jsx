@@ -10,17 +10,50 @@ import { useZonaPartido } from '../../../hooks/planilla/useZonaPartido';
 import { MdOutlineCalendarMonth } from "react-icons/md";
 import { GiSoccerField } from "react-icons/gi";
 import { PiSoccerBall } from "react-icons/pi";
+import { Skeleton } from 'primereact/skeleton';
 
 const CardFinalPartido = ({ partido, incidencias }) => {
-
-    if (!partido || !incidencias) {
-        return '';
-    }
+    const loading = partido === null || incidencias === null;
 
     //custom hooks
     const { nombresEquipos, escudosEquipos } = useEquipos();
     const { zona } = useZonaPartido(partido?.id_zona) 
-    
+
+    if (loading) {
+
+        return (
+          <CardPartidoWrapper>
+            <CardPartidoTitles>
+              <Skeleton width="80%" height="5px" />
+            </CardPartidoTitles>
+            <CardPartidoTeams>
+              <CardPartidoTeam>
+                <Skeleton shape='circle' width="40px" height="40px" />
+                <Skeleton width="100px" height="10px" />
+              </CardPartidoTeam>
+              <CardPartidoInfo>
+                <Skeleton width="60px" height="30px" />
+                <Skeleton width="80px" height="16px" />
+              </CardPartidoInfo>
+              <CardPartidoTeam>
+              <Skeleton shape='circle' width="40px" height="40px" />
+              <Skeleton width="100px" height="10px" />
+              </CardPartidoTeam>
+            </CardPartidoTeams>
+            <CardPartidoDivider />
+            <CardPartidoGoalsContainer>
+              <CardPartidoGoalsColumn>
+                <Skeleton count={2} width="90%" height="10px" />
+              </CardPartidoGoalsColumn>
+              <HiLifebuoy />
+              <CardPartidoGoalsColumn className="visita">
+                <Skeleton count={2} width="90%" height="10px" />
+              </CardPartidoGoalsColumn>
+            </CardPartidoGoalsContainer>
+          </CardPartidoWrapper>
+        );
+    }
+
     const estadoPartido = partido?.estado
 
     const goles_partido = calcularGolesConDetalle(incidencias, partido)
@@ -76,7 +109,7 @@ const CardFinalPartido = ({ partido, incidencias }) => {
                     <h4>
                         {partido.estado === 'P' ? (
                             <h4>{hourFormated}</h4>
-                        ) : partido.estado === 'S' ? (
+                        ) : partido.estado === 'S' || partido.estado === 'F' ? (
                             <>
                                 {partido.pen_local && <span className="penales">({partido.pen_local})</span>}
                                 {partido.goles_local}-{partido.goles_visita}

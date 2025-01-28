@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { MatchStatsWrapper } from '../../MatchStats/MatchStatsStyles';
 import Section from '../../../components/Section/Section';
@@ -16,7 +16,6 @@ import JugadoresEventuales from '../../../components/FormacionesPlanilla/Jugador
 import Alignment from '../../../components/Stats/Alignment/Alignment.jsx';
 import { SpinerContainer } from '../../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
-import { usePlanilla } from '../../../hooks/usePlanilla.js';
 import { GiSoccerKick } from "react-icons/gi";
 import ModalSuspenderPartido from '../../../components/Stats/Incidents/ModalSuspenderPartido.jsx';
 import Select from '../../../components/Select/Select.jsx';
@@ -25,7 +24,6 @@ import PenaltyOption from '../../../components/PenaltyOption/PenaltyOption.jsx';
 import { FaCloudArrowUp } from "react-icons/fa6";
 import { ImCross } from "react-icons/im";
 import { FaPlay, FaRegStopCircle } from "react-icons/fa";
-import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice.js';
 import CardPartidoIda from '../../../components/Stats/CardPartidoIda/CardPartidoIda.jsx';
 import { obtenerTipoPartido } from '../../../components/Stats/statsHelpers.js';
 import { useIncidencias } from '../../../hooks/planilla/useIncidencias.js';
@@ -33,11 +31,11 @@ import { useFormaciones } from '../../../hooks/planilla/useFormaciones.js';
 import ActionType from '../../../components/FormacionesPlanilla/ActionConfirmed/ActionType.jsx';
 import ActionDetailRoja from '../../../components/FormacionesPlanilla/ActionAsisted/ActionDetailRoja.jsx';
 import useJugadoresDestacados from '../../../hooks/planilla/useJugadoresDestacados.js';
-import { handleMvpSelected, setDescripcionPartido } from '../../../redux/Planillero/planilleroSlice.js';
+import { setDescripcionPartido } from '../../../redux/Planillero/planilleroSlice.js';
 import usePartido from '../../../hooks/planilla/usePartido.js';
 
 const Planilla = () => {
-
+    const token = localStorage.getItem('token');
     const dispatch = useDispatch();
     const descripcionRedux = useSelector((state) => state.planillero.description);
     
@@ -45,13 +43,13 @@ const Planilla = () => {
     const partidoId = parseInt(searchParams.get('id'));
 
     //hooks nuevos
-    const { partidoFiltrado, handleStartMatch, pushInfoMatch, suspenderPartido, partidoIda } = usePartido(partidoId, toast)
+    const { partidoFiltrado, handleStartMatch, pushInfoMatch, suspenderPartido, partidoIda } = usePartido(partidoId, toast, token)
 
-    const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
+    const { incidencias, loading: loading_incidencias } = useIncidencias(token, partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
 
-    const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId)
+    const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId, token)
 
-    const { handleMvp, mvpSelectedRedux, jugadoresDestacados } = useJugadoresDestacados(partidoId, partidoFiltrado.estado, toast);
+    const { handleMvp, mvpSelectedRedux, jugadoresDestacados } = useJugadoresDestacados(partidoId, partidoFiltrado.estado, toast, token);
     
     const estadoPartido = partidoFiltrado.estado;
     
@@ -69,8 +67,7 @@ const Planilla = () => {
     }
 
     const esVuelta = obtenerTipoPartido(partidoFiltrado)
-    console.log(partidoFiltrado.estado);
-    
+
     return (
         <PlanillaContainerStyled className='container'>
             <MatchStatsWrapper className='wrapper'>

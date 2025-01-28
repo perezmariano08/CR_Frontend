@@ -13,7 +13,7 @@ import userJugadorEventualStates from '../../../hooks/userJugadorEventualStates'
 const JugadoresEventuales = ({ partido, formaciones }) => {
     const dispatch = useDispatch();
     const id_categoria = partido.id_categoria;
-
+    const token = localStorage.getItem('token');
     const modal = useSelector((state) => state.planillero.modal);
     const id_equipo = useSelector((state) => state.planillero.id_equipo);
 
@@ -50,7 +50,7 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
             setLoadingDni(true);
             try {
                 const playerExists = await checkPlayerExists(dniValue.trim(), id_equipo);
-                const checkEventual = await checkPartidosEventual(partido.id_partido, dniValue.trim());
+                const checkEventual = await checkPartidosEventual(partido.id_partido, dniValue.trim(), token);
                 
                 if (checkEventual) {
                     setPartidosJugados(checkEventual.partidos_jugados);
@@ -84,7 +84,7 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
     const checkPlayerExists = async (dni, id_equipo) => {
         try {
             if (id_categoria) {
-                const data = await verificarCategoriaJugadorEventual(dni, id_categoria, id_equipo);
+                const data = await verificarCategoriaJugadorEventual(dni, id_categoria, id_equipo, token);
                 return data;
             }
     
@@ -141,7 +141,7 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
                 eventual: 'S'
             }
     
-            const response = await insertarJugadorEventual(data);
+            const response = await insertarJugadorEventual(data, token);
             if (response.success) { 
                 toast.success(response.message)
             } else {

@@ -9,12 +9,12 @@ import { IoIosStar } from "react-icons/io";
 import { URLImages } from '../../utils/utils';
 import { useEquipos } from '../../hooks/useEquipos';
 import { setIdEquipo, setJugador, setModalType, toggleModal } from '../../redux/Planillero/planilleroSlice';
-import { eliminarJugadorDestacado, getEdicion, insertarJugadorDestacado } from '../../utils/dataFetchers';
+import { eliminarJugadorDestacado, insertarJugadorDestacado } from '../../utils/dataFetchers';
 
 const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) => {
     const dispatch = useDispatch();
     // const id_equipo = useSelector((state) => state.planillero.id_equipo);
-
+    const token = localStorage.getItem('token');
     //custom hook
     const { nombresEquipos, escudosEquipos } = useEquipos()
 
@@ -57,11 +57,11 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
 
         try {
             if (player.destacado === 'S') {
-                const res = await eliminarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_jugador);
+                const res = await eliminarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_jugador, token);
                 toast.success('Acción ejecutada con éxito');
                 return;
             }
-            const res = await insertarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_equipo, player.id_jugador);
+            const res = await insertarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_equipo, player.id_jugador, token);
             toast.success('Acción ejecutada con éxito');
 
         } catch (error) {

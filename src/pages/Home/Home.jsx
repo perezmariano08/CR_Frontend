@@ -1,24 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CardPartido from '../../components/Stats/CardPartido/CardPartido';
-import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro, DreamTeamTitulo, DreamTeamTorneo, SelectEquipoCelular } from './HomeStyles';
+import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro, DreamTeamTitulo, DreamTeamTorneo, SelectEquipoCelular, NoticiasWrapper, ViewMore  } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
-import TablePosiciones from '../../components/Stats/TablePosiciones/TablePosiciones.jsx';
+import { getNoticias, getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
 import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../components/Stats/Data/Data';
 import useMatchesUser from '../../hooks/useMatchesUser.js';
-import { StatsNull } from '../Stats/StatsStyles.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import { fetchCategorias } from '../../redux/ServicesApi/categoriasSlice.js';
 import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice.js';
 import { fetchEdiciones } from '../../redux/ServicesApi/edicionesSlice.js';
 import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones.jsx';
-import { MenuCategoriasContainer, MenuCategoriasDivider, MenuCategoriasItem, MenuCategoriasTitulo } from '../../components/Content/ContentStyles.js';
-import { SpinerContainer } from '../../Auth/SpinerStyles.js';
-import { TailSpin } from 'react-loader-spinner';
-import { URLImages } from '../../utils/utils.js';
+import { formatedDate, URLImages } from '../../utils/utils.js';
 import DreamteamUser from '../User/Dreamteam/DreamteamUser.jsx';
-import { Carousel } from 'primereact/carousel';
 import TablaPosicionesRoutes from '../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
 import CardPartidoGenerico from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico.jsx';
 import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice.js';
@@ -29,18 +23,21 @@ import { Skeleton } from 'primereact/skeleton';
 import { TablePosicionesSkeletonWrapper } from '../../components/Stats/TablePosiciones/TablePosicionesStyles.js';
 import { JugadorSancionadoBodyTemplate, JugadorSancionadoNumeroFechas } from '../../components/Stats/Table/TableStyles.js';
 import { useEquipos } from '../../hooks/useEquipos.js';
-import { GiDivert } from 'react-icons/gi';
 import SelectNuevo from '../../components/Select/SelectNuevo.jsx';
 import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice.js';
-import DreamTeamCard from '../../components/DreamTeamCard/DreamTeamCard.jsx';
-import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { fetchJugadoresDestacados } from '../../redux/ServicesApi/jugadoresDestacadosSlice.js';
 import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice.js';
 import SelectVistaPartido from '../../components/Select/SelectVistaPartido.jsx';
+import useFetch from '../../hooks/useFetch.js';
+import { NoticiaCategorias, NoticiaImagen, NoticiaInfoContainer, NoticiasCategoriasContainer, NoticiasContainer, NoticiasFecha, NoticiasTextoContainer, NoticiaTexto, NoticiaTitulo, ViewMoreNews } from '../Administrador/Noticias/NoticiasStyles.js';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
+    const navigate = useNavigate();
     // Fecha actual
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
+
+    const { data: noticias, loading: noticiasLoading, error: noticiasError } = useFetch(getNoticias);
 
     // Estado Filtro
     const [filtroActivo, setFiltroActivo] = useState("default"); // "default", "por_horario", "en_juego"
@@ -55,7 +52,6 @@ const Home = () => {
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const userRole = 3
     
-
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
     const temporadas = useSelector((state) => state.temporadas.data);
@@ -83,7 +79,6 @@ const Home = () => {
     // Llamar a la función con los datos actuales
     const datosAgrupados = agruparPorCategoriaYJornada(jugadoresDestacados);
 
-    
     const equipoSeleccionado = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     // Filtrar equipos vigentes usando useMemo para mejorar rendimiento
@@ -103,8 +98,7 @@ const Home = () => {
     
     const [idZona, setIdZona] = useState(3)
     
-    
-    // Detectar cambios en miEquipo y reiniciar la carga
+        // Detectar cambios en miEquipo y reiniciar la carga
     useEffect(() => {
         setLoading(true); // Reiniciar el estado de carga al cambiar de equipo
         const timer = setTimeout(() => setLoading(false), 1000); // Simular el tiempo de carga
@@ -125,8 +119,6 @@ const Home = () => {
         const fechaISO = fechaPartido.toISOString().split('T')[0]; // 'YYYY-MM-DD'
         return fechaISO === hoy; // Comparar con la fecha actual
     })
-    
-    
     
     const partidosUltimaSemana = partidos
     .filter((p) => {
@@ -162,9 +154,6 @@ const Home = () => {
         return masReciente; // Si el estado es "P" o "C", no cambiar el valor acumulado
     }, null); // Iniciar con `null` para manejar casos sin partidos válidos
     
-    
-
-
     const partidosDia = partidos
         .filter((p) => {
             const fechaPartido = new Date(p.dia);
@@ -234,15 +223,12 @@ const Home = () => {
         setSanciones(sancionesFiltradas);
     }
 
-    
     const tituloCategoria = (id_zona) => {        
         const categoria = zonas.find((zona) => zona.id_zona === id_zona);
         
         // Verifica que se encontró la categoría y concatena los nombres
         return categoria ? `${categoria.nombre_edicion} - ${categoria.nombre_categoria}` : '';
     }
-    
-    
     
     const sancionadosColumns = [
         {
@@ -347,7 +333,6 @@ const Home = () => {
         dispatch(fetchJugadores());
     }, [dispatch]);
 
-
     const handleSelectChange = (value) => {
         dispatch(setNuevoEquipoSeleccionado(parseInt(value)))
     };
@@ -375,6 +360,10 @@ const Home = () => {
 
     console.log(zonasPublicadas);
     
+    const goToNew = (id_noticia) => {
+        navigate(`/noticias/${id_noticia}`);
+    }
+
     return (
         <>
             <HomeContainerStyled>
@@ -795,7 +784,64 @@ const Home = () => {
                                     </TablePosicionesSkeletonWrapper>
                                 </CategoriasListaWrapper>
                             </Section>
-                        )} 
+                        )}
+                    <Section>
+                        <CategoriasListaWrapper>
+                            <CategoriasListaTitulo>
+                                <p>Noticias</p>
+                                <span>Enterate de las ultimas novedades de CR</span>
+                            </CategoriasListaTitulo>
+                            <NoticiasWrapper>
+                            {
+                                noticiasLoading
+                                    ? Array.from({ length: 4 }).map((_, index) => ( // Generar 4 Skeletons
+                                        <NoticiasContainer key={index} className='home'>
+                                            <NoticiaInfoContainer className='home'>
+                                                <Skeleton size="7.5rem"></Skeleton>
+                                                <NoticiasTextoContainer>
+                                                    <NoticiasFecha>
+                                                        <Skeleton width="5rem" height="1rem"></Skeleton>
+                                                    </NoticiasFecha>
+                                                    <NoticiaTitulo className='home'>
+                                                        <Skeleton width="10rem" height="2rem"></Skeleton>
+                                                    </NoticiaTitulo>
+                                                    <NoticiasCategoriasContainer>
+                                                        <Skeleton width="5rem" height="1rem"></Skeleton>
+                                                    </NoticiasCategoriasContainer>
+                                                </NoticiasTextoContainer>
+                                            </NoticiaInfoContainer>
+                                        </NoticiasContainer>
+                                    ))
+                                    : noticias && 
+                                        noticias
+                                            .sort((a, b) => new Date(b.noticia_fecha_creacion) - new Date(a.noticia_fecha_creacion)) // Ordenar por fecha descendente
+                                            .slice(0, 4) // Tomar las primeras 4 noticias
+                                            .map((noticia) => (
+                                                <NoticiasContainer key={noticia.id_noticia} className='home' onClick={() => goToNew(noticia.id_noticia)}>
+                                                    <NoticiaInfoContainer className='home'>
+                                                        <NoticiaImagen src={`${URLImages}${noticia.noticia_img}`} />
+                                                        <NoticiasTextoContainer>
+                                                            <NoticiasFecha>{formatedDate(noticia.noticia_fecha_creacion)}</NoticiasFecha>
+                                                            <NoticiaTitulo className='home'>{noticia.noticia_titulo}</NoticiaTitulo>
+                                                            <NoticiasCategoriasContainer>
+                                                                {
+                                                                    noticia.categorias.split(',').map((categoria) => {
+                                                                        const [id, nombre] = categoria.split('_');
+                                                                        return (
+                                                                            <NoticiaTexto key={id} className='home'>{nombre}</NoticiaTexto>
+                                                                        );
+                                                                    })
+                                                                }
+                                                            </NoticiasCategoriasContainer>
+                                                        </NoticiasTextoContainer>
+                                                    </NoticiaInfoContainer>
+                                                </NoticiasContainer>
+                                            ))
+                            }
+                            </NoticiasWrapper>
+                            <ViewMoreNews href='/noticias'>Ver todas las noticias</ViewMoreNews>
+                        </CategoriasListaWrapper>
+                    </Section>
                     </HomeRightWrapper>
                 </HomeWrapper>
             </HomeContainerStyled>

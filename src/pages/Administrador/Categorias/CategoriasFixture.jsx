@@ -204,7 +204,7 @@ const CategoriasFixture = () => {
 
     // Función de actualización en el cliente
     const { actualizar, isUpdating } = useCrud(
-        `${URL}/user/actualizar-partido`, fetchPartidos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+        `${URL}/admin/actualizar-partido`, fetchPartidos, 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
 
     const actualizarDato = async () => {
@@ -270,7 +270,7 @@ const CategoriasFixture = () => {
     const [id_partidoEliminar, setIdPartidoEliminar] = useState(null);
     // ELIMINAR
     const { eliminarPorId, isDeleting } = useCrud(
-        `${URL}/user/eliminar-partido`, fetchPartidos
+        `${URL}/admin/eliminar-partido`, fetchPartidos
     );
 
     const eliminarRegistros = async () => {
@@ -285,7 +285,7 @@ const CategoriasFixture = () => {
 
     // CREAR
     const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-partido`, fetchPartidos
+        `${URL}/admin/crear-partido`, fetchPartidos
     );
 
     const agregarRegistro = async () => {
@@ -379,7 +379,7 @@ const CategoriasFixture = () => {
                 
                 setIsImporting(true); 
                 // Aquí puedes continuar con la importación de los datos
-                Axios.post(`${URL}/user/importar-partidos`, nuevosDatos)
+                Axios.post(`${URL}/admin/importar-partidos`, nuevosDatos)
                     .then(() => {
                         toast.success(`Se importaron ${nuevosDatos.length} registros correctamente.`);
                         setIsImporting(false); 
@@ -573,7 +573,7 @@ const CategoriasFixture = () => {
     
         return `${zonaFiltrada.nombre_zona} - (Fecha ${jornada})` || 'Nombre no disponible';
     };
-    
+
     return (
         <Content>
             <MenuContentTop>

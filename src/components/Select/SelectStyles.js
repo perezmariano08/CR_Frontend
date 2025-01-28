@@ -114,8 +114,7 @@ export const OptionsList = styled.ul`
     z-index: 10;
     width: 100%;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    display: ${({ isOpen }) => (isOpen ? "block" : "none")};
-    
+    display: ${({ $isOpen }) => ($isOpen ? "block" : "none")}; /* Cambia isOpen a $isOpen */    
 
     /* Estilos personalizados para la barra de desplazamiento */
     &::-webkit-scrollbar {
@@ -170,7 +169,7 @@ export const Arrow = styled.span`
     display: flex;
     justify-content: center;
     align-items: center;
-    transform: ${({ isOpen }) => (isOpen ? "rotate(180deg)" : "rotate(0deg)")};
+    transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "rotate(0deg)")}; /* Cambia isOpen a $isOpen */
     transition: transform 0.3s;
 `;
 

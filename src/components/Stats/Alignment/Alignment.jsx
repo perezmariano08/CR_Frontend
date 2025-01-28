@@ -2,17 +2,58 @@ import React from 'react';
 import { AlignmentDivider, AlignmentLocal, AlignmentPlayer, AlignmentPlayerContainer, AlignmentTeam, AlignmentTeams, AlignmentVisit, AlignmentWrapper } from './AlignmentStyles';
 import { URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
+import { Skeleton } from 'primereact/skeleton';
 
 const Alignment = ({ formaciones, partido }) => {
-  // Hook para nombres y escudos de equipos
-  const { nombresEquipos, escudosEquipos } = useEquipos();
-  // Jugadores locales y visitantes
-  const localPlayers = formaciones.filter(f => f.id_equipo === partido.id_equipoLocal && f.dorsal);
-  const visitantePlayers = formaciones.filter(f => f.id_equipo === partido.id_equipoVisita && f.dorsal);
 
-  if (localPlayers.length === 0 && visitantePlayers.length === 0) {
-    return ''
+  const loading = !formaciones || !partido;
+
+  if (loading) {
+    return (
+      <AlignmentWrapper>
+        <h3>Formaciones</h3>
+        <AlignmentDivider />
+        <AlignmentTeams>
+          <AlignmentTeam>
+            <Skeleton shape="circle" width="4rem" height="4rem" />
+            <Skeleton width="10rem" height="1.5rem" />
+          </AlignmentTeam>
+          <AlignmentTeam>
+            <Skeleton width="10rem" height="1.5rem" />
+            <Skeleton shape="circle" width="4rem" height="4rem" />
+          </AlignmentTeam>
+        </AlignmentTeams>
+        <AlignmentPlayerContainer>
+          <AlignmentLocal>
+            {[...Array(5)].map((_, index) => (
+              <AlignmentPlayer key={index}>
+                <Skeleton width="2rem" height="2rem" />
+                <Skeleton width="12rem" height="1rem" />
+              </AlignmentPlayer>
+            ))}
+          </AlignmentLocal>
+          <AlignmentVisit>
+            {[...Array(5)].map((_, index) => (
+              <AlignmentPlayer key={index}>
+                <Skeleton width="12rem" height="1rem" />
+                <Skeleton width="2rem" height="2rem" />
+              </AlignmentPlayer>
+            ))}
+          </AlignmentVisit>
+        </AlignmentPlayerContainer>
+      </AlignmentWrapper>
+    );
   }
+
+  const { nombresEquipos, escudosEquipos } = useEquipos();
+
+  const localPlayers = partido.estado === 'F'
+  ? formaciones.filter(f => +f.id_equipo === +partido.id_equipoLocal && f.dorsal)
+  : formaciones.filter(f => +f.id_equipo === +partido.id_equipoLocal);
+
+const visitantePlayers = partido.estado === 'F'
+  ? formaciones.filter(f => +f.id_equipo === +partido.id_equipoVisita && f.dorsal)
+  : formaciones.filter(f => +f.id_equipo === +partido.id_equipoVisita);
 
   return (
     <AlignmentWrapper>

@@ -405,5 +405,13 @@ export const SelectEquipoCelular = styled.div`
     display:none;    
     @media (max-width: 968px) {
         display: block;
-    }  
+    }
+ `
+
+export const NoticiasWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding: 5px 0;
 `

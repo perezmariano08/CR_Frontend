@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import Content from '../../../components/Content/Content';
 import Button from '../../../components/Button/Button';
@@ -21,7 +22,7 @@ import Select from '../../../components/Select/Select';
 import { LiaAngleDownSolid } from "react-icons/lia";
 import { GoKebabHorizontal } from "react-icons/go";
 import { BsCalendar2Event } from "react-icons/bs";
-import { NavLink, useParams } from 'react-router-dom';;
+import { NavLink, useParams } from 'react-router-dom';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
@@ -61,9 +62,11 @@ const CategoriasFormato = () => {
         fases_select: null,
         zonas_select: null,
         id_partido_previo: null,
+        posicion_previa: null,
         etapa: null,
         vacante: null,
         id_edicion: edicionFiltrada.id_edicion,
+        terminada: 'N',
         campeon: 'N',
         equipo_campeon: null,
     });
@@ -83,7 +86,6 @@ const CategoriasFormato = () => {
     const [crearEquipo, setCrearEquipo] = useState(false);
     // const [vacantePlayOff, setVacantePlayOff] = useState(false);
     const [faseActual, setFaseActual] = useState(null);
-    const [VacanteEliminar, setVacanteEliminar] = useState(null)
     const [partidosZona, setPartidosZona] = useState([]);
     const [triggerFetch, setTriggerFetch] = useState(false); // Variable de estado para controlar el fetch
     const [faseEstado, setFaseEstado] = useState(null);
@@ -139,11 +141,18 @@ const CategoriasFormato = () => {
 
     const verificarVacante = (id_zona, vacante) => {
         // Verificar en temporadas si existe la vacante
-        const vacanteTemporada = temporadas.find((t) => t.id_zona == id_zona && t.vacante == vacante);
+        const vacanteTemporada = temporadas.find((t) => t.id_zona == id_zona && t.vacante == vacante || t.pos_zona_previa);
+
         if (vacanteTemporada && vacanteTemporada.id_equipo) {
             return true;
         }
-    
+
+        const vacantePosicion = temporadas.find((t) => t.id_zona == id_zona && t.pos_zona_previa);
+
+        if (vacantePosicion) {
+            return true;
+        }
+
         // Verificar en partidosCategoria si existe la vacante y si tiene un partido previo
         const vacantePartido = partidosCategoria.find((p) => p.id_zona == id_zona && 
             (p.vacante_local == vacante || p.vacante_visita == vacante));
@@ -202,7 +211,7 @@ const CategoriasFormato = () => {
 
     //ACTUALIZAR
     const { actualizar, isUpdating } = useCrud(
-        `${URL}/admin/actualizar-zona`, fetchZonas, 'Registro actualizado correctamente.', "Error al actualizar el registro."
+        `${URL}/admin/actualizar-zona`, [fetchZonas, fetchTemporadas], 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
 
     const openModalUpdate = (zona) => {
@@ -216,6 +225,7 @@ const CategoriasFormato = () => {
             cantidad_equipos: zona.cantidad_equipos,
             campeon: zona.campeon !== 'N' ? 'S' : 'N',
             equipo_campeon: zona.id_equipo_campeon,
+            terminada: zona.terminada,
         };
         setInitialZona(zonaDefault);
         setFormState(zonaDefault);
@@ -236,7 +246,8 @@ const CategoriasFormato = () => {
             formState.cantidad_equipos == initialZona.cantidad_equipos &&
             formState.etapa == initialZona.etapa &&
             formState.campeon == initialZona.campeon &&
-            formState.equipo_campeon == null
+            formState.equipo_campeon == null &&
+            formState.terminada == initialZona.terminada
         ) {
             setIsValid(false);
         } else {
@@ -333,8 +344,9 @@ const CategoriasFormato = () => {
             tipo: tipoActualizacion,
             campeon: formState.campeon,
             id_equipo_campeon: formState.campeon === 'N' ? null : formState.equipo_campeon,
+            terminada: formState.terminada,
         };
-
+        
         await actualizar(data);
         closeUpdateModal();
         resetForm();
@@ -426,35 +438,55 @@ const CategoriasFormato = () => {
     );
 
     const agregarPlayOffVacante = async () => {
-        // Validar que id_partido_previo no sea nulo o indefinido
-        if (!formState.id_partido_previo) {
-            toast.error("El ID del partido previo no puede estar vacío.");
-            return;
+        let data;
+    
+        // Caso 1: Si `posicion_previa` es true
+        if (formState.posicion_previa) {
+            data = {
+                id_categoria: id_categoria,
+                id_edicion: formState.id_edicion,
+                id_zona: formState.id_zona,
+                id_zona_previa: formState.zonas_select,
+                posicion_previa: formState.posicion_previa,
+                vacante: numeroVacante,
+            };
+        } else {
+            // Validar que `id_partido_previo` no esté vacío
+            if (!formState.id_partido_previo) {
+                toast.error("El ID del partido previo no puede estar vacío.");
+                return;
+            }
+    
+            // Extraer `id_partido_previo` y `resultado`
+            const id_partido_previo = formState.id_partido_previo.split('-')[1];
+            const resultado = formState.id_partido_previo.split('-')[0];
+    
+            // Validar que `resultado` no esté vacío
+            if (!resultado) {
+                toast.error("El resultado no puede estar vacío.");
+                return;
+            }
+    
+            // Caso 2: Si `posicion_previa` no es true pero `id_partido_previo` es válido
+            data = {
+                id_partido: partidosZona[0].id_partido,
+                id_partido_previo: id_partido_previo,
+                resultado: resultado,
+                vacante: numeroVacante,
+            };
         }
     
-        const id_partido_previo = formState.id_partido_previo.split('-')[1];
-        const resultado = formState.id_partido_previo ? formState.id_partido_previo.split('-')[0] : null;
-    
-        if (!resultado) {
-            toast.error("El resultado no puede estar vacío.");
-            return;
-        }
-    
-        const data = {
-            id_partido: partidosZona[0].id_partido,
-            id_partido_previo: id_partido_previo,
-            resultado: resultado,
-            vacante: numeroVacante,
-        };
-
+        console.log(data);
+        
+        // Simular guardar los datos (descomenta estas líneas para ejecutar la lógica real)
         await guardarVacantePlayOff(data);
         closeAsignarVacantePlayOff();
         resetForm();
-
-        setTriggerFetch(prev => !prev);
-
-    }
-
+        
+        // Trigger para actualizar la vista
+        setTriggerFetch((prev) => !prev);
+    };
+    
     // VACIAR
     const { actualizar: fetchVaciarVacante, isUpdating: isEmptying } = useCrud(
         `${URL}/admin/vaciar-vacante`, fetchTemporadas
@@ -617,45 +649,68 @@ const CategoriasFormato = () => {
         
         setNumeroVacante(vacante);
         setFaseActual(fase);
+
+        setFormState((prevState) => ({
+            ...prevState,
+            id_zona: id_zona,
+        }))
     
         const partidosZonaFetch = await getPartidosZona(id_zona, vacante); // Usar `vacante` directamente
         setPartidosZona(partidosZonaFetch);
     };
     
     const obtenerResultadoYEtiquetaVacante = (numeroZona, numeroVacante) => {
-        
         const partidosFiltrados = partidosCategoria.filter(partido => partido.id_zona == numeroZona);
-
+    
         const partidoRelaciondo = partidosFiltrados.find(partido => 
-            (partido.vacante_local === numeroVacante || partido.vacante_visita === numeroVacante)
+            partido.vacante_local === numeroVacante || partido.vacante_visita === numeroVacante
         );
     
-        if (!partidoRelaciondo) return <>Vacante<NavLink>Seleccionar equipo</NavLink></>;
+        // Inicializar valores predeterminados
+        let resultado = null;
+        let etiqueta = null;
+        let etiquetaPos = null;
     
-        // Obtener el resultado del partido previo basado en el local o visita
-        const esLocal = partidoRelaciondo.vacante_local === numeroVacante;
-        const resultadoPrevio = esLocal ? partidoRelaciondo.res_partido_previo_local : partidoRelaciondo.res_partido_previo_visita;
-        const idPartidoPrevio = esLocal ? partidoRelaciondo.id_partido_previo_local : partidoRelaciondo.id_partido_previo_visita;
-        const partidoPrevio = partidosCategoria.find(p => p.id_partido == idPartidoPrevio);
-
-        const zonaAnterior = partidoPrevio?.id_zona;
-        const zonaFiltrada = zonas.find(z => z.id_zona == zonaAnterior);
-
-        // Determinar quién ganó 
-        const resultado = resultadoPrevio === 'G' ? 'Ganador' : resultadoPrevio === 'P' ? 'Perdedor' : null;
-
-        if (!resultado) return <>Vacante<NavLink>Seleccionar equipo</NavLink></>
-
-        // Generar la etiqueta
-        const letraFase = String.fromCharCode(64 + zonaFiltrada?.fase);
-        const etiqueta = `${letraFase}${partidoPrevio?.vacante_local}-${letraFase}${partidoPrevio?.vacante_visita}`; // C1-C2
+        if (partidoRelaciondo) {
+            const esLocal = partidoRelaciondo.vacante_local === numeroVacante;
+            const resultadoPrevio = esLocal ? partidoRelaciondo.res_partido_previo_local : partidoRelaciondo.res_partido_previo_visita;
+            const idPartidoPrevio = esLocal ? partidoRelaciondo.id_partido_previo_local : partidoRelaciondo.id_partido_previo_visita;
+            const partidoPrevio = partidosCategoria.find(p => p.id_partido == idPartidoPrevio);
     
+            const zonaAnterior = partidoPrevio?.id_zona;
+            const zonaFiltrada = zonas.find(z => z.id_zona == zonaAnterior);
+    
+            // Determinar el resultado
+            resultado = resultadoPrevio === 'G' ? 'Ganador' : resultadoPrevio === 'P' ? 'Perdedor' : null;
+    
+            if (resultado) {
+                const letraFase = String.fromCharCode(64 + zonaFiltrada?.fase);
+                etiqueta = `${letraFase}${partidoPrevio?.vacante_local}-${letraFase}${partidoPrevio?.vacante_visita}`;
+            }
+        }
+    
+        // Calcular la etiqueta de posición si es posible
+        const posicionesTemporadas = temporadas.filter((t) => 
+            t.id_zona == numeroZona && 
+            t.id_categoria == id_categoria && 
+            t.id_edicion == edicionFiltrada.id_edicion && 
+            t.pos_zona_previa
+        );
+    
+        const posicion = posicionesTemporadas.find((p) => p.vacante == numeroVacante);
+        const nombreZona = zonas.find((z) => z.id_zona == posicion?.id_zona_previa)?.nombre_zona;
+        etiquetaPos = posicion ? `Posicion ${posicion.pos_zona_previa} - ${nombreZona}` : null;
+
+        // console.log("EtiquetaPos:", temporadas);
+
+        // Retornar todos los valores calculados
         return {
             resultado,
             etiqueta,
+            etiquetaPos
         };
     };
-
+    
     const [dataEquipo, setDataEquipo] = useState([]);
 
     const checkTeamToAddPlantel = async (id_equipo, id_edicion) => {
@@ -782,6 +837,9 @@ const CategoriasFormato = () => {
         return equiposData;
     }
     
+    const zonaFiltrada = zonas.find((z) => z.id_zona == formState.zonas_select)
+    const equiposZona = Array.from({ length: temporadas.filter((e) => e.id_zona == formState.zonas_select).length }, (_, i) => i + 1);
+
     return (
         <Content>
             <MenuContentTop>
@@ -818,7 +876,7 @@ const CategoriasFormato = () => {
                                         .filter((z) => z.fase === fase.numero_fase && z.id_categoria == fase.id_categoria)
                                         .map((z) => {
                                             // Primer conteo de vacantes ocupadas basándonos en temporadas
-                                            const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona);
+                                            const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona && t.id_equipo);
                                             let completo = false;
                                             const vacantesOcupadas = contarVacantesOcupadas(z.id_zona);
                                             
@@ -848,6 +906,25 @@ const CategoriasFormato = () => {
                                                                 }>
                                                                 {`${vacantesOcupadas} / ${z.cantidad_equipos} vacantes ocupadas`}
                                                             </span>
+                                                            {
+                                                                z.tipo_zona === 'todos-contra-todos' && (
+                                                                    <span
+                                                                        className={
+                                                                            z.terminada === 'S'
+                                                                            ? 'completo'
+                                                                            : 'sin-terminar'
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            z.terminada === 'N' ? (
+                                                                                `Zona sin terminar`
+                                                                            ) : (
+                                                                                `Zona terminada`
+                                                                            )
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
                                                             <span
                                                                 className={
                                                                     z.id_equipo_campeon
@@ -879,35 +956,35 @@ const CategoriasFormato = () => {
                                                     </FormatoZona>
 
                                                     <FormatoZonaVacantes
-                                                        className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
-                                                        {[...Array(z.cantidad_equipos)].map((_, index) => {
-                                                            const numeroZona = z.id_zona;
-                                                            const vacante = index + 1;
-                                                            const equipoAsignado = equiposAsignados.find(
-                                                                (e) => e.vacante === vacante
-                                                            );
+                                                    className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
+                                                    {[...Array(z.cantidad_equipos)].map((_, index) => {
+                                                        const numeroZona = z.id_zona;
+                                                        const vacante = index + 1;
+                                                        const equipoAsignado = equiposAsignados.find(
+                                                            (e) => e.vacante === vacante
+                                                        );
 
-                                                            const { resultado, etiqueta } = obtenerResultadoYEtiquetaVacante(numeroZona, vacante);
-                                                            const partidoAsignado = partidosCategoria.find((p) => {
-                                                                if (vacante === p.vacante_local) {
-                                                                    return p.id_zona === z.id_zona && p.id_partido_previo_local !== null;
-                                                                } else if (vacante === p.vacante_visita) {
-                                                                    return p.id_zona === z.id_zona && p.id_partido_previo_visita !== null;
-                                                                }
-                                                                return false;
-                                                            });
-                                                            
+                                                        const { resultado, etiqueta, etiquetaPos } = obtenerResultadoYEtiquetaVacante(numeroZona, vacante);
 
-                                                            return (
+                                                        const partidoAsignado = partidosCategoria.find((p) => {
+                                                            if (vacante === p.vacante_local) {
+                                                                return p.id_zona === z.id_zona && p.id_partido_previo_local !== null;
+                                                            } else if (vacante === p.vacante_visita) {
+                                                                return p.id_zona === z.id_zona && p.id_partido_previo_visita !== null;
+                                                            }
+                                                            return false;
+                                                        });
+
+                                                        return (
                                                                 <VacanteWrapper
                                                                     key={`vacante-${index}`}
-                                                                    className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'equipo' : '' ].join(' ')}
+                                                                    className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'equipo' : '', etiquetaPos ? 'posicion' : ''].join(' ')}
                                                                     onClick={() => {
                                                                         if (z.tipo_zona === 'todos-contra-todos') {
                                                                             agregarEquipoZona(z.id_zona, vacante);
                                                                         } else {
                                                                             agregarVacantePlayOff(z.fase, vacante, z.id_zona);
-                                                                            closeCreateModal(); // Cerrar cualquier otro modal activo
+                                                                            closeCreateModal();
                                                                         }
                                                                     }}>
                                                                     {equipoAsignado ? (
@@ -925,22 +1002,30 @@ const CategoriasFormato = () => {
                                                                         </>
                                                                     ) : (
                                                                         <>
-                                                                        {resultado ? (
-                                                                            <VacanteEquipo>
-                                                                                {resultado} {etiqueta}
-                                                                            </VacanteEquipo>
-                                                                        ) : (
-                                                                            <>
-                                                                                Vacante
-                                                                                <NavLink>Seleccionar equipo</NavLink>
-                                                                            </>
-                                                                        )}
-                                                                    </>
+                                                                            {etiquetaPos ? ( 
+                                                                                <VacanteEquipo>
+                                                                                    {etiquetaPos}
+                                                                                </VacanteEquipo>
+                                                                            ) : (
+                                                                                <>
+                                                                                    {resultado ? (
+                                                                                        <VacanteEquipo>
+                                                                                            {resultado} {etiqueta}
+                                                                                        </VacanteEquipo>
+                                                                                    ) : (
+                                                                                        <>
+                                                                                            Vacante
+                                                                                            <NavLink>Seleccionar equipo</NavLink>
+                                                                                        </>
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                        </>
                                                                     )}
                                                                     <div
-                                                                        className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'vacante-texto existe' : 'vacante-texto' ].join(' ')}
+                                                                        className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'vacante-texto existe' : 'vacante-texto', etiquetaPos ? 'posicion' : ''].join(' ')}
                                                                     >
-                                                                        A{vacante}
+                                                                        {vacante}
                                                                     </div>
                                                                     <div
                                                                         className='relative'
@@ -951,7 +1036,7 @@ const CategoriasFormato = () => {
                                                                                 Reemplazar equipo
                                                                             </div>
                                                                             {
-                                                                                (partidoAsignado || equipoAsignado) && (
+                                                                                (partidoAsignado || equipoAsignado || etiquetaPos) && (
                                                                                     <div
                                                                                         onClick={() => openModalVaciarVacante(z.id_zona, vacante)}
                                                                                         className='vaciar'>
@@ -965,7 +1050,7 @@ const CategoriasFormato = () => {
                                                             );
                                                         })}
                                                     </FormatoZonaVacantes>
-                                                    
+
                                                 </FormatoZonaContainer>
                                             );
                                         })}
@@ -1044,20 +1129,45 @@ const CategoriasFormato = () => {
                                             disabled={!formState.fases_select}
                                             onChange={handleFormChange} />
                                     </ModalFormInputContainer>
-                                    <ModalFormInputContainer>
-                                        Seleccionar resultado
-                                        <Select
-                                            name='id_partido_previo'
-                                            type='text'
-                                            placeholder="Seleccionar resultado"
-                                            value={formState.id_partido_previo}
-                                            icon={<BsCalendar2Event className='icon-select' />}
-                                            column='nombre_fase'
-                                            data={loadingIdPartidos ? [] : idPartidosZona}
-                                            id_= {'id_partido'}
-                                            disabled={!formState.zonas_select || loadingIdPartidos}
-                                            onChange={handleFormChange} />
-                                    </ModalFormInputContainer>
+                                    {
+                                        zonaFiltrada && zonaFiltrada.tipo_zona === 'todos-contra-todos' ? (
+                                        <ModalFormInputContainer>
+                                            Seleccionar posición
+                                            <Select
+                                                name="posicion_previa"
+                                                type="text"
+                                                placeholder="Seleccionar posición"
+                                                value={formState.posicion_previa}
+                                                icon={<BsCalendar2Event className="icon-select" />}
+                                                column="posicion_previa"
+                                                data={
+                                                    equiposZona.map((pos) => ({
+                                                        posicion_previa: pos,
+                                                        nombre_fase: `Posición ${pos}`
+                                                    }))
+                                                }
+                                                id_="posicion_previa"
+                                                disabled={!formState.zonas_select || loadingIdPartidos}
+                                                onChange={handleFormChange}
+                                            />
+                                        </ModalFormInputContainer>
+                                        ) : (
+                                            <ModalFormInputContainer>
+                                                Seleccionar resultado
+                                                <Select
+                                                    name='id_partido_previo'
+                                                    type='text'
+                                                    placeholder="Seleccionar resultado"
+                                                    value={formState.id_partido_previo}
+                                                    icon={<BsCalendar2Event className='icon-select' />}
+                                                    column='nombre_fase'
+                                                    data={loadingIdPartidos ? [] : idPartidosZona}
+                                                    id_= {'id_partido'}
+                                                    disabled={!formState.zonas_select || loadingIdPartidos}
+                                                    onChange={handleFormChange} />
+                                            </ModalFormInputContainer>
+                                        )
+                                    }
                                 </>
                         }
                     />
@@ -1522,6 +1632,15 @@ const CategoriasFormato = () => {
                                         isChecked={formState.campeon !== 'N'}
                                         onChange={(e) => handleFormChange({
                                             target: { name: 'campeon', value: e.target.checked ? 'S' : 'N' }
+                                        })}
+                                    />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Zona finalizada
+                                    <Switch
+                                        isChecked={formState.terminada === 'S'}
+                                        onChange={(e) => handleFormChange({
+                                            target: { name: 'terminada', value: e.target.checked ? 'S' : 'N' }
                                         })}
                                     />
                                 </ModalFormInputContainer>

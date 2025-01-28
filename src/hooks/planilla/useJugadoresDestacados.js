@@ -4,9 +4,8 @@ import { useWebSocket } from "../../Auth/WebSocketContext";
 import { useDispatch, useSelector } from "react-redux";
 import { handleMvpSelected } from "../../redux/Planillero/planilleroSlice";
 
-const useJugadoresDestacados = (id_partido, estadoPartido, toast) => { 
+const useJugadoresDestacados = (id_partido, estadoPartido, toast, token) => { 
     const dispatch = useDispatch();
-
     const [mvpSelected, setMvpSelected] = useState(0);
     const [jugadoresDestacados, setJugadoresDestacados] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +19,7 @@ const useJugadoresDestacados = (id_partido, estadoPartido, toast) => {
             setLoading(true);
             setError(null);
             try {
-                const data = await traerJugadoresDestacados(id_partido);
+                const data = await traerJugadoresDestacados(id_partido, token);
                 if (data) {
                     setJugadoresDestacados(data);
                 } else {
@@ -73,7 +72,7 @@ const useJugadoresDestacados = (id_partido, estadoPartido, toast) => {
         const delay = 300;
     
         try {
-            const response = await insertarMvp(id_partido, selectedValue);
+            const response = await insertarMvp(id_partido, selectedValue, token);
             if (response.status === 200) {
                 setTimeout(() => {
                     toast.success('MVP agregado correctamente', { id: toastId });

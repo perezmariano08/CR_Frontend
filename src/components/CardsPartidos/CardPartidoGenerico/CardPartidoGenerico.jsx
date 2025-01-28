@@ -18,7 +18,6 @@ import { fetchExpulsados } from '../../../redux/ServicesApi/expulsadosSlice';
 import { formatearDiaSinAño, formatHour, formatPartidoDateTime } from '../../../utils/formatDateTime';
 
 const CardPartidoGenerico = ({
-    mostrarDia,
     id_partido,
     id_equipoLocal,
     id_equipoVisita,
@@ -28,10 +27,8 @@ const CardPartidoGenerico = ({
     pen_local,
     pen_visita,
     dia,
-    jornada,
     miEquipo,
     hora,
-    id_planillero
 }) => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
@@ -43,21 +40,23 @@ const CardPartidoGenerico = ({
     const expulsadosPartido = expulsados.filter((e) => e.id_partido == id_partido)
     
     // Fecha actual
-    const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
+    const hoy = new Date().toISOString().split('T')[0];
     const partidoDia = new Date(dia).toISOString().split('T')[0];
 
-    const esHoy = partidoDia == hoy; // Comparar la fecha del partido con la fecha actual
+    const esHoy = partidoDia == hoy;
     
     // Simula la carga de datos
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 2000); // Cambia según sea necesario
+        const timer = setTimeout(() => setLoading(false), 2000);
         return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
-        dispatch(fetchExpulsados())
-    }, [dispatch]);
-
+        if (!expulsados.length) {
+            dispatch(fetchExpulsados());
+        }
+    }, [dispatch, expulsados.length]);
+    
     if (loading) {
         return (
             <CardPartidoGenericoWrapper>
@@ -134,7 +133,9 @@ const CardPartidoGenerico = ({
                             src={`https://coparelampago.com${escudosEquipos(id_equipoLocal)}`}
                             alt={nombresEquipos(id_equipoLocal)}
                         />
-                        <p className={miEquipo === id_equipoLocal && 'my-team'}>{nombresEquipos(id_equipoLocal)}</p>
+                        <p className={+miEquipo === +id_equipoLocal ? 'my-team' : undefined}>
+                            {nombresEquipos(id_equipoLocal)}
+                        </p>
                     </CardPartidoGenericoEquipoDetalle>
                     <CardPartidoGenericoEstadisticas>
                         <CardPartidoGenericoRojas>
@@ -162,7 +163,9 @@ const CardPartidoGenerico = ({
                             src={`https://coparelampago.com${escudosEquipos(id_equipoVisita)}`}
                             alt={nombresEquipos(id_equipoVisita)}
                         />
-                        <p className={miEquipo === id_equipoVisita && 'my-team'}>{nombresEquipos(id_equipoVisita)}</p>
+                        <p className={+miEquipo === +id_equipoVisita ? 'my-team' : undefined}>
+                            {nombresEquipos(id_equipoVisita)}
+                        </p>
                     </CardPartidoGenericoEquipoDetalle>
                     <CardPartidoGenericoEstadisticas>
                         <CardPartidoGenericoRojas>
