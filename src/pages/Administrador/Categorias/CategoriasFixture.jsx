@@ -58,7 +58,7 @@ const CategoriasFixture = () => {
     const dispatch = useDispatch();
     const { id_categoria } = useParams(); // Obtenemos el id desde la URL
     const [searchParams] = useSearchParams(); // Lee los parámetros de búsqueda
-
+    const token = localStorage.getItem('token');
   // Obtén el valor del parámetro jornada
     const jornada = parseInt(searchParams.get('jornada'));
 
@@ -379,7 +379,9 @@ const CategoriasFixture = () => {
                 
                 setIsImporting(true); 
                 // Aquí puedes continuar con la importación de los datos
-                Axios.post(`${URL}/admin/importar-partidos`, nuevosDatos)
+                Axios.post(`${URL}/admin/importar-partidos`, nuevosDatos, {
+                    headers: { 'Authorization': `Bearer ${token}`, }
+                })
                     .then(() => {
                         toast.success(`Se importaron ${nuevosDatos.length} registros correctamente.`);
                         setIsImporting(false); 

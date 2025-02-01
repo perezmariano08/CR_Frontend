@@ -57,9 +57,10 @@ const CardFinalPartido = ({ partido, incidencias }) => {
     const estadoPartido = partido?.estado
 
     const goles_partido = calcularGolesConDetalle(incidencias, partido)
-
+    console.log(goles_partido.goles_visita.length);
+    
     const hourFormated = formatTime(partido.hora);
-
+    
     return (
         <CardPartidoWrapper>
             <CardPartidoTitulo>

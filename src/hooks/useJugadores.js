@@ -1,10 +1,13 @@
 import { useDispatch, useSelector } from "react-redux";
 import { fetchJugadores } from "../redux/ServicesApi/jugadoresSlice";
+import { useEffect } from "react";
 
 // Custom hook para obtener los equipos
 export const useJugadores = () => {
     const dispatch = useDispatch()
-    dispatch(fetchJugadores())
+    useEffect(() => {
+        dispatch(fetchJugadores())
+    }, [dispatch])
 
     const jugadores = useSelector((state) => state.jugadores.data);
     

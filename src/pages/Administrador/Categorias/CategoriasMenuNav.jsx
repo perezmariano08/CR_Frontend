@@ -5,9 +5,9 @@ import { useSelector } from 'react-redux';
 
 const CategoriasMenuNav = ({ id_categoria, children }) => {
     const temporadas = useSelector((state) => state.temporadas.data);
-    // Filtrar los equipos de la temporada y asegurarse de que no haya duplicados por id_equipo
+
     const equiposTemporada = temporadas
-    .filter((t) => t.id_categoria == id_categoria)
+    .filter((t) => t.id_categoria == id_categoria && t.id_equipo != null)
     .filter(
         (equipo, index, self) =>
             index === self.findIndex((e) => e.id_equipo === equipo.id_equipo)

@@ -29,6 +29,7 @@ import { edicionesListColumns } from '../../../Data/Ediciones/edicionesListColum
 const Ediciones = () => {
     const dispatch = useDispatch();
     const { loading, data: edicionesList } = useSelector((state) => state.ediciones);
+
     const edicionesListLink = edicionesList.map(edicion => ({
         ...edicion,
         estado: (
