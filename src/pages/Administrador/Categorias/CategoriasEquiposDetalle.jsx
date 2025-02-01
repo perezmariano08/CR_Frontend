@@ -93,8 +93,6 @@ const CategoriasEquiposDetalle = () => {
         setEditarEquipo(false)
     }
 
-    
-
     // Manejo del form
     const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
         id_edicion: categoriaFiltrada.id_edicion,
@@ -254,7 +252,7 @@ const CategoriasEquiposDetalle = () => {
     }
 
     const handleSubmit = () => {
-        manejarActualizarApercibimientos(); // Llama a la función al enviar el formulario
+        manejarActualizarApercibimientos();
     };
 
     const { actualizar: actualizarEquipo, isUpdating: isUpdatingEquipo } = useCrud(
@@ -286,12 +284,12 @@ const CategoriasEquiposDetalle = () => {
     }
 
     const handleEditarEquipo = () => {
-        manejarEditarEquipo(); // Llama a la función al enviar el formulario
+        manejarEditarEquipo();
     };
     
     // CREAR
     const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-jugador`, fetchJugadores, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/admin/crear-jugador`, fetchJugadores, 'Registro creado correctamente.', "Error al crear el registro."
     );
 
     const agregarRegistro = async () => {  
@@ -303,6 +301,18 @@ const CategoriasEquiposDetalle = () => {
         // Obtener la lista de jugadores actualizada antes de la verificación del DNI
         await dispatch(fetchJugadores());
     
+        const jugadorEnCategoria = plantelesList.find(a => a.dni === formState.dni_jugador.trim() && a.id_categoria == id_categoria);
+        if (jugadorEnCategoria) {
+            toast.error("El jugador ya está en la categoria.");
+            return;
+        }
+
+        const jugadorEnEquipo = plantelesList.find(a => a.dni === formState.dni_jugador.trim() && a.id_equipo == id_equipo);
+        if (jugadorEnEquipo) {
+            toast.error("El jugador ya está en el equipo.");
+            return;
+        }
+        
         // Buscar el jugador existente en la lista actualizada
         const jugadorExistente = jugadoresList.find(a => a.dni === formState.dni_jugador.trim());
         
@@ -313,30 +323,29 @@ const CategoriasEquiposDetalle = () => {
             closeCreateModal();
             return;
         }
-    
+        
         const data = {
-            id_categoria: equipoFiltrado.id_categoria,
-            id_edicion: categoriaFiltrada.id_edicion,
             dni: formState.dni_jugador,
             nombre: formState.nombre_jugador,
             apellido: formState.apellido_jugador,
             posicion: formState.posicion_jugador,
-            id_equipo: id_equipo
+            id_equipo: id_equipo,
+            id_edicion: categoriaFiltrada.id_edicion,
+            id_categoria: equipoFiltrado.id_categoria,
+            sancionado: "N", // Agrega estos valores predeterminados
+            eventual: "N"    // Agrega estos valores predeterminados
         };
         
+        
         await crear(data);
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
         dispatch(fetchPlanteles());
         dispatch(fetchJugadores());
-        dispatch(fetchTemporadas());
         closeCreateModal();
         resetForm()
     };
     // ELIMINAR
     const { eliminarPorData, isDeleting } = useCrud(
-        `${URL}/user/eliminar-jugador-plantel`, fetchPlanteles, 'Registro eliminado correctamente.', "Error al eliminar el registro."
+        `${URL}/admin/eliminar-jugador-plantel`, fetchPlanteles
     );
 
     const eliminarRegistros = async () => {        
@@ -423,7 +432,20 @@ const CategoriasEquiposDetalle = () => {
                 if (dniToJugadorMap.has(dni)) {
                     // Obtén el id_jugador del jugador existente
                     const id_jugador = dniToJugadorMap.get(dni);
+
+                    const jugadorEnCategoria = plantelesList.find(a => a.dni == dni && a.id_categoria == id_categoria);
+                    if (jugadorEnCategoria) {
+                        toast.error(`El jugador ${apellido} ${nombre} no se pudo agregar porque ya está en la categoria en el equipo ${nombresEquipos(jugadorEnCategoria.id_equipo)}.`);
+                        continue;
+                    }
                     
+                    const jugadorEnEquipo = plantelesList.find(a => a.dni == dni && a.id_equipo == id_equipo);
+                    if (jugadorEnEquipo) {
+                        toast.error(`El jugador ${apellido} ${nombre} no se pudo agregar porque ya está en el equipo.`);
+                        continue;
+                    }
+                    
+
                     // Inserta el jugador y su relación en planteles
                     await Axios.post(`${URL}/user/agregar-jugador-plantel`, {
                         id_jugador,
@@ -450,8 +472,6 @@ const CategoriasEquiposDetalle = () => {
             toast.success("Importación completada correctamente.");
             dispatch(fetchJugadores());
             dispatch(fetchPlanteles());
-            dispatch(fetchEquipos())
-            dispatch(fetchTemporadas())
             closeImportModal()
         } catch (error) {
             console.error("Error durante la importación:", error);

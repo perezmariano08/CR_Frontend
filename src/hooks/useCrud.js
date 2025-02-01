@@ -25,7 +25,7 @@ export const useCrud = (url, fetchActions, successMessage, errorMessage) => {
         setIsSaving(true);
         try {
             const response = await Axios.post(url, data, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${token}`, }
             });
             if (response.status === 200) {
                 const mensaje = response.data.mensaje;
@@ -119,7 +119,9 @@ export const useCrud = (url, fetchActions, successMessage, errorMessage) => {
     const eliminarPorData = async (data) => {
         setIsDeleting(true);
         try {
-            const response = await Axios.post(url, data);
+            const response = await Axios.post(url, data, {
+                headers: { 'Authorization': `Bearer ${token}`, }
+            });
             const mensaje = response.data.mensaje;
             toast.success(mensaje || 'Registro eliminado correctamente.');
             dispatch(fetchActions());

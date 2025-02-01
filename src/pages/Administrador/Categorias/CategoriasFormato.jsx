@@ -76,7 +76,7 @@ const CategoriasFormato = () => {
     const [isAsignarVacantePlayOff, setAsignarVacantePlayOff] = useState(false);
     const [isEliminarVacante, setEliminarVacante] = useState(false);
     const [isVaciarVacante, setVaciarVacante] = useState(false);
-    const [isCheckPlantel, setCheckPlantel ] = useState(false);
+    const [isCheckPlantel, setCheckPlantel] = useState(false);
     const [isDeleteFase, setDeleteFase] = useState(false);
 
     const [numeroVacante, setNumeroVacante] = useState('');
@@ -121,10 +121,10 @@ const CategoriasFormato = () => {
     const { data: etapas, loading: loadingEtapas, error: errorEtapas } = useFetchData(getEtapas);
 
     const { data: idPartidosZona, loading: loadingIdPartidos, error: errorIdPartidos } = useFetchData(
-        () => getIdPartidosZona(formState.zonas_select), 
+        () => getIdPartidosZona(formState.zonas_select),
         [formState.zonas_select]
     );
-    
+
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -135,7 +135,7 @@ const CategoriasFormato = () => {
     }, [id_categoria, dispatch]);
 
     const { data: partidosCategoria, loading: loadingPartidosCategoria, error: errorPartidosCategoria } = useFetchData(
-        () => getPartidosCategoria(id_categoria), 
+        () => getPartidosCategoria(id_categoria),
         [id_categoria, triggerFetch]
     );
 
@@ -154,23 +154,23 @@ const CategoriasFormato = () => {
         }
 
         // Verificar en partidosCategoria si existe la vacante y si tiene un partido previo
-        const vacantePartido = partidosCategoria.find((p) => p.id_zona == id_zona && 
+        const vacantePartido = partidosCategoria.find((p) => p.id_zona == id_zona &&
             (p.vacante_local == vacante || p.vacante_visita == vacante));
-    
+
         if (vacantePartido) {
             // Verificar si es el local o la visita y comprobar si tiene un partido previo
             if (vacantePartido.vacante_local == vacante && vacantePartido.id_partido_previo_local) {
                 return true;
-            } 
+            }
             if (vacantePartido.vacante_visita == vacante && vacantePartido.id_partido_previo_visita) {
                 return true;
             }
         }
-    
+
         return false;
     }
 
-    const openModalVaciarVacante = (id_zona, vacante) => { 
+    const openModalVaciarVacante = (id_zona, vacante) => {
 
         if (!verificarVacante(id_zona, vacante)) {
             toast.error('La vacante ya se encuentra vacía');
@@ -196,11 +196,11 @@ const CategoriasFormato = () => {
     const agregarEquipoZona = async (id_zona, vacante) => {
         setIdZona(id_zona);
         setNumeroVacante(vacante);
-        
+
         // Usar el valor de vacante directamente aquí
         const partidosZonaFetch = await getPartidosZona(id_zona, vacante);
         setPartidosZona(partidosZonaFetch);
-    
+
         openEquipoZona();
     };
 
@@ -229,14 +229,14 @@ const CategoriasFormato = () => {
         };
         setInitialZona(zonaDefault);
         setFormState(zonaDefault);
-    
+
         openUpdateModal();
     };
 
     useEffect(() => {
         validateForm();
     }, [formState]);
-    
+
     const validateForm = () => {
         if (
             initialZona &&
@@ -254,18 +254,18 @@ const CategoriasFormato = () => {
             setIsValid(true);
         }
     };
-    
+
     const handleFormChangeWithValidation = (e) => {
         handleFormChange(e); // Update formState with changes
     };
-    
+
     const contarVacantesOcupadas = (zonaId) => {
         const cantidadEquiposZona = zonas.find(z => z.id_zona == zonaId).cantidad_equipos;
         const cantidadEquiposTemporada = temporadas.filter((t) => t.id_zona == zonaId && t.id_equipo != null).length;
-    
+
         // Usamos un Set para evitar contar duplicados
         const partidosContados = new Set();
-    
+
         const cantidadEquiposPartidos = partidosCategoria.reduce((count, partido) => {
             if (partido.id_zona === zonaId) {
                 // Si el partido tiene un id_partido_previo_local o id_partido_previo_visita no duplicado
@@ -280,12 +280,12 @@ const CategoriasFormato = () => {
             }
             return count;
         }, 0);
-    
+
         const vacantesOcupadas = cantidadEquiposTemporada + cantidadEquiposPartidos;
 
         return Math.min(vacantesOcupadas, cantidadEquiposZona);
-    };    
-    
+    };
+
     const determinarTipoActualizacion = (cantidadNueva, idZona) => {
         const cantidadVieja = zonas.find((z) => z.id_zona == idZona).cantidad_equipos;
         if (cantidadNueva > cantidadVieja) {
@@ -296,7 +296,7 @@ const CategoriasFormato = () => {
             return 'igual';
         }
     };
-    
+
     // Función para actualizar el registro
     const actualizarRegistro = async () => {
         const vacantesOcupadas = contarVacantesOcupadas(Number(formState.id_zona));
@@ -309,7 +309,7 @@ const CategoriasFormato = () => {
             toast.error("En zonas de eliminación directa o eliminación directa ida y vuelta el número de equipos debe ser par.");
             return;
         }
-        
+
 
         if (vacantesOcupadas > parseInt(formState.cantidad_equipos)) {
             const exceso = vacantesOcupadas - parseInt(formState.cantidad_equipos);
@@ -334,7 +334,7 @@ const CategoriasFormato = () => {
             toast.error("El número de equipos debe ser par.");
             return;
         }
-        
+
         const data = {
             id_zona: formState.id_zona,
             nombre_zona: formState.nombre_zona,
@@ -346,7 +346,7 @@ const CategoriasFormato = () => {
             id_equipo_campeon: formState.campeon === 'N' ? null : formState.equipo_campeon,
             terminada: formState.terminada,
         };
-        
+
         await actualizar(data);
         closeUpdateModal();
         resetForm();
@@ -375,7 +375,7 @@ const CategoriasFormato = () => {
             toast.error("El número de equipos debe ser par");
             return;
         }
-        
+
         const data = {
             id_categoria: id_categoria,
             nombre: formState.nombre_zona.trim(),
@@ -394,12 +394,12 @@ const CategoriasFormato = () => {
 
     // CREAR
     const { crear: guardarEquipo, isSaving: isSavingCrearEquipo } = useCrud(
-        `${URL}/user/crear-equipo`, fetchTemporadas
+        `${URL}/admin/crear-equipo`, fetchTemporadas
     );
 
     // Para el segundo formulario de creación
     const { crear: asignarTemporada, isSaving: isSavingAsignacionEquipo } = useCrud(
-        `${URL}/user/insertar-equipo-temporada`,
+        `${URL}/admin/insertar-equipo-temporada`,
         fetchTemporadas
     );
 
@@ -439,7 +439,7 @@ const CategoriasFormato = () => {
 
     const agregarPlayOffVacante = async () => {
         let data;
-    
+
         // Caso 1: Si `posicion_previa` es true
         if (formState.posicion_previa) {
             data = {
@@ -456,17 +456,18 @@ const CategoriasFormato = () => {
                 toast.error("El ID del partido previo no puede estar vacío.");
                 return;
             }
-    
+
             // Extraer `id_partido_previo` y `resultado`
             const id_partido_previo = formState.id_partido_previo.split('-')[1];
             const resultado = formState.id_partido_previo.split('-')[0];
-    
+
             // Validar que `resultado` no esté vacío
             if (!resultado) {
                 toast.error("El resultado no puede estar vacío.");
                 return;
             }
-    
+            console.log(partidosZona);
+            
             // Caso 2: Si `posicion_previa` no es true pero `id_partido_previo` es válido
             data = {
                 id_partido: partidosZona[0].id_partido,
@@ -475,18 +476,16 @@ const CategoriasFormato = () => {
                 vacante: numeroVacante,
             };
         }
-    
-        console.log(data);
-        
+
         // Simular guardar los datos (descomenta estas líneas para ejecutar la lógica real)
         await guardarVacantePlayOff(data);
         closeAsignarVacantePlayOff();
         resetForm();
-        
+
         // Trigger para actualizar la vista
         setTriggerFetch((prev) => !prev);
     };
-    
+
     // VACIAR
     const { actualizar: fetchVaciarVacante, isUpdating: isEmptying } = useCrud(
         `${URL}/admin/vaciar-vacante`, fetchTemporadas
@@ -498,19 +497,19 @@ const CategoriasFormato = () => {
             vacante: formState.vacante,
             tipo_zona: formState.tipo_zona,
         };
-    
+
         try {
             await fetchVaciarVacante(data);
             closeAndClearForm(closeVaciarVacante);
-            window.location.reload();
-    
+            // window.location.reload();
+
         } catch (error) {
             console.error('Error al vaciar vacante:', error);
         }
     };
 
     // ELIMINAR VACANTE
-    const { eliminarPorData , isDeleting: isDeletingVacante} = useCrud(
+    const { eliminarPorData, isDeleting: isDeletingVacante } = useCrud(
         `${URL}/admin/eliminar-zona`, fetchZonas
     );
 
@@ -521,13 +520,13 @@ const CategoriasFormato = () => {
         const idPartidoAsociado = partidosCategoria.filter((partido) => {
             const idPartidoPrevioLocal = partido.id_partido_previo_local;
             const idPartidoPrevioVisita = partido.id_partido_previo_visita;
-    
+
             return (
                 (idPartidoPrevioLocal && partidosCategoria.some(p => p.id_partido === idPartidoPrevioLocal && p.id_zona === id_zona)) ||
                 (idPartidoPrevioVisita && partidosCategoria.some(p => p.id_partido === idPartidoPrevioVisita && p.id_zona === id_zona))
             );
         });
-    
+
         if (!id_zona) {
             toast.error('Falta el ID de la zona');
             return;
@@ -550,7 +549,7 @@ const CategoriasFormato = () => {
         })
     }
 
-    const { eliminarPorId , isDeleting} = useCrud(
+    const { eliminarPorId, isDeleting } = useCrud(
         `${URL}/admin/eliminar-zona`, fetchZonas
     );
 
@@ -588,10 +587,17 @@ const CategoriasFormato = () => {
             toast.error(`El equipo ya pertenece a esta vacante.`);
             return;
         }
-    
+
+        if (
+            equiposTemporada.find(e => e.id_equipo === id_equipo && e.id_categoria == id_categoria && e.id_zona == id_zona)
+        ) {
+            toast.error(`El equipo ya pertenece a esta zona.`);
+            return;
+        }
+
         const zonaFiltrada = zonas.find(z => z.id_zona == id_zona)
         let data = {}
-        
+
         if (zonaFiltrada.tipo_zona === 'todos-contra-todos') {
             data = {
                 id_categoria: formState.id_categoria,
@@ -606,7 +612,7 @@ const CategoriasFormato = () => {
                 toast.error("No se encontraron partidos para esta zona.");
                 return;
             }
-        
+
             data = {
                 id_categoria: formState.id_categoria,
                 id_edicion: edicionFiltrada.id_edicion,
@@ -644,59 +650,60 @@ const CategoriasFormato = () => {
 
     const agregarVacantePlayOff = async (fase, vacante, id_zona) => {
         if (!vacante) return; // Verificar si vacante es válido antes de continuar
-    
-        openAsignarVacantePlayOff();
+
         
         setNumeroVacante(vacante);
         setFaseActual(fase);
-
+        
         setFormState((prevState) => ({
             ...prevState,
             id_zona: id_zona,
         }))
-    
-        const partidosZonaFetch = await getPartidosZona(id_zona, vacante); // Usar `vacante` directamente
+        
+        const partidosZonaFetch = await getPartidosZona(id_zona, vacante);
         setPartidosZona(partidosZonaFetch);
+        
+        openAsignarVacantePlayOff();
     };
-    
+
     const obtenerResultadoYEtiquetaVacante = (numeroZona, numeroVacante) => {
         const partidosFiltrados = partidosCategoria.filter(partido => partido.id_zona == numeroZona);
-    
-        const partidoRelaciondo = partidosFiltrados.find(partido => 
+
+        const partidoRelaciondo = partidosFiltrados.find(partido =>
             partido.vacante_local === numeroVacante || partido.vacante_visita === numeroVacante
         );
-    
+
         // Inicializar valores predeterminados
         let resultado = null;
         let etiqueta = null;
         let etiquetaPos = null;
-    
+
         if (partidoRelaciondo) {
             const esLocal = partidoRelaciondo.vacante_local === numeroVacante;
             const resultadoPrevio = esLocal ? partidoRelaciondo.res_partido_previo_local : partidoRelaciondo.res_partido_previo_visita;
             const idPartidoPrevio = esLocal ? partidoRelaciondo.id_partido_previo_local : partidoRelaciondo.id_partido_previo_visita;
             const partidoPrevio = partidosCategoria.find(p => p.id_partido == idPartidoPrevio);
-    
+
             const zonaAnterior = partidoPrevio?.id_zona;
             const zonaFiltrada = zonas.find(z => z.id_zona == zonaAnterior);
-    
+
             // Determinar el resultado
             resultado = resultadoPrevio === 'G' ? 'Ganador' : resultadoPrevio === 'P' ? 'Perdedor' : null;
-    
+
             if (resultado) {
                 const letraFase = String.fromCharCode(64 + zonaFiltrada?.fase);
                 etiqueta = `${letraFase}${partidoPrevio?.vacante_local}-${letraFase}${partidoPrevio?.vacante_visita}`;
             }
         }
-    
+
         // Calcular la etiqueta de posición si es posible
-        const posicionesTemporadas = temporadas.filter((t) => 
-            t.id_zona == numeroZona && 
-            t.id_categoria == id_categoria && 
-            t.id_edicion == edicionFiltrada.id_edicion && 
+        const posicionesTemporadas = temporadas.filter((t) =>
+            t.id_zona == numeroZona &&
+            t.id_categoria == id_categoria &&
+            t.id_edicion == edicionFiltrada.id_edicion &&
             t.pos_zona_previa
         );
-    
+
         const posicion = posicionesTemporadas.find((p) => p.vacante == numeroVacante);
         const nombreZona = zonas.find((z) => z.id_zona == posicion?.id_zona_previa)?.nombre_zona;
         etiquetaPos = posicion ? `Posicion ${posicion.pos_zona_previa} - ${nombreZona}` : null;
@@ -710,22 +717,22 @@ const CategoriasFormato = () => {
             etiquetaPos
         };
     };
-    
+
     const [dataEquipo, setDataEquipo] = useState([]);
 
     const checkTeamToAddPlantel = async (id_equipo, id_edicion) => {
         try {
             const response = await checkEquipoPlantel(id_equipo, id_edicion);
-    
+
             if (!response || response.data === undefined) {
                 console.error("Error en la consulta:", response?.mensaje || "Error desconocido");
                 return;
             }
-    
+
             if (response.data.length === 0) {
                 return;
             }
-    
+
             // Si hay datos, abre el check para el plantel
             const data = response.data.map((r) => {
                 return {
@@ -744,15 +751,15 @@ const CategoriasFormato = () => {
             console.error("Error al verificar el plantel:", error);
         }
     };
-    
+
     // CREAR
     const { crear: asignar, isSaving: asignando } = useCrud(
         `${URL}/admin/copiar-planteles-temporada`
     );
-    
+
     const asignarPlantel = async (dataEquipo) => {
 
-        const {id_equipo, id_categoria_previo, id_categoria} = dataEquipo;
+        const { id_equipo, id_categoria_previo, id_categoria } = dataEquipo;
         const id_edicion = edicionFiltrada.id_edicion;
 
         if (!id_equipo || !id_categoria_previo || !id_categoria || !id_edicion) {
@@ -773,7 +780,7 @@ const CategoriasFormato = () => {
     }
 
     // ELIMINAR FASE
-    const { eliminarPorId: deleteFase, isDeleting: isDeletingFase} = useCrud(
+    const { eliminarPorId: deleteFase, isDeleting: isDeletingFase } = useCrud(
         `${URL}/admin/eliminar-fase`, fetchCategorias
     );
 
@@ -810,7 +817,7 @@ const CategoriasFormato = () => {
             id_categoria: id_categoria,
             numero_fase: formState.fase
         }
-        
+
         await deleteFase(data);
         resetForm();
         closeDeleteFase();
@@ -836,7 +843,7 @@ const CategoriasFormato = () => {
         })
         return equiposData;
     }
-    
+
     const zonaFiltrada = zonas.find((z) => z.id_zona == formState.zonas_select)
     const equiposZona = Array.from({ length: temporadas.filter((e) => e.id_zona == formState.zonas_select).length }, (_, i) => i + 1);
 
@@ -851,7 +858,7 @@ const CategoriasFormato = () => {
             </MenuContentTop>
             <CategoriasMenuNav id_categoria={id_categoria} />
             <CategoriaFormatoWrapper>
-                { !loading && fases.length > 0 ? (
+                {!loading && fases.length > 0 ? (
                     fases.map((fase) => (
                         <div key={`fase-${fase.numero_fase}`}>
                             <FormatoFaseWrapper>
@@ -879,7 +886,7 @@ const CategoriasFormato = () => {
                                             const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona && t.id_equipo);
                                             let completo = false;
                                             const vacantesOcupadas = contarVacantesOcupadas(z.id_zona);
-                                            
+
                                             completo = parseInt(vacantesOcupadas) === parseInt(z.cantidad_equipos);
                                             return (
                                                 <FormatoZonaContainer
@@ -911,8 +918,8 @@ const CategoriasFormato = () => {
                                                                     <span
                                                                         className={
                                                                             z.terminada === 'S'
-                                                                            ? 'completo'
-                                                                            : 'sin-terminar'
+                                                                                ? 'completo'
+                                                                                : 'sin-terminar'
                                                                         }
                                                                     >
                                                                         {
@@ -928,8 +935,8 @@ const CategoriasFormato = () => {
                                                             <span
                                                                 className={
                                                                     z.id_equipo_campeon
-                                                                    ? 'campeon'
-                                                                    : 'sin-campeon'
+                                                                        ? 'campeon'
+                                                                        : 'sin-campeon'
                                                                 }
                                                             >
                                                                 {
@@ -944,7 +951,7 @@ const CategoriasFormato = () => {
                                                             <GoKebabHorizontal className='kebab' />
                                                             <div className='modales'>
                                                                 <div
-                                                                onClick={() =>openModalUpdate(z)}
+                                                                    onClick={() => openModalUpdate(z)}
                                                                 >Editar</div>
                                                                 <div
                                                                     onClick={() => eliminarZona(z.id_zona)}
@@ -956,26 +963,26 @@ const CategoriasFormato = () => {
                                                     </FormatoZona>
 
                                                     <FormatoZonaVacantes
-                                                    className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
-                                                    {[...Array(z.cantidad_equipos)].map((_, index) => {
-                                                        const numeroZona = z.id_zona;
-                                                        const vacante = index + 1;
-                                                        const equipoAsignado = equiposAsignados.find(
-                                                            (e) => e.vacante === vacante
-                                                        );
+                                                        className={zonaExpandida === z.id_zona ? 'expandido' : ''}>
+                                                        {[...Array(z.cantidad_equipos)].map((_, index) => {
+                                                            const numeroZona = z.id_zona;
+                                                            const vacante = index + 1;
+                                                            const equipoAsignado = equiposAsignados.find(
+                                                                (e) => e.vacante === vacante
+                                                            );
 
-                                                        const { resultado, etiqueta, etiquetaPos } = obtenerResultadoYEtiquetaVacante(numeroZona, vacante);
+                                                            const { resultado, etiqueta, etiquetaPos } = obtenerResultadoYEtiquetaVacante(numeroZona, vacante);
 
-                                                        const partidoAsignado = partidosCategoria.find((p) => {
-                                                            if (vacante === p.vacante_local) {
-                                                                return p.id_zona === z.id_zona && p.id_partido_previo_local !== null;
-                                                            } else if (vacante === p.vacante_visita) {
-                                                                return p.id_zona === z.id_zona && p.id_partido_previo_visita !== null;
-                                                            }
-                                                            return false;
-                                                        });
+                                                            const partidoAsignado = partidosCategoria.find((p) => {
+                                                                if (vacante === p.vacante_local) {
+                                                                    return p.id_zona === z.id_zona && p.id_partido_previo_local !== null;
+                                                                } else if (vacante === p.vacante_visita) {
+                                                                    return p.id_zona === z.id_zona && p.id_partido_previo_visita !== null;
+                                                                }
+                                                                return false;
+                                                            });
 
-                                                        return (
+                                                            return (
                                                                 <VacanteWrapper
                                                                     key={`vacante-${index}`}
                                                                     className={[partidoAsignado ? 'cruce' : '', equipoAsignado ? 'equipo' : '', etiquetaPos ? 'posicion' : ''].join(' ')}
@@ -1002,7 +1009,7 @@ const CategoriasFormato = () => {
                                                                         </>
                                                                     ) : (
                                                                         <>
-                                                                            {etiquetaPos ? ( 
+                                                                            {etiquetaPos ? (
                                                                                 <VacanteEquipo>
                                                                                     {etiquetaPos}
                                                                                 </VacanteEquipo>
@@ -1041,7 +1048,7 @@ const CategoriasFormato = () => {
                                                                                         onClick={() => openModalVaciarVacante(z.id_zona, vacante)}
                                                                                         className='vaciar'>
                                                                                         Vaciar vacante
-                                                                                    </div>                                                              
+                                                                                    </div>
                                                                                 )
                                                                             }
                                                                         </div>
@@ -1101,36 +1108,36 @@ const CategoriasFormato = () => {
                             </>
                         }
                         form={
-                                <>
-                                    <ModalFormInputContainer>
-                                        Seleccionar fase
-                                        <Select
-                                            name='fases_select'
-                                            type='text'
-                                            placeholder="Seleccionar fase"
-                                            value={formState.fases_select}
-                                            icon={<BsCalendar2Event className='icon-select' />}
-                                            column='numero_fase'
-                                            data={fases.filter((f) => f.numero_fase != faseActual)}
-                                            id_= {'numero_fase'}
-                                            onChange={handleFormChange} />
-                                    </ModalFormInputContainer>
-                                    <ModalFormInputContainer>
-                                        Seleccionar zona
-                                        <Select
-                                            name='zonas_select'
-                                            type='text'
-                                            placeholder="Seleccionar zona"
-                                            value={formState.zonas_select}
-                                            icon={<BsCalendar2Event className='icon-select' />}
-                                            column='nombre_zona_etapa'
-                                            data={zonas.filter((z) => z.fase == formState.fases_select && z.id_categoria == id_categoria)}
-                                            id_= {'id_zona'}
-                                            disabled={!formState.fases_select}
-                                            onChange={handleFormChange} />
-                                    </ModalFormInputContainer>
-                                    {
-                                        zonaFiltrada && zonaFiltrada.tipo_zona === 'todos-contra-todos' ? (
+                            <>
+                                <ModalFormInputContainer>
+                                    Seleccionar fase
+                                    <Select
+                                        name='fases_select'
+                                        type='text'
+                                        placeholder="Seleccionar fase"
+                                        value={formState.fases_select}
+                                        icon={<BsCalendar2Event className='icon-select' />}
+                                        column='numero_fase'
+                                        data={fases.filter((f) => f.numero_fase != faseActual)}
+                                        id_={'numero_fase'}
+                                        onChange={handleFormChange} />
+                                </ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Seleccionar zona
+                                    <Select
+                                        name='zonas_select'
+                                        type='text'
+                                        placeholder="Seleccionar zona"
+                                        value={formState.zonas_select}
+                                        icon={<BsCalendar2Event className='icon-select' />}
+                                        column='nombre_zona_etapa'
+                                        data={zonas.filter((z) => z.fase == formState.fases_select && z.id_categoria == id_categoria)}
+                                        id_={'id_zona'}
+                                        disabled={!formState.fases_select}
+                                        onChange={handleFormChange} />
+                                </ModalFormInputContainer>
+                                {
+                                    zonaFiltrada && zonaFiltrada.tipo_zona === 'todos-contra-todos' ? (
                                         <ModalFormInputContainer>
                                             Seleccionar posición
                                             <Select
@@ -1151,24 +1158,24 @@ const CategoriasFormato = () => {
                                                 onChange={handleFormChange}
                                             />
                                         </ModalFormInputContainer>
-                                        ) : (
-                                            <ModalFormInputContainer>
-                                                Seleccionar resultado
-                                                <Select
-                                                    name='id_partido_previo'
-                                                    type='text'
-                                                    placeholder="Seleccionar resultado"
-                                                    value={formState.id_partido_previo}
-                                                    icon={<BsCalendar2Event className='icon-select' />}
-                                                    column='nombre_fase'
-                                                    data={loadingIdPartidos ? [] : idPartidosZona}
-                                                    id_= {'id_partido'}
-                                                    disabled={!formState.zonas_select || loadingIdPartidos}
-                                                    onChange={handleFormChange} />
-                                            </ModalFormInputContainer>
-                                        )
-                                    }
-                                </>
+                                    ) : (
+                                        <ModalFormInputContainer>
+                                            Seleccionar resultado
+                                            <Select
+                                                name='id_partido_previo'
+                                                type='text'
+                                                placeholder="Seleccionar resultado"
+                                                value={formState.id_partido_previo}
+                                                icon={<BsCalendar2Event className='icon-select' />}
+                                                column='nombre_fase'
+                                                data={loadingIdPartidos ? [] : idPartidosZona}
+                                                id_={'id_partido'}
+                                                disabled={!formState.zonas_select || loadingIdPartidos}
+                                                onChange={handleFormChange} />
+                                        </ModalFormInputContainer>
+                                    )
+                                }
+                            </>
                         }
                     />
                     <Overlay onClick={() => closeAndClearForm(closeAsignarVacantePlayOff)} />
@@ -1290,7 +1297,7 @@ const CategoriasFormato = () => {
                         animate={{ opacity: isAsignarEquipoZona ? 1 : 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        title={`Agregar equipo`}
+                        title={`Crear equipo`}
                         onClickClose={closeEquipoZona}
                         buttons={
                             crearEquipo && <>
@@ -1362,17 +1369,17 @@ const CategoriasFormato = () => {
                                                                 {e.nombre}
                                                             </EquipoExisteEscudo>
                                                             <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
-                                                            {isSavingAsignacionEquipo ? (
-                                                                <>
-                                                                    <LoaderIcon size="small" color='green' />
-                                                                    Agregando
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <IoCheckmark />
-                                                                    Seleccionar
-                                                                </>
-                                                            )}
+                                                                {isSavingAsignacionEquipo ? (
+                                                                    <>
+                                                                        <LoaderIcon size="small" color='green' />
+                                                                        Agregando
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <IoCheckmark />
+                                                                        Seleccionar
+                                                                    </>
+                                                                )}
                                                             </Button>
                                                         </EquipoExisteItem>
                                                     ))
@@ -1402,29 +1409,34 @@ const CategoriasFormato = () => {
                                 &&
                                 <>
                                     <EquipoExisteDivider />
-                                    <EquipoExiste>
-                                        <h2>Sugerencias</h2>
-                                        <EquipoExisteLista>
-                                            {
-                                                equiposTemporada
-                                                    .filter((e) =>
-                                                        e.id_categoria == id_categoria &&
-                                                        e.id_zona === null
-                                                    )
-                                                    .map((e) => (
-                                                        <EquipoExisteItem key={e.id_equipo}>
-                                                            <EquipoExisteEscudo>
-                                                                <img src={`${URLImages}${escudosEquipos(e.id_equipo)}`} alt={nombresEquipos(e.id_equipo)} />
-                                                                {nombresEquipos(e.id_equipo)}
-                                                            </EquipoExisteEscudo>
-                                                            <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
-                                                                Seleccionar
-                                                            </Button>
-                                                        </EquipoExisteItem>
-                                                    ))
-                                            }
-                                        </EquipoExisteLista>
-                                    </EquipoExiste>
+                                    {equiposTemporada
+                                        .filter((e) => e.id_categoria == id_categoria && e.id_zona === null)
+                                        .length > 0 && (
+                                            <EquipoExiste>
+                                                <h2>Sugerencias</h2>
+                                                <EquipoExisteLista>
+                                                    {
+                                                        equiposTemporada
+                                                            .filter((e) =>
+                                                                e.id_categoria == id_categoria &&
+                                                                e.id_zona === null
+                                                            )
+                                                            .map((e) => (
+                                                                <EquipoExisteItem key={e.id_equipo}>
+                                                                    <EquipoExisteEscudo>
+                                                                        <img src={`${URLImages}${escudosEquipos(e.id_equipo)}`} alt={nombresEquipos(e.id_equipo)} />
+                                                                        {nombresEquipos(e.id_equipo)}
+                                                                    </EquipoExisteEscudo>
+                                                                    <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
+                                                                        Seleccionar
+                                                                    </Button>
+                                                                </EquipoExisteItem>
+                                                            ))
+                                                    }
+                                                </EquipoExisteLista>
+                                            </EquipoExiste>
+                                        )
+                                    }
                                 </>
                         }
                     />
@@ -1543,143 +1555,143 @@ const CategoriasFormato = () => {
                 )
             }
             {
-                isUpdateModalOpen && ( 
-                <>
-                    <ModalCreate initial={{ opacity: 0 }}
-                        animate={{ opacity: isUpdateModalOpen ? 1 : 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        title={`Editar zona`}
-                        onClickClose={closeUpdateModal}
-                        buttons={
-                            <>
-                                <Button color={"danger"} onClick={closeUpdateModal}>
-                                    <IoClose />
-                                    Cancelar
-                                </Button>
-                                <Button color={"success"} onClick={actualizarRegistro} disabled={isUpdating || !isValid}>
-                                    {isUpdating ? (
-                                        <>
-                                            <LoaderIcon size="small" color='green' />
-                                            Actualizando
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IoCheckmark />
-                                            Actualizar
-                                        </>
-                                    )}
-                                </Button>
-                            </>
-                        }
-                        form={
-                            <>
-                                <ModalFormInputContainer>
-                                    nombre
-                                    <Input
-                                        name='nombre_zona'
-                                        type='text'
-                                        placeholder="Nombre"
-                                        icon={<BsCalendar2Event className='icon-input' />}
-                                        value={formState.nombre_zona}
-                                        onChange={handleFormChangeWithValidation}
-                                    />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    categoría
-                                    <Select
-                                        name={'tipo_zona'}
-                                        data={[
-                                            {
-                                                id_tipo_zona: 'eliminacion-directa',
-                                                tipo_zona: "Eliminación Directa"
-                                            },
-                                            // {
-                                            //     id_tipo_zona: 'eliminacion-directa-ida-vuelta',
-                                            //     tipo_zona: "Eliminación Directa (Ida y Vuelta)"
-                                            // },
-                                            {
-                                                id_tipo_zona: 'todos-contra-todos',
-                                                tipo_zona: "Todos Contra Todos"
-                                            },
-                                            // {
-                                            //     id_tipo_zona: 'todos-contra-todos-ida-vuelta',
-                                            //     tipo_zona: "Todos Contra Todos (Ida y Vuelta)"
-                                            // },
-                                        ]}
-                                        icon={<IoShieldHalf className='icon-select' />}
-                                        id_={"id_tipo_zona"}
-                                        column='tipo_zona'
-                                        value={formState.tipo_zona}
-                                        onChange={handleFormChangeWithValidation}
-                                    />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Etapa
-                                    <Select
-                                        name={'etapa'}
-                                        data={etapas}
-                                        icon={<IoShieldHalf className='icon-select' />}
-                                        id_={"id_etapa"}
-                                        column='nombre'
-                                        value={formState.etapa}
-                                        onChange={handleFormChangeWithValidation}
-                                    />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    ¿La zona tendrá campeón?
-                                    <Switch
-                                        isChecked={formState.campeon !== 'N'}
-                                        onChange={(e) => handleFormChange({
-                                            target: { name: 'campeon', value: e.target.checked ? 'S' : 'N' }
-                                        })}
-                                    />
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Zona finalizada
-                                    <Switch
-                                        isChecked={formState.terminada === 'S'}
-                                        onChange={(e) => handleFormChange({
-                                            target: { name: 'terminada', value: e.target.checked ? 'S' : 'N' }
-                                        })}
-                                    />
-                                </ModalFormInputContainer>
-                                {
-                                    formState.campeon === 'S' && (
-                                        <ModalFormInputContainer>
-                                            Seleccione un campeón
-                                            <Select
-                                                name={'equipo_campeon'}
-                                                data={filtrarEquiposZona(formState.id_zona)}
-                                                icon={<IoShieldHalf className='icon-select' />}
-                                                id_={"id_equipo"}
-                                                column='nombre'
-                                                value={formState.equipo_campeon}
-                                                onChange={handleFormChangeWithValidation}
-                                            />
-                                        </ModalFormInputContainer>
-                                    )
-                                }
-                                <ModalFormInputContainer>
-                                    cantidad de equipos
-                                    <Input
-                                        name='cantidad_equipos'
-                                        type='number'
-                                        placeholder="Cantidad de equipos"
-                                        icon={<BsCalendar2Event className='icon-input' />}
-                                        value={formState.cantidad_equipos}
-                                        onChange={handleFormChangeWithValidation}
-                                    />
-                                </ModalFormInputContainer>
-                            </>
-                        }
-                    />
-                    <Overlay onClick={closeUpdateModal} />
-                </>
+                isUpdateModalOpen && (
+                    <>
+                        <ModalCreate initial={{ opacity: 0 }}
+                            animate={{ opacity: isUpdateModalOpen ? 1 : 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            title={`Editar zona`}
+                            onClickClose={closeUpdateModal}
+                            buttons={
+                                <>
+                                    <Button color={"danger"} onClick={closeUpdateModal}>
+                                        <IoClose />
+                                        Cancelar
+                                    </Button>
+                                    <Button color={"success"} onClick={actualizarRegistro} disabled={isUpdating || !isValid}>
+                                        {isUpdating ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                                Actualizando
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Actualizar
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            }
+                            form={
+                                <>
+                                    <ModalFormInputContainer>
+                                        nombre
+                                        <Input
+                                            name='nombre_zona'
+                                            type='text'
+                                            placeholder="Nombre"
+                                            icon={<BsCalendar2Event className='icon-input' />}
+                                            value={formState.nombre_zona}
+                                            onChange={handleFormChangeWithValidation}
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        categoría
+                                        <Select
+                                            name={'tipo_zona'}
+                                            data={[
+                                                {
+                                                    id_tipo_zona: 'eliminacion-directa',
+                                                    tipo_zona: "Eliminación Directa"
+                                                },
+                                                // {
+                                                //     id_tipo_zona: 'eliminacion-directa-ida-vuelta',
+                                                //     tipo_zona: "Eliminación Directa (Ida y Vuelta)"
+                                                // },
+                                                {
+                                                    id_tipo_zona: 'todos-contra-todos',
+                                                    tipo_zona: "Todos Contra Todos"
+                                                },
+                                                // {
+                                                //     id_tipo_zona: 'todos-contra-todos-ida-vuelta',
+                                                //     tipo_zona: "Todos Contra Todos (Ida y Vuelta)"
+                                                // },
+                                            ]}
+                                            icon={<IoShieldHalf className='icon-select' />}
+                                            id_={"id_tipo_zona"}
+                                            column='tipo_zona'
+                                            value={formState.tipo_zona}
+                                            onChange={handleFormChangeWithValidation}
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Etapa
+                                        <Select
+                                            name={'etapa'}
+                                            data={etapas}
+                                            icon={<IoShieldHalf className='icon-select' />}
+                                            id_={"id_etapa"}
+                                            column='nombre'
+                                            value={formState.etapa}
+                                            onChange={handleFormChangeWithValidation}
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        ¿La zona tendrá campeón?
+                                        <Switch
+                                            isChecked={formState.campeon !== 'N'}
+                                            onChange={(e) => handleFormChange({
+                                                target: { name: 'campeon', value: e.target.checked ? 'S' : 'N' }
+                                            })}
+                                        />
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Zona finalizada
+                                        <Switch
+                                            isChecked={formState.terminada === 'S'}
+                                            onChange={(e) => handleFormChange({
+                                                target: { name: 'terminada', value: e.target.checked ? 'S' : 'N' }
+                                            })}
+                                        />
+                                    </ModalFormInputContainer>
+                                    {
+                                        formState.campeon === 'S' && (
+                                            <ModalFormInputContainer>
+                                                Seleccione un campeón
+                                                <Select
+                                                    name={'equipo_campeon'}
+                                                    data={filtrarEquiposZona(formState.id_zona)}
+                                                    icon={<IoShieldHalf className='icon-select' />}
+                                                    id_={"id_equipo"}
+                                                    column='nombre'
+                                                    value={formState.equipo_campeon}
+                                                    onChange={handleFormChangeWithValidation}
+                                                />
+                                            </ModalFormInputContainer>
+                                        )
+                                    }
+                                    <ModalFormInputContainer>
+                                        cantidad de equipos
+                                        <Input
+                                            name='cantidad_equipos'
+                                            type='number'
+                                            placeholder="Cantidad de equipos"
+                                            icon={<BsCalendar2Event className='icon-input' />}
+                                            value={formState.cantidad_equipos}
+                                            onChange={handleFormChangeWithValidation}
+                                        />
+                                    </ModalFormInputContainer>
+                                </>
+                            }
+                        />
+                        <Overlay onClick={closeUpdateModal} />
+                    </>
                 )
             }
             {
-                isCheckPlantel && ( 
+                isCheckPlantel && (
                     <>
                         <ModalCreate initial={{ opacity: 0 }}
                             animate={{ opacity: isCheckPlantel ? 1 : 0 }}
