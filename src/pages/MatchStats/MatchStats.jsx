@@ -24,7 +24,8 @@ const MatchStats = () => {
     const partidoId = parseInt(searchParams.get('id'));
 
     const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
-
+    console.log(incidencias);
+    
     const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId)
 
     const [activeTab, setActiveTab] = useState(() => 

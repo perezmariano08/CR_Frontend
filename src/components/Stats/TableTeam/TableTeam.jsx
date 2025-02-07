@@ -10,7 +10,7 @@ import { useEquipos } from '../../../hooks/useEquipos';
 const TableTeam = ({ data, zona, dataColumns, id_equipo }) => {
     const equipoIds = data?.map(row => row.id_equipo);
     const { escudosEquipos } = useEquipos();
-
+    
     if (!zona) {
         return null;
     }
@@ -32,6 +32,7 @@ const TableTeam = ({ data, zona, dataColumns, id_equipo }) => {
 
     const nombreTorneo = zona.nombre_edicion;
 
+    
     return (
         <TableContainerStyled>
             <TableTitle>

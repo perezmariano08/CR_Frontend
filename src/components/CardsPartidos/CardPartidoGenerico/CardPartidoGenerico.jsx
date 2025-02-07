@@ -35,6 +35,8 @@ const CardPartidoGenerico = ({
     const { escudosEquipos, nombresEquipos } = useEquipos();
     const token = localStorage.getItem('token');
 
+    console.log(dia);
+    
     // Expulsados
     const expulsados = useSelector((state) => state.expulsados.data);
     const expulsadosPartido = expulsados.filter((e) => e.id_partido == id_partido)

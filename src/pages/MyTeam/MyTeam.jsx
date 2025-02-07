@@ -18,6 +18,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { getJugadoresEquipo, getPosicionesTemporada, getZonas } from '../../utils/dataFetchers.js';
 import useStatsTeam from '../../hooks/useStatsTeam.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
+import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
 import { useEquipos } from '../../hooks/useEquipos.js';
@@ -27,6 +28,7 @@ import CardPartido from '../../components/Stats/CardPartido/CardPartido.jsx';
 import { PartidosGenericosContainer } from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidosGenericoStyles.js';
 import CardPartidoGenerico from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico.jsx';
 import { SectionHome, SectionHomeTitle } from '../Home/HomeStyles.js';
+import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice.js';
 
 const MyTeam = () => {
     const { user } = useAuth();
@@ -35,6 +37,7 @@ const MyTeam = () => {
 
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
+    const temporadas = useSelector((state) => state.temporadas.data);
 
     const searchParams = new URLSearchParams(location.search);
     const equipoIdFromParams = parseInt(searchParams.get('idEquipo'));
@@ -55,19 +58,55 @@ const MyTeam = () => {
     const [posiciones, setPosiciones] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const id_zona = miEquipo?.id_zona;
+
+    const temporadasEquipo = temporadas.filter(t => t.id_equipo === equipoId && t.tipo_zona === "todos-contra-todos");
+            const ultimaTemporada = temporadasEquipo.length > 0 
+                ? temporadasEquipo[temporadasEquipo.length - 1] 
+                : null;
+
+            console.log("Última temporada encontrada:", ultimaTemporada);
+
+            const id_zona_temporada = ultimaTemporada ? ultimaTemporada.id_zona : 1;
+    const id_zona = id_zona_temporada;
     const { escudosEquipos } = useEquipos();
+    
+    useEffect(() => {
+        if (equipos.length === 0) {
+            dispatch(fetchEquipos());
+            dispatch(fetchTemporadas());
+            dispatch(fetchPartidos());
+        }
+    }, [dispatch, equipos.length]);
+
+    const zonaFiltrada = useMemo(() => 
+        zonas.find((z) => z.id_zona === id_zona), 
+        [zonas, id_zona]
+    );
+
+    const {partidoAMostrar, proximoPartido} = useMatchesUser(equipoId);
+
+    if (!miEquipo) {
+        return (
+            <SpinerContainer>
+                <TailSpin width='40' height='40' color='#2AD174' />
+            </SpinerContainer>
+        );
+    }
 
     useEffect(() => {
+        console.log(id_zona, equipoId);
+
         // Función para obtener datos
         const fetchData = async () => {
+            
+            
             try {
                 const [jugadoresData, temporadasData, posicionesData] = await Promise.all([
                     getJugadoresEquipo(id_zona, equipoId),
                     getZonas(),
                     getPosicionesTemporada(id_zona)
                 ]);
-
+                
                 setBdJugadores(jugadoresData);
                 setZonas(temporadasData);
                 setPosiciones(posicionesData);
@@ -82,27 +121,7 @@ const MyTeam = () => {
         }
     }, [equipoId, id_zona]);
 
-    useEffect(() => {
-        if (equipos.length === 0) {
-            dispatch(fetchEquipos());
-        }
-    }, [dispatch, equipos.length]);
-
-    const zonaFiltrada = useMemo(() => 
-        zonas.find((z) => z.id_zona === id_zona), 
-        [zonas, id_zona]
-    );
-
-    const {partidoAMostrar, proximoPartido} = useMatchesUser(miEquipo.id_equipo);
-
-    if (!miEquipo) {
-        return (
-            <SpinerContainer>
-                <TailSpin width='40' height='40' color='#2AD174' />
-            </SpinerContainer>
-        );
-    }
-
+    
     return (
         <>
             <ContentUserContainer>
@@ -174,8 +193,9 @@ const MyTeam = () => {
                                 <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns} id_equipo={equipoId}/>
                             )
                         }
-                    </Section>
+                                
                         
+                    </Section>
                     {/* <Section>
                         <h2>Posiciones</h2>
                         <TablePosiciones 
@@ -192,7 +212,6 @@ const MyTeam = () => {
                         <PartidosGenericosContainer>
                             {partidosMiEquipo
                             .sort((a, b) => new Date(b.dia) - new Date(a.dia))
-                            
                             .map((p) => (
                                 <CardPartidoGenerico key={p.id_partido} {...p} />
                             ))}

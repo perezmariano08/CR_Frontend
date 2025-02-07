@@ -64,7 +64,7 @@ const UserCategoriasPosiciones = () => {
    useEffect(() => {
       const fetchPosiciones = async () => {
          if (zonas.length > 0) {
-         const zonasFiltradas = zonas.filter((z) => z.id_categoria === id_categoria);
+         const zonasFiltradas = zonas.filter((z) => z.id_categoria == id_categoria);
          const posicionesPromises = zonasFiltradas.map((zona) =>
             getPosicionesTemporada(zona.id_zona).then((data) => ({
                id_zona: zona.id_zona,
@@ -88,6 +88,9 @@ const UserCategoriasPosiciones = () => {
       const zonaFiltrada = zonas.find((z) => z.id_zona === id);
       return zonaFiltrada?.nombre_zona || '';
    }   
+
+   console.log(posicionesPorZona);
+   
 
    return (
       <ContentUserContainer>

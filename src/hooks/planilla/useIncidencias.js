@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { getIncidenciasPlanilla } from "../../utils/dataFetchers";
 import { useWebSocket } from "../../Auth/WebSocketContext";
 
-export const useIncidencias = (token = null, id_partido, eventosSocket = []) => {
+export const useIncidencias = ( id_partido, eventosSocket = [], token = null,) => {
     const [incidencias, setIncidencias] = useState(null);
     const [loading, setLoading] = useState(true);
     const socket = useWebSocket();
 
     const fetchIncidencias = async () => {
+        console.log(id_partido);
+        
         if (!id_partido) return;
         setLoading(true);
         try {

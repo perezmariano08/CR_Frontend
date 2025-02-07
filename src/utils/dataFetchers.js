@@ -4,6 +4,8 @@ import { URL } from "./utils";
 Axios.defaults.withCredentials = true;
 
 export const getPosicionesTemporada = async (id_zona) => {
+  console.log(id_zona);
+  
   try {
     const res = await Axios.get(
       `${URL}/user/get-posiciones-zona?id_zona=${id_zona}`,
@@ -31,6 +33,8 @@ export const getZonas = async () => {
 };
 
 export const getJugadoresEquipo = async (id_zona, equipoId) => {
+  console.log(id_zona, equipoId);
+  
   try {
     const res = await Axios.get(
       `${URL}/user/get-jugadores-equipo?id_zona=${id_zona}&id_equipo=${equipoId}`,
