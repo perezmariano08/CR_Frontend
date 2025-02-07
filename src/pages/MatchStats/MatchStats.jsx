@@ -23,9 +23,14 @@ const MatchStats = () => {
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
 
+<<<<<<< HEAD
     const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
     console.log(incidencias);
     
+=======
+    const { incidencias, loading: loading_incidencias } = useIncidencias(null, partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
+
+>>>>>>> 6971e33454a909b8ce144acbb9317ae34d307312
     const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId)
 
     const [activeTab, setActiveTab] = useState(() => 
@@ -38,10 +43,10 @@ const MatchStats = () => {
     const { partidosJugados, partidosEntreEquipos } = useMatchOlds(partido?.id_equipoLocal, partido?.id_equipoVisita);
 
     useEffect(() => {
-        if (activeTab === 'Previa' && (!formaciones?.length || !formaciones?.length)) {
+        if (activeTab === 'Previa' && (!formaciones || formaciones.length === 0)) {
             setActiveTab('Cara a cara');
         }
-    }, [formaciones]);
+    }, [formaciones, activeTab]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -81,7 +86,7 @@ const MatchStats = () => {
                         }
                         {partido.estado !== 'P' && <Incidents incidencias={incidencias} formaciones={formaciones} partido={partido} />}
                         {partidosJugados.length === 0 && <StatsOldMatches partidosPorEquipo={partidosJugados} idLocal={localTeamId} idVisita={visitingTeamId} />}
-                        <JugadorDelPartido formaciones={formaciones} partido={partido}/>
+                        {partido.estado === 'F' && <JugadorDelPartido formaciones={formaciones} partido={partido}/>}
                     </>
                 )}
 

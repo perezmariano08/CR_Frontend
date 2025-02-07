@@ -6,7 +6,7 @@ import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import Table from '../../../components/Table/Table';
 import { ContentNavWrapper, MenuContentTop } from '../../../components/Content/ContentStyles';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
-import { ModalFormInputContainer  } from '../../../components/Modals/ModalsStyles';
+import { ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
 import Input from '../../../components/UI/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
@@ -47,35 +47,32 @@ const CategoriasEquipos = () => {
     const zonas = useSelector((state) => state.zonas.data);
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == id_categoria);
     const temporadas = useSelector((state) => state.temporadas.data);
-    
-    // Filtrar los equipos de la temporada y asegurarse de que no haya duplicados por id_equipo
+
     const equiposTemporada = temporadas
-        .filter((t) => t.id_categoria == id_categoria)
+        .filter((t) => t.id_categoria == id_categoria && t.id_equipo != null)
         .filter(
             (equipo, index, self) =>
                 index === self.findIndex((e) => e.id_equipo === equipo.id_equipo)
         );
-    
-    
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
-    const categoriasSelect = categoriasList.filter((categoria) => categoria.id_edicion == categoriaFiltrada.id_edicion && categoria.id_categoria !== categoriaFiltrada.id_categoria )
+    const categoriasSelect = categoriasList.filter((categoria) => categoria.id_edicion == categoriaFiltrada.id_edicion && categoria.id_categoria !== categoriaFiltrada.id_categoria)
 
     // Manejo del form
-    const [formState, handleFormChange, resetForm] = useForm({ 
+    const [formState, handleFormChange, resetForm] = useForm({
         id_categoria: id_categoria,
         id_edicion: categoriaFiltrada.id_edicion,
         nombre_equipo: ''
     });
 
     const [formStateCategoria, handleFormChangeCategoria, resetFormCategoria] = useForm({
-        id_categoriaVieja: id_categoria, 
+        id_categoriaVieja: id_categoria,
         id_categoria: categoriasSelect.length > 0 ? categoriasSelect[0].id_categoria : null
     });
 
     const isFormEmpty = !formState.nombre_equipo.trim();
 
     // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
-    const { 
+    const {
         isCreateModalOpen, openCreateModal, closeCreateModal,
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
         isUpdateModalOpen, openUpdateModal, closeUpdateModal,
@@ -87,15 +84,13 @@ const CategoriasEquipos = () => {
 
     // CREAR
     const { crear, isSaving } = useCrud(
-        `${URL}/user/crear-equipo`, fetchTemporadas, 'Registro creado correctamente.', "Error al crear el registro."
+        `${URL}/admin/crear-equipo`, fetchTemporadas
     );
 
     // Para el segundo formulario de creación
     const { crear: asignarTemporada, isSaving: isSavingAsignacionEquipo } = useCrud(
-        `${URL}/user/insertar-equipo-temporada`, 
-        fetchTemporadas, 
-        'Registro del jugador creado correctamente.', 
-        "Error al crear el jugador."
+        `${URL}/admin/insertar-equipo-temporada-categoria`,
+        fetchTemporadas, fetchTemporadas
     );
 
     const agregarRegistro = async () => {
@@ -104,7 +99,7 @@ const CategoriasEquipos = () => {
             return;
         }
 
-        if (formState.nombre_equipo.length < 3 ) {
+        if (formState.nombre_equipo.length < 3) {
             toast.error("Ingrese al menos 3 caracteres.");
             return;
         }
@@ -113,25 +108,26 @@ const CategoriasEquipos = () => {
             toast.error(`El equipo ya existe en el torneo.`);
             return;
         }
-        
+
         const data = {
             id_categoria: formState.id_categoria,
             id_edicion: formState.id_edicion,
             nombre: formState.nombre_equipo.trim(),
             id_zona: null
         };
-        
+
         await crear(data);
         closeCreateModal();
         resetForm()
     };
 
     const asignarRegistro = async (id_equipo) => {
+        // navigate(`/admin/categorias/formato/${id_categoria}`);
         if (equiposTemporada.find(e => e.id_equipo === id_equipo)) {
             toast.error(`El equipo ya pertenece a esta categoria.`);
             return;
         }
-        
+
         if (zonasFiltradas.length <= 0) {
             toast.error(`Debes crear al menos una zona para asignar el equipo`);
             return;
@@ -139,13 +135,11 @@ const CategoriasEquipos = () => {
 
         const data = {
             id_categoria: formState.id_categoria,
-
             id_edicion: formState.id_edicion,
             id_equipo: id_equipo,
             id_zona: null,
             vacante: null
         };
-                
 
         await asignarTemporada(data);
         closeCreateModal();
@@ -153,7 +147,7 @@ const CategoriasEquipos = () => {
     };
 
     // ELIMINAR
-    const [idEliminar, setidEliminar] = useState(null) 
+    const [idEliminar, setidEliminar] = useState(null)
 
     const eliminarEquipo = (id_equipo) => {
         openDeleteModal()
@@ -181,7 +175,7 @@ const CategoriasEquipos = () => {
     };
 
     // ACTUALIZAR
-    const [idEditar, setidEditar] = useState(null) 
+    const [idEditar, setidEditar] = useState(null)
 
     const editarEquipo = (id_equipo) => {
         openUpdateModal()
@@ -192,14 +186,14 @@ const CategoriasEquipos = () => {
     );
 
     const actualizarDato = async () => {
-        const data = { 
+        const data = {
             id_categoriaNueva: formStateCategoria.id_categoria,
             id_equipo: idEditar,
         }
         await actualizar(data);
         closeUpdateModal()
     };
-    
+
     const categoriaEquiposs = equiposList.filter((equipo) => equipo.id_categoria == id_categoria)
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
     const equipoSeleccionado = equiposList.find((equipo) => equipo.id_equipo == idEliminar)
@@ -217,22 +211,22 @@ const CategoriasEquipos = () => {
                 Cambiar categoria
             </Button>
         ) : null,
-        asignar: 
+        asignar:
             equipo.vacante ? <EstadoBodyTemplate $bg={"success"}>
-            ASIGNADA
-        </EstadoBodyTemplate> :   
-        (
-            <Button bg={"import"} onClick={() => navigate(`/admin/categorias/formato/${equipo.id_categoria}`)}>
-                Asignar
-            </Button>
-        ),
+                ASIGNADA
+            </EstadoBodyTemplate> :
+                (
+                    <Button bg={"import"} onClick={() => navigate(`/admin/categorias/formato/${equipo.id_categoria}`)}>
+                        Asignar
+                    </Button>
+                ),
         equipo: (
             <EquipoBodyTemplate>
                 <img src={`${URLImages}${escudosEquipos(equipo.id_equipo)}`} alt={nombresEquipos(equipo.id_equipo)} />
                 <span>{nombresEquipos(equipo.id_equipo)}</span>
             </EquipoBodyTemplate>
         ),
-        jugadores_con_dni: 
+        jugadores_con_dni:
             equipo.jugadores_con_dni === 1 ? (
                 `${equipo.jugadores_con_dni} jugador`
             ) : `${equipo.jugadores_con_dni} jugadores`,
@@ -247,7 +241,7 @@ const CategoriasEquipos = () => {
         setCrearEquipo(true); // Cambia el estado para mostrar el formulario de creación
     };
 
-    const [idAsignar, setIdAsignar] = useState(null) 
+    const [idAsignar, setIdAsignar] = useState(null)
 
     const manejoGuardarEquipo = (id_equipo) => {
         // Lógica para guardar el nuevo equipo
@@ -256,8 +250,8 @@ const CategoriasEquipos = () => {
         alert(id_equipo)
         asignarRegistro(id_equipo)
     };
-    
-useEffect(() => {
+
+    useEffect(() => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos())
@@ -279,11 +273,11 @@ useEffect(() => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <CategoriasMenuNav id_categoria={id_categoria}/>
-            <Button bg="success" color="white" onClick={openCreateModal}>
+            <CategoriasMenuNav id_categoria={id_categoria} />
+            {/* <Button bg="success" color="white" onClick={openCreateModal}>
                 <FiPlus />
                 <p>Agregar equipo</p>
-            </Button>
+            </Button> */}
             {
                 equiposTemporada.length > 0 ? (
                     <>
@@ -302,7 +296,7 @@ useEffect(() => {
                     <CategoriaEquiposEmpty>
                         <p>No se han encontrado equipos.</p>
                     </CategoriaEquiposEmpty>
-                    
+
                 )
             }
             {
@@ -335,75 +329,75 @@ useEffect(() => {
                             </>
                         }
                         form={
-                            !crearEquipo ? 
-                            <ModalFormInputContainer>
-                                nombre
-                                <Input 
-                                    name='nombre_equipo'
-                                    type='text' 
-                                    placeholder="Nombre" 
-                                    icon={<BsCalendar2Event className='icon-input'/>} 
-                                    value={formState.nombre_equipo}
-                                    onChange={handleFormChange}
-                                />
-                                <p style={{color: '#a8a8a8', textTransform: 'uppercase'}}>ingresar al menos 3 caracateres</p>
-                            </ModalFormInputContainer>
-                            : <ModalFormInputContainer>
-                                nombre
-                                <Input 
-                                    name='nombre_equipo'
-                                    type='text' 
-                                    placeholder="Nombre" 
-                                    icon={<BsCalendar2Event className='icon-input'/>} 
-                                    value={formState.nombre_equipo}
-                                    onChange={handleFormChange}
-                                />
-                            </ModalFormInputContainer>
+                            !crearEquipo ?
+                                <ModalFormInputContainer>
+                                    nombre
+                                    <Input
+                                        name='nombre_equipo'
+                                        type='text'
+                                        placeholder="Nombre"
+                                        icon={<BsCalendar2Event className='icon-input' />}
+                                        value={formState.nombre_equipo}
+                                        onChange={handleFormChange}
+                                    />
+                                    <p style={{ color: '#a8a8a8', textTransform: 'uppercase' }}>ingresar al menos 3 caracateres</p>
+                                </ModalFormInputContainer>
+                                : <ModalFormInputContainer>
+                                    nombre
+                                    <Input
+                                        name='nombre_equipo'
+                                        type='text'
+                                        placeholder="Nombre"
+                                        icon={<BsCalendar2Event className='icon-input' />}
+                                        value={formState.nombre_equipo}
+                                        onChange={handleFormChange}
+                                    />
+                                </ModalFormInputContainer>
                         }
                         texto={
                             !crearEquipo &&
                             formState.nombre_equipo.length >= 3 && (
-                                equiposList.find((e) => 
+                                equiposList.find((e) =>
                                     e.nombre.toLowerCase().includes(formState.nombre_equipo.trim().toLowerCase())
-                                ) 
-                                ? 
-                                <EquipoExiste>
-                                    <h2>Equipos en tu torneo</h2>
-                                    <EquipoExisteLista>
-                                    {
-                                        equiposList
-                                            .filter((e) => 
-                                                e.nombre.toLowerCase().includes(formState.nombre_equipo.trim().toLowerCase())
-                                            )
-                                            .map((e) => (
-                                                <EquipoExisteItem key={e.id_equipo}>
-                                                    <EquipoExisteEscudo>
-                                                        <img src={`${URLImages}${escudosEquipos(e.id_equipo)}`} alt={nombresEquipos(e.id_equipo)} />
-                                                        {e.nombre}
-                                                    </EquipoExisteEscudo>
-                                                    <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
-                                                        Seleccionar
-                                                    </Button>
-                                                </EquipoExisteItem>
-                                            ))
-                                    }
-                                    </EquipoExisteLista>
-                                    <EquipoExisteDivider/>
+                                )
+                                    ?
+                                    <EquipoExiste>
+                                        <h2>Equipos en tu torneo</h2>
+                                        <EquipoExisteLista>
+                                            {
+                                                equiposList
+                                                    .filter((e) =>
+                                                        e.nombre.toLowerCase().includes(formState.nombre_equipo.trim().toLowerCase())
+                                                    )
+                                                    .map((e) => (
+                                                        <EquipoExisteItem key={e.id_equipo}>
+                                                            <EquipoExisteEscudo>
+                                                                <img src={`${URLImages}${escudosEquipos(e.id_equipo)}`} alt={nombresEquipos(e.id_equipo)} />
+                                                                {e.nombre}
+                                                            </EquipoExisteEscudo>
+                                                            <Button color={'success'} onClick={() => asignarRegistro(e.id_equipo)}>
+                                                                Seleccionar
+                                                            </Button>
+                                                        </EquipoExisteItem>
+                                                    ))
+                                            }
+                                        </EquipoExisteLista>
+                                        <EquipoExisteDivider />
+                                        <EquipoNoExiste>
+                                            <p>¿No encuentras el equipo?</p>
+                                            <Button bg={'success'} onClick={manejarCrearEquipo}>
+                                                Crear equipo
+                                            </Button>
+                                        </EquipoNoExiste>
+                                    </EquipoExiste>
+                                    :
                                     <EquipoNoExiste>
-                                        <p>¿No encuentras el equipo?</p>
+                                        <p>Parece que no tienes ningún equipo llamado "<span>{formState.nombre_equipo}</span>",
+                                            pero puedes crearlo</p>
                                         <Button bg={'success'} onClick={manejarCrearEquipo}>
                                             Crear equipo
                                         </Button>
                                     </EquipoNoExiste>
-                                </EquipoExiste>
-                                :
-                                <EquipoNoExiste>
-                                    <p>Parece que no tienes ningún equipo llamado "<span>{formState.nombre_equipo}</span>",
-                                    pero puedes crearlo</p>
-                                    <Button bg={'success'} onClick={manejarCrearEquipo}>
-                                        Crear equipo
-                                    </Button>
-                                </EquipoNoExiste>
                             )
                         }
                     />
@@ -415,36 +409,36 @@ useEffect(() => {
                     <>
                         <ModalDelete
                             text={
-                            `¿Estas seguro que quieres eliminar el equipo ${equipoSeleccionado.nombre} de la categoria?`}
+                                `¿Estas seguro que quieres eliminar el equipo ${equipoSeleccionado.nombre} de la categoria?`}
                             animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
                             onClickClose={closeDeleteModal}
                             buttons={
-                            <>
-                                <Button color={"danger"} onClick={closeDeleteModal}>
-                                    <IoClose />
-                                    No
-                                </Button>
-                                <Button color={"success"} onClick={eliminarRegistros} disabled={''}>
-                                    {isDeleting ? (
-                                        <>
-                                            <LoaderIcon size="small" color='green' />
-                                            Eliminando
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IoCheckmark />
-                                            Si
-                                        </>
-                                    )}
-                                </Button>
-                            </>
-                            }  
+                                <>
+                                    <Button color={"danger"} onClick={closeDeleteModal}>
+                                        <IoClose />
+                                        No
+                                    </Button>
+                                    <Button color={"success"} onClick={eliminarRegistros} disabled={''}>
+                                        {isDeleting ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                                Eliminando
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Si
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            }
                         />
-                        <Overlay onClick={closeDeleteModal}/>
+                        <Overlay onClick={closeDeleteModal} />
                     </>
-                    
+
                 )
             }
             {
@@ -480,16 +474,16 @@ useEffect(() => {
                             <>
                                 <ModalFormInputContainer>
                                     categoría
-                                    <Select 
+                                    <Select
                                         name={'id_categoria'}
                                         data={categoriasSelect}
-                                        icon={<IoShieldHalf className='icon-select'/>}
+                                        icon={<IoShieldHalf className='icon-select' />}
                                         id_={"id_categoria"}
                                         column='nombre'
                                         value={formStateCategoria.id_categoria}
                                         onChange={handleFormChangeCategoria}
                                     >
-                            </Select>
+                                    </Select>
                                 </ModalFormInputContainer>
                             </>
                         }

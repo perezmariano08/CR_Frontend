@@ -6,9 +6,7 @@ import { useEquipos } from '../../../hooks/useEquipos';
 import { URLImages } from '../../../utils/utils';
 
 const JugadorDelPartido = ({ formaciones, partido }) => {
-    console.log(formaciones);
     const mejorJugador = formaciones?.find(f => +f.id_jugador === +partido.jugador_destacado);
-    console.log(mejorJugador);
     const { fotosJugadores, nombresJugadores } = useJugadores();
     const { escudosEquipos, nombresEquipos } = useEquipos();
     return (
