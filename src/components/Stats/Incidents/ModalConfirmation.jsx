@@ -6,11 +6,12 @@ import { HiArrowLeft } from "react-icons/hi";
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { actualizarEstadoPartido, actualizarPartido, actualizarPartidoVacante, borrarFirmaJugador, borrarIncidencia, updateSancionados } from '../../../utils/dataFetchers';
 import { handleMvpSelected, setActionToDelete, setDescripcionPartido, setJugador, toggleModal } from '../../../redux/Planillero/planilleroSlice';
+import { useNavigate } from 'react-router-dom';
 
 const ModalConfirmation = () => {
     const token = localStorage.getItem('token');
     const dispatch = useDispatch();
-
+    const navigate = useNavigate();
     const searchParams = new URLSearchParams(window.location.search);
     const id_partido = parseInt(searchParams.get('id'));
 
@@ -83,6 +84,11 @@ const ModalConfirmation = () => {
                     await updateSancionados(token);
 
                     toast.success('Partido subido correctamente');
+
+                    setTimeout(() => { 
+                        navigate('/planillero');
+                    }, 1500);
+                    
                 } else {
                     toast.error('Debe seleccionar un jugador MVP antes de finalizar el partido');
                 }

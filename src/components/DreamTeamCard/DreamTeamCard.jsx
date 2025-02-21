@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Fila,
     Jugador,
@@ -10,49 +10,79 @@ import {
 import { URLImages } from '../../utils/utils';
 import { useJugadores } from '../../hooks/useJugadores.js';
 import { useEquipos } from '../../hooks/useEquipos.js';
+import { getDreamTeamFecha } from '../../utils/dataFetchers.js';
 
-const DreamTeamCard = ({ jugadores }) => {
-    const { fotosJugadores, nombresJugadores } = useJugadores();
+const DreamTeamCard = ({ jornada, id_categoria }) => {
+    
+    const { fotosJugadores } = useJugadores();
     const { escudosEquipos } = useEquipos();
+    const [dreamTeam, setDreamTeam] = useState([]);
 
+    useEffect(() => {
+        const fetchDreamTeam = async () => {
+            const dreamTeam = await getDreamTeamFecha(id_categoria, jornada);
+            setDreamTeam(dreamTeam || []);
+        };
+
+        fetchDreamTeam();
+    }, [id_categoria, jornada]);
+    
     // Define la formación predeterminada
-    const formacion = [1, 2, 2, 1, 1]; // 2 delanteros, 2 mediocampistas, 1 volante, 1 defensor, 1 arquero
+    const formacion = [1, 2, 2, 1, 1];
 
     // Agrupa jugadores según la formación
     const jugadoresPorFila = [];
     let startIndex = 0;
 
     formacion.forEach((cantidad) => {
-        jugadoresPorFila.push(jugadores.slice(startIndex, startIndex + cantidad));
+        jugadoresPorFila.push(dreamTeam.slice(startIndex, startIndex + cantidad));
         startIndex += cantidad;
     });
 
-    // Invertir el orden de las filas
     const filasInvertidas = jugadoresPorFila.reverse();
 
     return (
-        <DreamTeamCardWrapper>
-            {filasInvertidas.map((fila, filaIndex) => (
-                <Fila key={filaIndex}>
-                    {fila.map((jugador, jugadorIndex) => (
-                        <Jugador key={jugadorIndex}>
-                            <LogoJugador>
-                                <img
-                                    className='logo-jugador'
-                                    src={`${URLImages}/${fotosJugadores(jugador.id_jugador)}`}
-                                    alt='Jugador'
-                                />
-                                <img
-                                    className='logo-equipo'
-                                    src={`${URLImages}/${escudosEquipos(jugador.id_equipo)}`}
-                                    alt='Equipo'
-                                />
-                            </LogoJugador>
-                            <NombreJugador>{nombresJugadores(jugador.id_jugador)}</NombreJugador>
-                        </Jugador>
-                    ))}
-                </Fila>
-            ))}
+        <DreamTeamCardWrapper className='home'>
+            {dreamTeam.length > 0 ? (
+                filasInvertidas.map((fila, filaIndex) => (
+                    <Fila key={filaIndex}>
+                        {fila.map((jugador, jugadorIndex) => (
+                            <Jugador key={jugadorIndex}>
+                                <LogoJugador>
+                                    <img
+                                        className='logo-jugador'
+                                        src={`${URLImages}/${fotosJugadores(jugador.id_jugador)}`}
+                                        alt='Jugador'
+                                    />
+                                    <img
+                                        className='logo-equipo'
+                                        src={`${URLImages}/${escudosEquipos(jugador.id_equipo)}`}
+                                        alt='Equipo'
+                                    />
+                                </LogoJugador>
+                                <NombreJugador>{jugador.nombre} {jugador.apellido}</NombreJugador>
+                            </Jugador>
+                        ))}
+                    </Fila>
+                ))
+            ) : (
+                // Renderiza solo los logos sin jugadores cuando no hay DreamTeam
+                formacion.reverse().map((cantidad, filaIndex) => (
+                    <Fila key={filaIndex}>
+                        {Array.from({ length: cantidad }).map((_, jugadorIndex) => (
+                            <Jugador key={jugadorIndex}>
+                                <LogoJugador>
+                                    <img
+                                        className='logo-jugador'
+                                        src={`${URLImages}/${fotosJugadores(1)}`}
+                                        alt='Jugador'
+                                    />
+                                </LogoJugador>
+                            </Jugador>
+                        ))}
+                    </Fila>
+                ))
+            )}
 
             {/* SVG en el fondo de la caja */}
             <SvgBackground>

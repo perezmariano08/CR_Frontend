@@ -52,7 +52,7 @@ import { uploadFile } from '../../../utils/dataFetchers';
 const CategoriasEquiposDetalle = () => {
     const dispatch = useDispatch()
     const { id_categoria, id_equipo } = useParams()
-    
+    const token = localStorage.getItem('token');
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
     // Estado del el/los Listado/s que se necesitan en el modulo
@@ -419,7 +419,7 @@ const CategoriasEquiposDetalle = () => {
             toast.error("No hay datos para importar.");
             return;
         }
-    
+        
         try {
             setIsImporting(true)
             // Extraer todos los DNIs de jugadoresList para una verificación rápida y mapearlos con su id_jugador
@@ -445,26 +445,29 @@ const CategoriasEquiposDetalle = () => {
                         continue;
                     }
                     
-
                     // Inserta el jugador y su relación en planteles
-                    await Axios.post(`${URL}/user/agregar-jugador-plantel`, {
+                    await Axios.post(`${URL}/admin/agregar-jugador-plantel`, {
                         id_jugador,
-                        id_equipo: id_equipo, // Reemplaza esto con el id del equipo actual
-                        id_edicion: categoriaFiltrada.id_edicion, // Reemplaza con la edición actual
-                        id_categoria: equipoFiltrado.id_categoria // Reemplaza con la categoría actual
+                        id_equipo: id_equipo,
+                        id_edicion: categoriaFiltrada.id_edicion,
+                        id_categoria: equipoFiltrado.id_categoria
+                    }, {
+                        headers: { 'Authorization': `Bearer ${token}`, }
                     });
                     continue;
                 }
 
                 // Inserta el jugador y su relación en planteles
-                await Axios.post(`${URL}/user/crear-jugador`, {
+                await Axios.post(`${URL}/admin/crear-jugador`, {
                     dni,
                     nombre,
                     apellido,
                     posicion,
-                    id_equipo: id_equipo, // Reemplaza esto con el id del equipo actual
-                    id_edicion: categoriaFiltrada.id_edicion, // Reemplaza con la edición actual
-                    id_categoria: equipoFiltrado.id_categoria // Reemplaza con la categoría actual
+                    id_equipo: id_equipo,
+                    id_edicion: String(categoriaFiltrada.id_edicion),
+                    id_categoria: String(equipoFiltrado.id_categoria)
+                }, {
+                    headers: { 'Authorization': `Bearer ${token}`, }
                 })
                 
             }
@@ -472,6 +475,7 @@ const CategoriasEquiposDetalle = () => {
             toast.success("Importación completada correctamente.");
             dispatch(fetchJugadores());
             dispatch(fetchPlanteles());
+            dispatch(fetchTemporadas());
             closeImportModal()
         } catch (error) {
             console.error("Error durante la importación:", error);
@@ -504,7 +508,6 @@ const CategoriasEquiposDetalle = () => {
         
     }, [dispatch]);
 
-    
     const [imageFile, setImageFile] = useState(null);
     const [img, setImg] = useState("");
     const [previewImage, setPreviewImage] = useState("");

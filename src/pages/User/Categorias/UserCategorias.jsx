@@ -21,12 +21,16 @@ const dispatch = useDispatch();
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
 
+    const currentYear = new Date().getFullYear();
+    const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
+
+
     return (
         <CategoriasWrapper>
             <CategoriasContainer>
                 {ediciones.map((edicion) => (
-                    <CategoriasListaWrapper key={edicion.id_edicion}>
-                    <CategoriasListaTitulo>
+                    <CategoriasListaWrapper key={edicion.id_edicion} className={edicion.id_edicion === edicionesActuales[0].id_edicion ? 'actual' : ''}>
+                    <CategoriasListaTitulo className={edicion.id_edicion === edicionesActuales[0].id_edicion ? 'actual' : ''}>
                         <p>{edicion.nombre} {edicion.temporada}</p>
                     </CategoriasListaTitulo>
                     <CategoriasItemsWrapper>
@@ -40,6 +44,7 @@ const dispatch = useDispatch();
                             <CategoriasItem 
                             key={categoria.id_categoria} 
                             to={`/categoria/posiciones/${categoria.id_categoria}`}
+                            className={edicion.id_edicion === edicionesActuales[0].id_edicion ? 'actual' : ''}
                             >
                             {categoria.nombre}
                             </CategoriasItem>

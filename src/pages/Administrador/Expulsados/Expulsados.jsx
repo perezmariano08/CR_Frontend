@@ -11,7 +11,7 @@ import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
 import Axios from 'axios';
-import { URL, URLImages } from '../../../utils/utils';
+import { formatedDate, URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import Select from '../../../components/Select/Select';
@@ -31,15 +31,17 @@ import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
+import { useEquipos } from '../../../hooks/useEquipos';
 
 const Expulsados = () => {
     //Hooks
     const { 
         isCreateModalOpen, openCreateModal, closeCreateModal, 
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
+        isDescripcionModalOpen, openDescripcionModal, closeDescripcionModal,
         isUpdateModalOpen, openUpdateModal, closeUpdateModal,
     } = useModalsCrud();
-
+    const { nombresEquipos } = useEquipos();
     // Manejo del form
     const [formState, handleChange, resetForm, setFormState] = useForm({ 
         id_partido: '',
@@ -66,11 +68,12 @@ const Expulsados = () => {
     const equiposCategoria = temporadas.filter((t) => t.id_categoria == formState.id_categoria)
     const planteles = useSelector((state) => state.planteles.data);
     const jugadoresEquipo = planteles.filter((p) => p.id_equipo == formState.id_equipo) 
+    const partidos = useSelector((state) => state.partidos.data);
     const token = localStorage.getItem('token')
 
     const [isSaving, setIsSaving] = useState(false);
     const [originalState, setOriginalState] = useState(null);
-
+    const [infoPartidoExpulsion, setInfoPartidoExpulsion] = useState(null);
     const { actualizar, isUpdating } = useCrud(
         `${URL}/admin/update-expulsion`, fetchExpulsados, 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
@@ -110,6 +113,26 @@ const Expulsados = () => {
         });
     };
 
+    const abrirDescripcion = (expulsado) => {
+        const partidoExpulsion = (({ id_partido, id_equipoLocal, id_equipoVisita, dia, jornada, planillero, cancha }) => 
+            ({ id_partido, id_equipoLocal, id_equipoVisita, dia, jornada, planillero, cancha }))(partidos.find((p) => p.id_partido === expulsado.id_partido) || {});
+
+        const fechaConvertida = formatedDate(partidoExpulsion.dia);
+        const equipoLocal = nombresEquipos(partidoExpulsion.id_equipoLocal);
+        const equipoVisita = nombresEquipos(partidoExpulsion.id_equipoVisita);
+
+        const descripcionHTML = `
+            <p><strong>Día:</strong> ${fechaConvertida || 'No disponible'}</p>
+            <p><strong>${equipoLocal || 'No disponible'} vs ${equipoVisita || 'No disponible'}</p>
+            <p><strong>Jornada:</strong> ${partidoExpulsion.jornada || 'No disponible'}</p>
+            <p><strong>Planillero:</strong> ${partidoExpulsion.planillero || 'No disponible'}</p>
+            <p><strong>Cancha:</strong> ${partidoExpulsion.cancha || 'No disponible'}</p>
+        `;
+    
+        setInfoPartidoExpulsion(descripcionHTML);
+        openDescripcionModal();
+    };
+    
     const expulsados = expulsadosList.map((expulsado) => {
         // Buscar el equipo correspondiente en equiposList
         const equipo = equiposList.find(e => e.id_equipo === expulsado.id_equipo);
@@ -127,6 +150,9 @@ const Expulsados = () => {
                     </Button>
                     <Button bg={"import"} onClick={() => editarSuspension(expulsado.id_expulsion)}>
                         <BiSolidEdit />
+                    </Button>
+                    <Button bg={"export"} onClick={() => abrirDescripcion(expulsado)}>
+                        <BiMessageDetail />
                     </Button>
                 </div>
             ),
@@ -597,6 +623,28 @@ const Expulsados = () => {
                         }
                     />
                     <Overlay onClick={closeUpdateModal} />
+                </>
+            }
+            {
+                isDescripcionModalOpen && <>
+                    <ModalCreate 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: isDescripcionModalOpen ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Detalle de la expulsión`}
+                        onClickClose={closeDescripcionModal}
+                        texto={<div dangerouslySetInnerHTML={{ __html: infoPartidoExpulsion }} />}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeDescripcionModal}>
+                                    <IoClose />
+                                    Cerrar
+                                </Button>
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeDescripcionModal} />
                 </>
             }
         </Content>
