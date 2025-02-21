@@ -27,10 +27,10 @@ const MenuBottom = () => {
           <h4>ESTADISTICAS</h4>
         </MenuBottomItem> */}
 
-        {/* <MenuBottomItem to={'/news'}>
+        <MenuBottomItem to={'/noticias'}>
           <HiMiniTableCells/>
           <h4>NOTICIAS</h4>
-        </MenuBottomItem> */}
+        </MenuBottomItem>
 
         {/* <MenuBottomItem to={'/more'}>
           <HiBars3BottomRight/>

@@ -388,8 +388,8 @@ const CategoriasFixture = () => {
                         closeImportModal()
                         dispatch(fetchPartidos());
                         setFileKey(prevKey => prevKey + 1);
-                        setFileName(""); // Restablece el nombre del archivo después de la importación
-                        setFileData(null); // Restablece los datos del archivo después de la importación
+                        setFileName("");
+                        setFileData(null);
                     })
                     .catch(error => {
                         setIsImporting(false); 

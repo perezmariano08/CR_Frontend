@@ -14,15 +14,15 @@ import { Skeleton } from 'primereact/skeleton';
 
 const CardFinalPartido = ({ partido, incidencias }) => {
     const loading = partido === null || incidencias === null;
-
+    
     //custom hooks
     const { nombresEquipos, escudosEquipos } = useEquipos();
     const { zona } = useZonaPartido(partido?.id_zona) 
-
+    
     if (loading) {
-
+        
         return (
-          <CardPartidoWrapper>
+            <CardPartidoWrapper>
             <CardPartidoTitles>
               <Skeleton width="80%" height="5px" />
             </CardPartidoTitles>
@@ -57,7 +57,6 @@ const CardFinalPartido = ({ partido, incidencias }) => {
     const estadoPartido = partido?.estado
 
     const goles_partido = calcularGolesConDetalle(incidencias, partido)
-    console.log(goles_partido.goles_visita.length);
     
     const hourFormated = formatTime(partido.hora);
     

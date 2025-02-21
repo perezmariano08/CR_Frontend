@@ -1647,15 +1647,19 @@ const CategoriasFormato = () => {
                                             })}
                                         />
                                     </ModalFormInputContainer>
-                                    <ModalFormInputContainer>
-                                        Zona finalizada
-                                        <Switch
-                                            isChecked={formState.terminada === 'S'}
-                                            onChange={(e) => handleFormChange({
-                                                target: { name: 'terminada', value: e.target.checked ? 'S' : 'N' }
-                                            })}
-                                        />
-                                    </ModalFormInputContainer>
+                                    {
+                                        formState.tipo_zona === 'todos-contra-todos' && (
+                                            <ModalFormInputContainer>
+                                                Zona finalizada
+                                                <Switch
+                                                    isChecked={formState.terminada === 'S'}
+                                                    onChange={(e) => handleFormChange({
+                                                        target: { name: 'terminada', value: e.target.checked ? 'S' : 'N' }
+                                                    })}
+                                                />
+                                            </ModalFormInputContainer>
+                                        )
+                                    }
                                     {
                                         formState.campeon === 'S' && (
                                             <ModalFormInputContainer>

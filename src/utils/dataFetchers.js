@@ -152,12 +152,16 @@ export const traerNovedades = async (id_rol) => {
   }
 };
 
-export const actualizarJugadoresDestacados = async (data) => {
+export const actualizarJugadoresDestacados = async (data, token) => {
   try {
     const response = await Axios.put(
-      `${URL}/user/actualizar-jugadores-destacados`,
+      `${URL}/admin/actualizar-jugadores-destacados`,
       data
-    );
+    , {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
@@ -165,10 +169,14 @@ export const actualizarJugadoresDestacados = async (data) => {
   }
 };
 
-export const limpiarJugadoresDescatados = async (jornada) => {
+export const limpiarJugadoresDescatados = async (jornada, token) => {
   try {
     const response = await Axios.put(
-      `${URL}/user/resetear-jugadores-destacados?jornada=${jornada}`
+      `${URL}/admin/resetear-jugadores-destacados?jornada=${jornada}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      } 
     );
     return response.data;
   } catch (error) {
@@ -345,21 +353,20 @@ export const firmaJugador = async (id_partido, id_jugador, dorsal, token) => {
 };
 
 export const insertarMvp = async (id_partido, id_jugador, token) => {
-    try {
-      const response = await Axios.put(
-        `${URL}/planilla/insertar-mvp-partido?id_partido=${id_partido}&id_jugador=${id_jugador}`,
-        {}, // El cuerpo del PUT (vacío en este caso)
-        {
-          headers: { Authorization: `Bearer ${token}` } // Aquí van los headers
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error en la petición", error);
-      return false;
-    }
-  };
-
+  try {
+    const response = await Axios.put(
+      `${URL}/planilla/insertar-mvp-partido?id_partido=${id_partido}&id_jugador=${id_jugador}`,
+      {}, // El cuerpo del PUT (vacío en este caso)
+      {
+        headers: { Authorization: `Bearer ${token}` }, // Aquí van los headers
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error en la petición", error);
+    return false;
+  }
+};
 
 export const insertarJugadorEventual = async (jugador_eventual, token) => {
   try {
@@ -582,20 +589,40 @@ export const updateSancionados = async (token) => {
 };
 
 export const traerJugadoresDestacados = async (id_partido, token) => {
-    try {
-      const response = await Axios.get(
-        `${URL}/planilla/get-jugadores-destacados?id_partido=${id_partido}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error en la peticion", error);
-      return false;
-    }
-  };
+  try {
+    const response = await Axios.get(
+      `${URL}/planilla/get-jugadores-destacados?id_partido=${id_partido}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error en la peticion", error);
+    return false;
+  }
+};
+
+export const jugadoresDestacadosDream = async (id_categoria, jornada, token) => {
+  try {
+    const response = await Axios.get(
+      `${URL}/admin/get-jugadores-dream`, 
+      {
+        params: { id_categoria, jornada },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error en la petición", error);
+    return false;
+  }
+};
+
 
 export const getCategorias = async () => {
   try {
@@ -608,27 +635,27 @@ export const getCategorias = async () => {
 
 export const uploadFile = async (file, directory) => {
   if (!file || !directory) {
-      console.error("Archivo o nombre del directorio faltante");
-      return;
+    console.error("Archivo o nombre del directorio faltante");
+    return;
   }
 
   const formData = new FormData();
-  formData.append("image", file, file.name);  
+  formData.append("image", file, file.name);
   formData.append("directory", directory);
 
   try {
-      const response = await Axios.post(`${URL}/upload`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-      });
+    const response = await Axios.post(`${URL}/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
-      if (!response.data) {
-          throw new Error(`Error al subir archivo: ${response.statusText}`);
-      }
+    if (!response.data) {
+      throw new Error(`Error al subir archivo: ${response.statusText}`);
+    }
 
-      console.log("Archivo subido exitosamente:", response.data);
-      return response.data;
+    console.log("Archivo subido exitosamente:", response.data);
+    return response.data;
   } catch (error) {
-      console.error("Error al subir archivo:", error.message);
+    console.error("Error al subir archivo:", error.message);
   }
 };
 
@@ -643,7 +670,7 @@ export const createNoticia = async (data, token) => {
   } catch (error) {
     console.error("Error en la peticion", error);
   }
-}
+};
 
 export const getNoticias = async () => {
   try {
@@ -652,29 +679,34 @@ export const getNoticias = async () => {
   } catch (error) {
     console.error("Error en la peticion", error);
   }
-}
+};
 
 export const getNoticiaId = async (id_noticia) => {
   try {
-    const response = await Axios.get(`${URL}/admin/get-noticia?id_noticia=${id_noticia}`);
+    const response = await Axios.get(
+      `${URL}/admin/get-noticia?id_noticia=${id_noticia}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
   }
-}
+};
 
 export const eliminarNoticia = async (id_noticia, token) => {
   try {
-    const response = await Axios.delete(`${URL}/admin/eliminar-noticia?id_noticia=${id_noticia}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    const response = await Axios.delete(
+      `${URL}/admin/eliminar-noticia?id_noticia=${id_noticia}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    });
+    );
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
   }
-}
+};
 
 export const updateNoticia = async (data, token) => {
   try {
@@ -686,5 +718,27 @@ export const updateNoticia = async (data, token) => {
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
-  } 
+  }
+};
+
+export const getDreamTeamFecha = async (id_categoria, jornada) => { 
+  try {
+    const response = await Axios.get(`${URL}/user/get-dreamteam-jornada?id_categoria=${id_categoria}&jornada=${jornada}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en la peticion", error);
+  }
+}
+
+export const eliminarJugadorDt = async (jugador, token) => {
+  try {
+    const response = await Axios.put(`${URL}/admin/eliminar-jugador-dt`, jugador, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en la peticion", error);
+  }
 }

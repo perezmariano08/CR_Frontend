@@ -125,7 +125,6 @@ const TablePosicionesRoutes = ({ small, data, dataColumns, id_categoria }) => {
         );
     };
 
-
     const verPaginaEquipo = (idEquipo) => {
         navigate(`/my-team?idEquipo=${idEquipo}`);
     }

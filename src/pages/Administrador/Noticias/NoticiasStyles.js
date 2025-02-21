@@ -72,6 +72,10 @@ export const NoticiaInfoContainer = styled.div`
     &.home {
         width: 100%;
     }
+
+    &.user { 
+        margin-left: 10px;
+    }
 `;
 
 export const NoticiasTextoContainer = styled.div`

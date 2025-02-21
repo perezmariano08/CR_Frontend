@@ -29,12 +29,18 @@ import { fetchJugadoresDestacados } from '../../redux/ServicesApi/jugadoresDesta
 import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice.js';
 import SelectVistaPartido from '../../components/Select/SelectVistaPartido.jsx';
 import useFetch from '../../hooks/useFetch.js';
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { NoticiaCategorias, NoticiaImagen, NoticiaInfoContainer, NoticiasCategoriasContainer, NoticiasContainer, NoticiasFecha, NoticiasTextoContainer, NoticiaTexto, NoticiaTitulo, ViewMoreNews } from '../Administrador/Noticias/NoticiasStyles.js';
 import { useNavigate } from 'react-router-dom';
+import { set } from 'date-fns';
+import DreamTeamCard from '../../components/DreamTeamCard/DreamTeamCard.jsx';
+import { TbTournament } from "react-icons/tb";
+import Select from '../../components/Select/Select.jsx';
+import { IoShieldCheckmarkSharp } from "react-icons/io5";
 
 const Home = () => {
     const navigate = useNavigate();
-    // Fecha actual
+
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
 
     const { data: noticias, loading: noticiasLoading, error: noticiasError } = useFetch(getNoticias);
@@ -55,6 +61,35 @@ const Home = () => {
     const categorias = useSelector((state) => state.categorias.data);
     const ediciones = useSelector((state) => state.ediciones.data);
     const temporadas = useSelector((state) => state.temporadas.data);
+
+    const [zonas, setZonas] = useState([]);
+
+    const currentYear = new Date().getFullYear();
+    const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
+    const categoriasActuales = categorias.filter(categoria => categoria.id_edicion === edicionesActuales[0].id_edicion);
+    const zonasActuales = zonas.filter(zona =>
+        zona.tipo_zona === "todos-contra-todos" &&
+        categoriasActuales.some(categoria =>
+            categoria.id_categoria === zona.id_categoria &&
+            edicionesActuales.some(edicion => edicion.id_edicion === categoria.id_edicion)
+        )
+    ).map(zona => ({
+        ...zona,  // Mantén todas las propiedades del objeto original
+        nombre_completo: `${zona.nombre_edicion} - ${zona.nombre_categoria} - ${zona.nombre_zona}`  // Agrega la propiedad nombre_completo
+    }));
+    
+    const changeZonaPosiciones = (e) => {
+        setIdZona(e.target.value);
+    }
+
+    const ultimaZona = temporadas
+        .filter(t => t.id_equipo === idMyTeam && t.tipo_zona === "todos-contra-todos")
+        .sort((a, b) => b.id_zona - a.id_zona)[0]?.id_zona;
+
+    useEffect(() => {
+        setIdZona(ultimaZona)
+    }, [idMyTeam]);
+
     const jugadoresDestacados = useSelector((state) => state.jugadoresDestacados.data);
     // Función para agrupar los datos por categoría y jornada
     const agruparPorCategoriaYJornada = (datos) => {
@@ -79,14 +114,16 @@ const Home = () => {
     // Llamar a la función con los datos actuales
     const datosAgrupados = agruparPorCategoriaYJornada(jugadoresDestacados);
 
-    const equipoSeleccionado = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     // Filtrar equipos vigentes usando useMemo para mejorar rendimiento
+
     const equiposFiltrados = useMemo(() => {
         const equiposVigentesIds = new Set(temporadas.map((temporada) => temporada.id_equipo));
         return equipos.filter((equipo) => equiposVigentesIds.has(equipo.id_equipo));
     }, [equipos, temporadas]);
+
     const miEquipo = equipos?.find((equipo) => equipo.id_equipo === idMyTeam);
+
     const id_zona = miEquipo
         ? temporadas
             .filter((temp) =>
@@ -96,7 +133,7 @@ const Home = () => {
             .at(-1)?.id_zona // Toma el primer registro y accede a `id_zona`
         : 74;
 
-    const [idZona, setIdZona] = useState(3)
+    const [idZona, setIdZona] = useState(zonasActuales[0]?.id_zona)
 
     // Detectar cambios en miEquipo y reiniciar la carga
     useEffect(() => {
@@ -185,10 +222,7 @@ const Home = () => {
         return !partidosDia.some((partidoDia) => partidoDia.id_partido === partidoSemana.id_partido);
     });
 
-    const { partidoAMostrar, partidosFecha, proximoPartido, fechaActual, partidoEnDirecto, ultimoPartido, zonaActual } = useMatchesUser(idMyTeam);
-
     const [posiciones, setPosiciones] = useState(null);
-    const [zonas, setZonas] = useState([]);
     const [sanciones, setSanciones] = useState(null);
 
     useEffect(() => {
@@ -201,8 +235,6 @@ const Home = () => {
         }
     }, [idZona]);
 
-
-
     useEffect(() => {
         dispatch(fetchPartidos())
         getZonas()
@@ -214,7 +246,6 @@ const Home = () => {
             .catch((error) => console.error('Error fetching sanciones:', error));
     }, [dispatch]);
 
-    const zonasFiltradas = zonas.find((z) => z.id_zona === id_zona);
 
     const sancionesActivas = (sanciones) => {
         const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
@@ -332,15 +363,53 @@ const Home = () => {
         dispatch(setNuevoEquipoSeleccionado(parseInt(value)))
     };
 
-    // Estado para la jornada seleccionada en cada categoría
-    const [jornadaSeleccionada, setJornadaSeleccionada] = useState({});
+    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(categoriasActuales[0]);
+    const [jornadasCategoria, setJornadasCategoria] = useState([]);
 
-    const handleJornadaChange = (categoria, nuevaJornada) => {
-        setJornadaSeleccionada((prev) => ({
-            ...prev,
-            [categoria]: nuevaJornada,
-        }));
+    const handleCategoriaChange = (event) => {
+        const selectedId = event.target.value;
+        const selectedCategoria = categoriasActuales.find(cat => cat.id_categoria.toString() === selectedId);
+        setCategoriaSeleccionada(selectedCategoria || null);
     };
+
+    useEffect(() => {
+        if (!categoriaSeleccionada) return;
+
+        // Obtener todas las jornadas únicas donde el id_categoria coincida con la categoría seleccionada
+        const jornadasUnicas = [...new Set(
+            partidos
+                .filter(partido => partido.id_categoria == categoriaSeleccionada.id_categoria)
+                .map(partido => partido.jornada)
+        )];
+
+        setJornadasCategoria(jornadasUnicas);
+        setJornadaSeleccionada(jornadasUnicas.length > 0 ? jornadasUnicas[0] : "");
+    }, [categoriaSeleccionada, partidos]);
+
+
+    // Estado para la jornada seleccionada en cada categoría
+    const [jornadaSeleccionada, setJornadaSeleccionada] = useState(jornadasCategoria[0] || "");
+
+    const handleJornadaBackChange = () => {
+        const currentIndex = jornadasCategoria.indexOf(jornadaSeleccionada);
+        if (currentIndex > 0) {
+            setJornadaSeleccionada(jornadasCategoria[currentIndex - 1]);
+        }
+    };
+
+    const handleJornadaNextChange = () => {
+        const currentIndex = jornadasCategoria.indexOf(jornadaSeleccionada);
+        if (currentIndex < jornadasCategoria.length - 1) {
+            setJornadaSeleccionada(jornadasCategoria[currentIndex + 1]);
+        }
+    };
+
+    () => {
+        const currentIndex = jornadasCategoria.indexOf(jornadaSeleccionada);
+        if (currentIndex < jornadasCategoria.length - 1) {
+            setJornadaSeleccionada(jornadasCategoria[currentIndex + 1]);
+        }
+    }
 
     useEffect(() => {
         // Si no hay partidos del día, cambiar automáticamente a "semana"
@@ -349,8 +418,6 @@ const Home = () => {
             setFiltroActivo("default"); // Activar filtro "Por categoría"
         }
     }, [vistaSeleccionada, partidosDia]); // Re-ejecutar si cambia la vista o la lista de partidos
-
-    const zonasPublicadas = zonas.filter((z) => z.tipo_zona === "todos-contra-todos")
 
     const goToNew = (id_noticia) => {
         navigate(`/noticias/${id_noticia}`);
@@ -406,8 +473,7 @@ const Home = () => {
                             </>
                         ) : (
                             // Si los datos están disponibles, mostrar la lista de categorías y ediciones
-                            ediciones.map((edicion) => {
-                                // Filtra las categorías para asegurarte de que solo aquellas publicadas sean consideradas
+                            edicionesActuales.map((edicion) => {
                                 const categoriasPublicadas = categorias.filter(
                                     (categoria) =>
                                         categoria.id_edicion === edicion.id_edicion &&
@@ -578,10 +644,8 @@ const Home = () => {
                                     {vistaSeleccionada === "dia" && renderizarPartidos(partidosDia)}
                                     {vistaSeleccionada === "semana" && renderizarPartidos(partidosUltimaSemana)}
                                 </>
-                            ) : 'CR está en descanso! No hubo partidos en esta última semana'
+                            ) : ''
                         }
-
-
 
                         {/* En caso de haber partido del dia de MI EQUIPO mostrar
                         proximo y ultimos partidos de MI EQUIPO debajo de los partidos del día*/}
@@ -635,8 +699,6 @@ const Home = () => {
                             }
                         </>
                         }
-
-
                         {sanciones && sanciones.length > 0 && (
                             <SectionHome>
                                 <SectionHomeTitle>
@@ -651,67 +713,66 @@ const Home = () => {
 
                     </HomeMediumWrapper>
                     <HomeRightWrapper>
-                        {/* <CategoriasListaWrapper>
+                        <CategoriasListaWrapper>
                             <CategoriasListaTitulo>
                                 <p>Dream Team</p>
                             </CategoriasListaTitulo>
-                            {Object.entries(datosAgrupados).map(([categoria, jornadas]) => {
-                                // Obtén todas las jornadas disponibles y la jornada seleccionada
-                                const jornadasDisponibles = Object.keys(jornadas);
-                                const jornadaActual = jornadaSeleccionada[categoria] || jornadasDisponibles[0];
+                            <div>
+                                <DreamTeamTitulo>
+                                    <FaAngleLeft
+                                        onClick={handleJornadaBackChange}
+                                        style={{
+                                            opacity: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 1 : 0.5,
+                                            pointerEvents: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 'auto' : 'none'
+                                        }}
+                                    />
 
-                                return (
-                                    <div key={categoria}>
-                                        <h2>Categoría: {categoria}</h2>
-                                        <DreamTeamTitulo>
-                                            <FaAngleLeft
-                                                onClick={() => {
-                                                    const currentIndex = jornadasDisponibles.indexOf(jornadaActual);
-                                                    if (currentIndex > 0) {
-                                                        handleJornadaChange(categoria, jornadasDisponibles[currentIndex - 1]);
-                                                    }
-                                                }}
-                                            />
-                                            <DreamTeamTorneo>
-                                                <p>Fecha {jornadaActual}</p>
-                                                <span>Categoría {categoria}</span>
-                                            </DreamTeamTorneo>
-                                            <FaAngleRight
-                                                onClick={() => {
-                                                    const currentIndex = jornadasDisponibles.indexOf(jornadaActual);
-                                                    if (currentIndex < jornadasDisponibles.length - 1) {
-                                                        handleJornadaChange(categoria, jornadasDisponibles[currentIndex + 1]);
-                                                    }
-                                                }}
-                                            />
-                                        </DreamTeamTitulo>
-                                        <DreamTeamCard jugadores={jornadas[jornadaActual]} />
-                                    </div>
-                                );
-                            })}
-                        </CategoriasListaWrapper> */}
-                        {posiciones && zonasFiltradas ? (
+                                    <DreamTeamTorneo>
+                                        <p>Fecha {jornadaSeleccionada}</p>
+                                        <Select
+                                            data={categoriasActuales}
+                                            placeholder="Seleccione una categoría"
+                                            value={categoriaSeleccionada?.id_categoria || ""}
+                                            column="nombre"
+                                            id_="id_categoria"
+                                            onChange={handleCategoriaChange}
+                                        />
+                                    </DreamTeamTorneo>
+
+                                    <FaAngleRight
+                                        onClick={handleJornadaNextChange}
+                                        style={{
+                                            opacity: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[jornadasCategoria.length - 1] ? 1 : 0.5,
+                                            pointerEvents: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[jornadasCategoria.length - 1] ? 'auto' : 'none'
+                                        }}
+                                    />
+                                </DreamTeamTitulo>
+
+                                <DreamTeamCard jornada={jornadaSeleccionada} id_categoria={categoriaSeleccionada?.id_categoria} />
+                            </div>
+
+                        </CategoriasListaWrapper>
+                        {posiciones && zonasActuales ? (
                             <Section>
                                 <CategoriasListaWrapper>
                                     <CategoriasListaTitulo>
                                         <p>Tabla de Posiciones</p>
-                                        {/* Select dinámico */}
-                                        <select
-                                            value={idZona} // id_zona inicial
-                                            onChange={(e) => setIdZona(e.target.value)} // Cambiar el id_zona
-                                        >
-                                            {zonasPublicadas.map((zona) => (
-                                                <option key={zona.id_zona} value={zona.id_zona}>
-                                                    {`${zona.nombre_edicion} - ${zona.nombre_categoria}`}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <Select
+                                            value={idZona}
+                                            onChange={changeZonaPosiciones}
+                                            data={zonasActuales}
+                                            column="nombre_completo"
+                                            id_="id_zona"
+                                            placeholder="Selecciona una zona"
+                                            // icon={<IoShieldCheckmarkSharp />}
+                                        />
                                     </CategoriasListaTitulo>
+
 
                                     <TablaPosicionesRoutes
                                         small
                                         data={posiciones}
-                                        id_categoria={2}
+                                        id_categoria={1}
                                         // zona={zonasFiltradas}
                                         dataColumns={dataPosicionesTemporadaColumnsMinus}
                                     />
@@ -785,8 +846,8 @@ const Home = () => {
                                 </CategoriasListaTitulo>
                                 <NoticiasWrapper>
                                     {
-                                        noticiasLoading
-                                            ? Array.from({ length: 4 }).map((_, index) => ( // Generar 4 Skeletons
+                                        noticiasLoading ? (
+                                            Array.from({ length: 4 }).map((_, index) => (
                                                 <NoticiasContainer key={index} className='home'>
                                                     <NoticiaInfoContainer className='home'>
                                                         <Skeleton size="7.5rem"></Skeleton>
@@ -804,10 +865,10 @@ const Home = () => {
                                                     </NoticiaInfoContainer>
                                                 </NoticiasContainer>
                                             ))
-                                            : noticias &&
+                                        ) : noticias && noticias.length > 0 ? (
                                             noticias
-                                                .sort((a, b) => new Date(b.noticia_fecha_creacion) - new Date(a.noticia_fecha_creacion)) // Ordenar por fecha descendente
-                                                .slice(0, 4) // Tomar las primeras 4 noticias
+                                                .sort((a, b) => new Date(b.noticia_fecha_creacion) - new Date(a.noticia_fecha_creacion))
+                                                .slice(0, 4)
                                                 .map((noticia) => (
                                                     <NoticiasContainer key={noticia.id_noticia} className='home' onClick={() => goToNew(noticia.id_noticia)}>
                                                         <NoticiaInfoContainer className='home'>
@@ -829,9 +890,24 @@ const Home = () => {
                                                         </NoticiaInfoContainer>
                                                     </NoticiasContainer>
                                                 ))
+                                        ) : (
+                                            <NoticiasContainer className='home'>
+                                                <NoticiaInfoContainer className='home'>
+                                                    <NoticiasTextoContainer>
+                                                        <NoticiaTitulo className='home'>
+                                                            <NoticiaInfoContainer className='user'>
+                                                                No hay noticias disponibles.
+                                                            </NoticiaInfoContainer>
+                                                        </NoticiaTitulo>
+                                                    </NoticiasTextoContainer>
+                                                </NoticiaInfoContainer>
+                                            </NoticiasContainer>
+                                        )
                                     }
                                 </NoticiasWrapper>
-                                <ViewMoreNews href='/noticias'>Ver todas las noticias</ViewMoreNews>
+                                {
+                                    noticias && noticias.length > 0 && <ViewMoreNews href='/noticias'>Ver todas las noticias</ViewMoreNews>
+                                }
                             </CategoriasListaWrapper>
                         </Section>
                     </HomeRightWrapper>
