@@ -131,6 +131,39 @@ export const InputWrapper = styled.input`
     }
 `;
 
+export const TextAreaWrapper = styled.textarea`
+    background-color: var(--gray-300);
+    border-radius: 10px;
+    border: 1px solid var(--gray-300);
+    color: var(--white);
+    outline: none;
+    width: 100%;
+    padding: 10px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 200px;
+    
+    &:focus {
+        outline: 0 none;
+        box-shadow: 0 0 0 1px var(--green);
+        border-color: var(--green);
+    }
+
+    &.error {
+        outline: 0 none;
+        box-shadow: 0 0 0 var(--red);
+        border-color: var(--red);
+    }
+
+    &::placeholder {
+        color: var(--gray-200);
+    }
+`;
+
+
 export const InputContainerStyled2 = styled.div`
     background-color: var(--gray-300);
     border: none;

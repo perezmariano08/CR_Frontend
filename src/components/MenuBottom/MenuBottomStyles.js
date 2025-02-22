@@ -6,7 +6,7 @@ export const MenuBottomContainerStyled = styled.footer`
     padding: 0 10px 20px 10px;
     height: 90px;
     position: fixed;
-    bottom: 0;
+    bottom: 30px;
     z-index: 100;
     display: flex;
     justify-content: center;
