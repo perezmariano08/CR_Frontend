@@ -32,22 +32,3 @@ export const LayoutAdminContainerStyled = styled.main`
     height: 100vh;
     flex-direction: column;
 `;
-
-// Estilo del footer
-export const Footer = styled.span`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    color: var(--gray-200);
-    height: 60px;
-    font-size: 14px;
-    padding: 0 20px;
-    text-align: center;
-    margin-top: auto;
-
-    @media (max-width: 968px) {
-        font-size: 12px;
-        padding-top: 20px;
-    }
-`

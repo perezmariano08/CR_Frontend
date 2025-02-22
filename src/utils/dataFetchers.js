@@ -742,3 +742,13 @@ export const eliminarJugadorDt = async (jugador, token) => {
     console.error("Error en la peticion", error);
   }
 }
+
+export const enviarMensajeContacto = async (nombre, email, mensaje) => {
+  try {
+    const response = await Axios.post(`${URL}/user/enviar-mensaje-contacto`, { nombre, email, mensaje });
+    return response.data;
+  } catch (error) {
+    console.error("Error en la petición", error);
+    throw error;
+  }
+};

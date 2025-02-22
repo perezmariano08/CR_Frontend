@@ -425,4 +425,19 @@ export const Button = styled.button`
             background-color: transparent;
         }
     }
+
+    &.footer {
+        width: 100%;
+        background-color: var(--green);
+        border: 1px solid var(--gray-300);
+        color: var(--gray-500);
+        font-size: 14px;
+        transition: all .2s ease-in-out;
+
+        &:hover { 
+            background: transparent;
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+    }
 `

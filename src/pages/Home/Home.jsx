@@ -242,7 +242,8 @@ const Home = () => {
             .catch((error) => console.error('Error fetching zonas:', error));
 
         getSanciones()
-            .then((data) => sancionesActivas(data))
+        //! REVISAR
+            .then((data) => sancionesActivas(data.filter(s => s.id_categoria == categoriasActuales.find(c => c.id_categoria).id_categoria)))
             .catch((error) => console.error('Error fetching sanciones:', error));
     }, [dispatch]);
 
