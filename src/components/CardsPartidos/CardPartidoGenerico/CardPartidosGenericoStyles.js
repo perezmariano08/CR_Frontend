@@ -144,10 +144,20 @@ export const CardPartidoGenericoEquipoDetalle = styled.div`
         height: 14px;
     }
 
+    
+`
+
+export const CardPartidoGenericoEquipoLink = styled.a`
+    color: var(--black-100);
+    &:hover{
+        text-decoration: underline
+    }
+    
     p {
         margin-right: 20px;
         &.my-team {
             font-weight: 600;
+            color: var(--black-50);
         }
         @media (max-width: 500px){
             font-size: 14px;

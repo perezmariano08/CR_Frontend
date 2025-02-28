@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CardUltimoPartidoDescripcion, CardUltimoPartidoDetalle, CardUltimoPartidoDiaJornada, CardUltimoPartidoEquipos, CardUltimoPartidoInfo, CardUltimoPartidoLink, CardUltimoPartidoPenales, CardUltimoPartidoResultado, CardUltimoPartidoResultadoVivo, CardUltimoPartidoWrapper } from './CardUltimoPartidoStyles';
+import { CardUltimoPartidoDescripcion, CardUltimoPartidoDetalle, CardUltimoPartidoDiaJornada, CardUltimoPartidoEquipoLink, CardUltimoPartidoEquipos, CardUltimoPartidoInfo, CardUltimoPartidoLink, CardUltimoPartidoPenales, CardUltimoPartidoResultado, CardUltimoPartidoResultadoVivo, CardUltimoPartidoWrapper } from './CardUltimoPartidoStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { formatearFecha, formatHour } from '../../../utils/formatDateTime';
 import { Skeleton } from 'primereact/skeleton';
@@ -41,7 +41,7 @@ const CardUltimoPartido = ({ miEquipo, estado, id_partido, nombre_edicion, dia, 
 
     // Si no está cargando, mostramos los datos reales
     return (
-        <CardUltimoPartidoWrapper>
+        <CardUltimoPartidoWrapper to={`/stats-match?id=${id_partido}`}>
             <CardUltimoPartidoInfo>
                 {/* Mostrar el escudo del equipo contrario dependiendo de si soy el local o visitante */}
                 {
@@ -58,8 +58,12 @@ const CardUltimoPartido = ({ miEquipo, estado, id_partido, nombre_edicion, dia, 
                             <p className='jornada'>fecha {jornada} - {nombre_edicion}</p>
                         </CardUltimoPartidoDiaJornada>
                         <CardUltimoPartidoEquipos>
-                            <p className={miEquipo === id_equipoLocal ? 'my-team' : ''}>{nombresEquipos(id_equipoLocal)}</p>
-                            <p className={miEquipo === id_equipoVisita ? 'my-team' : ''}>{nombresEquipos(id_equipoVisita)}</p>
+                            <CardUltimoPartidoEquipoLink to={`/equipos/${id_equipoLocal}`}>
+                                <p className={miEquipo === id_equipoLocal ? 'my-team' : ''}>{nombresEquipos(id_equipoLocal)}</p>
+                            </CardUltimoPartidoEquipoLink>
+                            <CardUltimoPartidoEquipoLink to={`/equipos/${id_equipoVisita}`}>
+                                <p className={miEquipo === id_equipoVisita ? 'my-team' : ''}>{nombresEquipos(id_equipoVisita)}</p>
+                            </CardUltimoPartidoEquipoLink>
                         </CardUltimoPartidoEquipos>
                     </CardUltimoPartidoDescripcion>
                     {/* {
@@ -80,7 +84,7 @@ const CardUltimoPartido = ({ miEquipo, estado, id_partido, nombre_edicion, dia, 
                             )
                         }
                         {goles_local} - {goles_visita}
-                        {pen_local || pen_visita && <CardUltimoPartidoPenales>
+                        {pen_local && <CardUltimoPartidoPenales>
                             ({pen_local} - {pen_visita})
                         </CardUltimoPartidoPenales>}
                     </CardUltimoPartidoResultado>

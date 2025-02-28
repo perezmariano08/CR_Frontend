@@ -68,6 +68,14 @@ export const ProximoPartidoEquipos = styled.div`
     }
 `
 
+export const  ProximoPartidoEquipoLink = styled(NavLink)`
+    color: var(--black-100);
+    &:hover {
+        text-decoration: underline
+    }
+`
+
+
 export const ProximoPartidoDiaJornada = styled.div`
     display: flex;
     flex-direction: column;

@@ -1,6 +1,7 @@
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-export const CardUltimoPartidoWrapper = styled.div`
+export const CardUltimoPartidoWrapper = styled(NavLink)`
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -69,11 +70,19 @@ export const CardUltimoPartidoEquipos= styled.div`
     
 `
 
+export const CardUltimoPartidoEquipoLink = styled(NavLink)`
+    color: var(--black-100);
+    &:hover {
+        text-decoration: underline
+    }
+`
+
 export const CardUltimoPartidoResultado= styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: var(--black-50);
     padding: 10px 16px;
     height: fit-content;
     font-size: 24px;
@@ -131,7 +140,7 @@ export const CardUltimoPartidoResultadoVivo = styled.div`
 
 
 export const CardUltimoPartidoPenales= styled.div`
-    font-size: 8px;
+    font-size: 10px;
 `
 
 export const CardUltimoPartidoLink= styled.div`
