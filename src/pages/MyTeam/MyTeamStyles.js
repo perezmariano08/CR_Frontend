@@ -111,8 +111,7 @@ export const MyTeamMatchesDivisor = styled.div`
 `
 export const MyTeamSectionTop = styled.div`
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     width: 100%;
     gap: 10px;
@@ -137,4 +136,108 @@ export const MyTeamSection = styled.div`
         font-weight: 600;
     }
 
+`;
+
+export const EstadisticasContainer = styled.div`
+    
+`;
+
+export const EstadisticasTemporada = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 40px 0;
+    border-bottom: 1px solid var(--black-800);
+    h3 {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--green);
+    }
+`;
+
+export const EstadisticasTemporadaGeneral = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+
+    div {
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border: 1px solid var(--black-800);
+        background-color: var(--black-900);
+        border-radius: 10px;
+        h5 {
+            font-size: 40px;
+            font-weight: 800;
+        }
+    }
+`;
+
+
+export const EstadisticasTemporadaDetallesWrapper = styled.div`
+    display: flex;
+    gap: 100px;
+`;
+
+export const EstadisticasTemporadaDetalles = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    h4 {
+        font-size: 20px;
+        font-weight: 600;
+    }
+`;
+
+export const EstadisticasTemporadaDetallesItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    span {
+        font-weight: 800;
+    }
+`;
+
+export const EquipoPartidosWrapper = styled.div`
+    display: flex;
+    gap: 20px;
+
+`;
+
+export const TrofeosContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 24px;
+    background-color: var(--black-900);
+`;
+
+export const TrofeosItem = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    svg {
+        width: 18px;
+    }
+
+    div {
+        display: flex;
+        flex-direction: column;
+        h4 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--green);
+        }
+    }
+
+    
 `;

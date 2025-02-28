@@ -63,8 +63,13 @@ const CopaOro = ({ width = 188, height = 448, text, image }) => {
         </defs>
             </svg>
         </SvgWrapper>
-        <TextOverlay>{nameTransform(text)}</TextOverlay>
-        <ImageOverlay src={image} alt="Copa Oro" />
+        {
+            text && (<TextOverlay>{nameTransform(text)}</TextOverlay>)
+        }
+        {
+            image && <ImageOverlay src={image} alt="Copa Oro" />
+        }
+        
     </Container>
   )
 }

@@ -36,10 +36,13 @@ export const Navbar = () => {
         navigate('/login')
     };
 
-    const handleInicioClick = () => {
+    const handleInicioClick = (e) => {
+        e.preventDefault()
         if (location.pathname === '/') {
             // Si estamos en la página de inicio, desplazamos al top
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            navigate('/')
         }
     };
 

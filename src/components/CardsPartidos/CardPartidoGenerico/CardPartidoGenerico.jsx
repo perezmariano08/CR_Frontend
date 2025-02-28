@@ -10,6 +10,7 @@ import {
     CardPartidoGenericoPenales,
     CardPartidoGenericoResultado,
     CardPartidoGenericoRojas,
+    CardPartidoGenericoEquipoLink,
 } from './CardPartidosGenericoStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { Skeleton } from 'primereact/skeleton';
@@ -34,8 +35,6 @@ const CardPartidoGenerico = ({
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
     const token = localStorage.getItem('token');
-
-    console.log(dia);
     
     // Expulsados
     const expulsados = useSelector((state) => state.expulsados.data);
@@ -135,9 +134,12 @@ const CardPartidoGenerico = ({
                             src={`https://coparelampago.com${escudosEquipos(id_equipoLocal)}`}
                             alt={nombresEquipos(id_equipoLocal)}
                         />
-                        <p className={+miEquipo === +id_equipoLocal ? 'my-team' : undefined}>
-                            {nombresEquipos(id_equipoLocal)}
-                        </p>
+                        <CardPartidoGenericoEquipoLink href={`/equipos/${id_equipoLocal}`} onClick={(e) => e.stopPropagation()}                        >
+                            <p className={+miEquipo === +id_equipoLocal ? 'my-team' : undefined}>
+                                {nombresEquipos(id_equipoLocal)}
+                            </p>
+                        </CardPartidoGenericoEquipoLink>
+                        
                     </CardPartidoGenericoEquipoDetalle>
                     <CardPartidoGenericoEstadisticas>
                         <CardPartidoGenericoRojas>
@@ -165,9 +167,12 @@ const CardPartidoGenerico = ({
                             src={`https://coparelampago.com${escudosEquipos(id_equipoVisita)}`}
                             alt={nombresEquipos(id_equipoVisita)}
                         />
-                        <p className={+miEquipo === +id_equipoVisita ? 'my-team' : undefined}>
-                            {nombresEquipos(id_equipoVisita)}
-                        </p>
+                        <CardPartidoGenericoEquipoLink href={`/equipos/${id_equipoVisita}`} onClick={(e) => e.stopPropagation()}                        >
+                            <p className={+miEquipo === +id_equipoVisita ? 'my-team' : undefined}>
+                                {nombresEquipos(id_equipoVisita)}
+                            </p>
+                        </CardPartidoGenericoEquipoLink>
+                        
                     </CardPartidoGenericoEquipoDetalle>
                     <CardPartidoGenericoEstadisticas>
                         <CardPartidoGenericoRojas>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CardProximoPartidoWrapper, ProximoPartidoCancha, ProximoPartidoCuentaRegresivaDivisor, ProximoPartidoCuentaRegresivaItem, ProximoPartidoCuentaRegresivaWrapper, ProximoPartidoDescripcion, ProximoPartidoDetalle, ProximoPartidoDiaJornada, ProximoPartidoDivisor, ProximoPartidoEquipos, ProximoPartidoInfo } from './CardProximoPartidoStyles';
+import { CardProximoPartidoWrapper, ProximoPartidoCancha, ProximoPartidoCuentaRegresivaDivisor, ProximoPartidoCuentaRegresivaItem, ProximoPartidoCuentaRegresivaWrapper, ProximoPartidoDescripcion, ProximoPartidoDetalle, ProximoPartidoDiaJornada, ProximoPartidoDivisor, ProximoPartidoEquipoLink, ProximoPartidoEquipos, ProximoPartidoInfo } from './CardProximoPartidoStyles';
 import { GiSoccerField } from "react-icons/gi";
 import { useEquipos } from '../../../hooks/useEquipos';
 import { formatearFecha, formatHour } from '../../../utils/formatDateTime';
@@ -115,7 +115,7 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
     }
     
     return (
-        <CardProximoPartidoWrapper>
+        <CardProximoPartidoWrapper to={`/stats-match?id=${id_partido}`}>
             <ProximoPartidoInfo>
                 {
                     miEquipo === id_equipoLocal
@@ -127,8 +127,12 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
                 <ProximoPartidoDetalle>
                     <ProximoPartidoDescripcion>
                         <ProximoPartidoEquipos>
-                            <p className={miEquipo === id_equipoLocal && 'my-team'}>{nombresEquipos(id_equipoLocal)}</p>
-                            <p className={miEquipo === id_equipoVisita && 'my-team'}>{nombresEquipos(id_equipoVisita)}</p>
+                            <ProximoPartidoEquipoLink to={`/equipos/${id_equipoLocal}`}>
+                                <p className={miEquipo === id_equipoLocal && 'my-team'}>{nombresEquipos(id_equipoLocal)}</p>
+                            </ProximoPartidoEquipoLink >
+                            <ProximoPartidoEquipoLink to={`/equipos/${id_equipoVisita}`}>
+                                <p className={miEquipo === id_equipoVisita && 'my-team'}>{nombresEquipos(id_equipoVisita)}</p>
+                            </ProximoPartidoEquipoLink>
                         </ProximoPartidoEquipos>
                         <ProximoPartidoDiaJornada>
                             <p>{formatearFecha(dia)} - {hora === "00:00:00" || !hora ? 'a conf.'  : formatHour(hora)}</p>

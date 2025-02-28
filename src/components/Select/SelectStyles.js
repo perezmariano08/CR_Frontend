@@ -175,24 +175,25 @@ export const Arrow = styled.span`
 
 
 export const SelectVistaPartidoWrapper = styled.div`
-  position: relative;
-  padding: 16px 24px;
-  user-select: none;
+    position: relative;
+    padding: 16px 24px;
+    user-select: none;
 `;
 
 export const SelectVistaPartidoHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    height: fit-content;
 `;
 
 export const SelectVistaPartidoIcon = styled.span`
-  margin-left: 10px;
-  display: flex;
-  align-items: center;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
 `;
 
 export const SelectVistaPartidoOptions = styled.div`
@@ -210,10 +211,10 @@ export const SelectVistaPartidoOptions = styled.div`
 `;
 
 export const SelectVistaPartidoOption = styled.div`
-  padding: 10px;
-  cursor: pointer;
+    padding: 10px;
+    cursor: pointer;
 
-  &:hover {
-    background-color: var(--black-700);
-  }
+    &:hover {
+        background-color: var(--black-700);
+    }
 `;

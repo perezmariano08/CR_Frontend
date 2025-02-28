@@ -4,8 +4,10 @@ import { NavLink } from "react-router-dom";
 export const HomeContainerStyled = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 40px;
   width: 100%;
+  flex-direction: column;
 `;
 
 export const HomeWrapper = styled.div`
@@ -15,7 +17,8 @@ export const HomeWrapper = styled.div`
   gap: 16px;
   justify-content: space-between;
   max-width: 1260px;
-  padding: 24px 30px;
+  width: 100%;
+  padding: 0 30px 24px 30px;
 
   &.planilla {
     flex-direction: column;
@@ -334,7 +337,6 @@ export const CardPartidosDiaTitle = styled.div`
   align-items: center;
   border-bottom: 1px solid var(--black-800);
   font-weight: 600;
-  padding: 10px;
 `;
 
 export const CardPartidosDiaTitleSelect = styled.select`
@@ -394,6 +396,10 @@ export const DreamTeamTitulo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  svg {
+    cursor: pointer
+  }
 `;
 
 export const DreamTeamTorneo = styled.div`

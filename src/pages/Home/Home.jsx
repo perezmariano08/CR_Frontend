@@ -37,8 +37,16 @@ import DreamTeamCard from '../../components/DreamTeamCard/DreamTeamCard.jsx';
 import { TbTournament } from "react-icons/tb";
 import Select from '../../components/Select/Select.jsx';
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
+import Hero from '../../components/Hero/Hero.jsx';
+import { HiOutlineTrophy } from "react-icons/hi2";
 
 const Home = () => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchEdiciones());
+    }, [dispatch]);
+
     const navigate = useNavigate();
 
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
@@ -54,7 +62,6 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
-    const dispatch = useDispatch();
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const userRole = 3
 
@@ -66,7 +73,8 @@ const Home = () => {
 
     const currentYear = new Date().getFullYear();
     const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
-    const categoriasActuales = categorias.filter(categoria => categoria.id_edicion === edicionesActuales[0].id_edicion);
+    
+    const categoriasActuales = categorias.filter(categoria => categoria.id_edicion === edicionesActuales[0]?.id_edicion);
     const zonasActuales = zonas.filter(zona =>
         zona.tipo_zona === "todos-contra-todos" &&
         categoriasActuales.some(categoria =>
@@ -423,10 +431,15 @@ const Home = () => {
     const goToNew = (id_noticia) => {
         navigate(`/noticias/${id_noticia}`);
     }
+    
+    console.log(zonasActuales);
+    console.log(posiciones);
+    
 
     return (
         <>
             <HomeContainerStyled>
+                <Hero/>
                 <HomeWrapper>
                     <HomeLeftWrapper>
                         <SelectNuevo options={equiposFiltrados} onChange={handleSelectChange} valueKey={'id_equipo'} />
@@ -597,7 +610,7 @@ const Home = () => {
                         }
                         {/* Mostrar partidos del dia y de la semana */}
                         {
-                            partidosDia.length > 0 || partidosUltimaSemana > 0 ? (
+                            partidosDia.length > 0 || partidosUltimaSemana.length > 0 ? (
                                 <><CardPartidosDia>
                                     <CardPartidosDiaTitle>
                                         <SelectVistaPartido
@@ -718,26 +731,37 @@ const Home = () => {
                             <CategoriasListaTitulo>
                                 <p>Dream Team</p>
                             </CategoriasListaTitulo>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                padding: '16px 24px'
+                            }
+                                }> 
+                                <Select
+                                    data={categoriasActuales}
+                                    placeholder="Seleccione cat."
+                                    value={categoriaSeleccionada?.id_categoria || ""}
+                                    column="nombre"
+                                    id_="id_categoria"
+                                    onChange={handleCategoriaChange}
+                                    icon={<HiOutlineTrophy className='icon-select'/>}
+                                    width='100%'
+                                />
+                            </div>
+                                
                             <div>
                                 <DreamTeamTitulo>
                                     <FaAngleLeft
                                         onClick={handleJornadaBackChange}
                                         style={{
-                                            opacity: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 1 : 0.5,
+                                            opacity: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 1 : 0.1,
                                             pointerEvents: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 'auto' : 'none'
                                         }}
                                     />
 
                                     <DreamTeamTorneo>
                                         <p>Fecha {jornadaSeleccionada}</p>
-                                        <Select
-                                            data={categoriasActuales}
-                                            placeholder="Seleccione una categoría"
-                                            value={categoriaSeleccionada?.id_categoria || ""}
-                                            column="nombre"
-                                            id_="id_categoria"
-                                            onChange={handleCategoriaChange}
-                                        />
+                                        
                                     </DreamTeamTorneo>
 
                                     <FaAngleRight
@@ -758,17 +782,23 @@ const Home = () => {
                                 <CategoriasListaWrapper>
                                     <CategoriasListaTitulo>
                                         <p>Tabla de Posiciones</p>
+                                    </CategoriasListaTitulo>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        padding: '16px 24px'
+                                    }
+                                        }> 
                                         <Select
                                             value={idZona}
                                             onChange={changeZonaPosiciones}
                                             data={zonasActuales}
                                             column="nombre_completo"
                                             id_="id_zona"
-                                            placeholder="Selecciona una zona"
-                                            // icon={<IoShieldCheckmarkSharp />}
+                                            placeholder="Seleccione zona"
+                                            icon={<HiOutlineTrophy className='icon-select'/>}
                                         />
-                                    </CategoriasListaTitulo>
-
+                                    </div>
 
                                     <TablaPosicionesRoutes
                                         small

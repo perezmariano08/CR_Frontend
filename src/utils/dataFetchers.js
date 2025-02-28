@@ -3,9 +3,7 @@ import { URL } from "./utils";
 
 Axios.defaults.withCredentials = true;
 
-export const getPosicionesTemporada = async (id_zona) => {
-  console.log(id_zona);
-  
+export const getPosicionesTemporada = async (id_zona) => {  
   try {
     const res = await Axios.get(
       `${URL}/user/get-posiciones-zona?id_zona=${id_zona}`,
@@ -32,12 +30,24 @@ export const getZonas = async () => {
   }
 };
 
-export const getJugadoresEquipo = async (id_zona, equipoId) => {
-  console.log(id_zona, equipoId);
-  
+export const getJugadoresEquipo = async (id_equipo, id_categoria) => {  
   try {
     const res = await Axios.get(
-      `${URL}/user/get-jugadores-equipo?id_zona=${id_zona}&id_equipo=${equipoId}`,
+      `${URL}/user/get-jugadores-equipo?id_equipo=${id_equipo}&id_categoria=${id_categoria}`,
+      {
+        withCredentials: true,
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error en la peticion", error);
+  }
+};
+
+export const getParticipacionesEquipo = async (id_equipo) => {  
+  try {
+    const res = await Axios.get(
+      `${URL}/user/get-estadisticas-equipo-categoria?id_equipo=${id_equipo}`,
       {
         withCredentials: true,
       }

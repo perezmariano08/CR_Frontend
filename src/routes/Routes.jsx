@@ -50,6 +50,8 @@ import UserCategoriasPlayOff from '../pages/User/Categorias/UserCategoriasPlayOf
 import Noticias from '../pages/Administrador/Noticias/Noticias';
 import NotFound from '../pages/NotFound/NotFound';
 import Noticia from '../pages/Administrador/Noticias/Noticia';
+import EquipoParticipaciones from '../pages/MyTeam/EquipoParticipaciones';
+import EquipoPartidos from '../pages/MyTeam/EquipoPartidos';
 
 const Home = lazy(() => import('../pages/Home/Home'));
 const Login = lazy(() => import('../pages/Login/Login'));
@@ -87,11 +89,31 @@ const Routes = () => {
                             }
                         />
                         <Route
-                            path='/my-team'
+                            path='/equipos/:id_equipo'
                             element={
                                 <LayoutPrivate>
                                     <Suspense fallback={<div></div>}>
                                         <MyTeam />
+                                    </Suspense>
+                                </LayoutPrivate>
+                            }
+                        />
+                        <Route
+                            path='/equipos/:id_equipo/participaciones'
+                            element={
+                                <LayoutPrivate>
+                                    <Suspense fallback={<div></div>}>
+                                        <EquipoParticipaciones />
+                                    </Suspense>
+                                </LayoutPrivate>
+                            }
+                        />
+                        <Route
+                            path='/equipos/:id_equipo/partidos'
+                            element={
+                                <LayoutPrivate>
+                                    <Suspense fallback={<div></div>}>
+                                        <EquipoPartidos />
                                     </Suspense>
                                 </LayoutPrivate>
                             }

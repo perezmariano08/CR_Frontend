@@ -14,10 +14,11 @@ import { useAuth } from '../../Auth/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { URLImages } from '../../utils/utils';
 import { dataPlantelColumns, dataPosicionesTemporadaColumns } from '../../components/Stats/Data/Data.jsx';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useParams } from 'react-router-dom';
 import { getJugadoresEquipo, getPosicionesTemporada, getZonas } from '../../utils/dataFetchers.js';
 import useStatsTeam from '../../hooks/useStatsTeam.js';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
+import { fetchPlanteles } from '../../redux/ServicesApi/plantelesSlice.js';
 import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice.js';
 import { SpinerContainer } from '../../Auth/SpinerStyles.js';
 import { TailSpin } from 'react-loader-spinner';
@@ -29,18 +30,20 @@ import { PartidosGenericosContainer } from '../../components/CardsPartidos/CardP
 import CardPartidoGenerico from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico.jsx';
 import { SectionHome, SectionHomeTitle } from '../Home/HomeStyles.js';
 import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice.js';
+import CardProximoPartido from '../../components/CardsPartidos/CardProximoPartido/CardProximoPartido.jsx';
+import CardUltimoPartido from '../../components/CardsPartidos/CardUltimoPartido/CardUltimoPartido.jsx';
 
 const MyTeam = () => {
-    const { user } = useAuth();
+    const { id_equipo } = useParams();
     const location = useLocation();
     const dispatch = useDispatch();
 
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
+    const planteles = useSelector((state) => state.planteles.data);
+    
     const temporadas = useSelector((state) => state.temporadas.data);
-
-    const searchParams = new URLSearchParams(location.search);
-    const equipoIdFromParams = parseInt(searchParams.get('idEquipo'));
+    const equipoIdFromParams = parseInt(id_equipo);
 
     const equipoId = equipoIdFromParams || idMyTeam;
 
@@ -68,9 +71,12 @@ const MyTeam = () => {
 
             const id_zona_temporada = ultimaTemporada ? ultimaTemporada.id_zona : 1;
     const id_zona = id_zona_temporada;
+    console.log(id_zona);
+    
     const { escudosEquipos } = useEquipos();
     
     useEffect(() => {
+        dispatch(fetchPlanteles());
         if (equipos.length === 0) {
             dispatch(fetchEquipos());
             dispatch(fetchTemporadas());
@@ -94,15 +100,11 @@ const MyTeam = () => {
     }
 
     useEffect(() => {
-        console.log(id_zona, equipoId);
-
         // Función para obtener datos
         const fetchData = async () => {
-            
-            
             try {
                 const [jugadoresData, temporadasData, posicionesData] = await Promise.all([
-                    getJugadoresEquipo(id_zona, equipoId),
+                    getJugadoresEquipo(equipoId, ultimaTemporada.id_categoria),
                     getZonas(),
                     getPosicionesTemporada(id_zona)
                 ]);
@@ -121,12 +123,30 @@ const MyTeam = () => {
         }
     }, [equipoId, id_zona]);
 
+    console.log(planteles);
     
+    const plantelEquipo = planteles.filter((p) => p.id_equipo == id_equipo && p.eventual === "N" && p.id_categoria == ultimaTemporada.id_categoria)
+    
+
+    // Encuentra el partido más reciente con estado distinto a "P"
+    const ultimoPartidoMiEquipo = partidosMiEquipo.reduce((masReciente, partido) => {
+        // Solo considerar partidos cuyo estado no sea "P" ni "C"
+        if (partido.estado !== "P" && partido.estado !== "C") {
+            // Si masReciente es null (primer partido válido encontrado), asignamos el primer partido válido
+            if (!masReciente) {
+                return partido;
+            }
+            // Comparar fechas y seleccionar el más reciente
+            return new Date(partido.dia) > new Date(masReciente.dia) ? partido : masReciente;
+        }
+        return masReciente; // Si el estado es "P" o "C", no cambiar el valor acumulado
+    }, null); // Iniciar con `null` para manejar casos sin partidos válidos
+
     return (
         <>
             <ContentUserContainer>
                 <ContentUserWrapper>
-                <ContentUserTituloContainerStyled>
+                    <ContentUserTituloContainerStyled>
                         <ContentUserTituloContainer>
                             <TituloContainer>
                                 <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`}/>
@@ -137,12 +157,16 @@ const MyTeam = () => {
                         </ContentUserTituloContainer>
                         <ContentUserMenuTitulo>
                         <ContentMenuLink>
-                            <NavLink to={`/my-team`}>
+                            <NavLink to={`/equipos/${id_equipo}`}>
                                 Resumen
                             </NavLink>
-                            {/* <NavLink to={`/my-team/partidos`}>
+                            <NavLink to={`/equipos/${id_equipo}/partidos`}>
                                 Partidos
-                            </NavLink> */}
+                            </NavLink>
+                            <NavLink to={`/equipos/${id_equipo}/participaciones`}>
+                                Participaciones
+                            </NavLink>
+                            
                             </ContentMenuLink>
                         </ContentUserMenuTitulo>
                     </ContentUserTituloContainerStyled>
@@ -151,13 +175,33 @@ const MyTeam = () => {
                         {
                             proximoPartido && (
                                 <Section>
-                                    <h2>Próximo partido</h2>
-                                    <CardPartido partido={partidoAMostrar}/>
+                                    <SectionHome>
+                                        <SectionHomeTitle>
+                                            <span>Proximo partido</span>
+                                        </SectionHomeTitle>
+                                        <CardProximoPartido
+                                            {...partidoAMostrar}
+                                            miEquipo={parseInt(id_equipo)}
+                                        />
+                                    </SectionHome>
                                 </Section>
                             )
                         }
+                        {
+                            ultimoPartidoMiEquipo && (
+                                <Section>
+                                    <SectionHome>
+                                        <SectionHomeTitle>
+                                            <span>Ultimo partido</span>
+                                        </SectionHomeTitle>
+                                        <CardUltimoPartido {...ultimoPartidoMiEquipo} miEquipo={parseInt(id_equipo)} />
+                                    </SectionHome>
+                                </Section>
+                            )
+                        }
+                        
 
-                        <MyTeamSection>
+                        {/* <MyTeamSection>
                             <MyTeamMatches>
                                 <MyTeamMatchesItem className='pj'>
                                     <h4>{partidosMiEquipo.length}</h4>
@@ -180,21 +224,11 @@ const MyTeam = () => {
                                     <h5>PE</h5>
                                 </MyTeamMatchesItem>
                             </MyTeamMatches>
-                        </MyTeamSection>
+                        </MyTeamSection> */}
                     </MyTeamSectionTop>
 
                     <Section>
-                        {
-                            loading ? (
-                                <SpinerContainer>
-                                    <TailSpin width='40' height='40' color='#2AD174' />
-                                </SpinerContainer>
-                            ) : (
-                                <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns} id_equipo={equipoId}/>
-                            )
-                        }
-                                
-                        
+                        <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns} id_equipo={equipoId}/>
                     </Section>
                     {/* <Section>
                         <h2>Posiciones</h2>
