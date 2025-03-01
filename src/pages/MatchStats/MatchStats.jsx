@@ -5,26 +5,23 @@ import Section from "../../components/Section/Section";
 import { MatchStatsContainer, MatchStatsWrapper, Navigate } from './MatchStatsStyles';
 import Alignment from '../../components/Stats/Alignment/Alignment';
 import Incidents from '../../components/Stats/Incidents/Incidents';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { SpinerContainer } from '../../Auth/SpinerStyles';
 import { TailSpin } from 'react-loader-spinner';
 import StatsOldMatches from '../../components/Stats/StatsOldMatches/StatsOldMatches';
 import useMatchOlds from '../../hooks/useMatchOlds';
 import HistoryBeetwenTeams from '../../components/Stats/HistoryBeetwenTeams/HistoryBeetwenTeams';
-import MatchsBetweenTeams from '../../components/Stats/MatchsBetweenTeams/MatchsBetweenTeams';
 import { useIncidencias } from '../../hooks/planilla/useIncidencias';
 import { useFormaciones } from '../../hooks/planilla/useFormaciones';
-import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice';
 import JugadorDelPartido from '../../components/Stats/JugadorDelPartido/JugadorDelPartido';
 
 const MatchStats = () => {
-    const dispatch = useDispatch();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const partidoId = parseInt(searchParams.get('id'));
 
 
-    const { incidencias, loading: loading_incidencias } = useIncidencias(null, partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
+    const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja'], null);
     const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId)
 
     const [activeTab, setActiveTab] = useState(() => 
@@ -86,7 +83,7 @@ const MatchStats = () => {
 
                 {activeTab === 'Cara a cara' && (
                     <>
-                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} id_partido={partidoId} />
+                        <HistoryBeetwenTeams partidosEntreEquipos={partidosEntreEquipos} partido={partido} />
                     </>
                 )}
             </MatchStatsWrapper>

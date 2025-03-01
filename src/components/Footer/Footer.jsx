@@ -61,6 +61,9 @@ const Footer = () => {
         }
     };
 
+    const openWhatsapp = () => {
+        window.open('https://api.whatsapp.com/send?phone=+5493518182129&text=Hola%20Copa%20Rel%C3%A1mpago%20-%20https%3A%2F%2Fcoparelampago.com%2F', '_blank');
+    }
 
     return (
         <FooterContainerStyled id='footer'>
@@ -69,8 +72,8 @@ const Footer = () => {
                     <img src={CrLogo} alt="Logo CR" />
                     <h3>Queres ser parte del mejor torneo de futbol 7 de Cordoba?</h3>
                     <FooterBottomContainer>
-                        <Button className='more'>Quiero ser parte</Button>
-                        <Button>Saber mas</Button>
+                        <Button className='more' onClick={openWhatsapp}>Quiero ser parte</Button>
+                        <Button onClick={openWhatsapp}>Saber mas</Button>
                     </FooterBottomContainer>
                 </FooterTop>
                 <FooterMiddle>
@@ -100,8 +103,8 @@ const Footer = () => {
                                     coparelampago
                                     <FaFacebookF />
                                 </FooterSocial>
-                                <FooterSocial onClick={() => window.open('https://api.whatsapp.com/send?phone=3517021495&text=Hola%20Copa%20Rel%C3%A1mpago%20-%20https%3A%2F%2Fcoparelampago.com%2F', '_blank')} >
-                                    3517021495
+                                <FooterSocial onClick={openWhatsapp} >
+                                +54 9 3518 18-2129
                                     <FaWhatsapp />
                                 </FooterSocial>
                                 <FooterSocial onClick={() => window.open('https://www.youtube.com/channel/UC-2-3-5-6-7', '_blank')}>

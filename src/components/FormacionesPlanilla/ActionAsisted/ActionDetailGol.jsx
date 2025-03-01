@@ -13,7 +13,7 @@ const ActionDetailGol = ({ formaciones }) => {
     const jugador = useSelector((state) => state.planillero.jugador);
     const action = useSelector((state) => state.planillero.action);
     
-    const jugadoresMiEquipo = formaciones?.filter(f => +f.id_equipo === +jugador?.id_equipo && f.sancionado === 'N' && f.dorsal);
+    const jugadoresMiEquipo = formaciones?.filter(f => +f.id_equipo === +jugador?.id_equipo && f.sancionado === 'N' && f.dorsal && jugador.id_jugador !== f.id_jugador);
 
     //handlers modal
     const closeAndClearModal = () => {

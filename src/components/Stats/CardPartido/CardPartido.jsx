@@ -6,17 +6,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formatDate, formatTime, URLImages } from '../../../utils/utils.js';
 import { getZonas } from '../../../utils/dataFetchers.js';
 import { MdOutlineWatchLater } from "react-icons/md";
-import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam.js';
+import { useEquipos } from '../../../hooks/useEquipos.js';
 
 const CardPartido = ({ partido, rol }) => {
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     
     const [zona, setZona] = useState([]);
     const zonaTipo = zona[0]?.tipo_zona === "eliminacion-directa";
 
-    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams([partido.id_equipoLocal, partido.id_equipoVisita]);
+    const { nombresEquipos, escudosEquipos } = useEquipos();
 
     useEffect(() => {
         getZonas()
@@ -92,8 +91,8 @@ const CardPartido = ({ partido, rol }) => {
             <CardPartidoTeams>
                 <CardPartidoTeam>
                     <img 
-                        src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} 
-                        alt={`${getNombreEquipo(partido.id_equipoLocal)}`}
+                        src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} 
+                        alt={`${nombresEquipos(partido.id_equipoLocal)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoLocal)}}
                     />
                     <h4 className={partido.id_equipoLocal === idMyTeam ? 'miEquipo' : ''}>{getNombreEquipo(partido.id_equipoLocal)}</h4>
@@ -138,8 +137,8 @@ const CardPartido = ({ partido, rol }) => {
 
                 <CardPartidoTeam>
                     <img 
-                        src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} 
-                        alt={`${getNombreEquipo(partido.id_equipoVisita)}`}
+                        src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} 
+                        alt={`${nombresEquipos(partido.id_equipoVisita)}`}
                         onClick={() => {verPaginaEquipo(partido.id_equipoVisita)}}
                     />
                     <h4 className={partido.id_equipoVisita === idMyTeam ? 'miEquipo' : ''}>{getNombreEquipo(partido.id_equipoVisita)}</h4>

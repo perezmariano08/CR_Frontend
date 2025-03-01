@@ -57,7 +57,6 @@ const CategoriasEquiposDetalle = () => {
 
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
-    const equipos = useSelector((state) => state.equipos.data);
     const categoriasList = useSelector((state) => state.categorias.data);
     const temporadas = useSelector((state) => state.temporadas.data);
     const jugadoresList = useSelector((state) => state.jugadores.data);
@@ -192,7 +191,6 @@ const CategoriasEquiposDetalle = () => {
     )
     
     const [isDniConfirmationOpen, setIsDniConfirmationOpen] = useState(false);
-    const [confirmDni, setConfirmDni] = useState(false);
 
     const handleDniConfirmation = async (confirm) => {
         if (confirm) {
@@ -207,7 +205,7 @@ const CategoriasEquiposDetalle = () => {
             try {
                 await Axios.post(`${URL}/user/agregar-jugador-plantel`, dataPlantel);
                 toast.success('Jugador asignado al plantel correctamente.');
-                dispatch(fetchPlanteles())
+                dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
                 closeCreateModal();
                 resetForm();
             } catch (error) {
@@ -260,28 +258,34 @@ const CategoriasEquiposDetalle = () => {
     );
 
     const manejarEditarEquipo = async () => {
-        if (img.name == equipoFiltrado.img){
+        const nuevaImagen = img ? `/uploads/Equipos/${img.name}` : equipoFiltrado.img;
+    
+        if (img && img.name === equipoFiltrado.img) {
             toast.error("El archivo tiene el mismo nombre");
-            return
-        }        
-
+            return;
+        }
+    
         const data = {
             id_equipo: id_equipo,
             nombre: formState.nombre_equipo.trim(),
-            img: `/uploads/Equipos/${img.name}`
+            img: nuevaImagen
         };
+    
         try {
-            uploadFile(img, 'Equipos')
+            if (img) {
+                await uploadFile(img, 'Equipos');
+            }
             await actualizarEquipo(data);
-            dispatch(fetchTemporadas())
+            dispatch(fetchTemporadas());
             setImageFile(null);
-            setPreviewImage(null)
+            setPreviewImage(null);
         } catch (error) {
-            console.error("Error al actualizar los apercibimientos:", error);
+            console.error("Error al actualizar el equipo:", error);
         } finally {
-            closeEditarEquipo() 
+            closeEditarEquipo();
         }
-    }
+    };
+    
 
     const handleEditarEquipo = () => {
         manejarEditarEquipo();
@@ -338,16 +342,17 @@ const CategoriasEquiposDetalle = () => {
         
         
         await crear(data);
-        dispatch(fetchPlanteles());
+        dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
         dispatch(fetchJugadores());
         closeCreateModal();
         resetForm()
     };
     // ELIMINAR
     const { eliminarPorData, isDeleting } = useCrud(
-        `${URL}/admin/eliminar-jugador-plantel`, fetchPlanteles
+        `${URL}/admin/eliminar-jugador-plantel`, 
+        () => fetchPlanteles({ id_equipo, id_categoria })
     );
-
+    
     const eliminarRegistros = async () => {        
         const data = {
             id_categoria: equipoFiltrado.id_categoria,
@@ -391,7 +396,7 @@ const CategoriasEquiposDetalle = () => {
         await actualizar(data);
 
         //Actualizamos interfaz
-        dispatch(fetchPlanteles())
+        dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
         dispatch(fetchJugadores())
         closeUpdateModal()
     };
@@ -474,7 +479,7 @@ const CategoriasEquiposDetalle = () => {
             setIsImporting(false)
             toast.success("Importación completada correctamente.");
             dispatch(fetchJugadores());
-            dispatch(fetchPlanteles());
+            dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
             dispatch(fetchTemporadas());
             closeImportModal()
         } catch (error) {
@@ -502,7 +507,7 @@ const CategoriasEquiposDetalle = () => {
         dispatch(fetchEdiciones());
         dispatch(fetchCategorias());
         dispatch(fetchEquipos());
-        dispatch(fetchPlanteles());
+        dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
         dispatch(fetchJugadores());
         dispatch(fetchTemporadas());
         
@@ -525,9 +530,6 @@ const CategoriasEquiposDetalle = () => {
             reader.readAsDataURL(file); // Leer el archivo como una URL de datos
         }
     };
-
-    const isEquipoCambio = formState.nombre_equipo == equipoFiltrado.nombre_equipo
-    const isImgCambio = img
 
     return (
         <Content>
@@ -585,7 +587,7 @@ const CategoriasEquiposDetalle = () => {
             {
                 ListaBuenaFeEquipo.length > 0 ? (
                     <>
-                        <p>Lista de buena fé ({equipoFiltrado.jugadores_con_dni} jugadores) </p>
+                        <p>Lista de buena fé ({plantelesList.length} jugadores) </p>
                         <Table
                             data={ListaBuenaFeEquipo}
                             dataColumns={dataPlantelesColumns}

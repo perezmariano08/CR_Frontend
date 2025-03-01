@@ -17,10 +17,10 @@ const MenuBottom = () => {
           <h4>EDICIONES</h4>
         </MenuBottomItem>
 
-        <MenuBottomItem to={'/my-team'}>
+        {/* <MenuBottomItem to={'/my-team'}>
           <HiOutlineUserGroup/>
           <h4>MI EQUIPO</h4>
-        </MenuBottomItem>
+        </MenuBottomItem> */}
         
         {/* <MenuBottomItem to={'/stats'}>
           <HiAdjustmentsVertical/>

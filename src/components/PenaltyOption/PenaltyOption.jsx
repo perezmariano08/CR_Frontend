@@ -15,14 +15,17 @@ const PenaltyOption = ({ partido }) => {
     const [showInputs, setShowInputs] = useState(false);
     const [penalLocal, setPenalLocal] = useState(penalLocalState || 0);
     const [penalVisita, setPenalVisita] = useState(penalVisitaState || 0);
-
+    
     const { nombresEquipos, escudosEquipos } = useEquipos();
 
     useEffect(() => {
-        if (penalLocalState != null && penalVisitaState != null) {
+        if (penalLocalState !== null && penalVisitaState !== null) {
             setShowInputs(true);
+        } else {
+            setShowInputs(false);
         }
     }, [penalLocalState, penalVisitaState]);
+    
 
     useEffect(() => {
         setPenalLocal(penalLocalState);
@@ -40,9 +43,10 @@ const PenaltyOption = ({ partido }) => {
         } else {
             setPenalLocal(0);
             setPenalVisita(0);
-            dispatch(setPenales({ penalLocal, penalVisita }));
+            dispatch(setPenales({ penalLocal: 0, penalVisita: 0 }));
         }
     };
+    
     
     const handleLocalChange = (e) => {
         const value = e.target.value;
