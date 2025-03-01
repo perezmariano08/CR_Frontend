@@ -4,11 +4,11 @@ import {TableTeamWrapper} from '../TableTeam/TableTeam'
 import { Column } from 'primereact/column';
 import { URLImages } from '../../../utils/utils';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
-import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
+import { useEquipos } from '../../../hooks/useEquipos';
 
 const TableSanciones = memo(({ data, dataColumns }) => {
     const equipoIds = data?.map(row => row.id_equipo);
-    const { getEscudoEquipo } = useNameAndShieldTeams(equipoIds);
+    const { escudosEquipos } = useEquipos();
     
     if (!data || data.length === 0) {
         return <StatsNull>No hay datos disponibles.</StatsNull>;
@@ -17,7 +17,7 @@ const TableSanciones = memo(({ data, dataColumns }) => {
     const jugadorBodyTemplate = (rowData) => (
         <JugadorSancionadoBodyTemplate>
             <img 
-                src={`${URLImages}${getEscudoEquipo(rowData.id_equipo)}`} 
+                src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} 
                 alt={rowData.nombre_completo} 
             />
             <span>{rowData.jugador}</span>

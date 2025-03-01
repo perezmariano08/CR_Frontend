@@ -5,8 +5,8 @@ import { URLImages } from '../../../utils/utils';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { useNavigate } from 'react-router-dom';
+import { useEquipos } from '../../../hooks/useEquipos';
 
 const Fixture = ({ zona, categoria }) => {
     const navigate = useNavigate();
@@ -23,12 +23,8 @@ const Fixture = ({ zona, categoria }) => {
         fetchData();
     }, [dispatch]);
 
-    // Extraccion de ids para el hook
-    const teamIds = [
-        ...new Set(partidos.map(p => [p.id_equipoLocal, p.id_equipoVisita]).flat())
-    ];
 
-    const { getNombreEquipo, getEscudoEquipo } = useNameAndShieldTeams(teamIds);
+    const { nombresEquipos, escudosEquipos } = useEquipos();
 
     // Filtra partidosTemporada y cantidadFechas después de haber cargado los datos
     const partidosTemporada = categoria !== 3 ? partidos.filter((p) => p.id_zona === zona?.id_zona) : partidos.filter((p) => p.id_categoria === zona?.id_categoria)
@@ -94,8 +90,8 @@ const Fixture = ({ zona, categoria }) => {
                         <React.Fragment key={partido.id_partido}>
                             <FixtureMatch onClick={() => handleStatsOfTheMatch(partido.id_partido)}>
                                 <FixtureMatchTeam>
-                                    <h4>{getNombreEquipo(partido.id_equipoLocal)}</h4>
-                                    <img src={`${URLImages}${getEscudoEquipo(partido.id_equipoLocal)}`} alt="" />
+                                    <h4>{nombresEquipos(partido.id_equipoLocal)}</h4>
+                                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoLocal)}`} alt="" />
                                 </FixtureMatchTeam>
                                 <FixtureMatchInfo>
                                 {
@@ -115,8 +111,8 @@ const Fixture = ({ zona, categoria }) => {
                                 }
                                 </FixtureMatchInfo>
                                 <FixtureMatchTeam className='visit'>
-                                    <img src={`${URLImages}${getEscudoEquipo(partido.id_equipoVisita)}`} alt="" />
-                                    <h4>{getNombreEquipo(partido.id_equipoVisita)}</h4>
+                                    <img src={`${URLImages}${escudosEquipos(partido.id_equipoVisita)}`} alt="" />
+                                    <h4>{nombresEquipos(partido.id_equipoVisita)}</h4>
                                 </FixtureMatchTeam>
                             </FixtureMatch>
                             {/* <FixtureTitleDivider /> */}

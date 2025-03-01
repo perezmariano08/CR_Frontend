@@ -57,7 +57,7 @@ const HomePlanillero = () => {
         <HomePlanilleroContainer>
             <HomeWrapper className='planilla'>
                 <CardPartidosDia>
-                    <CardPartidosDiaTitle>Tus partidos</CardPartidosDiaTitle>
+                    <CardPartidosDiaTitle className='planillero'>Tus partidos</CardPartidosDiaTitle>
                     <PartidosDiaFiltrosWrapper>
                         <PartidosDiaFiltro
                             onClick={handleToggleChange}

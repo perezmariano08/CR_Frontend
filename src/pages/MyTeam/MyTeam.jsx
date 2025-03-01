@@ -67,16 +67,13 @@ const MyTeam = () => {
                 ? temporadasEquipo[temporadasEquipo.length - 1] 
                 : null;
 
-            console.log("Última temporada encontrada:", ultimaTemporada);
-
             const id_zona_temporada = ultimaTemporada ? ultimaTemporada.id_zona : 1;
     const id_zona = id_zona_temporada;
-    console.log(id_zona);
-    
+
     const { escudosEquipos } = useEquipos();
     
     useEffect(() => {
-        dispatch(fetchPlanteles());
+        dispatch(fetchPlanteles({id_equipo: id_equipo, id_categoria: ultimaTemporada.id_categoria}));
         if (equipos.length === 0) {
             dispatch(fetchEquipos());
             dispatch(fetchTemporadas());
@@ -123,11 +120,8 @@ const MyTeam = () => {
         }
     }, [equipoId, id_zona]);
 
-    console.log(planteles);
-    
     const plantelEquipo = planteles.filter((p) => p.id_equipo == id_equipo && p.eventual === "N" && p.id_categoria == ultimaTemporada.id_categoria)
     
-
     // Encuentra el partido más reciente con estado distinto a "P"
     const ultimoPartidoMiEquipo = partidosMiEquipo.reduce((masReciente, partido) => {
         // Solo considerar partidos cuyo estado no sea "P" ni "C"

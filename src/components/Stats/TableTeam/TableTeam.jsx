@@ -4,7 +4,6 @@ import { TableTeamWrapper } from './TableTeam';
 import { Column } from 'primereact/column';
 import { URLImages } from '../../../utils/utils';
 import { StatsNull } from '../../../pages/Stats/StatsStyles';
-import useNameAndShieldTeams from '../../../hooks/useNameAndShieldTeam';
 import { useEquipos } from '../../../hooks/useEquipos';
 
 const TableTeam = ({ data, zona, dataColumns, id_equipo }) => {

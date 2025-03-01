@@ -1,18 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import CardPartido from '../../components/Stats/CardPartido/CardPartido';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro, DreamTeamTitulo, DreamTeamTorneo, SelectEquipoCelular, NoticiasWrapper, ViewMore } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
-import { getNoticias, getPosicionesTemporada, getSanciones, getZonas, traerNovedades } from '../../utils/dataFetchers';
-import { dataPosicionesTemporadaColumns, dataPosicionesTemporadaColumnsMinus, dataSancionesColumns } from '../../components/Stats/Data/Data';
-import useMatchesUser from '../../hooks/useMatchesUser.js';
+import { getNoticias, getPosicionesTemporada, getSanciones, getZonas } from '../../utils/dataFetchers';
+import { dataPosicionesTemporadaColumnsMinus } from '../../components/Stats/Data/Data';
 import { fetchEquipos } from '../../redux/ServicesApi/equiposSlice.js';
 import { fetchCategorias } from '../../redux/ServicesApi/categoriasSlice.js';
 import { fetchTemporadas } from '../../redux/ServicesApi/temporadasSlice.js';
 import { fetchEdiciones } from '../../redux/ServicesApi/edicionesSlice.js';
 import TableSanciones from '../../components/Stats/TableSanciones/TableSanciones.jsx';
 import { formatedDate, URLImages } from '../../utils/utils.js';
-import DreamteamUser from '../User/Dreamteam/DreamteamUser.jsx';
 import TablaPosicionesRoutes from '../../components/Stats/TablePosiciones/TablaPosicionesRoutes';
 import CardPartidoGenerico from '../../components/CardsPartidos/CardPartidoGenerico/CardPartidoGenerico.jsx';
 import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice.js';
@@ -30,13 +27,10 @@ import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice.js';
 import SelectVistaPartido from '../../components/Select/SelectVistaPartido.jsx';
 import useFetch from '../../hooks/useFetch.js';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
-import { NoticiaCategorias, NoticiaImagen, NoticiaInfoContainer, NoticiasCategoriasContainer, NoticiasContainer, NoticiasFecha, NoticiasTextoContainer, NoticiaTexto, NoticiaTitulo, ViewMoreNews } from '../Administrador/Noticias/NoticiasStyles.js';
+import { NoticiaImagen, NoticiaInfoContainer, NoticiasCategoriasContainer, NoticiasContainer, NoticiasFecha, NoticiasTextoContainer, NoticiaTexto, NoticiaTitulo, ViewMoreNews } from '../Administrador/Noticias/NoticiasStyles.js';
 import { useNavigate } from 'react-router-dom';
-import { set } from 'date-fns';
 import DreamTeamCard from '../../components/DreamTeamCard/DreamTeamCard.jsx';
-import { TbTournament } from "react-icons/tb";
 import Select from '../../components/Select/Select.jsx';
-import { IoShieldCheckmarkSharp } from "react-icons/io5";
 import Hero from '../../components/Hero/Hero.jsx';
 import { HiOutlineTrophy } from "react-icons/hi2";
 
@@ -49,25 +43,23 @@ const Home = () => {
 
     const navigate = useNavigate();
 
+    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
+    const categorias = useSelector((state) => state.categorias.data);
+    const ediciones = useSelector((state) => state.ediciones.data);
+    const temporadas = useSelector((state) => state.temporadas.data);
+    const jugadoresDestacados = useSelector((state) => state.jugadoresDestacados.data);
+    const equipos = useSelector((state) => state.equipos.data);
+    const partidos = useSelector((state) => state.partidos.data)
+
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
 
     const { data: noticias, loading: noticiasLoading, error: noticiasError } = useFetch(getNoticias);
 
     // Estado Filtro
     const [filtroActivo, setFiltroActivo] = useState("default"); // "default", "por_horario", "en_juego"
-    const [filtroActivoSemana, setFiltroActivoSemana] = useState("default"); // "default", "por_horario", "en_juego"
-
-    const [vistaPartido, setVistaPartido] = useState("semana");
 
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
-
-    const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
-    const userRole = 3
-
-    const categorias = useSelector((state) => state.categorias.data);
-    const ediciones = useSelector((state) => state.ediciones.data);
-    const temporadas = useSelector((state) => state.temporadas.data);
 
     const [zonas, setZonas] = useState([]);
 
@@ -98,7 +90,6 @@ const Home = () => {
         setIdZona(ultimaZona)
     }, [idMyTeam]);
 
-    const jugadoresDestacados = useSelector((state) => state.jugadoresDestacados.data);
     // Función para agrupar los datos por categoría y jornada
     const agruparPorCategoriaYJornada = (datos) => {
         return datos.reduce((resultado, item) => {
@@ -119,12 +110,8 @@ const Home = () => {
         }, {});
     };
 
-    // Llamar a la función con los datos actuales
-    const datosAgrupados = agruparPorCategoriaYJornada(jugadoresDestacados);
 
-    const equipos = useSelector((state) => state.equipos.data);
     // Filtrar equipos vigentes usando useMemo para mejorar rendimiento
-
     const equiposFiltrados = useMemo(() => {
         const equiposVigentesIds = new Set(temporadas.map((temporada) => temporada.id_equipo));
         return equipos.filter((equipo) => equiposVigentesIds.has(equipo.id_equipo));
@@ -150,7 +137,6 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []); // Dependemos de 'miEquipo' para resetear el estado de carga
 
-    const partidos = useSelector((state) => state.partidos.data)
     const partidosMiEquipo = partidos.filter((p) => p.id_equipoLocal == miEquipo?.id_equipo || p.id_equipoVisita == miEquipo?.id_equipo)
     const partidosMiEquipoHoy = partidosMiEquipo.find((p) => {
         const fechaPartido = new Date(p.dia);
@@ -359,15 +345,15 @@ const Home = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchEquipos());
-        dispatch(fetchCategorias());
-        dispatch(fetchEdiciones());
-        dispatch(fetchPartidos());
-        dispatch(fetchTemporadas());
-        dispatch(fetchJugadoresDestacados());
-        dispatch(fetchJugadores());
-    }, [dispatch]);
-
+        if (!partidos.length) dispatch(fetchPartidos());
+        if (!equipos.length) dispatch(fetchEquipos());
+        if (!categorias.length) dispatch(fetchCategorias());
+        if (!ediciones.length) dispatch(fetchEdiciones());
+        if (!temporadas.length) dispatch(fetchTemporadas());
+        if (!jugadoresDestacados.length) dispatch(fetchJugadoresDestacados());
+        if (!zonas.length) getZonas().then(data => setZonas(data));
+    }, [dispatch, partidos, equipos, categorias, ediciones, temporadas, jugadoresDestacados, zonas]);
+    
     const handleSelectChange = (value) => {
         dispatch(setNuevoEquipoSeleccionado(parseInt(value)))
     };
@@ -432,10 +418,6 @@ const Home = () => {
         navigate(`/noticias/${id_noticia}`);
     }
     
-    console.log(zonasActuales);
-    console.log(posiciones);
-    
-
     return (
         <>
             <HomeContainerStyled>

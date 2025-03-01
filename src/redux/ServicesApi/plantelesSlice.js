@@ -3,11 +3,15 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Axios from 'axios';
 import { URL } from '../../utils/utils';
 
-// Crear una acción asíncrona para obtener los años
-export const fetchPlanteles = createAsyncThunk('planteles/fetchPlanteles', async () => {
-    const response = await Axios.get(`${URL}/user/get-planteles`);
-    return response.data;
-});
+export const fetchPlanteles = createAsyncThunk(
+    'planteles/fetchPlanteles',
+    async ({ id_equipo, id_categoria }) => {
+        const response = await Axios.get(`${URL}/user/get-planteles`, {
+            params: { id_equipo, id_categoria }
+        });
+        return response.data;
+    }
+);
 
 const plantelesSlice = createSlice({
     name: 'planteles',

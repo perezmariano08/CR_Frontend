@@ -17,6 +17,7 @@ export const FooterContainerStyled = styled.footer`
 `;
 
 export const FooterWrapper = styled.div`
+    max-width: 1200px;
     display: flex;
     width: 100%;
     justify-content: center;
@@ -37,7 +38,7 @@ export const FooterTop = styled.div`
     gap: 20px;
 
     h3 {
-        font-size: 40px;
+        font-size: 35px;
         font-weight: 700;
         width: 100%;
     }
@@ -49,7 +50,7 @@ export const FooterTop = styled.div`
     @media (max-width: 1200px) { 
         h3 {
             width: 70%;
-            font-size: 35px;
+            font-size: 30px;
         }
     }
 
@@ -59,7 +60,7 @@ export const FooterTop = styled.div`
         text-align: left;
 
         h3 {
-            font-size: 30px;
+            font-size: 25px;
         }
 
         img {

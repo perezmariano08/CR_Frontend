@@ -20,11 +20,16 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
 
     //navegacion entre equipos
     const [navActive, setNavActive] = useState(partido.id_equipoLocal);
+    const idEquipoSeleccionado = useSelector((state) => state.planillero.id_equipo);
 
     const handleNavActive = (id_equipo) => {
         dispatch(setIdEquipo(id_equipo));
         setNavActive(id_equipo)
     }
+
+    useEffect(() => {
+        dispatch(setIdEquipo(partido.id_equipoLocal));
+    }, [dispatch, partido.id_equipoLocal]);
 
     const handleNext = (player) => {
 

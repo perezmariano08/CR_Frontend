@@ -32,11 +32,11 @@ const PrivateLayout = ({children}) => {
         </PrivateLayoutContainerStyled>
         <ChatNovedades/>
         {
-          // userRole === 2 ? (
-          //   <MenuBottomPlanillero/>
-          // ) : (
-          //   <MenuBottom/>
-          // )
+          userRole === 2 ? (
+            <MenuBottomPlanillero/>
+          ) : (
+            <MenuBottom/>
+          )
         }
         <Footer/>
     </>

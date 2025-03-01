@@ -19,12 +19,14 @@ export const HomeWrapper = styled.div`
   max-width: 1260px;
   width: 100%;
   padding: 0 30px 24px 30px;
-
+  
   &.planilla {
+    margin-top: 30px;
     flex-direction: column;
     align-items: center;
     width: 100%;
   }
+
   @media (max-width: 1160px) {
     gap: 20px;
     flex-direction: column;
@@ -337,6 +339,10 @@ export const CardPartidosDiaTitle = styled.div`
   align-items: center;
   border-bottom: 1px solid var(--black-800);
   font-weight: 600;
+
+  &.planillero {
+    padding: 10px;
+  }
 `;
 
 export const CardPartidosDiaTitleSelect = styled.select`

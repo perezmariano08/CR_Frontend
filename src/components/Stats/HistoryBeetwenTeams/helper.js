@@ -6,26 +6,33 @@ export const calcularEstadisticas = (partidos, idEquipoA, idEquipoB) => {
     partidos.forEach(partido => {
         const { id_equipoLocal, id_equipoVisita, goles_local, goles_visita } = partido;
 
-        // Determinar si Equipo A es local o visitante
-        const esEquipoALocal = id_equipoLocal === idEquipoA;
-        const esEquipoBLocal = id_equipoLocal === idEquipoB;
+        if ((id_equipoLocal === idEquipoA && id_equipoVisita === idEquipoB) ||
+            (id_equipoLocal === idEquipoB && id_equipoVisita === idEquipoA)) {
 
-        const golesEquipoA = esEquipoALocal ? goles_local : goles_visita;
-        const golesEquipoB = esEquipoBLocal ? goles_local : goles_visita;
+            let golesEquipoA, golesEquipoB;
 
-        if (golesEquipoA > golesEquipoB) {
-            victoriasEquipoA++;
-        } else if (golesEquipoB > golesEquipoA) {
-            victoriasEquipoB++;
-        } else {
-            empates++;
+            if (id_equipoLocal === idEquipoA) {
+                golesEquipoA = goles_local;
+                golesEquipoB = goles_visita;
+            } else {
+                golesEquipoA = goles_visita;
+                golesEquipoB = goles_local;
+            }
+
+            if (golesEquipoA > golesEquipoB) {
+                victoriasEquipoA++;
+            } else if (golesEquipoB > golesEquipoA) {
+                victoriasEquipoB++;
+            } else {
+                empates++;
+            }
         }
     });
 
-    const totalPartidos = partidos.length;
-    const porcentajeVictoriasEquipoA = Math.round((victoriasEquipoA / totalPartidos) * 100) || 0;
-    const porcentajeVictoriasEquipoB = Math.round((victoriasEquipoB / totalPartidos) * 100) || 0;
-    const porcentajeEmpates = Math.round((empates / totalPartidos) * 100) || 0;
+    const totalPartidos = victoriasEquipoA + victoriasEquipoB + empates;
+    const porcentajeVictoriasEquipoA = totalPartidos ? Math.round((victoriasEquipoA / totalPartidos) * 100) : 0;
+    const porcentajeVictoriasEquipoB = totalPartidos ? Math.round((victoriasEquipoB / totalPartidos) * 100) : 0;
+    const porcentajeEmpates = totalPartidos ? Math.round((empates / totalPartidos) * 100) : 0;
 
     return {
         victoriasEquipoA,

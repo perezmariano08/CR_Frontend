@@ -16,7 +16,8 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
     const token = localStorage.getItem('token');
     const modal = useSelector((state) => state.planillero.modal);
     const id_equipo = useSelector((state) => state.planillero.id_equipo);
-
+    console.log(id_equipo);
+    
     const [loadingDni, setLoadingDni] = useState(false);
     const [loading, setLoading] = useState(false);
     const [foundPlayer, setFoundPlayer] = useState({});
@@ -43,7 +44,6 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
     if (loadingEdicion) {
         return <LoaderIcon />;
     }
-    
 
     const handleDniBlur = async () => {
         if (dniValue.trim()) {

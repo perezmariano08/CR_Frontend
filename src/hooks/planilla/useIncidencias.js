@@ -8,7 +8,6 @@ export const useIncidencias = ( id_partido, eventosSocket = [], token = null,) =
     const socket = useWebSocket();
 
     const fetchIncidencias = async () => {
-        console.log(id_partido);
         
         if (!id_partido) return;
         setLoading(true);

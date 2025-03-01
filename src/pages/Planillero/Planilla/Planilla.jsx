@@ -45,7 +45,7 @@ const Planilla = () => {
     //hooks nuevos
     const { partidoFiltrado, handleStartMatch, pushInfoMatch, suspenderPartido, partidoIda } = usePartido(partidoId, toast, token)
 
-    const { incidencias, loading: loading_incidencias } = useIncidencias(token, partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja']);
+    const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja'], token);
 
     const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId, token)
 
