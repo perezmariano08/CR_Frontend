@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Routes from './routes/Routes';
 import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";
@@ -5,6 +6,10 @@ import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
+
+  useEffect(() => {
+    axios.defaults.withCredentials = true;
+  }, []);
 
   //Actualizar la pagina si hay una version nueva en el json
   const checkVersion = async () => {

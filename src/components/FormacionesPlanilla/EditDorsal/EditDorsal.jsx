@@ -20,7 +20,7 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
     const isEdit = jugador?.dorsal !== null;
 
     const [dorsalValue, setDorsalValue] = useState(isEdit ? jugador?.dorsal : '');
-    const [partidosJugados, setPartidosJugados] = useState(0);
+    const [partidosJugados, setPartidosJugados] = useState(null);
 
     const { data: fetchEdicion, loading: loadingEdicion, error: errorEdicion } = useFetch(getEdicion, id_edicion, token);
     const edicion = fetchEdicion?.[0];
@@ -28,11 +28,12 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
     useEffect(() => {
         setDorsalValue(jugador?.dorsal || '');
     }, [jugador?.dorsal]);
-    
+
     //handlers modal
     const handleCloseModal = () => {
         setDorsalValue('');
         dispatch(closeModal());
+        setPartidosJugados(null);
     }
 
     const handleOverlayClick = (event) => {
@@ -49,7 +50,7 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
     };
 
     const [loading, setLoading] = useState(false);
-    
+
     const dorsalInUse = formaciones?.filter((f) => f.id_equipo === jugador?.id_equipo && f.dorsal !== null);
     const isNotEditDorsalPlayer = jugador?.dorsal === dorsalValue;
 
@@ -72,14 +73,14 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
                 toast.error('Dorsal existente, por favor ingrese otro');
                 setDorsalValue('');
                 return;
-            } 
-    
+            }
+
             //emitir el dorsal a la base
             firmaJugador(id_partido, jugador.id_jugador, dorsalValue, token)
-    
+
             //emitir websocket
             socket.emit('dorsalAsignado', { id_partido, id_jugador: jugador.id_jugador, dorsal: dorsalValue });
-    
+
             handleCloseModal();
         } catch (error) {
             console.error('Error al guardar el dorsal en la base de datos:', error);
@@ -90,12 +91,14 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
     };
 
     useEffect(() => {
-        const checkPartidos = async () => {
-            const data = await checkPartidosEventual(id_partido, jugador.dni, token);
-            setPartidosJugados(data.partidos_jugados);
+        if (modal === 'EditDorsal' && jugador?.eventual === 'S') {
+            const checkPartidos = async () => {
+                const data = await checkPartidosEventual(id_partido, jugador.dni, token);
+                setPartidosJugados(data.partidos_jugados);
+            };
+            checkPartidos();
         }
-        checkPartidos();
-    }, []);
+    }, [modal, jugador]);
 
     return (
         <>
@@ -107,12 +110,12 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
                             <p>Volver</p>
                         </ActionBack>
                         <ActionTitle>
-                        <h3>
-                            {!isEdit ? 'Asignar dorsal al jugador ' : 'Editar dorsal al jugador '}
-                            <span style={{ color: 'var(--green)', fontWeight: '600' }}>
-                                {jugador.nombre} {jugador.apellido}
-                            </span>
-                        </h3>
+                            <h3>
+                                {!isEdit ? 'Asignar dorsal al jugador ' : 'Editar dorsal al jugador '}
+                                <span style={{ color: 'var(--green)', fontWeight: '600' }}>
+                                    {jugador.nombre} {jugador.apellido}
+                                </span>
+                            </h3>
 
                             <AlignmentDivider />
                         </ActionTitle>
@@ -120,7 +123,10 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
                             {
                                 jugador.eventual === 'S' && (
                                     <ErrorTextContainer>
-                                        <h3>Partidos jugados como eventual: <span>{partidosJugados} / {edicion?.partidos_eventuales} </span></h3>
+                                        <h3>
+                                            Partidos jugados como eventual:
+                                            <span>{partidosJugados !== null ? ` ${partidosJugados} / ${edicion?.partidos_eventuales}` : " Cargando..."}</span>
+                                        </h3>
                                     </ErrorTextContainer>
                                 )
                             }
