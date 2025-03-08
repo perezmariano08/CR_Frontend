@@ -83,7 +83,7 @@ const Home = () => {
     }
 
     const ultimaZona = temporadas
-        .filter(t => t.id_equipo === idMyTeam && t.tipo_zona === "todos-contra-todos")
+        ?.filter(t => t.id_equipo === idMyTeam && t.tipo_zona === "todos-contra-todos")
         .sort((a, b) => b.id_zona - a.id_zona)[0]?.id_zona;
 
     useEffect(() => {
@@ -109,7 +109,6 @@ const Home = () => {
             return resultado;
         }, {});
     };
-
 
     // Filtrar equipos vigentes usando useMemo para mejorar rendimiento
     const equiposFiltrados = useMemo(() => {
@@ -246,7 +245,8 @@ const Home = () => {
         const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
         setSanciones(sancionesFiltradas);
     }
-
+    console.log(sanciones);
+    
     const tituloCategoria = (id_zona) => {
         const categoria = zonas.find((zona) => zona.id_zona === id_zona);
 

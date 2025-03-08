@@ -199,12 +199,11 @@ const Expulsados = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                toast.success('Expulsion creada');
+                toast.success(response.mensaje);
                 resetForm();
                 closeCreateModal();
                 dispatch(fetchExpulsados());
                 setIsSaving(false);
-
             } catch (error) {
                 console.log(error);
                 if (error.response && error.response.data) {
@@ -351,8 +350,11 @@ const Expulsados = () => {
         dispatch(fetchJugadores());
         dispatch(fetchCategorias());
         dispatch(fetchTemporadas());
-        dispatch(fetchPlanteles());
     }, []);
+
+    useEffect(() => {
+        dispatch(fetchPlanteles({ id_equipo: formState.id_equipo, id_categoria: formState.id_categoria }));
+    }, [formState.id_equipo, formState.id_categoria]);
 
     return (
         <Content>
@@ -469,8 +471,8 @@ const Expulsados = () => {
                                     Jugador
                                     <Select 
                                         name={'id_jugador'}
-                                        data={jugadoresEquipo}
-                                        placeholder={'Seleccionar equipo'}
+                                        data={planteles}
+                                        placeholder={'Seleccionar jugador'}
                                         icon={<IoShieldHalf className='icon-select'/>}
                                         id_={"id_jugador"}
                                         column='jugador'

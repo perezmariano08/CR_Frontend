@@ -4,13 +4,8 @@ import { TableContainerStyled } from './TableStyles';
 import { setSelectedRows } from '../../redux/SelectedRows/selectedRowsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { VscKebabVertical } from "react-icons/vsc";
-import { IoShieldHalf } from "react-icons/io5";
-import { URL, URLImages } from '../../utils/utils';
-import { TbShirtSport } from 'react-icons/tb';
-import { CiViewList } from "react-icons/ci";
-import { DataItemEstado, DataItemTemporada } from '../../pages/Administrador/Ediciones/edicionesStyles';
+import { URLImages } from '../../utils/utils';
 import { useNavigate } from 'react-router-dom';
-
 
 const Table = ({ data, dataColumns, arrayName, id_ , paginator = 'true', selection = true , urlClick, rowClickLink = false, sortable = true, rowField, path}) => {
 

@@ -203,7 +203,11 @@ const CategoriasEquiposDetalle = () => {
             };
             
             try {
-                await Axios.post(`${URL}/user/agregar-jugador-plantel`, dataPlantel);
+                await Axios.post(`${URL}/admin/agregar-jugador-plantel`, dataPlantel, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 toast.success('Jugador asignado al plantel correctamente.');
                 dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
                 closeCreateModal();
