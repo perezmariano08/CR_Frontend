@@ -35,17 +35,17 @@ const CardPartidoGenerico = ({
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
     const token = localStorage.getItem('token');
-    
+
     // Expulsados
     const expulsados = useSelector((state) => state.expulsados.data);
     const expulsadosPartido = expulsados.filter((e) => e.id_partido == id_partido)
-    
+
     // Fecha actual
     const hoy = new Date().toISOString().split('T')[0];
     const partidoDia = new Date(dia).toISOString().split('T')[0];
 
     const esHoy = partidoDia == hoy;
-    
+
     // Simula la carga de datos
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 2000);
@@ -57,7 +57,7 @@ const CardPartidoGenerico = ({
             dispatch(fetchExpulsados());
         }
     }, [dispatch, expulsados.length]);
-    
+
     if (loading) {
         return (
             <CardPartidoGenericoWrapper>
@@ -120,6 +120,12 @@ const CardPartidoGenerico = ({
                 </CardPartidoGenericoResultado>
             )}
 
+            {estado === 'A' && (
+                <CardPartidoGenericoResultado className="postergado">
+                    post.
+                </CardPartidoGenericoResultado>
+            )}
+
             {estado === 'S' && (
                 <CardPartidoGenericoResultado className="suspendido">
                     susp.
@@ -139,16 +145,16 @@ const CardPartidoGenerico = ({
                                 {nombresEquipos(id_equipoLocal)}
                             </p>
                         </CardPartidoGenericoEquipoLink>
-                        
+
                     </CardPartidoGenericoEquipoDetalle>
                     <CardPartidoGenericoEstadisticas>
                         <CardPartidoGenericoRojas>
                             {
                                 expulsadosPartido
-                                .filter((e) => e.id_equipo == id_equipoLocal)
-                                .map((e) => (
-                                    <div title="Roja" />
-                                ))
+                                    .filter((e) => e.id_equipo == id_equipoLocal)
+                                    .map((e) => (
+                                        <div title="Roja" />
+                                    ))
                             }
                         </CardPartidoGenericoRojas>
                         <CardPartidoGenericoGoles>
@@ -172,16 +178,16 @@ const CardPartidoGenerico = ({
                                 {nombresEquipos(id_equipoVisita)}
                             </p>
                         </CardPartidoGenericoEquipoLink>
-                        
+
                     </CardPartidoGenericoEquipoDetalle>
                     <CardPartidoGenericoEstadisticas>
                         <CardPartidoGenericoRojas>
                             {
                                 expulsadosPartido
-                                .filter((e) => e.id_equipo == id_equipoVisita)
-                                .map((e) => (
-                                    <div title="Roja" />
-                                ))
+                                    .filter((e) => e.id_equipo == id_equipoVisita)
+                                    .map((e) => (
+                                        <div title="Roja" />
+                                    ))
                             }
                         </CardPartidoGenericoRojas>
                         <CardPartidoGenericoGoles>

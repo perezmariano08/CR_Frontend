@@ -3,12 +3,13 @@ import { es } from "date-fns/locale";
 
 // https://api-cr-zeta.vercel.app
 // https://crbackend-production.up.railway.app
+// http://localhost:3001
 
 export const URLImages = "https://coparelampago.com";
 export const URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3001"
-    : "https://api-cr-zeta.vercel.app";
+    : "/api";
 
 export const formatTime = (time) => {
   if (!time) return "00:00";

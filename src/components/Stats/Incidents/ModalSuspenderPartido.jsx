@@ -63,6 +63,8 @@ const ModalSuspenderPartido = ({ partido }) => {
         }
 
         try {
+            console.log(partidoData);
+            
             const response = await suspenderPartido(token, partidoData);
             await updateSancionados(token);
             await actualizarPartidoVacante(partido.id_partido)
