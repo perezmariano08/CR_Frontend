@@ -56,5 +56,6 @@
     "redux-mock-store": "^1.5.4",
     "ts-jest": "^29.2.5",
     "vite": "^5.2.8"
-  }
+  },
+  "proxy": "https://api-cr-zeta.vercel.app"
 }

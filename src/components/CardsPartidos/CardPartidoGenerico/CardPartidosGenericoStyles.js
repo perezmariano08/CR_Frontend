@@ -113,6 +113,10 @@ export const CardPartidoGenericoResultado = styled.div`
     &.suspendido {
         color: var(--red);
     }
+
+    &.postergado {
+        color: var(--yellow);
+    }
 `
 
 export const CardPartidoGenericoDivisor = styled.div`

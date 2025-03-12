@@ -4,8 +4,14 @@ import Axios from 'axios';
 import { URL } from '../../utils/utils';
 
 export const fetchPartidos = createAsyncThunk('partidos/fetchPartidos', async () => {
-    const response = await Axios.get(`${URL}/user/get-partidos`);
-    return response.data;
+    try {
+        const response = await Axios.get(`${URL}/user/get-partidos`,
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error:", error.response ? error.response : error);
+        throw error;
+    }
 });
 
 export const fetchPartidosPlanillero = createAsyncThunk(
@@ -14,7 +20,7 @@ export const fetchPartidosPlanillero = createAsyncThunk(
         const response = await Axios.get(`${URL}/planilla/get-partidos-planillero`, {
             params: { id_planillero },
             headers: {
-                Authorization: `Bearer ${token}` // Agregar el token al encabezado
+                Authorization: `Bearer ${token}`
             }
         });
         return response.data;
@@ -27,7 +33,7 @@ export const fetchPartidosPlanillados = createAsyncThunk(
         const response = await Axios.get(`${URL}/planilla/get-partidos-planillados`, {
             params: { id_planillero, limite },
             headers: {
-                Authorization: `Bearer ${token}` // Agregar el token al encabezado
+                Authorization: `Bearer ${token}`
             }
         });
         return response.data;

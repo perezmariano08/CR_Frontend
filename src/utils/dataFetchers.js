@@ -567,7 +567,7 @@ export const actualizarPartido = async (data, token) => {
   }
 };
 
-export const suspenderPartido = async (data, token) => {
+export const suspenderPartido = async (token, data) => {
   try {
     const response = await Axios.put(
       `${URL}/planilla/suspender-partido`,

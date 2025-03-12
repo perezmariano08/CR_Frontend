@@ -9,6 +9,9 @@ const JugadorDelPartido = ({ formaciones, partido }) => {
     const mejorJugador = formaciones?.find(f => +f.id_jugador === +partido.jugador_destacado);
     const { fotosJugadores, nombresJugadores } = useJugadores();
     const { escudosEquipos, nombresEquipos } = useEquipos();
+
+    if (!mejorJugador) return null;
+
     return (
         <JugadorPartidoContainer>
             <JugadorPartidoTitulo>
