@@ -4,16 +4,19 @@ import { ActionBack, ActionConfirmedContainer, ActionConfirmedWrapper, ActionNex
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi";
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
-import { actualizarEstadoPartido, actualizarPartido, actualizarPartidoVacante, borrarFirmaJugador, borrarIncidencia, updateSancionados } from '../../../utils/dataFetchers';
+import { actualizarEstadoPartido, actualizarPartido, actualizarPartidoVacante, borrarFirmaJugador, borrarIncidencia, getFormaciones, updateSancionados } from '../../../utils/dataFetchers';
 import { handleMvpSelected, setActionToDelete, setDescripcionPartido, setJugador, toggleModal } from '../../../redux/Planillero/planilleroSlice';
 import { useNavigate } from 'react-router-dom';
+import { fetchPartidosPlanillero } from '../../../redux/ServicesApi/partidosSlice';
+import { useAuth } from '../../../Auth/AuthContext';
 
-const ModalConfirmation = () => {
+const ModalConfirmation = ({ fetchIncidencias, setFormaciones, fetchFormaciones }) => {
     const token = localStorage.getItem('token');
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const searchParams = new URLSearchParams(window.location.search);
     const id_partido = parseInt(searchParams.get('id'));
+    const { userId } = useAuth();
+    const navigate = useNavigate();
 
     const modal = useSelector((state) => state.planillero.modal);
     const modalType = useSelector((state) => state.planillero.modalType);
@@ -45,28 +48,42 @@ const ModalConfirmation = () => {
         text = `¿Estás seguro de que quieres eliminar el dorsal del jugador ${jugador?.dorsal}? Esta acción eliminara todas las acciones del jugador y no podrá ser revertida.`;
     } else if (modalType === 'deleteAction') {
         text = `¿Estás seguro que quieres eliminar esta incidencia? Esta acción no podrá ser revertida.`;
-    } else if (modalType === 'matchPush') { 
+    } else if (modalType === 'matchPush') {
         text = '¿Estás seguro que quieres subir el partido? Esta acción no podrá ser revertida.';
     }
-    
+
     const handleNext = async () => {
         setLoading(true);
         try {
             if (modalType === 'deleteDorsal') {
                 const res = await borrarFirmaJugador(id_partido, jugador?.id_jugador, token);
-                toast.success(res.mensaje);
-                window.location.reload();
+                if (res.status === 200) {
+                    
+                    await fetchIncidencias();
+                    await fetchFormaciones();
+
+                    toast.success(res.mensaje);
+                }
             } else if (modalType === 'deleteAction') {
                 let accion;
                 if (actionToDelete.type === 'Gol') {
                     accion = 'gol';
                 } else if (actionToDelete.type === 'Amarilla') {
                     accion = 'amarilla';
-                } else if (actionToDelete.type === 'Roja') {                
+                } else if (actionToDelete.type === 'Roja') {
                     accion = 'roja';
                 }
-                const res = await borrarIncidencia(accion, id_partido, actionToDelete.id_action, actionToDelete.id_equipo, actionToDelete.id_jugador, token);
+                const res = await borrarIncidencia(accion, id_partido, actionToDelete.id_action, actionToDelete.id_equipo, actionToDelete.id_jugador, token);                
+                await fetchIncidencias();
+
+                if (accion === 'amarilla' || accion === 'roja') {
+                    // const updatedFormaciones = await getFormaciones(id_partido, token);
+                    // setFormaciones(orderData(updatedFormaciones));
+                    await fetchFormaciones(id_partido, token);
+                }
+                setLoading(false);
                 toast.success(res.mensaje);
+
             } else if (modalType === 'matchPush') {
 
                 const data = {
@@ -88,7 +105,7 @@ const ModalConfirmation = () => {
                     setTimeout(() => { 
                         navigate('/planillero');
                     }, 1500);
-                    
+
                 } else {
                     toast.error('Debe seleccionar un jugador MVP antes de finalizar el partido');
                 }
@@ -96,19 +113,25 @@ const ModalConfirmation = () => {
             closeAndClearModal();
         } catch (error) {
             console.error(error);
-            toast.error(res.data.mensaje || "Ocurrió un error. Por favor, inténtalo de nuevo.");
+        
+            if (error.response && error.response.data && error.response.data.mensaje) {
+                toast.error(error.response.data.mensaje);
+            } else {
+                toast.error("Ocurrió un error. Por favor, inténtalo de nuevo.");
+            }
         } finally {
             setLoading(false);
+            closeAndClearModal();
         }
     };
-    
+
     return (
         <>
             {modal === 'modalConfirmation' && (
                 <ActionConfirmedContainer onClick={handleOverlayClick}>
                     <ActionConfirmedWrapper>
                         <ActionBack>
-                            <HiArrowLeft onClick={closeAndClearModal}/>
+                            <HiArrowLeft onClick={closeAndClearModal} />
                             <p>Volver</p>
                         </ActionBack>
                         <ActionTitle>
@@ -118,15 +141,15 @@ const ModalConfirmation = () => {
                         <ButtonContainer>
                             {
                                 !loading ? (
-                                <ActionNext onClick={handleNext}>
-                                    Confirmar
-                                </ActionNext>
-                                ) : 
-                                (
-                                <ActionNext className='loader'>
-                                    <LoaderIcon/>
-                                </ActionNext>
-                                )
+                                    <ActionNext onClick={handleNext}>
+                                        Confirmar
+                                    </ActionNext>
+                                ) :
+                                    (
+                                        <ActionNext className='loader'>
+                                            <LoaderIcon />
+                                        </ActionNext>
+                                    )
                             }
                             <ActionNext onClick={closeAndClearModal} className="cancel">
                                 Cancelar
@@ -135,7 +158,7 @@ const ModalConfirmation = () => {
                     </ActionConfirmedWrapper>
                 </ActionConfirmedContainer>
             )}
-            <Toaster/>
+            <Toaster />
         </>
     );
 };

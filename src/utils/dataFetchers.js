@@ -360,7 +360,7 @@ export const firmaJugador = async (id_partido, id_jugador, dorsal, token) => {
         },
       }
     );
-    return res.data;
+    return { status: res.status, data: res.data };
   } catch (error) {
     console.error("Error en el front", error);
   }
@@ -597,7 +597,6 @@ export const updateSancionados = async (token) => {
       }
     );
   } catch (error) {
-    toast.error("Error al actualizar las sanciones.");
     console.error("Error al actualizar las sanciones:", error);
   }
 };

@@ -6,7 +6,6 @@ import { IoShieldHalf, IoTrashOutline } from 'react-icons/io5';
 import Table from '../../../components/Table/Table';
 import ModalCreate from '../../../components/Modals/ModalCreate/ModalCreate';
 import { HandlerFechasContainer, HandlerFechasWrapper, InputRadioContainer, InputRadioWrapper, ModalFormInputContainer } from '../../../components/Modals/ModalsStyles';
-import Input from '../../../components/Input/Input';
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import ModalDelete from '../../../components/Modals/ModalDelete/ModalDelete';
 import Overlay from '../../../components/Overlay/Overlay';
@@ -32,6 +31,7 @@ import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
 import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
+import Input from '../../../components/UI/Input/Input';
 
 const Expulsados = () => {
     //Hooks
@@ -77,6 +77,16 @@ const Expulsados = () => {
     const { actualizar, isUpdating } = useCrud(
         `${URL}/admin/update-expulsion`, fetchExpulsados, 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredExpulsados = expulsadosList.filter((expulsado) =>
+        expulsado.jugador.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
 
     const handleEdicionChange = (e) => {
         const { name, value } = e.target;
@@ -132,8 +142,8 @@ const Expulsados = () => {
         setInfoPartidoExpulsion(descripcionHTML);
         openDescripcionModal();
     };
-    
-    const expulsados = expulsadosList.map((expulsado) => {
+
+    const expulsados = filteredExpulsados.map((expulsado) => {
         // Buscar el equipo correspondiente en equiposList
         const equipo = equiposList.find(e => e.id_equipo === expulsado.id_equipo);
     
@@ -182,7 +192,7 @@ const Expulsados = () => {
             ),
         };
     });
-
+    
     const agregarDato = async () => {
         const { id_edicion, id_categoria, id_equipo, id_jugador } = formState;
     
@@ -362,6 +372,11 @@ const Expulsados = () => {
                 <FiPlus />
                 Agregar expulsión
             </Button>
+            <Input 
+                placeholder="Buscar jugador..." 
+                value={searchTerm} 
+                onChange={handleSearchChange} 
+            />
             <TablaExpulsadosWrapper>
                 <h2>Suspensiones activas</h2>
                 {

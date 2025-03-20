@@ -11,7 +11,6 @@ import { WebSocketProvider } from './Auth/WebSocketContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
-  <WebSocketProvider>
     <AuthProvider>
       <Provider store={store}>
         <PersistGate persistor={persistor}>
@@ -21,6 +20,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </PersistGate>
       </Provider>
     </AuthProvider>
-  </WebSocketProvider>
   /* </React.StrictMode>, */
 )

@@ -14,7 +14,7 @@ import { URL } from '../../../utils/utils';
 import { LoaderIcon, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
-import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
+import { fetchCategorias, fetchCategoriasByEdicion } from '../../../redux/ServicesApi/categoriasSlice';
 import { CategoriasEdicionEmpty } from './edicionesStyles';
 import useForm from '../../../hooks/useForm';
 import Select from '../../../components/Select/Select';
@@ -25,13 +25,18 @@ import { dataCategoriasColumns } from '../../../Data/Categorias/Categorias';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { EstadoBodyTemplate, LinkBodyTemplate } from '../../../components/Table/TableStyles';
-import Skeleton from 'react-loading-skeleton';
 import { TbNumber } from "react-icons/tb";
-
+import { fetchTemporadas, fetchTemporadasByCategorias } from '../../../redux/ServicesApi/temporadasSlice';
 
 const EdicionesCategorias = () => {
     const dispatch = useDispatch();
     const { id_edicion } = useParams();
+    
+    const ediciones = useSelector((state) => state.ediciones.data)
+    const categorias = useSelector((state) => state.categorias.data)
+
+    const edicionFiltrada = ediciones.find(edicion => edicion.id_edicion == id_edicion)
+    const categoriasEdicion = categorias.filter(categoria => categoria.id_edicion == id_edicion)
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
@@ -50,16 +55,6 @@ const EdicionesCategorias = () => {
     // Manejar los modulos de CRUD desde el Hook useModalsCrud.js
     const { isCreateModalOpen, openCreateModal, closeCreateModal } = useModalsCrud();
 
-
-    // Estado del el/los Listado/s que se necesitan en el modulo
-
-    // Ediciones
-    const ediciones = useSelector((state) => state.ediciones.data)
-    const edicionFiltrada = ediciones.find(edicion => edicion.id_edicion == id_edicion)
-
-    // Categorias
-    const categorias = useSelector((state) => state.categorias.data)
-    const categoriasEdicion = categorias.filter(categoria => categoria.id_edicion == id_edicion)
     const TablaCategorias = categoriasEdicion.map(categoria => ({
         ...categoria,
         estado: (
@@ -84,7 +79,6 @@ const EdicionesCategorias = () => {
     );
 
     const agregarRegistro = async () => {
-
         if (!formState.nombre_categoria.trim() || !formState.duracion_tiempo || !formState.duracion_entretiempo) {
             toast.error("Completá los campos.");
             return;
@@ -123,9 +117,16 @@ const EdicionesCategorias = () => {
     };
     
     useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-    }, []);
+        if (id_edicion) {
+            dispatch(fetchCategoriasByEdicion(id_edicion));
+        }
+    }, [dispatch, id_edicion]);
+    
+    // useEffect(() => {
+    //     if (categorias.length > 0) {
+    //         dispatch(fetchTemporadasByCategorias(categorias));
+    //     }
+    // }, [dispatch, categorias])
     
     return (
         <Content>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { HomeWrapper, HomeContainerStyled, CardsMatchesContainer, CardsMatchesWrapper, HomeMediumWrapper, HomeLeftWrapper, HomeRightWrapper, CircleLive, CategoriasListaWrapper, CategoriasListaTitulo, CategoriasItem, CategoriasItemsWrapper, SectionHome, SectionHomeTitle, CardPartidosDia, CardPartidosDiaTitle, PartidosDiaFiltrosWrapper, PartidosDiaFiltro, DreamTeamTitulo, DreamTeamTorneo, SelectEquipoCelular, NoticiasWrapper, ViewMore } from './HomeStyles';
 import Section from '../../components/Section/Section';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,13 +17,11 @@ import { PartidosGenericosContainer } from '../../components/CardsPartidos/CardP
 import CardProximoPartido from '../../components/CardsPartidos/CardProximoPartido/CardProximoPartido.jsx';
 import CardUltimoPartido from '../../components/CardsPartidos/CardUltimoPartido/CardUltimoPartido.jsx';
 import { Skeleton } from 'primereact/skeleton';
-import { TablePosicionesSkeletonWrapper } from '../../components/Stats/TablePosiciones/TablePosicionesStyles.js';
 import { JugadorSancionadoBodyTemplate, JugadorSancionadoNumeroFechas } from '../../components/Stats/Table/TableStyles.js';
 import { useEquipos } from '../../hooks/useEquipos.js';
 import SelectNuevo from '../../components/Select/SelectNuevo.jsx';
 import { setNuevoEquipoSeleccionado } from '../../redux/user/userSlice.js';
 import { fetchJugadoresDestacados } from '../../redux/ServicesApi/jugadoresDestacadosSlice.js';
-import { fetchJugadores } from '../../redux/ServicesApi/jugadoresSlice.js';
 import SelectVistaPartido from '../../components/Select/SelectVistaPartido.jsx';
 import useFetch from '../../hooks/useFetch.js';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
@@ -33,15 +31,15 @@ import DreamTeamCard from '../../components/DreamTeamCard/DreamTeamCard.jsx';
 import Select from '../../components/Select/Select.jsx';
 import Hero from '../../components/Hero/Hero.jsx';
 import { HiOutlineTrophy } from "react-icons/hi2";
+import { fetchZonas } from '../../redux/ServicesApi/zonasSlice.js';
+import { fetchExpulsados } from '../../redux/ServicesApi/expulsadosSlice.js';
+import TablePosicionesLoader from '../../components/Stats/TablePosiciones/TablePosicionesLoader.jsx';
+import CategoriasListaLoader from './CategoriasListaLoader.jsx';
 
 const Home = () => {
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        dispatch(fetchEdiciones());
-    }, [dispatch]);
-
     const navigate = useNavigate();
+    const hasFetchedData = useRef(false);
 
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const categorias = useSelector((state) => state.categorias.data);
@@ -50,6 +48,8 @@ const Home = () => {
     const jugadoresDestacados = useSelector((state) => state.jugadoresDestacados.data);
     const equipos = useSelector((state) => state.equipos.data);
     const partidos = useSelector((state) => state.partidos.data)
+    const zonas = useSelector((state) => state.zonas.data);
+    const expulsados = useSelector((state) => state.expulsados.data);
 
     const hoy = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato "YYYY-MM-DD"
 
@@ -61,12 +61,11 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
-    const [zonas, setZonas] = useState([]);
-
     const currentYear = new Date().getFullYear();
-    const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
     
+    const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
     const categoriasActuales = categorias.filter(categoria => categoria.id_edicion === edicionesActuales[0]?.id_edicion);
+
     const zonasActuales = zonas.filter(zona =>
         zona.tipo_zona === "todos-contra-todos" &&
         categoriasActuales.some(categoria =>
@@ -77,7 +76,7 @@ const Home = () => {
         ...zona,  // Mantén todas las propiedades del objeto original
         nombre_completo: `${zona.nombre_edicion} - ${zona.nombre_categoria} - ${zona.nombre_zona}`  // Agrega la propiedad nombre_completo
     }));
-    
+
     const changeZonaPosiciones = (e) => {
         setIdZona(e.target.value);
     }
@@ -127,7 +126,7 @@ const Home = () => {
             .at(-1)?.id_zona // Toma el primer registro y accede a `id_zona`
         : 74;
 
-    const [idZona, setIdZona] = useState(zonasActuales[0]?.id_zona)
+    const [idZona, setIdZona] = useState(null)
 
     // Detectar cambios en miEquipo y reiniciar la carga
     useEffect(() => {
@@ -210,13 +209,16 @@ const Home = () => {
         setVistaSeleccionada(e.target.value);
     };
 
-    // Filtrar partidos que no estén en partidosDia de los partidosUltimaSemana
-    const partidosSemanaSinDia = partidosUltimaSemana.filter((partidoSemana) => {
-        return !partidosDia.some((partidoDia) => partidoDia.id_partido === partidoSemana.id_partido);
-    });
-
     const [posiciones, setPosiciones] = useState(null);
     const [sanciones, setSanciones] = useState(null);
+
+    const idZonaActual = zonasActuales[0]?.id_zona;
+
+    useEffect(() => {
+        if (zonasActuales.length > 0 && !idZona) {
+            setIdZona(zonasActuales[0].id_zona); // Asigna la primera zona encontrada
+        }
+    }, [zonasActuales]); // Se ejecuta cuando `zonasActuales` cambia
 
     useEffect(() => {
         if (idZona) {
@@ -228,24 +230,19 @@ const Home = () => {
         }
     }, [idZona]);
 
-    useEffect(() => {
-        dispatch(fetchPartidos())
-        getZonas()
-            .then((data) => setZonas(data))
-            .catch((error) => console.error('Error fetching zonas:', error));
+    // useEffect(() => {
+    //     getSanciones()
+    //     //! REVISAR
+    //         .then((data) => sancionesActivas(data.filter(s => s.id_categoria == categoriasActuales.find(c => c.id_categoria).id_categoria)))
+    //         .catch((error) => console.error('Error fetching sanciones:', error));
+    // }, [dispatch]);
 
-        getSanciones()
-        //! REVISAR
-            .then((data) => sancionesActivas(data.filter(s => s.id_categoria == categoriasActuales.find(c => c.id_categoria).id_categoria)))
-            .catch((error) => console.error('Error fetching sanciones:', error));
-    }, [dispatch]);
-
-
-    const sancionesActivas = (sanciones) => {
-        const sancionesFiltradas = sanciones.filter(s => s.fechas_restantes > 0)
+    const setSancionesActivas = (sanciones) => {
+        const sancionesActivas = sanciones.filter(s => s.id_categoria == categoriasActuales.find(c => c.id_categoria)?.id_categoria);
+        const sancionesFiltradas = sancionesActivas.filter(s => s.fechas_restantes > 0)
         setSanciones(sancionesFiltradas);
     }
-    
+
     const tituloCategoria = (id_zona) => {
         const categoria = zonas.find((zona) => zona.id_zona === id_zona);
 
@@ -344,20 +341,32 @@ const Home = () => {
     };
 
     useEffect(() => {
-        if (!partidos.length) dispatch(fetchPartidos());
-        if (!equipos.length) dispatch(fetchEquipos());
-        if (!categorias.length) dispatch(fetchCategorias());
-        if (!ediciones.length) dispatch(fetchEdiciones());
-        if (!temporadas.length) dispatch(fetchTemporadas());
-        if (!jugadoresDestacados.length) dispatch(fetchJugadoresDestacados());
-        if (!zonas.length) getZonas().then(data => setZonas(data));
-    }, [dispatch, partidos, equipos, categorias, ediciones, temporadas, jugadoresDestacados, zonas]);
-    
+        // if (hasFetchedData.current) return;
+
+        // hasFetchedData.current = true;
+        dispatch(fetchPartidos());
+        dispatch(fetchEquipos());
+        dispatch(fetchCategorias());
+        dispatch(fetchEdiciones());
+        dispatch(fetchTemporadas());
+        dispatch(fetchJugadoresDestacados());
+        dispatch(fetchZonas());
+        dispatch(fetchExpulsados());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (expulsados.length > 0) {
+            setSancionesActivas(expulsados);
+        }
+    }, [expulsados]);
+
     const handleSelectChange = (value) => {
         dispatch(setNuevoEquipoSeleccionado(parseInt(value)))
     };
 
-    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(categoriasActuales[0]);
+    const primeraCategoriaActual = categoriasActuales.length > 0 ? categoriasActuales[0] : null;
+
+    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(primeraCategoriaActual);
     const [jornadasCategoria, setJornadasCategoria] = useState([]);
 
     const handleCategoriaChange = (event) => {
@@ -369,7 +378,6 @@ const Home = () => {
     useEffect(() => {
         if (!categoriaSeleccionada) return;
 
-        // Obtener todas las jornadas únicas donde el id_categoria coincida con la categoría seleccionada
         const jornadasUnicas = [...new Set(
             partidos
                 .filter(partido => partido.id_categoria == categoriaSeleccionada.id_categoria)
@@ -377,9 +385,23 @@ const Home = () => {
         )];
 
         setJornadasCategoria(jornadasUnicas);
-        setJornadaSeleccionada(jornadasUnicas.length > 0 ? jornadasUnicas[0] : "");
-    }, [categoriaSeleccionada, partidos]);
 
+        // Función para obtener la última fecha con partidos terminados
+        const obtenerUltimaFechaJugadas = () => {
+            if (!partidos || partidos.length === 0 || !categoriaSeleccionada) return null;
+
+            const partidosJugados = partidos
+                .filter(p => p.id_categoria === categoriaSeleccionada.id_categoria && p.estado === 'F')
+                .map(p => p.jornada);
+
+            return partidosJugados.length > 0 ? Math.max(...partidosJugados) : null;
+        };
+
+        const ultimaFecha = obtenerUltimaFechaJugadas();
+
+        // SOLO establecer la jornada si aún no tiene un valor
+        setJornadaSeleccionada(prevJornada => prevJornada || ultimaFecha || (jornadasUnicas.length > 0 ? jornadasUnicas[0] : ""));
+    }, [categoriaSeleccionada, partidos]);
 
     // Estado para la jornada seleccionada en cada categoría
     const [jornadaSeleccionada, setJornadaSeleccionada] = useState(jornadasCategoria[0] || "");
@@ -416,56 +438,23 @@ const Home = () => {
     const goToNew = (id_noticia) => {
         navigate(`/noticias/${id_noticia}`);
     }
-    
+
+    useEffect(() => {
+        if (!categoriaSeleccionada && primeraCategoriaActual) {
+            setCategoriaSeleccionada(primeraCategoriaActual);
+        }
+    }, [categoriasActuales]);
+
+
     return (
         <>
             <HomeContainerStyled>
-                <Hero/>
+                <Hero />
                 <HomeWrapper>
                     <HomeLeftWrapper>
                         <SelectNuevo options={equiposFiltrados} onChange={handleSelectChange} valueKey={'id_equipo'} />
                         {loading ? (
-                            <>
-                                <CategoriasListaWrapper>
-                                    <CategoriasListaTitulo>
-                                        <Skeleton height="18px" width="40%" />
-                                    </CategoriasListaTitulo>
-                                    <CategoriasItemsWrapper>
-                                        <CategoriasItem>
-                                            <Skeleton height="18px" width="50%" />
-                                        </CategoriasItem>
-                                        <CategoriasItem>
-                                            <Skeleton height="18px" width="50%" />
-                                        </CategoriasItem>
-                                    </CategoriasItemsWrapper>
-                                </CategoriasListaWrapper>
-                                <CategoriasListaWrapper>
-                                    <CategoriasListaTitulo>
-                                        <Skeleton height="18px" width="40%" />
-                                    </CategoriasListaTitulo>
-                                    <CategoriasItemsWrapper>
-                                        <CategoriasItem>
-                                            <Skeleton height="18px" width="50%" />
-                                        </CategoriasItem>
-                                        <CategoriasItem>
-                                            <Skeleton height="18px" width="50%" />
-                                        </CategoriasItem>
-                                    </CategoriasItemsWrapper>
-                                </CategoriasListaWrapper>
-                                <CategoriasListaWrapper>
-                                    <CategoriasListaTitulo>
-                                        <Skeleton height="18px" width="40%" />
-                                    </CategoriasListaTitulo>
-                                    <CategoriasItemsWrapper>
-                                        <CategoriasItem>
-                                            <Skeleton height="18px" width="50%" />
-                                        </CategoriasItem>
-                                        <CategoriasItem>
-                                            <Skeleton height="18px" width="50%" />
-                                        </CategoriasItem>
-                                    </CategoriasItemsWrapper>
-                                </CategoriasListaWrapper>
-                            </>
+                            <CategoriasListaLoader />
                         ) : (
                             // Si los datos están disponibles, mostrar la lista de categorías y ediciones
                             edicionesActuales.map((edicion) => {
@@ -717,19 +706,19 @@ const Home = () => {
                                 justifyContent: 'center',
                                 padding: '16px 24px'
                             }
-                                }> 
+                            }>
                                 <Select
                                     data={categoriasActuales}
                                     placeholder="Seleccione cat."
-                                    value={categoriaSeleccionada?.id_categoria || ""}
+                                    value={categoriaSeleccionada?.id_categoria || categoriasActuales[0]?.id_categoria}
                                     column="nombre"
                                     id_="id_categoria"
                                     onChange={handleCategoriaChange}
-                                    icon={<HiOutlineTrophy className='icon-select'/>}
+                                    icon={<HiOutlineTrophy className='icon-select' />}
                                     width='100%'
                                 />
                             </div>
-                                
+
                             <div>
                                 <DreamTeamTitulo>
                                     <FaAngleLeft
@@ -742,7 +731,7 @@ const Home = () => {
 
                                     <DreamTeamTorneo>
                                         <p>Fecha {jornadaSeleccionada}</p>
-                                        
+
                                     </DreamTeamTorneo>
 
                                     <FaAngleRight
@@ -769,15 +758,15 @@ const Home = () => {
                                         justifyContent: 'center',
                                         padding: '16px 24px'
                                     }
-                                        }> 
+                                    }>
                                         <Select
-                                            value={idZona}
+                                            value={idZonaActual}
                                             onChange={changeZonaPosiciones}
                                             data={zonasActuales}
                                             column="nombre_completo"
                                             id_="id_zona"
                                             placeholder="Seleccione zona"
-                                            icon={<HiOutlineTrophy className='icon-select'/>}
+                                            icon={<HiOutlineTrophy className='icon-select' />}
                                         />
                                     </div>
 
@@ -797,56 +786,7 @@ const Home = () => {
                                         <p>Tabla de Posiciones</p>
                                         <Skeleton height='12px' width='80px' />
                                     </CategoriasListaTitulo>
-                                    <TablePosicionesSkeletonWrapper>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton size='16px' shape='circle' />
-                                            <Skeleton height='16px' width='150px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton size='16px' shape='circle' />
-                                            <Skeleton height='16px' width='150px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton size='16px' shape='circle' />
-                                            <Skeleton height='16px' width='150px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton size='16px' shape='circle' />
-                                            <Skeleton height='16px' width='150px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton size='16px' shape='circle' />
-                                            <Skeleton height='16px' width='150px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton size='16px' shape='circle' />
-                                            <Skeleton height='16px' width='150px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                            <Skeleton height='16px' width='16px' />
-                                        </div>
-                                    </TablePosicionesSkeletonWrapper>
+                                    <TablePosicionesLoader />
                                 </CategoriasListaWrapper>
                             </Section>
                         )}

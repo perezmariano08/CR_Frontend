@@ -7,8 +7,10 @@ const useMatchOlds = (id_equipoLocal, id_equipoVisita) => {
     const partidos = useSelector((state) => state.partidos.data);
 
     useEffect(() => {
-        dispatch(fetchPartidos());
-    }, [dispatch]);
+        if (partidos.length === 0) {
+            dispatch(fetchPartidos());
+        }
+    }, [partidos.length, dispatch]);
 
     const partidosJugadosLocal = partidos.filter(
         (p) => p.estado === 'F' && +p.id_equipoLocal === +id_equipoLocal || +p.id_equipoVisita === +id_equipoLocal
@@ -18,10 +20,12 @@ const useMatchOlds = (id_equipoLocal, id_equipoVisita) => {
     );
 
     const partidosEntreEquipos = partidos.filter(
-        (p) => p.estado === 'F' && (
-            (+p.id_equipoLocal === +id_equipoLocal && +p.id_equipoVisita === +id_equipoVisita) ||
-            (+p.id_equipoLocal === +id_equipoVisita && +p.id_equipoVisita === +id_equipoLocal)
-        )
+      (p) =>
+        (p.estado === "F" || p.estado === "S") &&
+        ((+p.id_equipoLocal === +id_equipoLocal &&
+          +p.id_equipoVisita === +id_equipoVisita) ||
+          (+p.id_equipoLocal === +id_equipoVisita &&
+            +p.id_equipoVisita === +id_equipoLocal))
     );
 
     return {

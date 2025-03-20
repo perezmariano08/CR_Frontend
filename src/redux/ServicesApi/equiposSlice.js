@@ -7,6 +7,13 @@ export const fetchEquipos = createAsyncThunk('equipos/fetchEquipos', async () =>
     return response.data;
 });
 
+export const fetchEquiposByCategoria = createAsyncThunk('equipos/fetchEquiposByCategoria', async (id_categoria) => {
+    const response = await Axios.get(`${URL}/user/get-equipos`, {
+        params: { id_categoria: id_categoria}
+    });
+    return response.data;
+});
+
 const equiposSlice = createSlice({
     name: 'equipos',
     initialState: {
@@ -21,6 +28,7 @@ const equiposSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // fetchEquipos
             .addCase(fetchEquipos.pending, (state) => {
                 state.loading = true;
                 state.error = '';
@@ -30,6 +38,20 @@ const equiposSlice = createSlice({
                 state.data = action.payload;
             })
             .addCase(fetchEquipos.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+
+            // fetchEquiposByCategoria
+            .addCase(fetchEquiposByCategoria.pending, (state) => {
+                state.loading = true;
+                state.error = '';
+            })
+            .addCase(fetchEquiposByCategoria.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = action.payload; // Guardamos los equipos filtrados por id_categoria
+            })
+            .addCase(fetchEquiposByCategoria.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             });

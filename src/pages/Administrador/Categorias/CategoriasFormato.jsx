@@ -15,8 +15,8 @@ import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
 import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
-import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
-import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchZonas, fetchZonasByCategoria } from '../../../redux/ServicesApi/zonasSlice';
+import { fetchTemporadas, fetchTemporadasByCategorias } from '../../../redux/ServicesApi/temporadasSlice';
 import useForm from '../../../hooks/useForm';
 import Select from '../../../components/Select/Select';
 import { LiaAngleDownSolid } from "react-icons/lia";
@@ -25,7 +25,7 @@ import { BsCalendar2Event } from "react-icons/bs";
 import { NavLink, useParams } from 'react-router-dom';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
-import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
+import { fetchEquipos, fetchEquiposByCategoria } from '../../../redux/ServicesApi/equiposSlice';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { CategoriaFormatoWrapper, EquipoExiste, EquipoExisteDivider, EquipoExisteEscudo, EquipoExisteItem, EquipoExisteLista, EquipoNoExiste, FaseDivider, FormatoFaseTitulo, FormatoFaseWrapper, FormatoZona, FormatoZonaContainer, FormatoZonaInfo, FormatoZonasWrapper, FormatoZonaVacantes, VacanteEquipo, VacanteWrapper } from './categoriasStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
@@ -260,31 +260,38 @@ const CategoriasFormato = () => {
     };
 
     const contarVacantesOcupadas = (zonaId) => {
-        const cantidadEquiposZona = zonas.find(z => z.id_zona == zonaId).cantidad_equipos;
-        const cantidadEquiposTemporada = temporadas.filter((t) => t.id_zona == zonaId && t.id_equipo != null).length;
-
-        // Usamos un Set para evitar contar duplicados
+        const zona = zonas.find(z => z.id_zona == zonaId);
+        if (!zona) return 0;
+    
+        const cantidadEquiposZona = zona.cantidad_equipos;
+        
+        // Contar equipos que ya tienen un id_equipo asignado en la temporada
+        const cantidadEquiposTemporada = temporadas.filter(t => t.id_zona == zonaId && t.id_equipo != null).length;
+    
+        // Contar posiciones de zona previa como vacantes ocupadas
+        const cantidadPosZonaPrevia = temporadas.filter(t => t.id_zona == zonaId && t.pos_zona_previa !== null).length;
+    
+        // Usamos un Set para evitar contar duplicados en partidos previos
         const partidosContados = new Set();
-
         const cantidadEquiposPartidos = partidosCategoria.reduce((count, partido) => {
             if (partido.id_zona === zonaId) {
-                // Si el partido tiene un id_partido_previo_local o id_partido_previo_visita no duplicado
                 if (partido.id_partido_previo_local && !partidosContados.has(partido.id_partido_previo_local)) {
-                    partidosContados.add(partido.id_partido_previo_local);  // Marcamos como contado
+                    partidosContados.add(partido.id_partido_previo_local);
                     count += 1;
                 }
                 if (partido.id_partido_previo_visita && !partidosContados.has(partido.id_partido_previo_visita)) {
-                    partidosContados.add(partido.id_partido_previo_visita);  // Marcamos como contado
+                    partidosContados.add(partido.id_partido_previo_visita);
                     count += 1;
                 }
             }
             return count;
         }, 0);
-
-        const vacantesOcupadas = cantidadEquiposTemporada + cantidadEquiposPartidos;
-
+    
+        const vacantesOcupadas = cantidadEquiposTemporada + cantidadPosZonaPrevia + cantidadEquiposPartidos;
+    
         return Math.min(vacantesOcupadas, cantidadEquiposZona);
     };
+    
 
     const determinarTipoActualizacion = (cantidadNueva, idZona) => {
         const cantidadVieja = zonas.find((z) => z.id_zona == idZona).cantidad_equipos;
@@ -466,7 +473,6 @@ const CategoriasFormato = () => {
                 toast.error("El resultado no puede estar vacío.");
                 return;
             }
-            console.log(partidosZona);
             
             // Caso 2: Si `posicion_previa` no es true pero `id_partido_previo` es válido
             data = {
@@ -565,18 +571,16 @@ const CategoriasFormato = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchEdiciones());
-        // dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
-        dispatch(fetchZonas());
-        dispatch(fetchTemporadas());
+        // dispatch(fetchEdiciones());
+        dispatch(fetchEquiposByCategoria(id_categoria));
+        dispatch(fetchZonasByCategoria(id_categoria));
+        dispatch(fetchTemporadasByCategorias([{ id_categoria }]));
 
         if (isAsignarEquipoZona) {
-            // Cada vez que se abra el modal, resetear el estado a false
             setCrearEquipo(false);
             resetForm()
         }
-    }, [isAsignarEquipoZona]);
+    }, [isAsignarEquipoZona, dispatch]);
 
     // Agregar equipo a la vacante
     const asignarRegistro = async (id_equipo) => {
@@ -707,8 +711,6 @@ const CategoriasFormato = () => {
         const posicion = posicionesTemporadas.find((p) => p.vacante == numeroVacante);
         const nombreZona = zonas.find((z) => z.id_zona == posicion?.id_zona_previa)?.nombre_zona;
         etiquetaPos = posicion ? `Posicion ${posicion.pos_zona_previa} - ${nombreZona}` : null;
-
-        // console.log("EtiquetaPos:", temporadas);
 
         // Retornar todos los valores calculados
         return {
@@ -886,7 +888,7 @@ const CategoriasFormato = () => {
                                             const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona && t.id_equipo);
                                             let completo = false;
                                             const vacantesOcupadas = contarVacantesOcupadas(z.id_zona);
-
+                                            
                                             completo = parseInt(vacantesOcupadas) === parseInt(z.cantidad_equipos);
                                             return (
                                                 <FormatoZonaContainer

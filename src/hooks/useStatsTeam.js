@@ -10,7 +10,7 @@ const useStatsTeam = (equipoId) => {
 
     const partidosMiEquipo = partidos.filter((p) => {
         const esMiEquipo = p.id_equipoLocal === equipoId || p.id_equipoVisita === equipoId;
-        const estadoValido = p.estado.trim() === 'F';
+        const estadoValido = p.estado.trim() === 'F' || p.estado.trim() === 'S';
         return esMiEquipo && estadoValido;
     });
 
@@ -44,10 +44,10 @@ const useStatsTeam = (equipoId) => {
     }, [partidosMiEquipo, equipoId]);
 
     useEffect(() => {
-        dispatch(fetchEquipos());
-        dispatch(fetchPartidos());
-        dispatch(fetchJugadores());
-    }, [dispatch]);
+        if (partidos.length === 0) {
+            dispatch(fetchPartidos());
+        }
+    }, [dispatch, partidos.length]);
 
     return { cantVictorias, cantEmpates, cantDerrotas, partidosMiEquipo };
 }

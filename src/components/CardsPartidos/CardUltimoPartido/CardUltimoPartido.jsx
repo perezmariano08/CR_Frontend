@@ -2,46 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { CardUltimoPartidoDescripcion, CardUltimoPartidoDetalle, CardUltimoPartidoDiaJornada, CardUltimoPartidoEquipoLink, CardUltimoPartidoEquipos, CardUltimoPartidoInfo, CardUltimoPartidoLink, CardUltimoPartidoPenales, CardUltimoPartidoResultado, CardUltimoPartidoResultadoVivo, CardUltimoPartidoWrapper } from './CardUltimoPartidoStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { formatearFecha, formatHour } from '../../../utils/formatDateTime';
-import { Skeleton } from 'primereact/skeleton';
 import { NavLink } from 'react-router-dom';
+import CardUltimoPartidoLoader from './CardUltimoPartidoLoader';
 
 const CardUltimoPartido = ({ miEquipo, estado, id_partido, nombre_edicion, dia, id_equipoLocal, id_equipoVisita, jornada, goles_local, goles_visita, pen_local, pen_visita, hora}) => {
+
+    const rutaPartido = `/stats-match?id=${id_partido}`;
     const { escudosEquipos, nombresEquipos } = useEquipos();
     const [loading, setLoading] = useState(true);
 
-    // Detectar cambios en miEquipo y reiniciar la carga
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 2000); // Simular el tiempo de carga
+        const timer = setTimeout(() => setLoading(false), 2000);
         return () => clearTimeout(timer);
-    }, []); // Dependemos de 'miEquipo' para resetear el estado de carga
+    }, []);
 
-    // Si está cargando, mostramos el Skeleton
     if (loading) {
         return (
-            <CardUltimoPartidoWrapper>
-                <CardUltimoPartidoInfo>
-                    <Skeleton shape="circle" size="58px" />
-                    <CardUltimoPartidoDetalle>
-                        <CardUltimoPartidoDescripcion>
-                            <CardUltimoPartidoDiaJornada>
-                                <Skeleton width="50px" height="12px" />
-                                <Skeleton width="130px" height="12px" />
-                            </CardUltimoPartidoDiaJornada>
-                            <CardUltimoPartidoEquipos style={{ gap: '5px' }}>
-                                <Skeleton width="150px" height="22px" />
-                                <Skeleton width="150px" height="22px" />
-                            </CardUltimoPartidoEquipos>
-                        </CardUltimoPartidoDescripcion>
-                        <Skeleton width="80px" height="40px" />
-                    </CardUltimoPartidoDetalle>
-                </CardUltimoPartidoInfo>
-            </CardUltimoPartidoWrapper>
+            <CardUltimoPartidoLoader/>
         );
     }
 
-    // Si no está cargando, mostramos los datos reales
     return (
-        <CardUltimoPartidoWrapper to={`/stats-match?id=${id_partido}`}>
+        <CardUltimoPartidoWrapper>
             <CardUltimoPartidoInfo>
                 {/* Mostrar el escudo del equipo contrario dependiendo de si soy el local o visitante */}
                 {
@@ -92,7 +74,7 @@ const CardUltimoPartido = ({ miEquipo, estado, id_partido, nombre_edicion, dia, 
             </CardUltimoPartidoInfo>
             <CardUltimoPartidoLink>
                 <NavLink
-                    to={`/stats-match?id=${id_partido}`}
+                    to={rutaPartido}
                 >
                     Ver planilla del partido
                 </NavLink>

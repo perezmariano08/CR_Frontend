@@ -257,6 +257,7 @@ export const CategoriasListaTitulo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
+  
   p {
     font-weight: 700;
   }

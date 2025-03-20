@@ -26,6 +26,10 @@ export const HistoryTop = styled.div`
         width: 40px;
     }
 
+    @media (max-width: 568px) {
+        gap: 20px;
+    }
+
     @media (max-width: 400px) {
         img {
             display: none;

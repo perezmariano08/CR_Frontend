@@ -151,7 +151,7 @@ export const CardPartidoGenericoEquipoDetalle = styled.div`
     
 `
 
-export const CardPartidoGenericoEquipoLink = styled.a`
+export const CardPartidoGenericoEquipoLink = styled(NavLink)`
     color: var(--black-100);
     &:hover{
         text-decoration: underline

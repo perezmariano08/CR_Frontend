@@ -6,11 +6,13 @@ import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
 import { closeModal } from '../../../redux/Planillero/planilleroSlice';
-import { checkPartidosEventual, firmaJugador, getEdicion } from '../../../utils/dataFetchers';
+import { checkPartidosEventual, firmaJugador, getEdicion, getFormaciones } from '../../../utils/dataFetchers';
 import { useWebSocket } from '../../../Auth/WebSocketContext';
 import useFetch from '../../../hooks/useFetch';
+import { useFormaciones } from '../../../hooks/planilla/useFormaciones';
+import { orderData } from '../../../utils/utils';
 
-const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
+const EditDorsal = ({ id_partido, formaciones, id_edicion, setFormaciones }) => {
     const token = localStorage.getItem('token');
     const dispatch = useDispatch();
     const socket = useWebSocket();
@@ -59,8 +61,8 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
             dispatch(closeModal());
             return;
         }
-
-        if (partidosJugados >= edicion.partidos_eventuales) {
+        
+        if (edicion.partidos_eventuales > 0 && partidosJugados >= edicion.partidos_eventuales) {
             toast.error('No puedes asignar el dorsal porque el jugador llegó a la cantidad máxima de partidos eventuales permitidos');
             return;
         }
@@ -76,17 +78,23 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion }) => {
             }
 
             //emitir el dorsal a la base
-            firmaJugador(id_partido, jugador.id_jugador, dorsalValue, token)
-
+            const res = await firmaJugador(id_partido, jugador.id_jugador, dorsalValue, token);
+            if (res.status === 200) { 
+                const data = await getFormaciones(id_partido, token)
+                const orderedData = orderData(data);
+                setFormaciones(orderedData)
+                toast.success('Dorsal asignado correctamente');
+            }
+            
             //emitir websocket
-            socket.emit('dorsalAsignado', { id_partido, id_jugador: jugador.id_jugador, dorsal: dorsalValue });
+            // socket.emit('dorsalAsignado', { id_partido, id_jugador: jugador.id_jugador, dorsal: dorsalValue });
 
             handleCloseModal();
         } catch (error) {
             console.error('Error al guardar el dorsal en la base de datos:', error);
             toast.error('Error al guardar el dorsal, intente nuevamente');
         } finally {
-            setTimeout(() => setLoading(false), 1000);
+            setTimeout(() => setLoading(false), 500);
         }
     };
 

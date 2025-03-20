@@ -33,13 +33,13 @@ const EdicionesConfig = () => {
     // Estado del el/los Listado/s que se necesitan en el modulo
     const edicionesList = useSelector((state) => state.ediciones.data);
     const categoriasList = useSelector((state) => state.categorias.data);
-    const equiposList = useSelector((state) => state.equipos.data);
+    // const equiposList = useSelector((state) => state.equipos.data);
 
     // Filtrar las categorías para excluir la categoría actual
     const categoriasSinActual = categoriasList.filter(categoria => categoria.id_categoria != id_categoria);
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_categoria)
+    // const categoriaEquipos = equiposList.filter((equipo) => equipo.id_categoria == id_categoria)
     
     // Manejo del form
     const [formState, handleFormChange, resetForm] = useForm({ 
@@ -70,10 +70,9 @@ const EdicionesConfig = () => {
     const { isDeleteModalOpen, openDeleteModal, closeDeleteModal } = useModalsCrud();
 
     useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
-    }, []);
+        if (categoriasList.length === 0) dispatch(fetchCategorias());
+        if (edicionesList.length === 0) dispatch(fetchEdiciones());
+    }, [dispatch, categoriasList.length, edicionesList.length]);
 
     
     // ACTUALIZAR

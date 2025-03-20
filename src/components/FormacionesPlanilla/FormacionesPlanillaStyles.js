@@ -1,5 +1,43 @@
-import { color } from "framer-motion";
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
+import { IoIosStar, IoIosStarOutline } from "react-icons/io";
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const spinReverse = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+`;
+
+export const StarIcon = styled(IoIosStar)`
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+  
+  ${({ $loading }) => $loading && css`
+    animation: ${spinReverse} 0.5s linear infinite;
+    opacity: 0.7;
+  `}
+`;
+
+export const StarOutlineIcon = styled(IoIosStarOutline)`
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+
+  ${({ $loading }) => $loading && css`
+    animation: ${spin} 0.5s linear infinite;
+    opacity: 0.7;
+  `}
+`;
 
 export const FormacionesPlanillaWrapper = styled.div`
     background-color: var(--gray-400);
@@ -12,6 +50,7 @@ export const FormacionesPlanillaWrapper = styled.div`
     min-width: 85%;
     width: 100%;
 `
+
 export const FormacionesPlanillaTitle = styled.div`
     display: flex;
     width: 100%;
@@ -38,7 +77,6 @@ export const FormacionesPlanillaHeader = styled.div`
     }
 `
 
-
 export const PlanillaButtons = styled.button`
     background: transparent;
     padding: 5px;
@@ -53,6 +91,7 @@ export const PlanillaButtons = styled.button`
         background-color: var(--green);
     }
 `;
+
 export const TablePlanillaWrapper = styled.table`
     background-color: var(--gray-400);
     width: 100%;

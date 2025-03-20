@@ -204,11 +204,12 @@ export const SelectVistaPartidoOptions = styled.div`
     background-color: var(--black-800);
     border-radius: 10px;
     overflow: hidden;
-    opacity: ${({ isOpen }) => (isOpen ? 1 : 0)}; // Cambio de visibilidad con opacidad
-    visibility: ${({ isOpen }) => (isOpen ? 'visible' : 'hidden')}; // Para ocultar el contenido cuando está cerrado
-    pointer-events: ${({ isOpen }) => (isOpen ? 'auto' : 'none')}; // Desactivar interacción cuando está cerrado
+    opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)}; // Cambio de visibilidad con opacidad
+    visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')}; // Para ocultar el contenido cuando está cerrado
+    pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')}; // Desactivar interacción cuando está cerrado
     z-index: 10;
 `;
+
 
 export const SelectVistaPartidoOption = styled.div`
     padding: 10px;

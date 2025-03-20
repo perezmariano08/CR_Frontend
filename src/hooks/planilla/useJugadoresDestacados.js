@@ -10,29 +10,29 @@ const useJugadoresDestacados = (id_partido, estadoPartido, toast, token) => {
     const [jugadoresDestacados, setJugadoresDestacados] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const socket = useWebSocket();
+    // const socket = useWebSocket();
 
     const mvpSelectedRedux = useSelector((state) => state.planillero.mvpSelected);
 
-    useEffect(() => {
-        const fetchJugadoresDestacados = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const data = await traerJugadoresDestacados(id_partido, token);
-                if (data) {
-                    setJugadoresDestacados(data);
-                } else {
-                    setJugadoresDestacados([]);
-                }
-            } catch (err) {
-                console.error("Error en la petición:", err);
-                setError(err);
-            } finally {
-                setLoading(false);
+    const fetchJugadoresDestacados = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await traerJugadoresDestacados(id_partido, token);
+            if (data) {
+                setJugadoresDestacados(data);
+            } else {
+                setJugadoresDestacados([]);
             }
-        };
+        } catch (err) {
+            console.error("Error en la petición:", err);
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         if (id_partido) {
             fetchJugadoresDestacados();
         }
@@ -47,22 +47,22 @@ const useJugadoresDestacados = (id_partido, estadoPartido, toast, token) => {
             );
         };
 
-        if (socket) {
-            socket.on("insertar-jugador-destacado", handleJugadorDestacadoAgregado);
-            socket.on("eliminar-jugador-destacado", handleJugadorDestacadoEliminado);
-        }
+        // if (socket) {
+        //     socket.on("insertar-jugador-destacado", handleJugadorDestacadoAgregado);
+        //     socket.on("eliminar-jugador-destacado", handleJugadorDestacadoEliminado);
+        // }
 
-        return () => {
-            if (socket) {
-                socket.off("insertar-jugador-destacado", handleJugadorDestacadoAgregado);
-                socket.off("eliminar-jugador-destacado", handleJugadorDestacadoEliminado);
-            }
-        };
-    }, [id_partido, socket]);
+        // return () => {
+        //     if (socket) {
+        //         socket.off("insertar-jugador-destacado", handleJugadorDestacadoAgregado);
+        //         socket.off("eliminar-jugador-destacado", handleJugadorDestacadoEliminado);
+        //     }
+        // };
+
+    }, [id_partido]);
 
 
     const handleMvp = async (e) => {
-        
         if (estadoPartido !== 'T') {
             return toast.error('Finaliza el partido para seleccionar un MVP');
         }
@@ -96,7 +96,7 @@ const useJugadoresDestacados = (id_partido, estadoPartido, toast, token) => {
         }
     };
 
-    return { jugadoresDestacados, loading, error, handleMvp, mvpSelectedRedux };
+    return { jugadoresDestacados, loading, error, handleMvp, mvpSelectedRedux, fetchJugadoresDestacados };
 };
 
 export default useJugadoresDestacados;

@@ -40,6 +40,35 @@ export const fetchPartidosPlanillados = createAsyncThunk(
     }
 );
 
+export const fetchPartidosbByCategoria = createAsyncThunk('partidos/fetchPartidosByCategoria', async (id_categoria) => {
+    try {
+        const response = await Axios.get(`${URL}/user/get-partidos`, {
+            params: { id_categoria: id_categoria }
+        }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error:", error.response ? error.response : error);
+        throw error;
+    }
+});
+
+export const fetchPartidosByEdiciones = createAsyncThunk(
+    'partidos/fetchPartidosByEdiciones',
+    async (ediciones) => {
+        try {
+            const idsEdiciones = ediciones.map(ed => ed.id_edicion);
+            const response = await Axios.get(`${URL}/user/get-partidos`, {
+                params: { idsEdiciones: idsEdiciones.join(',') }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error:", error.response ? error.response : error);
+            throw error;
+        }
+    }
+);
+
 const partidosSlice = createSlice({
     name: 'partidos',
     initialState: {
@@ -79,6 +108,20 @@ const partidosSlice = createSlice({
                 state.data_planillero = action.payload; // Guardar los datos específicos
             })
             .addCase(fetchPartidosPlanillero.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+
+            // fetchPartidosbByCategoria
+            .addCase(fetchPartidosbByCategoria.pending, (state) => {
+                state.loading = true;
+                state.error = '';
+            })
+            .addCase(fetchPartidosbByCategoria.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = action.payload;  // Aquí guardamos los partidos filtrados por categoría
+            })
+            .addCase(fetchPartidosbByCategoria.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             });

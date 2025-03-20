@@ -6,7 +6,6 @@ import { useLocation } from 'react-router-dom'
 import { useAuth } from '../../Auth/AuthContext'
 import MenuBottomPlanillero from '../MenuBottom/MenuBottomPlanillero'
 import { NavbarPlanillero } from '../Navbar/NavbarPlanillero'
-import ChatNovedades from '../ChatNovedades/ChatNovedades'
 import Footer from '../Footer/Footer'
 
 const PrivateLayout = ({children}) => {
@@ -30,7 +29,6 @@ const PrivateLayout = ({children}) => {
                 children
             }
         </PrivateLayoutContainerStyled>
-        <ChatNovedades/>
         {
           userRole === 2 ? (
             <MenuBottomPlanillero/>

@@ -44,19 +44,15 @@ const Planilla = () => {
 
     //hooks nuevos
     const { partidoFiltrado, handleStartMatch, pushInfoMatch, suspenderPartido, partidoIda } = usePartido(partidoId, toast, token)
-
-    const { incidencias, loading: loading_incidencias } = useIncidencias(partidoId, ['insertar-gol', 'insertar-amarilla', 'insertar-roja', 'eliminar-gol', 'eliminar-amarilla', 'eliminar-expulsion', 'actualizar-gol', 'actualizar-amarilla', 'actualizar-roja'], token);
-
-    const { formaciones, loading: loading_formaciones, socketLoading: loading_socket_formaciones } = useFormaciones(partidoId, token)
-
-    const { handleMvp, mvpSelectedRedux, jugadoresDestacados } = useJugadoresDestacados(partidoId, partidoFiltrado.estado, toast, token);
+    const { incidencias, fetchIncidencias } = useIncidencias(partidoId, token);
+    const { formaciones, socketLoading: loading_socket_formaciones, setFormaciones, fetchFormaciones } = useFormaciones(partidoId, token)
+    const { handleMvp, mvpSelectedRedux, jugadoresDestacados, fetchJugadoresDestacados } = useJugadoresDestacados(partidoId, partidoFiltrado.estado, toast, token);
     
     const estadoPartido = partidoFiltrado.estado;
     
     const handleChangeDescripcion = (e) => {
         dispatch(setDescripcionPartido(e.target.value));
     };
-
 
     if (!partidoFiltrado || !incidencias || !formaciones) {
         return (
@@ -69,127 +65,150 @@ const Planilla = () => {
     const esVuelta = obtenerTipoPartido(partidoFiltrado)
 
     return (
-        <PlanillaContainerStyled className='container'>
-            <MatchStatsWrapper className='wrapper'>
-                <Section>
-                    <h2>Ficha de partido</h2>
-                    {
-                        esVuelta === 'vuelta' && (
-                            <CardPartidoIda partido={partidoIda} />
-                        )
-                    }
-                    <CardFinalPartido partido={partidoFiltrado} incidencias={incidencias} />
-                </Section>
+      <PlanillaContainerStyled className="container">
+        <MatchStatsWrapper className="wrapper">
+          <Section>
+            <h2>Ficha de partido</h2>
+            {esVuelta === "vuelta" && <CardPartidoIda partido={partidoIda} />}
+            <CardFinalPartido
+              partido={partidoFiltrado}
+              incidencias={incidencias}
+            />
+          </Section>
 
-                {partidoFiltrado.estado !== 'S' && (
-                    <>
-                        <Cronometro partido={partidoFiltrado} />
-                        {partidoFiltrado.estado === 'F' && (
-                            <Alignment formaciones={formaciones} partido={partidoFiltrado} />
-                        )}
+          {partidoFiltrado.estado !== "S" && (
+            <>
+              <Cronometro partido={partidoFiltrado} />
+              {partidoFiltrado.estado === "F" && (
+                <Alignment
+                  formaciones={formaciones}
+                  partido={partidoFiltrado}
+                />
+              )}
 
-                        {partidoFiltrado.estado !== 'F' && (
-                            <FormacionesPlanilla partido={partidoFiltrado} formacionesPartido={formaciones} socket_loading={loading_socket_formaciones} />
-                        )}
+              {partidoFiltrado.estado !== "F" && (
+                <FormacionesPlanilla
+                  partido={partidoFiltrado}
+                  formacionesPartido={formaciones}
+                  setFormaciones={setFormaciones}
+                  fetchJugadoresDestacados={fetchJugadoresDestacados}
+                />
+              )}
 
-                        <Incidents incidencias={incidencias} formaciones={formaciones} partido={partidoFiltrado} />
+              <Incidents
+                incidencias={incidencias}
+                formaciones={formaciones}
+                partido={partidoFiltrado}
+              />
 
-                        {partidoFiltrado.estado !== 'F' && (
-                            <>
-                                <SelectContainerStyled>
-                                    <h3>Seleccionar <span>MVP</span></h3>
-                                    <Select
-                                        placeholder={'Seleccione un jugador'}
-                                        icon={<GiSoccerKick className='icon-select' />}
-                                        data={jugadoresDestacados}
-                                        onChange={handleMvp}
-                                        id_="id_jugador"
-                                        column="nombre_completo"
-                                        value={mvpSelectedRedux}
-                                        planilla={true}
-                                        disabled={estadoPartido !== 'T'}
-                                        
-                                    />
-                                </SelectContainerStyled>
+              {partidoFiltrado.estado !== "F" && (
+                <>
+                  <SelectContainerStyled>
+                    <h3>
+                      Seleccionar <span>MVP</span>
+                    </h3>
+                    <Select
+                      placeholder={"Seleccione un jugador"}
+                      icon={<GiSoccerKick className="icon-select" />}
+                      data={jugadoresDestacados}
+                      onChange={handleMvp}
+                      id_="id_jugador"
+                      column="nombre_completo"
+                      value={mvpSelectedRedux || ""}
+                      planilla={true}
+                      disabled={estadoPartido !== "T"}
+                    />
+                  </SelectContainerStyled>
 
-                                <PenaltyOption partido={partidoFiltrado} />
+                  <PenaltyOption partido={partidoFiltrado} />
 
-                                <InputDescContainer>
-                                    <p>Observaciones del partido</p>
-                                    <InputLong 
-                                        id="description" 
-                                        name="description" 
-                                        placeholder="Escriba su descripcion aqui..." 
-                                        type="textarea" 
-                                        value={descripcionRedux} 
-                                        onChange={handleChangeDescripcion} 
-                                    />
-                                </InputDescContainer>
-                            </>
-                        )}
-                    </>
+                  <InputDescContainer>
+                    <p>Observaciones del partido</p>
+                    <InputLong
+                      id="description"
+                      name="description"
+                      placeholder="Escriba su descripcion aqui..."
+                      type="textarea"
+                      value={descripcionRedux || ""}
+                      onChange={handleChangeDescripcion}
+                    />
+                  </InputDescContainer>
+                </>
+              )}
+            </>
+          )}
+
+          <ButtonContainer>
+            {estadoPartido === "S" ? (
+              <ButtonMatch className="suspender">
+                <ImCross />
+                Partido Suspendido
+              </ButtonMatch>
+            ) : (
+              <>
+                {estadoPartido === "P" && (
+                  <ButtonMatch
+                    className="started"
+                    onClick={() => {
+                      handleStartMatch();
+                    }}
+                  >
+                    <FaPlay />
+                    Comenzar Partido
+                  </ButtonMatch>
                 )}
-
-            <ButtonContainer>
-                {estadoPartido === 'S' ? (
-                    <ButtonMatch className='suspender'>
-                        <ImCross />
-                        Partido Suspendido
-                    </ButtonMatch>
-                ) : (
-                    <>
-                        {estadoPartido === 'P' && (
-                            <ButtonMatch
-                                className='started'
-                                onClick={() => {
-                                    handleStartMatch();
-                                }}>
-                                <FaPlay />
-                                Comenzar Partido
-                            </ButtonMatch>
-                        )}
-                        {estadoPartido === 'T' && (
-                            <ButtonMatch onClick={pushInfoMatch}>
-                                <FaCloudArrowUp />
-                                Subir partido
-                            </ButtonMatch>
-                        )}
-                        {estadoPartido === 'C' && (
-                            <ButtonMatch onClick={handleStartMatch}>
-                                <FaRegStopCircle />
-                                Finalizar Partido
-                            </ButtonMatch>
-                        )}
-                        {estadoPartido === 'F' && (
-                            <ButtonMatch className='finish'>
-                                Partido cargado
-                            </ButtonMatch>
-                        )}
-                        {estadoPartido !== 'F' && (
-                            <ButtonMatch className='suspender' onClick={suspenderPartido}>
-                                <ImCross />
-                                Suspender Partido
-                            </ButtonMatch>
-                        )}
-                    </>
+                {estadoPartido === "T" && (
+                  <ButtonMatch onClick={pushInfoMatch}>
+                    <FaCloudArrowUp />
+                    Subir partido
+                  </ButtonMatch>
                 )}
-            </ButtonContainer>
-        
-            </MatchStatsWrapper>
+                {estadoPartido === "C" && (
+                  <ButtonMatch onClick={handleStartMatch}>
+                    <FaRegStopCircle />
+                    Finalizar Partido
+                  </ButtonMatch>
+                )}
+                {estadoPartido === "F" && (
+                  <ButtonMatch className="finish">Partido cargado</ButtonMatch>
+                )}
+                {estadoPartido !== "F" && (
+                  <ButtonMatch className="suspender" onClick={suspenderPartido}>
+                    <ImCross />
+                    Suspender Partido
+                  </ButtonMatch>
+                )}
+              </>
+            )}
+          </ButtonContainer>
+        </MatchStatsWrapper>
 
-            <ActionType />
-            <ActionDetailGol formaciones={formaciones}/>
-            <ActionDetailRoja formaciones={formaciones}/>
-            <ActionTime id_partido={partidoId}/>
+        <ActionType />
+        <ActionDetailGol formaciones={formaciones} />
+        <ActionDetailRoja formaciones={formaciones} />
+        <ActionTime
+          id_partido={partidoId}
+          formaciones={formaciones}
+          fetchIncidencias={fetchIncidencias}
+          setFormaciones={setFormaciones}
+        />
 
-            <EditDorsal id_partido={partidoId} formaciones={formaciones} id_edicion={partidoFiltrado.id_edicion} />
-            <ModalConfirmation />
-            <JugadoresEventuales partido={partidoFiltrado} formaciones={formaciones} />
+        <EditDorsal
+          id_partido={partidoId}
+          formaciones={formaciones}
+          id_edicion={partidoFiltrado.id_edicion}
+          setFormaciones={setFormaciones}
+        />
+        <ModalConfirmation fetchIncidencias={fetchIncidencias} setFormaciones={setFormaciones} fetchFormaciones={fetchFormaciones} />
+        <JugadoresEventuales
+          partido={partidoFiltrado}
+          formaciones={formaciones}
+        />
 
-            <ModalSuspenderPartido partido={partidoFiltrado} />
+        <ModalSuspenderPartido partido={partidoFiltrado}/>
 
-            <Toaster />
-        </PlanillaContainerStyled>
+        <Toaster />
+      </PlanillaContainerStyled>
     );
 };
 

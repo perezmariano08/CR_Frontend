@@ -9,6 +9,16 @@ export const fetchCategorias = createAsyncThunk('categorias/fetchCategorias', as
     return response.data;
 });
 
+// Crear una acción asíncrona para obtener los años
+export const fetchCategoriasByEdicion = createAsyncThunk('categorias/fetchCategoriasByEdicion', async (id_edicion) => {
+    const response = await Axios.get(`${URL}/user/get-categorias`, 
+        {
+            params: { id_edicion: id_edicion }
+        }
+    )
+    return response.data;
+});
+
 const categoriasSlice = createSlice({
     name: 'categorias',
     initialState: {
@@ -32,6 +42,18 @@ const categoriasSlice = createSlice({
                 state.data = action.payload;
             })
             .addCase(fetchCategorias.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+            .addCase(fetchCategoriasByEdicion.pending, (state) => {
+                state.loading = true;
+                state.error = '';
+            })
+            .addCase(fetchCategoriasByEdicion.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = action.payload;  // ✅ Aquí se guardan las categorías filtradas
+            })
+            .addCase(fetchCategoriasByEdicion.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             });

@@ -18,15 +18,14 @@ const PenaltyOption = ({ partido }) => {
     
     const { nombresEquipos, escudosEquipos } = useEquipos();
 
-    useEffect(() => {
-        if (penalLocalState !== null && penalVisitaState !== null) {
-            setShowInputs(true);
-        } else {
-            setShowInputs(false);
-        }
-    }, [penalLocalState, penalVisitaState]);
+    // useEffect(() => {
+    //     if (penalLocalState != 0 && penalVisitaState != 0) {
+    //         setShowInputs(true);
+    //     } else {
+    //         setShowInputs(false);
+    //     }
+    // }, [penalLocalState, penalVisitaState]);
     
-
     useEffect(() => {
         setPenalLocal(penalLocalState);
         setPenalVisita(penalVisitaState);
@@ -35,39 +34,32 @@ const PenaltyOption = ({ partido }) => {
     const handleCheckboxChange = () => {
         const newShowInputs = !showInputs;
         setShowInputs(newShowInputs);
-    
+        
         if (!newShowInputs) {
+            // Si se desactiva, los penales quedan en NULL
             setPenalLocal(null);
             setPenalVisita(null);
             dispatch(setPenales({ penalLocal: null, penalVisita: null }));
         } else {
+            // Si se activa, se resetean a 0
             setPenalLocal(0);
             setPenalVisita(0);
             dispatch(setPenales({ penalLocal: 0, penalVisita: 0 }));
         }
     };
     
-    
     const handleLocalChange = (e) => {
-        const value = e.target.value;
-
-        if (value === '' || /^\d+$/.test(value)) {
-            const newValue = value === '' ? 0 : parseInt(value);
-            setPenalLocal(newValue);
-            dispatch(setPenales({ penalLocal: newValue, penalVisita }));
-        }
+        const value = e.target.value === "" ? null : parseInt(e.target.value);
+        setPenalLocal(value);
+        dispatch(setPenales({ penalLocal: value, penalVisita }));
     };
-
+    
     const handleVisitaChange = (e) => {
-        const value = e.target.value;
-
-        if (value === '' || /^\d+$/.test(value)) {
-            const newValue = value === '' ? 0 : parseInt(value);
-            setPenalVisita(newValue);
-            dispatch(setPenales({ penalLocal, penalVisita: newValue }));
-        }
+        const value = e.target.value === "" ? null : parseInt(e.target.value);
+        setPenalVisita(value);
+        dispatch(setPenales({ penalLocal, penalVisita: value }));
     };
-
+    
     return (
         <PenaltyContainer>
             <PenaltyWrapper>
@@ -78,7 +70,7 @@ const PenaltyOption = ({ partido }) => {
                         <CustomCheckbox id="penalty" checked={showInputs} onChange={handleCheckboxChange} />
                         <CheckboxLabel htmlFor="penalty">Definición por penales</CheckboxLabel>
                     </OptionContainer>
-                    <HiddenOptionContainer show={showInputs}>
+                    <HiddenOptionContainer show={showInputs ? "true" : undefined}>
                         <OptionContainer>
                             <OptionContainer>
                                 <TeamContainer>
@@ -87,14 +79,14 @@ const PenaltyOption = ({ partido }) => {
                                 </TeamContainer>
                                 <CustomInput
                                     type="number"
-                                    value={penalLocal}
+                                    value={penalLocal ?? ""}
                                     onChange={handleLocalChange}
                                 />
                             </OptionContainer>
                             <OptionContainer>
                                 <CustomInput
                                     type="number"
-                                    value={penalVisita}
+                                    value={penalVisita ?? ""}
                                     onChange={handleVisitaChange}
                                 />
                                 <TeamContainer>

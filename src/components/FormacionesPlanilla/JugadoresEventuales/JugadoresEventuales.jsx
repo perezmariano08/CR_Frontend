@@ -41,7 +41,7 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
     const edicion = fetchEdicion?.[0];
 
     if (loadingEdicion) {
-        return <LoaderIcon />;
+        return;
     }
 
     const handleDniBlur = async () => {
@@ -141,6 +141,7 @@ const JugadoresEventuales = ({ partido, formaciones }) => {
             }
     
             const response = await insertarJugadorEventual(data, token);
+
             if (response.success) { 
                 toast.success(response.message)
             } else {

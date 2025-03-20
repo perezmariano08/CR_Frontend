@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-export const CardProximoPartidoWrapper = styled(NavLink)`
+export const CardProximoPartidoWrapper = styled.div`
     color: var(--black-50);
     padding: 16px 24px;
     gap: 15px;

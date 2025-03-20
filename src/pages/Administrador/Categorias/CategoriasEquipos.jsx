@@ -15,8 +15,8 @@ import { URL, URLImages } from '../../../utils/utils';
 import { LoaderIcon, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEdiciones } from '../../../redux/ServicesApi/edicionesSlice';
-import { fetchCategorias } from '../../../redux/ServicesApi/categoriasSlice';
-import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchCategorias, fetchCategoriasByEdicion } from '../../../redux/ServicesApi/categoriasSlice';
+import { fetchTemporadas, fetchTemporadasByCategorias } from '../../../redux/ServicesApi/temporadasSlice';
 import useForm from '../../../hooks/useForm';
 import Select from '../../../components/Select/Select';
 
@@ -24,14 +24,14 @@ import { BsCalendar2Event } from "react-icons/bs";
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
-import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
+import { fetchEquipos, fetchEquiposByCategoria } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import { CategoriaEquiposEmpty, EquipoExiste, EquipoExisteDivider, EquipoExisteEscudo, EquipoExisteItem, EquipoExisteLista, EquipoNoExiste } from './categoriasStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { EquipoBodyTemplate, EstadoBodyTemplate } from '../../../components/Table/TableStyles';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
-import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
+import { fetchZonas, fetchZonasByCategoria } from '../../../redux/ServicesApi/zonasSlice';
 
 const CategoriasEquipos = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -252,17 +252,17 @@ const CategoriasEquipos = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos())
-        dispatch(fetchTemporadas())
-        dispatch(fetchZonas());
+        // dispatch(fetchEdiciones());
+        dispatch(fetchCategoriasByEdicion(edicionFiltrada.id_edicion));
+        dispatch(fetchEquiposByCategoria(id_categoria));
+        dispatch(fetchTemporadasByCategorias([{ id_categoria }]));
+        // dispatch(fetchZonasByCategoria());
+
         if (isCreateModalOpen) {
-            // Cada vez que se abra el modal, resetear el estado a false
             setCrearEquipo(false);
             resetForm()
         }
-    }, [isCreateModalOpen]);
+    }, [isCreateModalOpen, dispatch]);
 
     return (
         <Content>

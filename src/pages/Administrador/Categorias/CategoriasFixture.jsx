@@ -38,21 +38,23 @@ import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
 import { dataPartidosColumns } from '../../../Data/Partidos/Partidos';
 import { LiaAngleLeftSolid, LiaAngleRightSolid } from "react-icons/lia";
-import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
+import { fetchPartidos, fetchPartidosbByCategoria } from '../../../redux/ServicesApi/partidosSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { EquipoBodyTemplate, EstadoBodyTemplate, ResultadoBodyTemplate } from '../../../components/Table/TableStyles';
 import { convertirFecha, formatHour, formatPartidoDateTime } from '../../../utils/formatDateTime';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { Calendar } from 'primereact/calendar';
 import InputCalendar from '../../../components/UI/Input/InputCalendar';
-import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
+import { fetchZonas, fetchZonasByCategoria } from '../../../redux/ServicesApi/zonasSlice';
 import { estadoPartidos } from '../../../Data/Estados/Estados';
 import { fetchUsuarios } from '../../../redux/ServicesApi/usuariosSlice';
 import { PiSoccerBall } from 'react-icons/pi';
 import DreamTeam from './DreamTeam';
-import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchTemporadas, fetchTemporadasByCategorias } from '../../../redux/ServicesApi/temporadasSlice';
 import Switch from '../../../components/UI/Switch/Switch';
 import { CheckBoxContainer, CustomCheckBox, GroupContainerCheckBox, LabelCheckBox } from './categoriasStyles';
+
+//! FALTA OPTIMIZAR FETCHPARTIDOS EN LAS ACTUALZIACIONES DE CADA MODAL Y EL RESTO DEL COMPONENTE
 
 const CategoriasFixture = () => {
     const dispatch = useDispatch();
@@ -131,7 +133,7 @@ const CategoriasFixture = () => {
     const temporadas = useSelector((state) => state.temporadas.data);
     const zonas = useSelector((state) => state.zonas.data);
     const usuarios = useSelector((state) => state.usuarios.data);
-    
+
     const planilleros = usuarios.filter((u) => u.id_rol === 2)
     const tipoZonaFiltrada = zonas.find((z) => z.id_zona == formState.zona)?.tipo_zona;
 
@@ -155,13 +157,12 @@ const CategoriasFixture = () => {
 
     useEffect(() => {
         dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
-        dispatch(fetchPartidos());
-        dispatch(fetchZonas());
+        // dispatch(fetchEquipos());
+        dispatch(fetchPartidosbByCategoria(id_categoria));
         dispatch(fetchUsuarios());
-        dispatch(fetchTemporadas());
-    }, []);
+        dispatch(fetchZonasByCategoria(id_categoria));
+        dispatch(fetchTemporadasByCategorias([{id_categoria}]));
+    }, [dispatch, categoriasList.length, edicionesList.length, partidosList.length, zonas.length, usuarios.length, temporadas.length]);
 
     // ACTUALIZAR
     const editarPartido = (id_partido) => {
@@ -266,7 +267,6 @@ const CategoriasFixture = () => {
         }
     };
     
-
     const [id_partidoEliminar, setIdPartidoEliminar] = useState(null);
     // ELIMINAR
     const { eliminarPorId, isDeleting } = useCrud(
@@ -558,7 +558,7 @@ const CategoriasFixture = () => {
     };
     
     const isValid = validarRenderVentaja();
-
+    
     const determinarInstancia = (id_zona, jornada) => {
         const zonaFiltrada = zonas?.find((z) => z.id_zona == id_zona);
         if (!zonaFiltrada) {

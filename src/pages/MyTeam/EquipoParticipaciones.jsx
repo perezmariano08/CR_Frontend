@@ -34,8 +34,8 @@ const EquipoParticipaciones = () => {
     
 
     useEffect(() => {
-        dispatch(fetchTemporadas())
-        dispatch(fetchZonas())
+        if (temporadas.length === 0) dispatch(fetchTemporadas())
+        if (zonas.length === 0) dispatch(fetchZonas())
         // Función para obtener datos
         const fetchData = async () => {
             try {
@@ -48,10 +48,7 @@ const EquipoParticipaciones = () => {
             }
         };
         fetchData()
-    }, [dispatch]);
-
-    console.log(trofeos);
-    
+    }, [dispatch, temporadas.length, zonas.length]);
     
     return (
         <>

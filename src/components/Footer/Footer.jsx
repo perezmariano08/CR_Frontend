@@ -40,7 +40,6 @@ const Footer = () => {
 
         try {
             const response = await enviarMensajeContacto(nombre, email, mensaje);
-            console.log('Respuesta de la API:', response);
 
             // Mostrar el mensaje de éxito
             if (response?.message) {

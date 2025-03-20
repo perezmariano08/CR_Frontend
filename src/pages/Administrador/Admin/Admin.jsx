@@ -24,20 +24,22 @@ const Admin = () => {
     const equiposList = useSelector((state) => state.equipos.data);
     const partidosList = useSelector((state) => state.partidos.data);
     const usuariosList = useSelector((state) => state.usuarios.data);
+    const temporadasList = useSelector((state) => state.temporadas.data);
+    const categoriasList = useSelector((state) => state.categorias.data);
 
     // Partidos finalizados
     const partidosFinalizados = partidosList.filter(partido => partido.estado === "F").length;
     
     useEffect(() => {
-        dispatch(fetchUsuarios());
-        dispatch(fetchTemporadas());
-        dispatch(fetchCategorias());
-        dispatch(fetchSedes());
-        dispatch(fetchAños());
+        if (usuariosList.length === 0) dispatch(fetchUsuarios());
+        if (temporadasList.length === 0) dispatch(fetchTemporadas());
+        if (categoriasList.length === 0) dispatch(fetchCategorias());
+        if (equiposList.length === 0) dispatch(fetchEquipos());
+        if (partidosList.length === 0) dispatch(fetchPartidos());
         dispatch(fetchTorneos());
-        dispatch(fetchEquipos());
-        dispatch(fetchPartidos());
-    }, []);
+        // dispatch(fetchSedes());
+        // dispatch(fetchAños());
+    }, [dispatch, usuariosList.length, temporadasList.length, categoriasList.length, equiposList.length, partidosList.length]);
 
 
     return (

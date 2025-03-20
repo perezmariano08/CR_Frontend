@@ -24,7 +24,6 @@ const dispatch = useDispatch();
     const currentYear = new Date().getFullYear();
     const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
 
-
     return (
         <CategoriasWrapper>
             <CategoriasContainer>

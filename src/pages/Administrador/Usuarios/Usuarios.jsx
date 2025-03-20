@@ -33,6 +33,9 @@ import { LiaUserCogSolid, LiaUserEditSolid } from "react-icons/lia";
 import { MdOutlineImage } from 'react-icons/md';
 import InputCalendar from '../../../components/UI/Input/InputCalendar';
 import { HiMiniPaintBrush } from "react-icons/hi2";
+import { uploadFile } from '../../../utils/dataFetchers';
+
+//! PODER AGREGAR O CAMBIAR UNA FOTO Y CAMBIAR FECHA DE NACIMIENTO
 
 const Usuarios = () => {
     const dispatch = useDispatch();
@@ -85,7 +88,6 @@ const Usuarios = () => {
     // Estado del el/los Listado/s que se necesitan en el modulo
     const usuariosList = useSelector((state) => state.usuarios.data);
     const rolesList = useSelector((state) => state.roles.data);
-    const equiposList = useSelector((state) => state.equipos.data);
 
     // Estado de las filas seleccionadas para eliminar
     const selectedRows = useSelector(state => state.selectedRows.selectedRows);
@@ -144,14 +146,14 @@ const Usuarios = () => {
     const eliminarAños = async () => {
         if (selectedRows.length > 0) {
             setIsSaving(true);
-            const deletePromises = selectedRows.map(row => 
+            const deletePromises = selectedRows.map(row =>
                 Axios.post(`${URL}/admin/${eliminar}`, { id: row.id_usuario }, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 })
             );
-    
+
             toast.promise(
                 Promise.all(deletePromises)
                     .then(async () => {
@@ -163,7 +165,7 @@ const Usuarios = () => {
                     }),
                 {
                     loading: 'Borrando...',
-                    success: `${plural.charAt(0).toUpperCase() + plural.slice(1)}  eliminadas correctamente`,
+                    success: `${plural.charAt(0).toUpperCase() + plural.slice(1)} eliminados correctamente`,
                     error: `No se pudieron eliminar ${articuloPlural} ${plural}.`,
                 }
             ).catch(error => {
@@ -184,61 +186,40 @@ const Usuarios = () => {
     }, []);
 
     const agregarDato = async () => {
-        if (
-            dni != "" &&
-            nombre != "" &&
-            apellido != "" &&
-            nacimiento != "" &&
-            telefono != "" &&
-            email != "" &&
-            clave != "" &&
-            rol != ""
-        ){
+        if (dni && nombre && apellido && nacimiento && telefono && email && clave && rol) {
             setIsSaving(true);
+    
             try {
-                // Despacha fetchUsuarios para obtener los datos existentes
-                const response = await dispatch(fetchUsuarios()).unwrap();
-                const datosExistentes = response                
-                const datoExiste = datosExistentes.some(a => a.dni === dni);
-                if (datoExiste) {
-                    toast.error(`${articuloSingular.charAt(0).toUpperCase() + articuloSingular.slice(1)}  ${singular} ya existe.`);
-                    setIsSaving(false)
-                } else {
-                    const fechaNacimiento = nacimiento;
-                    Axios.post(`${URL}/auth/${create}`, {
-                        dni,
-                        nombre,
-                        apellido,
-                        fechaNacimiento,
-                        telefono,
-                        email,
-                        clave,
-                        rol
-                    }).then(() => {
-                        dispatch(fetchUsuarios());
-                        closeCreateModal();
-                        setNombre("");
-                        setDescripcion("");
-                        setIsSaving(false)
-                    });
-                    setIsSaving(false)
-                    setTimeout(() => {
-                        toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} registrada correctamente. Se envio un mail de confirmacion al usuario para activar la cuenta`);
-                    }, 3000) 
-                }
+
+                // 🔹 Enviar los datos del usuario al backend
+                await Axios.post(`${URL}/auth/${create}`, {
+                    dni,
+                    nombre,
+                    apellido,
+                    fechaNacimiento: nacimiento,
+                    telefono,
+                    email,
+                    clave,
+                    rol,
+                });
+    
+                dispatch(fetchUsuarios());
+                closeCreateModal();
+                setNombre("");
+                toast.success("Usuario registrado correctamente. Se envió un mail de confirmación.");
+    
             } catch (error) {
-                setIsSaving(false)
-                console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-                toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
+                console.error("Error al agregar usuario:", error);
+                toast.error("Hubo un problema al registrar el usuario.");
+            } finally {
+                setIsSaving(false);
             }
         } else {
             toast.error("Completá los campos.");
         }
     };
-
+    
     const isUpdated = () => {
-        console.log(originalValues);
-        console.log(img)
         return (
             dni !== originalValues.dni ||
             nombre !== originalValues.nombre ||
@@ -250,64 +231,63 @@ const Usuarios = () => {
             equipo != originalValues.equipo ||
             estado != originalValues.estado) ||
             img != originalValues.img
-        ;
+            ;
     };
 
     const editarDato = async () => {
-        if (!isUpdated) {
-            setIsSaving(false);
+        if (!isUpdated()) {
             toast.info("No se realizaron cambios.");
             return;
         }
+    
         setIsSaving(true);
+    
         try {
-            let imageUrl = img; // Usa la URL de la imagen actual si no se ha seleccionado una nueva
+            let imageUrl = img; // Mantiene la imagen anterior si no se sube una nueva
+    
+            // 🔹 Si hay una nueva imagen, subirla primero
             if (imageFile) {
-                // Crear un FormData para enviar el archivo al servidor
-                const formData = new FormData();
-                formData.append('image', imageFile);
-
-                // Subir la imagen al servidor
-                const uploadResponse = await Axios.post(`${URLImages}/upload-image/usuario`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-                imageUrl = uploadResponse.data.imageUrl;
-                setImg(imageUrl) // Usa la URL de la imagen subida
-            }
-            const response = await Axios.put(`${URL}/admin/${update}`,
-                {
-                    dni,
-                    nombre,
-                    apellido,
-                    nacimiento,
-                    email,
-                    telefono,
-                    id_rol: rol,
-                    estado,
-                    img: imageUrl,
-                    id_usuario
-                },  {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                const uploadResponse = await uploadFile(imageFile, 'Usuarios');
+                
+                // 🔹 Verificar si el `uploadFile` devuelve un objeto con `.path` o un string
+                if (typeof uploadResponse === 'string') {
+                    imageUrl = uploadResponse.replace('/public_html', ''); // 🔴 Remueve "/public_html"
+                } else if (uploadResponse?.path) {
+                    imageUrl = uploadResponse.path.replace('/public_html', '');
                 }
-            );
-            if (response.status === 200) {
-                setIsSaving(false)
-                toast.success(`${singular.charAt(0).toUpperCase() + singular.slice(1)} actualizado correctamente.`);
-                dispatch(fetchUsuarios())
-                dispatch(clearSelectedRows());
-                closeEditModal()
             }
+    
+            // 🔹 Enviar los datos actualizados
+            const response = await Axios.put(`${URL}/admin/${update}`, {
+                dni,
+                nombre,
+                apellido,
+                nacimiento,
+                email,
+                telefono,
+                id_rol: rol,
+                estado,
+                img: imageUrl, // ✅ Guardamos la ruta correcta
+                id_usuario,
+            }, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+    
+            if (response.status === 200) {
+                toast.success("Usuario actualizado correctamente.");
+                dispatch(fetchUsuarios());
+                dispatch(clearSelectedRows());
+                closeEditModal();
+            }
+    
         } catch (error) {
-            setIsSaving(false)
-            console.error(`Error al verificar o agregar ${articuloSingular} ${singular}.`, error);
-            toast.error(`Hubo un problema al verificar ${articuloSingular} ${singular}.`);
+            console.error("Error al actualizar usuario:", error);
+            toast.error("Hubo un problema al actualizar el usuario.");
+        } finally {
+            setIsSaving(false);
         }
     };
-
+    
     const editRow = () => {
         setDni(selectedRows[0].dni)
         setNombre(selectedRows[0].nombre)
@@ -320,7 +300,7 @@ const Usuarios = () => {
         setIdUsuario(selectedRows[0].id_usuario)
         setEstado(selectedRows[0].estado)
         setImg(selectedRows[0].img)
-
+        
         // Guarda los valores originales
         setOriginalValues({
             dni: selectedRows[0].dni,
@@ -347,7 +327,8 @@ const Usuarios = () => {
         setNacimiento("")
         setClave("")
         setRol("")
-        setIsCreateModalOpen(true);}
+        setIsCreateModalOpen(true);
+    }
 
     const closeCreateModal = () => setIsCreateModalOpen(false);
     const openDeleteModal = () => setIsDeleteModalOpen(true);
@@ -381,10 +362,10 @@ const Usuarios = () => {
     const convertToCSV = (objArray) => {
         const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
         let csv = '\uFEFF'; // BOM (Byte Order Mark)
-    
+
         const headers = Object.keys(array[0]).filter(key => key !== id);
         csv += headers.join(',') + '\r\n';
-    
+
         for (let i = 0; i < array.length; i++) {
             let line = '';
             for (let index in array[i]) {
@@ -397,20 +378,20 @@ const Usuarios = () => {
                 csv += line + '\r\n';
             }
         }
-    
+
         return csv;
     };
-    
+
     const handleExport = () => {
         const csv = convertToCSV(usuariosList);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
-    
+
         link.setAttribute('href', url);
         link.setAttribute('download', `${plural}.csv`);
         link.style.visibility = 'hidden';
-    
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -422,14 +403,15 @@ const Usuarios = () => {
     const handleImageUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
-            setImageFile(file)
-            setImg(file)
-            // Crear una URL de vista previa para la imagen seleccionada
+            setImageFile(file); // Guardamos el archivo
+            setImg(file); // Guardamos la imagen en el estado de la URL (temporalmente)
+    
+            // Vista previa de la imagen seleccionada
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewImage(reader.result);
             };
-            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+            reader.readAsDataURL(file);
         }
     };
 
@@ -457,8 +439,8 @@ const Usuarios = () => {
                         <p>Descargar</p>
                     </Button>
                 </ActionsCrudButtons>
-                    
-                
+
+
             </ActionsCrud>
             <Table data={usuariosList} dataColumns={dataUsuariosColumns} arrayName={plural.charAt(0).toUpperCase() + plural.slice(1)} id_={id} />
             {
@@ -491,121 +473,121 @@ const Usuarios = () => {
                         }
                         form={
                             <>
-<ModalFormInputContainer>
-    DNI
-    <Input 
-        type='text' 
-        placeholder="Escriba el DNI..." 
-        value={dni}
-        onChange={(event) => {
-            const value = event.target.value;
-            // Validar que solo sean números
-            if (/^\d*$/.test(value)) {
-                setDni(value);
-            }
-        }}
-        icon={<PiIdentificationCardLight className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    DNI
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba el DNI..."
+                                        value={dni}
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+                                            // Validar que solo sean números
+                                            if (/^\d*$/.test(value)) {
+                                                setDni(value);
+                                            }
+                                        }}
+                                        icon={<PiIdentificationCardLight className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Nombre
-    <Input 
-        type='text' 
-        placeholder="Escriba el nombre..." 
-        value={nombre}
-        onChange={(event) => {
-            const value = event.target.value;
-            // Validar que solo sean letras
-            if (/^[a-zA-Z\s]*$/.test(value)) {
-                setNombre(value);
-            }
-        }}
-        icon={<PiUser className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Nombre
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba el nombre..."
+                                        value={nombre}
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+                                            // Validar que solo sean letras
+                                            if (/^[a-zA-Z\s]*$/.test(value)) {
+                                                setNombre(value);
+                                            }
+                                        }}
+                                        icon={<PiUser className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Apellido
-    <Input 
-        type='text' 
-        placeholder="Escriba el apellido..." 
-        value={apellido}
-        onChange={(event) => {
-            const value = event.target.value;
-            // Validar que solo sean letras
-            if (/^[a-zA-Z\s]*$/.test(value)) {
-                setApellido(value);
-            }
-        }}
-        icon={<PiUser className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Apellido
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba el apellido..."
+                                        value={apellido}
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+                                            // Validar que solo sean letras
+                                            if (/^[a-zA-Z\s]*$/.test(value)) {
+                                                setApellido(value);
+                                            }
+                                        }}
+                                        icon={<PiUser className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Fecha de Nacimiento
-    <InputCalendar 
-        type='text' 
-        placeholder="Escriba aqui..." 
-        value={nacimiento}
-        onChange={(event) => { setNacimiento(event.target.value)}}
-        icon={<AiOutlineCalendar className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Fecha de Nacimiento
+                                    <InputCalendar
+                                        type='text'
+                                        placeholder="Escriba aqui..."
+                                        value={nacimiento}
+                                        onChange={(event) => { setNacimiento(event.target.value) }}
+                                        icon={<AiOutlineCalendar className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Email
-    <Input 
-        type='text' 
-        placeholder="Escriba aqui..." 
-        value={email}
-        onChange={(event) => { 
-            const value = event.target.value;
-                setEmail(value);
-        }}
-        icon={<PiEnvelope className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Email
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba aqui..."
+                                        value={email}
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+                                            setEmail(value);
+                                        }}
+                                        icon={<PiEnvelope className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Telefono
-    <Input 
-        type='text' 
-        placeholder="Escriba aqui..." 
-        value={telefono}
-        onChange={(event) => {
-            const value = event.target.value;
-            // Validar que solo sean números
-            if (/^\d*$/.test(value)) {
-                setTelefono(value);
-            }
-        }}
-        icon={<PiPhone className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Telefono
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba aqui..."
+                                        value={telefono}
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+                                            // Validar que solo sean números
+                                            if (/^\d*$/.test(value)) {
+                                                setTelefono(value);
+                                            }
+                                        }}
+                                        icon={<PiPhone className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Clave
-    <Input 
-        type='password'  // Cambia el tipo de campo a "password"
-        placeholder="Escriba aqui..." 
-        value={clave}
-        onChange={(event) => { setClave(event.target.value)}} 
-        icon={<PiPhone className='icon-input'/>} 
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Clave
+                                    <Input
+                                        type='password'  // Cambia el tipo de campo a "password"
+                                        placeholder="Escriba aqui..."
+                                        value={clave}
+                                        onChange={(event) => { setClave(event.target.value) }}
+                                        icon={<PiPhone className='icon-input' />}
+                                    />
+                                </ModalFormInputContainer>
 
-<ModalFormInputContainer>
-    Rol
-    <Select 
-        data={rolesList}
-        placeholder="Seleccionar rol"
-        value={rol}
-        icon={<IoShieldHalf className='icon-select' />}
-        onChange={(event) => { setRol(event.target.value)}}
-        id_={"id_rol"}
-    />
-</ModalFormInputContainer>
+                                <ModalFormInputContainer>
+                                    Rol
+                                    <Select
+                                        data={rolesList}
+                                        placeholder="Seleccionar rol"
+                                        value={rol}
+                                        icon={<IoShieldHalf className='icon-select' />}
+                                        onChange={(event) => { setRol(event.target.value) }}
+                                        id_={"id_rol"}
+                                    />
+                                </ModalFormInputContainer>
                             </>
                         }
                     />
@@ -718,88 +700,87 @@ const Usuarios = () => {
                                 <ModalFormInputContainer>
                                     Imagen
                                     <ModalFormInputImg>
-                                        {previewImage && 
+                                        {previewImage &&
                                             <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
                                         }
 
-                                        {!previewImage && 
+                                        {!previewImage &&
                                             <img src={`${URLImages}${img}`} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
                                         }
 
-                                        
-                                        <Input 
-                                            type='file' 
+                                        <Input
+                                            type='file'
                                             accept="image/*"
                                             onChange={(event) => handleImageUpload(event)}
-                                            icon={<MdOutlineImage className='icon-input'/>}
+                                            icon={<MdOutlineImage className='icon-input' />}
                                         />
                                     </ModalFormInputImg>
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input 
-                                        type='text' 
-                                        placeholder="Escriba el DNI..." 
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba el DNI..."
                                         value={dni}
-                                        onChange={(event) => { setDni(event.target.value)}}
-                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                        onChange={(event) => { setDni(event.target.value) }}
+                                        icon={<PiIdentificationCardLight className='icon-input' />}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input 
-                                        type='text' 
+                                    <Input
+                                        type='text'
                                         placeholder="Escriba el bombre..." value={nombre}
-                                        onChange={(event) => { setNombre(event.target.value)}}
-                                        icon={<PiUser className='icon-input'/>} 
+                                        onChange={(event) => { setNombre(event.target.value) }}
+                                        icon={<PiUser className='icon-input' />}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Apellido
-                                    <Input 
-                                        type='text' 
-                                        placeholder="Escriba el apellido..." 
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba el apellido..."
                                         value={apellido}
-                                        onChange={(event) => { setApellido(event.target.value)}} 
-                                        icon={<PiUser className='icon-input'/>} 
+                                        onChange={(event) => { setApellido(event.target.value) }}
+                                        icon={<PiUser className='icon-input' />}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Fecha de Nacimiento
-                                    <Input 
-                                    type='text' 
-                                    placeholder="Escriba aqui..." 
-                                    value={nacimiento}
-                                    onChange={(event) => { setNacimiento(event.target.value)}}
-                                    icon={<AiOutlineCalendar className='icon-input'/>} />
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba aqui..."
+                                        value={nacimiento}
+                                        onChange={(event) => { setNacimiento(event.target.value) }}
+                                        icon={<AiOutlineCalendar className='icon-input' />} />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Email
-                                    <Input 
-                                    type='text' 
-                                    placeholder="Escriba aqui..." 
-                                    value={email}
-                                    onChange={(event) => { setEmail(event.target.value)}}
-                                    icon={<PiEnvelope className='icon-input'/>} 
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba aqui..."
+                                        value={email}
+                                        onChange={(event) => { setEmail(event.target.value) }}
+                                        icon={<PiEnvelope className='icon-input' />}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Telefono
-                                    <Input 
-                                    type='text' 
-                                    placeholder="Escriba aqui..." 
-                                    value={telefono}
-                                    icon={<PiPhone className='icon-input'/>} 
-                                    onChange={(event) => { setTelefono(event.target.value)}}  />
+                                    <Input
+                                        type='text'
+                                        placeholder="Escriba aqui..."
+                                        value={telefono}
+                                        icon={<PiPhone className='icon-input' />}
+                                        onChange={(event) => { setTelefono(event.target.value) }} />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Rol
-                                    <Select 
+                                    <Select
                                         data={rolesList}
                                         placeholder="Seleccionar rol"
                                         value={rol}
                                         icon={<IoShieldHalf className='icon-select' />}
-                                        onChange={(event) => { setRol(event.target.value)}}
+                                        onChange={(event) => { setRol(event.target.value) }}
                                         id_={"id_rol"}
                                     >
                                     </Select>
@@ -818,13 +799,13 @@ const Usuarios = () => {
                                 </ModalFormInputContainer> */}
                                 <ModalFormInputContainer>
                                     Estado
-                                    <Select 
+                                    <Select
                                         data={dataEstadosAI}
                                         placeholder={"Seleccionar estado"}
                                         value={estado}
-                                        onChange={(event) => { setEstado(event.target.value)}}
+                                        onChange={(event) => { setEstado(event.target.value) }}
                                         id_={'id_estado'}
-                                        icon={<LiaUserEditSolid className='icon-select' /> }
+                                        icon={<LiaUserEditSolid className='icon-select' />}
                                     >
                                     </Select>
                                 </ModalFormInputContainer>
