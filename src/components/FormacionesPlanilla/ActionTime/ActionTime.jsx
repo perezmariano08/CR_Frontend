@@ -4,17 +4,16 @@ import { ActionBack, ActionBackContainer, ActionConfirmedContainer, ActionConfir
 import { AlignmentDivider } from '../../Stats/Alignment/AlignmentStyles';
 import { HiArrowLeft, HiMiniXMark } from "react-icons/hi2";
 import Input2 from '../../UI/Input/Input2';
-import { io } from 'socket.io-client';
-import { URL } from '../../../utils/utils';
+import { orderData, URL } from '../../../utils/utils';
 import axios from 'axios';
-import { useWebSocket } from '../../../Auth/WebSocketContext';
 import { toast } from 'react-hot-toast'; // Importar toast
 import { setAction, setActionToEdit, setDisabledActionEdit, toggleModal } from '../../../redux/Planillero/planilleroSlice';
+import { getFormaciones } from '../../../utils/dataFetchers';
 
-const ActionConfirmed = ({ id_partido }) => {
+const ActionConfirmed = ({ id_partido, setFormaciones, fetchIncidencias }) => {
     const token = localStorage.getItem('token');
     const dispatch = useDispatch();
-    const socket = useWebSocket();
+    // const socket = useWebSocket();
 
     const modal = useSelector((state) => state.planillero.modal);
     const jugador = useSelector((state) => state.planillero.jugador);
@@ -22,11 +21,13 @@ const ActionConfirmed = ({ id_partido }) => {
 
     const enabledEdit = useSelector((state) => state.planillero.enabledActionEdit);
     const actionEdit = useSelector((state) => state.planillero.actionToEdit);
-    
+
+    // const { fetchIncidencias } = useIncidencias(id_partido, token);
+
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
     const [notChanges, setNotChanges] = useState(false);
-    
+
     const originalTime = useRef(actionEdit?.minute)
 
     useEffect(() => {
@@ -36,7 +37,7 @@ const ActionConfirmed = ({ id_partido }) => {
             setInputValue('');
         }
     }, [enabledEdit, modal]);
-    
+
     useEffect(() => {
         if (enabledEdit) {
             setNotChanges(+inputValue !== +originalTime.current);
@@ -44,13 +45,13 @@ const ActionConfirmed = ({ id_partido }) => {
             setNotChanges(inputValue !== '');
         }
     }, [inputValue, enabledEdit]);
-    
+
     useEffect(() => {
         if (enabledEdit && actionEdit.minute != null) {
             originalTime.current = actionEdit.minute;
         }
     }, [enabledEdit, actionEdit]);
-    
+
     const closeModal = () => {
         dispatch(toggleModal());
         dispatch(setAction({ type: null, detail: null }));
@@ -81,7 +82,7 @@ const ActionConfirmed = ({ id_partido }) => {
             setInputValue(value);
         }
     };
-    
+
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
             closeModal();
@@ -109,17 +110,24 @@ const ActionConfirmed = ({ id_partido }) => {
             } else if (action.type === 'roja') {
                 accion = 'roja';
             }
-            
-            // !manejar mensajes desde el back
+
             const res = await axios.post(`${URL}/planilla/insertar-${accion}`, data, { headers: { 'Authorization': `Bearer ${token}` } });
             
-            toast.success(res.data.mensaje);
-
+            if (accion === 'amarilla' || accion === 'roja') {
+                const updatedFormaciones = await getFormaciones(id_partido, token);
+                setFormaciones(orderData(updatedFormaciones));
+            }
+            
             closeModal();
+
+            if (res.data.status === 200) {
+                toast.success(res.data.mensaje);
+                await fetchIncidencias();
+            }
+
             dispatch(setAction({ type: null, detail: null }));
             setInputValue('');
         } catch (error) {
-
             toast.error(error.response?.data?.mensaje || 'Error al insertar la acción');
         } finally {
             setLoading(false);
@@ -146,9 +154,11 @@ const ActionConfirmed = ({ id_partido }) => {
 
             // !manejar mensajes desde el back
             const res = await axios.put(`${URL}/planilla/actualizar-${accion}`, data, { headers: { 'Authorization': `Bearer ${token}` } });
-            toast.success(res.data.mensaje);
-
+            
+            await fetchIncidencias();
+            
             closeModal();
+            toast.success(res.data.mensaje);
             dispatch(setActionToEdit({ type: null, id_action: null, minute: null }));
             dispatch(setDisabledActionEdit())
             setInputValue('');
@@ -167,11 +177,11 @@ const ActionConfirmed = ({ id_partido }) => {
                     <ActionConfirmedWrapper>
                         <ActionBackContainer>
                             <ActionBack onClick={handleBackModal}>
-                                <HiArrowLeft/>
+                                <HiArrowLeft />
                                 <p>Volver</p>
                             </ActionBack>
                             <IconClose>
-                                <HiMiniXMark onClick={closeModal}/>
+                                <HiMiniXMark onClick={closeModal} />
                             </IconClose>
                         </ActionBackContainer>
                         <ActionTitle>
@@ -185,7 +195,7 @@ const ActionConfirmed = ({ id_partido }) => {
                             <AlignmentDivider />
                         </ActionTitle>
                         <ActionsContainer>
-                            <Input2 
+                            <Input2
                                 placeholder={"ej: 15"}
                                 value={inputValue}
                                 onValueChange={handleInputChange}

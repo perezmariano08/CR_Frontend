@@ -37,7 +37,7 @@ import { useCrud } from '../../../hooks/useCrud';
 import useModalsCrud from '../../../hooks/useModalsCrud';
 import { fetchEquipos } from '../../../redux/ServicesApi/equiposSlice';
 import { dataEquiposColumns } from '../../../Data/Equipos/DataEquipos';
-import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchTemporadas, fetchTemporadasByCategorias } from '../../../redux/ServicesApi/temporadasSlice';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { EquiposDetalle, PublicarCategoriaContainer, ResumenItemDescripcion, ResumenItemsContainer, ResumenItemTitulo, ResumenItemWrapper, VacantesEstado } from './categoriasStyles';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
@@ -47,10 +47,10 @@ import { fetchZonas } from '../../../redux/ServicesApi/zonasSlice';
 const Categorias = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch();
-    const { id_categoria } = useParams(); // Obtenemos el id desde la URL
-    
+    const { id_categoria } = useParams();
+
     // Manejo del form
-    const [formState, handleFormChange, resetForm] = useForm({ 
+    const [formState, handleFormChange, resetForm] = useForm({
         id_edicion: id_categoria,
         nombre_categoria: '',
         genero: 'M',
@@ -73,54 +73,55 @@ const Categorias = () => {
     const zonasFiltradas = zonas.filter((z) => z.id_categoria == id_categoria);
     const totalEquipos = zonasFiltradas.reduce((acc, z) => acc + z.cantidad_equipos, 0);
 
-    const planteles = useSelector((state) => state.planteles.data);
-    const jugadoresCategoria = planteles.filter((p) => p.id_categoria == id_categoria)
-
-    const partidos = useSelector((state) => state.partidos.data);
-    const partidosCategoria = partidos.filter((p) => p.id_categoria == id_categoria)
-    
     const temporadas = useSelector((state) => state.temporadas.data);
     const temporadasVacantes = temporadas.filter((t) => t.id_categoria == id_categoria && t.id_equipo)
-    
-    const equiposCategoria = temporadas.filter((t) => t.id_categoria == id_categoria)
-    
-    useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
-        dispatch(fetchTemporadas());
-        dispatch(fetchJugadores());
-        dispatch(fetchPlanteles());
-        dispatch(fetchZonas());
-    }, []);
 
-    
+    // const equiposList = useSelector((state) => state.equipos.data);
+    const equiposCategoria = temporadas.filter((t) => t.id_categoria == id_categoria)
+
+    const contarJugadoresConDNI = (temporadas, idCategoria) => {
+        return temporadas
+            .filter(temp => temp.id_categoria == idCategoria)
+            .reduce((total, temp) => total + temp.jugadores_con_dni, 0);
+    };
+
+    const totalJugadores = contarJugadoresConDNI(temporadas, id_categoria);
+
+    useEffect(() => {
+        // dispatch(fetchEdiciones());
+        // dispatch(fetchCategorias());
+        // dispatch(fetchEquipos());
+        // dispatch(fetchTemporadas());
+        dispatch(fetchTemporadasByCategorias([{ id_categoria }]));
+        dispatch(fetchZonas());
+    }, [dispatch]);
+
+
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const categoriasEdicion = categoriasList.filter(categoria => categoria.id_edicion == id_categoria)
     const categoriasListLink = categoriasEdicion.map(categoria => ({
         ...categoria,
-        link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`, 
+        link: `/admin/ediciones/categorias/resumen/${categoria.id_categoria}`,
     }));
 
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    
-     // ACTUALIZAR
-    const [idEditar, setidEditar] = useState(null) 
+
+    // ACTUALIZAR
+    const [idEditar, setidEditar] = useState(null)
 
     const { actualizar, isUpdating } = useCrud(
         `${URL}/user/publicar-categoria`, fetchCategorias, 'Registro actualizado correctamente.', "Error al actualizar el registro."
     );
 
     const actualizarDato = async () => {
-        const data = { 
+        const data = {
             id_categoria: id_categoria,
             publicada: 'S',
         }
         await actualizar(data);
         closeUpdateModal()
     };
-    
-    
+
     return (
         <Content>
             <MenuContentTop>
@@ -132,102 +133,87 @@ const Categorias = () => {
             </MenuContentTop>
             <CategoriasMenuNav id_categoria={id_categoria} />
             {
-                zonas.find((z) => z.id_categoria == id_categoria) 
-                ? <>
-                    {
-                        categoriaFiltrada.publicada === "N" && (
-                            <PublicarCategoriaContainer>
-                                <span>Publicar categoría</span>
-                                <p>Cuando estés listo, publicá tu categoria para que sea visible en la <a href="https://coparelampago.com">pagina web del torneo</a>.</p>
-                                <Button bg={'success'} onClick={() => openUpdateModal()}>
-                                    Publicar Categoría
-                                </Button>
-                            </PublicarCategoriaContainer>
-                        )
-                    }
-                    <ResumenItemsContainer>
-                        {/* <ResumenItemWrapper>
-                            <ResumenItemTitulo>
-                                <p>Estado de Categoria</p>
-                                <span>HABILITADO</span>
-                            </ResumenItemTitulo>
-                            <ResumenItemDescripcion>
-                                {
-                                    partidosCategoria.filter((p) => p.estado === "F").length
-                                }
-                                /
-                                {
-                                    partidosCategoria.length
-                                }
-                            </ResumenItemDescripcion>
-                        </ResumenItemWrapper> */}
-                        <ResumenItemWrapper>
-                            <ResumenItemTitulo>
-                                vacantes
-                                <IoShieldHalf />
-                            </ResumenItemTitulo>
-                            <ResumenItemDescripcion>
-                                <VacantesEstado>
-                                    {
-                                    totalEquipos > 0 
-                                        ? 
-                                        <>
-                                            <IoAlert />
-                                            <p>Tenés {totalEquipos - temporadasVacantes.length} vacantes sin ocupar</p> 
-                                        </>
-                                        : 
-                                        <>
-                                            <IoCheckmark />
-                                            <p>No tenes vacantes sin ocupar</p> 
-                                        </>
-                                    }
-                                </VacantesEstado>
-                                
-                            </ResumenItemDescripcion>
-                        </ResumenItemWrapper>
-                        <ResumenItemWrapper>
-                            <ResumenItemTitulo>
-                                equipos
-                                <IoShieldHalf />
-                            </ResumenItemTitulo>
-                            <ResumenItemDescripcion>
-                                <EquiposDetalle>
-                                    <h3>{equiposCategoria.length}</h3>
-                                    <p>Total</p>
-                                </EquiposDetalle>
-                                <EquiposDetalle>
-                                    <h3>{equiposCategoria.filter((e) => e.id_zona === null).length}</h3>
-                                    <p>Sin vacante</p>
-                                </EquiposDetalle>
-                                <NavLink to={`/admin/categorias/equipos/${id_categoria}`}>
-                                    Ir a equipos
-                                </NavLink>
-                            </ResumenItemDescripcion>
-                        </ResumenItemWrapper>
-                        <ResumenItemWrapper>
-                            <ResumenItemTitulo>
-                                jugadores
-                                <IoShieldHalf />
-                            </ResumenItemTitulo>
-                            <ResumenItemDescripcion>
-                                <EquiposDetalle>
-                                    <h3>{jugadoresCategoria.length}</h3>
-                                    <p>Total</p>
-                                </EquiposDetalle>
-                            </ResumenItemDescripcion>
-                        </ResumenItemWrapper>
-                    </ResumenItemsContainer>
-                </>
-                
-                : <PublicarCategoriaContainer>
-                    <span>Definir formato</span>
-                    <p>Para continuar debes definir el formato de tu torneo.</p>
-                    <Button bg={'success'} onClick={() => navigate(`/admin/categorias/formato/${id_categoria}`)}>
-                        Definir formato
-                    </Button>
-                </PublicarCategoriaContainer>
+                zonas.find((z) => z.id_categoria == id_categoria)
+                    ? <>
+                        {
+                            categoriaFiltrada.publicada === "N" && (
+                                <PublicarCategoriaContainer>
+                                    <span>Publicar categoría</span>
+                                    <p>Cuando estés listo, publicá tu categoria para que sea visible en la <a href="https://coparelampago.com">pagina web del torneo</a>.</p>
+                                    <Button bg={'success'} onClick={() => openUpdateModal()}>
+                                        Publicar Categoría
+                                    </Button>
+                                </PublicarCategoriaContainer>
+                            )
+                        }
+                        <ResumenItemsContainer>
+                            <ResumenItemWrapper>
+                                <ResumenItemTitulo>
+                                    vacantes
+                                    <IoShieldHalf />
+                                </ResumenItemTitulo>
+                                <ResumenItemDescripcion>
+                                    <VacantesEstado>
+                                        {
+                                            totalEquipos > 0
+                                                ?
+                                                <>
+                                                    <IoAlert />
+                                                    <p>Tenés {totalEquipos - temporadasVacantes.length} vacantes sin ocupar</p>
+                                                </>
+                                                :
+                                                <>
+                                                    <IoCheckmark />
+                                                    <p>No tenes vacantes sin ocupar</p>
+                                                </>
+                                        }
+                                    </VacantesEstado>
+
+                                </ResumenItemDescripcion>
+                            </ResumenItemWrapper>
+                            <ResumenItemWrapper>
+                                <ResumenItemTitulo>
+                                    equipos
+                                    <IoShieldHalf />
+                                </ResumenItemTitulo>
+                                <ResumenItemDescripcion>
+                                    <EquiposDetalle>
+                                        <h3>{equiposCategoria.length}</h3>
+                                        <p>Total</p>
+                                    </EquiposDetalle>
+                                    <EquiposDetalle>
+                                        <h3>{equiposCategoria.filter((e) => e.id_zona === null).length}</h3>
+                                        <p>Sin vacante</p>
+                                    </EquiposDetalle>
+                                    <NavLink to={`/admin/categorias/equipos/${id_categoria}`}>
+                                        Ir a equipos
+                                    </NavLink>
+                                </ResumenItemDescripcion>
+                            </ResumenItemWrapper>
+                            <ResumenItemWrapper>
+                                <ResumenItemTitulo>
+                                    jugadores
+                                    <IoShieldHalf />
+                                </ResumenItemTitulo>
+                                <ResumenItemDescripcion>
+                                    <EquiposDetalle>
+                                        <h3>{totalJugadores}</h3>
+                                        <p>Total</p>
+                                    </EquiposDetalle>
+                                </ResumenItemDescripcion>
+                            </ResumenItemWrapper>
+                        </ResumenItemsContainer>
+                    </>
+
+                    : <PublicarCategoriaContainer>
+                        <span>Definir formato</span>
+                        <p>Para continuar debes definir el formato de tu torneo.</p>
+                        <Button bg={'success'} onClick={() => navigate(`/admin/categorias/formato/${id_categoria}`)}>
+                            Definir formato
+                        </Button>
+                    </PublicarCategoriaContainer>
             }
-            
+
             {
                 isUpdateModalOpen && <>
                     <ModalCreate initial={{ opacity: 0 }}
@@ -266,7 +252,7 @@ const Categorias = () => {
             }
         </Content>
     );
-    
+
 };
 
 export default Categorias;

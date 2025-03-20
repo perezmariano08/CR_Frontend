@@ -3,9 +3,11 @@ import { CardProximoPartidoWrapper, ProximoPartidoCancha, ProximoPartidoCuentaRe
 import { GiSoccerField } from "react-icons/gi";
 import { useEquipos } from '../../../hooks/useEquipos';
 import { formatearFecha, formatHour } from '../../../utils/formatDateTime';
-import { Skeleton } from 'primereact/skeleton';
+import CardProximoPartidoLoader from './CardProximoPartidoLoader';
 
 const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, cancha, id_equipoLocal, id_equipoVisita, jornada, goles_local, goles_visita, pen_local, pen_visita }) => {
+    
+    const rutaPartido = `/stats-match?id=${id_partido}`
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
     const [timeLeft, setTimeLeft] = useState({
@@ -18,7 +20,6 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
     useEffect(() => {
         // Función para calcular el tiempo restante
         const calcularTiempoRestante = () => {
-    
             // Validar que 'dia' y 'hora' estén definidos
             if (!dia || !hora) {
                 return;
@@ -74,48 +75,20 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
 
     // Simula la carga de datos
     const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 2000); // Cambia según sea necesario
+        const timer = setTimeout(() => setLoading(false), 2000);
         return () => clearTimeout(timer);
     }, []);
 
     if (loading) {
         return (
-            <CardProximoPartidoWrapper>
-                <ProximoPartidoInfo>
-                    <Skeleton 
-                        shape="circle" 
-                        width="58px" 
-                        height='48px'
-                        style={{ borderRadius: '50%' }} 
-                    />
-                    <ProximoPartidoDetalle>
-                        <ProximoPartidoDescripcion>
-                            <ProximoPartidoEquipos style={{gap: '5px'}}>
-                                <Skeleton width="150px" height="24px" />
-                                <Skeleton width="150px" height="24px" />
-                            </ProximoPartidoEquipos>
-                            <ProximoPartidoDiaJornada style={{gap: '5px'}}>
-                                <Skeleton width="120px" height="14px" />
-                                <Skeleton width="120px" height="14px" />
-                            </ProximoPartidoDiaJornada>
-                        </ProximoPartidoDescripcion>
-                        <ProximoPartidoCancha>
-                            <GiSoccerField />
-                            <Skeleton width="80px" height="14px" />
-                        </ProximoPartidoCancha>
-                    </ProximoPartidoDetalle>
-                </ProximoPartidoInfo>
-                <ProximoPartidoDivisor />
-                <ProximoPartidoCuentaRegresivaWrapper>
-                    <Skeleton width="80%" height="50px" />
-                </ProximoPartidoCuentaRegresivaWrapper>
-            </CardProximoPartidoWrapper>
+            <CardProximoPartidoLoader/> 
         );
     }
-    
+
     return (
-        <CardProximoPartidoWrapper to={`/stats-match?id=${id_partido}`}>
+        <CardProximoPartidoWrapper>
             <ProximoPartidoInfo>
                 {
                     miEquipo === id_equipoLocal
@@ -128,10 +101,10 @@ const CardProximoPartido = ({ miEquipo, id_partido, nombre_edicion, dia, hora, c
                     <ProximoPartidoDescripcion>
                         <ProximoPartidoEquipos>
                             <ProximoPartidoEquipoLink to={`/equipos/${id_equipoLocal}`}>
-                                <p className={miEquipo === id_equipoLocal && 'my-team'}>{nombresEquipos(id_equipoLocal)}</p>
+                                <p className={miEquipo === id_equipoLocal && 'my-team' || undefined}>{nombresEquipos(id_equipoLocal)}</p>
                             </ProximoPartidoEquipoLink >
                             <ProximoPartidoEquipoLink to={`/equipos/${id_equipoVisita}`}>
-                                <p className={miEquipo === id_equipoVisita && 'my-team'}>{nombresEquipos(id_equipoVisita)}</p>
+                                <p className={miEquipo === id_equipoVisita && 'my-team' || undefined}>{nombresEquipos(id_equipoVisita)}</p>
                             </ProximoPartidoEquipoLink>
                         </ProximoPartidoEquipos>
                         <ProximoPartidoDiaJornada>

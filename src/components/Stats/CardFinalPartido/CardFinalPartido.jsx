@@ -1,6 +1,5 @@
 import React from 'react';
 import { CardPartidoTitles, CardPartidoWrapper, CardPartidoTeams, CardPartidoTeam, CardPartidoInfo, CardPartidoDivider, CardPartidoGoalsContainer, CardPartidoGoalsColumn, WatchContainer, CardPartidoTitulo, CardPartidoDetalles, CardPartidoDetallesItem } from "../CardPartido/CardPartidoStyles";
-import { HiLifebuoy } from "react-icons/hi2";
 import { formatTime, URLImages } from '../../../utils/utils';
 import { useEquipos } from '../../../hooks/useEquipos';
 import { MdOutlineWatchLater } from "react-icons/md";
@@ -8,9 +7,10 @@ import { renderizarTituloPartido } from '../statsHelpers';
 import { calcularGolesConDetalle } from './golesHelper';
 import { useZonaPartido } from '../../../hooks/planilla/useZonaPartido';
 import { MdOutlineCalendarMonth } from "react-icons/md";
+import CardFinalPartidoLoading from './CardFinalPartidoLoading';
 import { GiSoccerField } from "react-icons/gi";
 import { PiSoccerBall } from "react-icons/pi";
-import { Skeleton } from 'primereact/skeleton';
+import { HiLifebuoy } from "react-icons/hi2";
 
 const CardFinalPartido = ({ partido, incidencias }) => {
     const loading = partido === null || incidencias === null;
@@ -18,39 +18,10 @@ const CardFinalPartido = ({ partido, incidencias }) => {
     //custom hooks
     const { nombresEquipos, escudosEquipos } = useEquipos();
     const { zona } = useZonaPartido(partido?.id_zona) 
-    
+
     if (loading) {
-        
         return (
-            <CardPartidoWrapper>
-            <CardPartidoTitles>
-              <Skeleton width="80%" height="5px" />
-            </CardPartidoTitles>
-            <CardPartidoTeams>
-              <CardPartidoTeam>
-                <Skeleton shape='circle' width="40px" height="40px" />
-                <Skeleton width="100px" height="10px" />
-              </CardPartidoTeam>
-              <CardPartidoInfo>
-                <Skeleton width="60px" height="30px" />
-                <Skeleton width="80px" height="16px" />
-              </CardPartidoInfo>
-              <CardPartidoTeam>
-              <Skeleton shape='circle' width="40px" height="40px" />
-              <Skeleton width="100px" height="10px" />
-              </CardPartidoTeam>
-            </CardPartidoTeams>
-            <CardPartidoDivider />
-            <CardPartidoGoalsContainer>
-              <CardPartidoGoalsColumn>
-                <Skeleton count={2} width="90%" height="10px" />
-              </CardPartidoGoalsColumn>
-              <HiLifebuoy />
-              <CardPartidoGoalsColumn className="visita">
-                <Skeleton count={2} width="90%" height="10px" />
-              </CardPartidoGoalsColumn>
-            </CardPartidoGoalsContainer>
-          </CardPartidoWrapper>
+            <CardFinalPartidoLoading />
         );
     }
 
@@ -106,9 +77,9 @@ const CardFinalPartido = ({ partido, incidencias }) => {
                             </WatchContainer>
                         )
                     }
-                    <h4>
+                    <h4 className='textHour'>
                         {partido.estado === 'P' ? (
-                            <h4>{hourFormated}</h4>
+                            <p className='textHour'>{hourFormated}</p>
                         ) : partido.estado === 'S' || partido.estado === 'F' ? (
                             <>
                                 {partido.pen_local && <span className="penales">({partido.pen_local})</span>}

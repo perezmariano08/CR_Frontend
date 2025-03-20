@@ -40,7 +40,7 @@ import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 import { AccionesBodyTemplate, EstadoBodyTemplate } from '../../../components/Table/TableStyles';
 import { PiIdentificationCardLight, PiUser } from 'react-icons/pi';
 import { fetchJugadores } from '../../../redux/ServicesApi/jugadoresSlice';
-import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
+import { fetchTemporadas, fetchTemporadasByCategorias } from '../../../redux/ServicesApi/temporadasSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
 import CategoriasMenuNav from './CategoriasMenuNav';
 import { IoAlertCircle } from "react-icons/io5";
@@ -62,12 +62,12 @@ const CategoriasEquiposDetalle = () => {
     const jugadoresList = useSelector((state) => state.jugadores.data);
 
     const [jugadorExistente, setJugadorExistente] = useState(null);
-    
+
     const equipoFiltrado = temporadas.find(equipo => equipo.id_equipo == id_equipo && equipo.id_categoria == id_categoria);
 
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == equipoFiltrado.id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    
+
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     // Estado de los botones que realizan una accion en la base de datos
     const [isImporting, setIsImporting] = useState(false);
@@ -78,8 +78,8 @@ const CategoriasEquiposDetalle = () => {
     // Referencia del input
     const fileInputRef = useRef(null);
 
-    const { 
-        isCreateModalOpen, openCreateModal, closeCreateModal, 
+    const {
+        isCreateModalOpen, openCreateModal, closeCreateModal,
         isDeleteModalOpen, openDeleteModal, closeDeleteModal,
         isUpdateModalOpen, openUpdateModal, closeUpdateModal,
         isDescripcionModalOpen, openDescripcionModal, closeDescripcionModal,
@@ -93,7 +93,7 @@ const CategoriasEquiposDetalle = () => {
     }
 
     // Manejo del form
-    const [formState, handleFormChange, resetForm, setFormState] = useForm({ 
+    const [formState, handleFormChange, resetForm, setFormState] = useForm({
         id_edicion: categoriaFiltrada.id_edicion,
         id_categoria: equipoFiltrado.id_categoria,
         dni_jugador: '',
@@ -105,7 +105,7 @@ const CategoriasEquiposDetalle = () => {
         jugador_eventual: '',
         nombre_equipo: equipoFiltrado.nombre_equipo.trim()
     });
-    
+
     const [id_jugadorSeleccionado, setId_jugadorSeleccionado] = useState(null);
 
     // Planteles Data
@@ -116,9 +116,9 @@ const CategoriasEquiposDetalle = () => {
         acciones: (
             <AccionesBodyTemplate >
                 <Button bg={"danger"} onClick={() => {
-                        setId_jugadorSeleccionado(categoria.id_jugador)
-                        openDeleteModal()
-                    }}>
+                    setId_jugadorSeleccionado(categoria.id_jugador)
+                    openDeleteModal()
+                }}>
                     <IoTrashOutline />
                 </Button>
                 <Button bg={"import"} onClick={() => editarJugador(categoria.id_jugador, categoria.id_categoria)}>
@@ -175,21 +175,21 @@ const CategoriasEquiposDetalle = () => {
             openUpdateModal()
         }
     }
-    
-    const ListaBuenaFeEquipo = planteles.filter((plantel) => 
+
+    const ListaBuenaFeEquipo = planteles.filter((plantel) =>
         plantel.id_equipo == id_equipo &&
-        plantel.id_categoria === equipoFiltrado.id_categoria && 
+        plantel.id_categoria === equipoFiltrado.id_categoria &&
         plantel.id_edicion === categoriaFiltrada.id_edicion &&
         plantel.eventual === 'N'
     )
 
-    const EventualesEquipo = planteles.filter((plantel) => 
+    const EventualesEquipo = planteles.filter((plantel) =>
         plantel.id_equipo == id_equipo &&
-        plantel.id_categoria === equipoFiltrado.id_categoria && 
+        plantel.id_categoria === equipoFiltrado.id_categoria &&
         plantel.id_edicion === categoriaFiltrada.id_edicion &&
         plantel.eventual === 'S'
     )
-    
+
     const [isDniConfirmationOpen, setIsDniConfirmationOpen] = useState(false);
 
     const handleDniConfirmation = async (confirm) => {
@@ -201,7 +201,7 @@ const CategoriasEquiposDetalle = () => {
                 id_jugador: jugadorExistente.id_jugador,
                 id_equipo: id_equipo
             };
-            
+
             try {
                 await Axios.post(`${URL}/admin/agregar-jugador-plantel`, dataPlantel, {
                     headers: {
@@ -220,10 +220,10 @@ const CategoriasEquiposDetalle = () => {
             // Permitir al usuario cambiar el DNI
             setFormState(prevState => ({ ...prevState, dni_jugador: '' }));
         }
-        
+
         setIsDniConfirmationOpen(false);
     };
-    
+
     //ACTUALIZAR APERCIBIMIENTOS
     const [apercibimientos, setApercibimientos] = useState(equipoFiltrado.apercibimientos || 0)
 
@@ -242,14 +242,14 @@ const CategoriasEquiposDetalle = () => {
             id_zona: equipoFiltrado.id_zona,
             apercibimientos: apercibimientos // El estado actual de los apercibimientos
         };
-    
+
         try {
             await actualizarApercibimientos(data); // Reutiliza el hook para actualizar
             setApercibimientos(0); // Restablece los apercibimientos si es necesario
         } catch (error) {
             console.error("Error al actualizar los apercibimientos:", error);
         } finally {
-            closeDescripcionModal() 
+            closeDescripcionModal()
         }
     }
 
@@ -263,18 +263,18 @@ const CategoriasEquiposDetalle = () => {
 
     const manejarEditarEquipo = async () => {
         const nuevaImagen = img ? `/uploads/Equipos/${img.name}` : equipoFiltrado.img;
-    
+
         if (img && img.name === equipoFiltrado.img) {
             toast.error("El archivo tiene el mismo nombre");
             return;
         }
-    
+
         const data = {
             id_equipo: id_equipo,
             nombre: formState.nombre_equipo.trim(),
             img: nuevaImagen
         };
-    
+
         try {
             if (img) {
                 await uploadFile(img, 'Equipos');
@@ -289,26 +289,26 @@ const CategoriasEquiposDetalle = () => {
             closeEditarEquipo();
         }
     };
-    
+
 
     const handleEditarEquipo = () => {
         manejarEditarEquipo();
     };
-    
+
     // CREAR
     const { crear, isSaving } = useCrud(
         `${URL}/admin/crear-jugador`, fetchJugadores, 'Registro creado correctamente.', "Error al crear el registro."
     );
 
-    const agregarRegistro = async () => {  
+    const agregarRegistro = async () => {
         if (!formState.nombre_jugador.trim()) {
             toast.error("Completá los campos.");
             return;
         }
-    
+
         // Obtener la lista de jugadores actualizada antes de la verificación del DNI
         await dispatch(fetchJugadores());
-    
+
         const jugadorEnCategoria = plantelesList.find(a => a.dni === formState.dni_jugador.trim() && a.id_categoria == id_categoria);
         if (jugadorEnCategoria) {
             toast.error("El jugador ya está en la categoria.");
@@ -320,10 +320,10 @@ const CategoriasEquiposDetalle = () => {
             toast.error("El jugador ya está en el equipo.");
             return;
         }
-        
+
         // Buscar el jugador existente en la lista actualizada
         const jugadorExistente = jugadoresList.find(a => a.dni === formState.dni_jugador.trim());
-        
+
         if (jugadorExistente) {
             // Mostrar modal de confirmación si el DNI ya existe
             setJugadorExistente(jugadorExistente); // Establecer el jugador encontrado
@@ -331,7 +331,7 @@ const CategoriasEquiposDetalle = () => {
             closeCreateModal();
             return;
         }
-        
+
         const data = {
             dni: formState.dni_jugador,
             nombre: formState.nombre_jugador,
@@ -343,8 +343,8 @@ const CategoriasEquiposDetalle = () => {
             sancionado: "N", // Agrega estos valores predeterminados
             eventual: "N"    // Agrega estos valores predeterminados
         };
-        
-        
+
+
         await crear(data);
         dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
         dispatch(fetchJugadores());
@@ -353,11 +353,11 @@ const CategoriasEquiposDetalle = () => {
     };
     // ELIMINAR
     const { eliminarPorData, isDeleting } = useCrud(
-        `${URL}/admin/eliminar-jugador-plantel`, 
+        `${URL}/admin/eliminar-jugador-plantel`,
         () => fetchPlanteles({ id_equipo, id_categoria })
     );
-    
-    const eliminarRegistros = async () => {        
+
+    const eliminarRegistros = async () => {
         const data = {
             id_categoria: equipoFiltrado.id_categoria,
             id_edicion: categoriaFiltrada.id_edicion,
@@ -374,7 +374,7 @@ const CategoriasEquiposDetalle = () => {
     };
 
     // ACTUALIZAR
-    const [idEditar, setidEditar] = useState(null) 
+    const [idEditar, setidEditar] = useState(null)
 
     const editarEquipo = (id_equipo) => {
         openUpdateModal()
@@ -428,7 +428,7 @@ const CategoriasEquiposDetalle = () => {
             toast.error("No hay datos para importar.");
             return;
         }
-        
+
         try {
             setIsImporting(true)
             // Extraer todos los DNIs de jugadoresList para una verificación rápida y mapearlos con su id_jugador
@@ -436,7 +436,7 @@ const CategoriasEquiposDetalle = () => {
 
             for (const jugador of fileData) {
                 const { dni, nombre, apellido, posicion } = jugador;
-                
+
                 // Verifica si el jugador ya existe en jugadoresList
                 if (dniToJugadorMap.has(dni)) {
                     // Obtén el id_jugador del jugador existente
@@ -447,13 +447,13 @@ const CategoriasEquiposDetalle = () => {
                         toast.error(`El jugador ${apellido} ${nombre} no se pudo agregar porque ya está en la categoria en el equipo ${nombresEquipos(jugadorEnCategoria.id_equipo)}.`);
                         continue;
                     }
-                    
+
                     const jugadorEnEquipo = plantelesList.find(a => a.dni == dni && a.id_equipo == id_equipo);
                     if (jugadorEnEquipo) {
                         toast.error(`El jugador ${apellido} ${nombre} no se pudo agregar porque ya está en el equipo.`);
                         continue;
                     }
-                    
+
                     // Inserta el jugador y su relación en planteles
                     await Axios.post(`${URL}/admin/agregar-jugador-plantel`, {
                         id_jugador,
@@ -478,7 +478,7 @@ const CategoriasEquiposDetalle = () => {
                 }, {
                     headers: { 'Authorization': `Bearer ${token}`, }
                 })
-                
+
             }
             setIsImporting(false)
             toast.success("Importación completada correctamente.");
@@ -492,7 +492,7 @@ const CategoriasEquiposDetalle = () => {
             setIsImporting(false)
         }
     };
-    
+
     const openImportModal = () => setIsImportModalOpen(true);
 
     const closeImportModal = () => {
@@ -508,14 +508,18 @@ const CategoriasEquiposDetalle = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-        dispatch(fetchEquipos());
-        dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria }));
+        // dispatch(fetchEdiciones());
+        // dispatch(fetchCategorias());
+        // dispatch(fetchEquipos());
+        dispatch(
+            fetchPlanteles({ id_equipo: id_equipo, id_categoria: id_categoria })
+        );
         dispatch(fetchJugadores());
-        dispatch(fetchTemporadas());
-        
-    }, [dispatch]);
+        dispatch(fetchTemporadasByCategorias([{ id_categoria }]));
+    }, [
+        dispatch,
+        id_categoria
+    ]);
 
     const [imageFile, setImageFile] = useState(null);
     const [img, setImg] = useState("");
@@ -544,7 +548,7 @@ const CategoriasEquiposDetalle = () => {
                 /
                 <div>{categoriaFiltrada.nombre}</div>
             </MenuContentTop>
-            <CategoriasMenuNav id_categoria={equipoFiltrado.id_categoria}/>
+            <CategoriasMenuNav id_categoria={equipoFiltrado.id_categoria} />
 
             <EquipoDetalleInfo>
                 <EquipoWrapper>
@@ -567,8 +571,8 @@ const CategoriasEquiposDetalle = () => {
                 </Button>
             </EquipoDetalleInfo>
 
-            <div style={{display: 'flex', gap: '20px', justifyContent: 'space-between'}}>
-                <div style={{display: 'flex', gap: '20px', justifyContent: 'space-between'}}>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: '20px', justifyContent: 'space-between' }}>
                     <Button bg="success" color="white" onClick={openCreateModal}>
                         <p>Agregar jugador</p>
                     </Button>
@@ -583,11 +587,11 @@ const CategoriasEquiposDetalle = () => {
                         onChange={handleFileChange}
                     />
                 </label>
-                <Button bg="import" color="white"  onClick={openImportModal}>
+                <Button bg="import" color="white" onClick={openImportModal}>
                     <p>Importar jugadores</p>
                 </Button>
             </div>
-            
+
             {
                 ListaBuenaFeEquipo.length > 0 ? (
                     <>
@@ -599,8 +603,8 @@ const CategoriasEquiposDetalle = () => {
                             selection={false}
                             sortable={false}
                             id_={'id_jugador'}
-                            // urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
-                            // rowClickLink
+                        // urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                        // rowClickLink
                         />
                         {
                             EventualesEquipo.length > 0 && (
@@ -614,13 +618,13 @@ const CategoriasEquiposDetalle = () => {
                                         selection={false}
                                         sortable={false}
                                         id_={'id_jugador'}
-                                        // urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
-                                        // rowClickLink
+                                    // urlClick={`/admin/categorias/equipos/${edicionFiltrada.id_edicion}/detalle/`}
+                                    // rowClickLink
                                     />
                                 </>
                             )
                         }
-                        
+
                     </>
                 ) : (
                     <p>No se han encontrado jugadores.</p>
@@ -658,44 +662,44 @@ const CategoriasEquiposDetalle = () => {
                             <>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input 
+                                    <Input
                                         name='dni_jugador'
-                                        type='text' 
+                                        type='text'
                                         placeholder="Escriba el DNI..."
-                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                        icon={<PiIdentificationCardLight className='icon-input' />}
                                         value={formState.dni_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input 
+                                    <Input
                                         name='nombre_jugador'
-                                        type='text' 
-                                        placeholder="Escriba el nombre..." 
-                                        icon={<PiUser className='icon-input'/>} 
+                                        type='text'
+                                        placeholder="Escriba el nombre..."
+                                        icon={<PiUser className='icon-input' />}
                                         value={formState.nombre_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Apellido
-                                    <Input 
+                                    <Input
                                         name='apellido_jugador'
-                                        type='text' 
+                                        type='text'
                                         placeholder="Escriba el apellido..."
-                                        icon={<PiUser className='icon-input'/>} 
+                                        icon={<PiUser className='icon-input' />}
                                         value={formState.apellido_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Posición
-                                    <Input 
+                                    <Input
                                         name='posicion_jugador'
-                                        type='text' 
-                                        placeholder="Escriba la posicion..." 
-                                        icon={<TbPlayFootball className='icon-input'/>} 
+                                        type='text'
+                                        placeholder="Escriba la posicion..."
+                                        icon={<TbPlayFootball className='icon-input' />}
                                         value={formState.posicion_jugador}
                                         onChange={handleFormChange}
                                     />
@@ -711,43 +715,43 @@ const CategoriasEquiposDetalle = () => {
                     <>
                         <ModalDelete
                             text={
-                            `¿Estas seguro que quieres remover los jugadores seleccionados de esta lista de buena fe?`}
+                                `¿Estas seguro que quieres remover los jugadores seleccionados de esta lista de buena fe?`}
                             animate={{ opacity: isDeleteModalOpen ? 1 : 0 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
                             onClickClose={closeDeleteModal}
                             title={`Eliminar jugadores`}
                             buttons={
-                            <>
-                                <Button color={"danger"} onClick={closeDeleteModal}>
-                                    <IoClose />
-                                    No
-                                </Button>
-                                <Button color={"success"} onClick={eliminarRegistros} disabled={isDeleting}>
-                                    {isDeleting ? (
-                                        <>
-                                            <LoaderIcon size="small" color='green' />
-                                            Eliminando
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IoCheckmark />
-                                            Si
-                                        </>
-                                    )}
-                                </Button>
-                            </>
-                            }  
+                                <>
+                                    <Button color={"danger"} onClick={closeDeleteModal}>
+                                        <IoClose />
+                                        No
+                                    </Button>
+                                    <Button color={"success"} onClick={eliminarRegistros} disabled={isDeleting}>
+                                        {isDeleting ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                                Eliminando
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Si
+                                            </>
+                                        )}
+                                    </Button>
+                                </>
+                            }
                         />
-                        <Overlay onClick={closeDeleteModal}/>
+                        <Overlay onClick={closeDeleteModal} />
                     </>
-                    
+
                 )
             }
             {
                 isDniConfirmationOpen && (
                     <>
-                        <ModalCreate 
+                        <ModalCreate
                             initial={{ opacity: 0 }}
                             animate={{ opacity: isDniConfirmationOpen ? 1 : 0 }}
                             exit={{ opacity: 0 }}
@@ -777,11 +781,11 @@ const CategoriasEquiposDetalle = () => {
                             form={
                                 <>
                                     <p>Encontramos un jugador en tu torneo con el DNI ingresado.
-                                    ¿El jugador que intentas crear es esta misma persona?</p>
+                                        ¿El jugador que intentas crear es esta misma persona?</p>
                                     <h1>{jugadorExistente.nombre} {jugadorExistente.apellido}</h1>
                                     <p>{formState.dni_jugador}</p>
                                 </>
-                                
+
 
                             }
                         />
@@ -812,7 +816,7 @@ const CategoriasEquiposDetalle = () => {
                                         <p>Seleccionar</p>
                                     </Button>
                                 )}
-                                <Button color={"success"} onClick={handleFileImport} disabled={!fileName|| isImporting}>
+                                <Button color={"success"} onClick={handleFileImport} disabled={!fileName || isImporting}>
                                     {isImporting ? (
                                         <>
                                             <LoaderIcon size="small" color='green' />
@@ -864,77 +868,77 @@ const CategoriasEquiposDetalle = () => {
                             <>
                                 <ModalFormInputContainer>
                                     DNI
-                                    <Input 
+                                    <Input
                                         name='dni_jugador'
-                                        type='text' 
+                                        type='text'
                                         placeholder="Escriba el DNI..."
-                                        icon={<PiIdentificationCardLight className='icon-input'/>} 
+                                        icon={<PiIdentificationCardLight className='icon-input' />}
                                         value={formState.dni_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Nombre
-                                    <Input 
+                                    <Input
                                         name='nombre_jugador'
-                                        type='text' 
-                                        placeholder="Escriba el nombre..." 
-                                        icon={<PiUser className='icon-input'/>} 
+                                        type='text'
+                                        placeholder="Escriba el nombre..."
+                                        icon={<PiUser className='icon-input' />}
                                         value={formState.nombre_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Apellido
-                                    <Input 
+                                    <Input
                                         name='apellido_jugador'
-                                        type='text' 
+                                        type='text'
                                         placeholder="Escriba el apellido..."
-                                        icon={<PiUser className='icon-input'/>} 
+                                        icon={<PiUser className='icon-input' />}
                                         value={formState.apellido_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
                                     Posición
-                                    <Input 
+                                    <Input
                                         name='posicion_jugador'
-                                        type='text' 
-                                        placeholder="Escriba la posicion..." 
-                                        icon={<TbPlayFootball className='icon-input'/>} 
+                                        type='text'
+                                        placeholder="Escriba la posicion..."
+                                        icon={<TbPlayFootball className='icon-input' />}
                                         value={formState.posicion_jugador}
                                         onChange={handleFormChange}
                                     />
                                 </ModalFormInputContainer>
                                 <InputRadioContainer>
-                                        Eventual
-                                        <InputRadioWrapper>
-                                            <label htmlFor={'multa-si'}>
-                                                Sí
-                                            </label>
-                                            <input 
-                                                id={'multa-si'} 
-                                                type='radio' 
-                                                name='jugador_eventual' 
-                                                value={'S'} 
-                                                checked={formState.jugador_eventual === 'S'} 
-                                                onChange={handleFormChange} 
-                                            />
-                                        </InputRadioWrapper>
+                                    Eventual
+                                    <InputRadioWrapper>
+                                        <label htmlFor={'multa-si'}>
+                                            Sí
+                                        </label>
+                                        <input
+                                            id={'multa-si'}
+                                            type='radio'
+                                            name='jugador_eventual'
+                                            value={'S'}
+                                            checked={formState.jugador_eventual === 'S'}
+                                            onChange={handleFormChange}
+                                        />
+                                    </InputRadioWrapper>
 
-                                        <InputRadioWrapper>
-                                            <label htmlFor="multa-no">
-                                                No
-                                            </label>
-                                            <input 
-                                                id={'multa-no'} 
-                                                type='radio' 
-                                                name='jugador_eventual' 
-                                                value={'N'} 
-                                                checked={formState.jugador_eventual === 'N'} 
-                                                onChange={handleFormChange} 
-                                            />
-                                        </InputRadioWrapper>
+                                    <InputRadioWrapper>
+                                        <label htmlFor="multa-no">
+                                            No
+                                        </label>
+                                        <input
+                                            id={'multa-no'}
+                                            type='radio'
+                                            name='jugador_eventual'
+                                            value={'N'}
+                                            checked={formState.jugador_eventual === 'N'}
+                                            onChange={handleFormChange}
+                                        />
+                                    </InputRadioWrapper>
                                 </InputRadioContainer>
                             </>
                         }
@@ -945,7 +949,7 @@ const CategoriasEquiposDetalle = () => {
             {
                 isDescripcionModalOpen && (
                     <>
-                        <ModalCreate 
+                        <ModalCreate
                             initial={{ opacity: 0 }}
                             animate={{ opacity: isDescripcionModalOpen ? 1 : 0 }}
                             exit={{ opacity: 0 }}
@@ -977,18 +981,18 @@ const CategoriasEquiposDetalle = () => {
                                 <>
                                     <ModalFormInputContainer>
                                         Apercibimientos
-                                    <Input 
-                                        name='apercibimientos'
-                                        type='number' 
-                                        placeholder="Escriba el número de apercibimientos..." 
-                                        value={apercibimientos}
-                                        icon={<IoAlertCircle className='icon-input'/>} 
-                                        onChange={(e) => {
-                                            const value = Math.max(0, e.target.value);
-                                            actualizarEstadoApercibimientos(value);
-                                        }}
-                                        min="0"
-                                    />
+                                        <Input
+                                            name='apercibimientos'
+                                            type='number'
+                                            placeholder="Escriba el número de apercibimientos..."
+                                            value={apercibimientos}
+                                            icon={<IoAlertCircle className='icon-input' />}
+                                            onChange={(e) => {
+                                                const value = Math.max(0, e.target.value);
+                                                actualizarEstadoApercibimientos(value);
+                                            }}
+                                            min="0"
+                                        />
                                     </ModalFormInputContainer>
                                 </>
                             }
@@ -1000,7 +1004,7 @@ const CategoriasEquiposDetalle = () => {
             {
                 isEditarEquipo && (
                     <>
-                        <ModalCreate 
+                        <ModalCreate
                             initial={{ opacity: 0 }}
                             animate={{ opacity: isEditarEquipo ? 1 : 0 }}
                             exit={{ opacity: 0 }}
@@ -1035,24 +1039,24 @@ const CategoriasEquiposDetalle = () => {
                                         <ModalFormInputImg>
                                             {previewImage ?
                                                 <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
-                                                :  
+                                                :
                                                 <img src={`${URLImages}${escudosEquipos(equipoFiltrado.id_equipo)}`} alt={equipoFiltrado.nombre} style={{ width: '80px', height: '80px' }} />
                                             }
-                                            <Input 
-                                                type='file' 
+                                            <Input
+                                                type='file'
                                                 accept="image/*"
                                                 onChange={(event) => handleImageUpload(event)}
-                                                icon={<MdOutlineImage className='icon-input'/>}
+                                                icon={<MdOutlineImage className='icon-input' />}
                                             />
                                         </ModalFormInputImg>
                                     </ModalFormInputContainer>
                                     <ModalFormInputContainer>
                                         Nombre
-                                        <Input 
+                                        <Input
                                             name='nombre_equipo'
-                                            type='text' 
-                                            placeholder="Escriba el nombre..." 
-                                            icon={<PiUser className='icon-input'/>} 
+                                            type='text'
+                                            placeholder="Escriba el nombre..."
+                                            icon={<PiUser className='icon-input' />}
                                             value={formState.nombre_equipo}
                                             onChange={handleFormChange}
                                         />

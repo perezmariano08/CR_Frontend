@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getFormaciones } from "../../utils/dataFetchers";
 import { useWebSocket } from "../../Auth/WebSocketContext";
+import { orderData } from "../../utils/utils";
 
 export const useFormaciones = (id_partido, token) => {
     const [formaciones, setFormaciones] = useState(null);
@@ -8,30 +9,24 @@ export const useFormaciones = (id_partido, token) => {
     const [socketLoading, setSocketLoading] = useState({});
     const socket = useWebSocket();
 
+    const fetchFormaciones = async () => {
+        setLoading(true);
+        try {
+            const data = await getFormaciones(id_partido, token);
+
+            const orderedData = orderData(data);
+
+            setFormaciones(orderedData);
+        } catch (error) {
+            console.error("Error fetching formaciones:", error);
+            setFormaciones([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (!id_partido) return;
-
-        const fetchFormaciones = async () => {
-            setLoading(true);
-            try {
-                const data = await getFormaciones(id_partido, token);
-
-                const orderedData = [...data]
-                    .sort((a, b) => {
-                        if (a.eventual !== b.eventual) {
-                            return a.eventual === "N" ? -1 : 1;
-                        }
-                        return a.nombre.localeCompare(b.nombre);
-                    });
-
-                setFormaciones(orderedData);
-            } catch (error) {
-                console.error("Error fetching formaciones:", error);
-                setFormaciones([]);
-            } finally {
-                setLoading(false);
-            }
-        };
 
         fetchFormaciones();
 
@@ -131,5 +126,5 @@ export const useFormaciones = (id_partido, token) => {
 
     }, [id_partido, socket]);
 
-    return { formaciones, loading, socketLoading };
+    return { formaciones, loading, socketLoading, fetchFormaciones, formaciones, setFormaciones, orderData };
 };

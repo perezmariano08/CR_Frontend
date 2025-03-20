@@ -11,7 +11,7 @@ import { useWebSocket } from '../../../Auth/WebSocketContext';
 const HomePlanillero = () => {
     const dispatch = useDispatch();
     const { userId } = useAuth();
-    const socket = useWebSocket();
+    // const socket = useWebSocket();
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -23,16 +23,16 @@ const HomePlanillero = () => {
             dispatch(fetchPartidosPlanillero({ id_planillero: userId, token }));
         }
 
-        if (socket) {
-            socket.on('suspender-partido', handeSuspenderPartido);
-        }
+        // if (socket) {
+        //     socket.on('suspender-partido', handeSuspenderPartido);
+        // }
 
-        return () => {
-            if (socket) {
-                socket.off('suspender-partido', handeSuspenderPartido);
-            }
-        }
-    }, [socket, userId])
+        // return () => {
+        //     if (socket) {
+        //         socket.off('suspender-partido', handeSuspenderPartido);
+        //     }
+        // }
+    }, [userId])
 
     const partidos = useSelector((state) => state.partidos.data_planillero);
 

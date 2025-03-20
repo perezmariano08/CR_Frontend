@@ -142,6 +142,12 @@ export const CardPartidoInfo = styled.div`
     align-items: center;
     gap: 5px;
 
+    .textHour {
+        font-size: 36px;
+        line-height: 36px;
+        font-weight: 800;
+    }
+
     h5 {
         font-size: 18px;
         font-weight: 800;
@@ -150,12 +156,6 @@ export const CardPartidoInfo = styled.div`
     p {
         font-size: 10px;
         font-weight: 300; 
-    }
-
-    h4 {
-        font-size: 36px;
-        line-height: 36px;
-        font-weight: 800;
     }
 
     span {

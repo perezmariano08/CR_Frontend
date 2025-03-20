@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-export const CardUltimoPartidoWrapper = styled(NavLink)`
+export const CardUltimoPartidoWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 15px;

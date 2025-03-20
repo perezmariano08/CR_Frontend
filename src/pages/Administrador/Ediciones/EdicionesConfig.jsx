@@ -57,11 +57,10 @@ const EdicionesConfig = () => {
     const { isDeleteModalOpen, openDeleteModal, closeDeleteModal } = useModalsCrud();
 
     useEffect(() => {
-        dispatch(fetchEdiciones());
-        dispatch(fetchCategorias());
-    }, []);
+        if (edicionesList.length === 0) dispatch(fetchEdiciones());
+        if (categoriasList.length === 0) dispatch(fetchCategorias());
+    }, [dispatch, edicionesList.length, categoriasList.length]);
 
-    
     // ACTUALIZAR
     const { actualizar, isUpdating } = useCrud(
         `${URL}/user/actualizar-edicion`, fetchEdiciones, 'Registro actualizado correctamente.', "Error al actualizar el registro."

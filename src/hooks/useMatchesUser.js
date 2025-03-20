@@ -17,51 +17,15 @@ const useMatchesUser = (idEquipo) => {
     const [fechaActual, setFechaActual] = useState(null);
     const [zonaActual, setZonaActual] = useState(null);
 
-    // Evitar múltiples despachos seguidos
-    const fetchPartidosEquipos = useCallback(debounce(() => {
-        dispatch(fetchPartidos());
-        dispatch(fetchEquipos());
-    }, 500), [dispatch]);
-    
     useEffect(() => {
-        dispatch(fetchZonas());
-    }, [idEquipo]);
+      if (zonas.length === 0) dispatch(fetchZonas());
+      if (partidos.length === 0) dispatch(fetchPartidos());
+      if (equipos.length === 0) dispatch(fetchEquipos());
+    }, [dispatch, idEquipo, partidos, equipos, zonas]);
 
-    useEffect(() => {
-        fetchPartidosEquipos();
-    }, [fetchPartidosEquipos]);
-
-    // Actualizar partidos cuando se recibe un evento del socket relacionado con el estado o las acciones
-    useEffect(() => {
-        const handleEstadoPartidoActualizado = (data) => {
-            if (data) {
-                dispatch(fetchPartidos())
-                    .then((partidos) => {
-                    })
-                    .catch(error => console.error('Error actualizando el partido:', error));
-            }
-        };
-    
-        const handleNewIncidence = () => {
-            dispatch(fetchPartidos()); // Actualizar partidos cuando hay una nueva acción
-        };
-    
-        const handleIncidenciaEliminada = () => {
-            dispatch(fetchPartidos()); // Actualizar partidos cuando se elimina una acción
-        };
-    
-        // Suscripción a los eventos de socket
-        socket.on('estadoPartidoActualizado', handleEstadoPartidoActualizado);
-        socket.on('nuevaAccion', handleNewIncidence);
-        socket.on('eliminarAccion', handleIncidenciaEliminada);
-    
-        return () => {
-            // Limpiar suscripciones
-            socket.off('estadoPartidoActualizado', handleEstadoPartidoActualizado);
-            socket.off('nuevaAccion', handleNewIncidence);
-            socket.off('eliminarAccion', handleIncidenciaEliminada);
-        };
-    }, [socket, dispatch]);
+    // useEffect(() => {
+    //     fetchPartidosEquipos();
+    // }, [fetchPartidosEquipos]);
 
     useEffect(() => {
         if (partidos.length > 0 && miEquipo) {

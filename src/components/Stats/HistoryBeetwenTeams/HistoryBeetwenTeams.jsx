@@ -51,7 +51,7 @@ const HistoryBeetwenTeams = ({ partidosEntreEquipos, partido }) => {
                     </HistoryStatsWrapper>
                     <img src={`${URLImages}/${escudosEquipos(partido?.id_equipoVisita)}`} alt={nombresEquipos(partido?.id_equipoLocal)} />
                 </HistoryTop>
-            <AlignmentDivider />
+            {/* <AlignmentDivider /> */}
             <HistoryMatchesContainer>
                 {/* <HistoryStatsWrapper>
                     <HistoryStatsContainer>

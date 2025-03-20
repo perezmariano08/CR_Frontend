@@ -12,6 +12,8 @@ import { useDispatch } from 'react-redux';
 import { setLogCurrentUser } from '../../redux/user/userSlice';
 import { HiArrowLeft } from "react-icons/hi";
 import { FaAngleRight } from 'react-icons/fa6';
+import { SpinerContainer } from '../../Auth/SpinerStyles';
+import { TailSpin } from 'react-loader-spinner';
 
 const Login = () => {
     axios.defaults.withCredentials = true;
@@ -19,6 +21,7 @@ const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [loading, setLoading] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [dniUser, setDniUser] = useState('');
     const [passUser, setPassUser] = useState('');
@@ -96,6 +99,20 @@ const Login = () => {
             setIsLoading(false);
         }
     }, []);
+
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+    
+    if (loading) {
+        return (
+            <SpinerContainer>
+                <TailSpin width="40" height="40" color="#2AD174" />
+            </SpinerContainer>
+        );
+    }
 
     return (
         <LoginContainerStyled>

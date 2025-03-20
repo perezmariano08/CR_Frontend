@@ -51,7 +51,8 @@ const Input2 = ({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 disabled={disabled}
-                className={inputClass}  // Aplicar las clases solo si es touched
+                className={inputClass}
+                autoFocus 
             />
             {loading && (
                     <LoaderIcon />

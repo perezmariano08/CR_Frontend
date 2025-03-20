@@ -49,6 +49,7 @@ const DreamTeam = ({ id_categoria, jornada }) => {
     } = useModalsCrud();
 
     const [jugadoresDestacados, setJugadoresDestacados] = useState([]);
+    const [jdFiltrados, setJdFiltrados] = useState([]);
 
     const [alineacion, setAlineacion] = useState({
         arquero: null,
@@ -66,13 +67,13 @@ const DreamTeam = ({ id_categoria, jornada }) => {
     useEffect(() => {
         const fetchDreamTeam = async () => {
             const dreamTeamData = await getDreamTeamFecha(id_categoria, jornada);
-            
+
             // ⚠️ Solo actualiza si los datos realmente cambian
             if (JSON.stringify(dreamTeamData) !== JSON.stringify(dreamTeam)) {
                 setDreamTeam(dreamTeamData);
             }
         };
-    
+
         fetchDreamTeam();
     }, [id_categoria, jornada, dreamTeam]); // ✅ Se ejecuta cuando dreamTeam cambia, pero sin bucles infinitos    
 
@@ -90,7 +91,6 @@ const DreamTeam = ({ id_categoria, jornada }) => {
     }, [isCreateModalOpen, jornada]);
 
     const handleOpenCreateModal = (position) => {
-        console.log(position);
         setSelectedPosition(position);
         openCreateModal();
         fetchJugadores();
@@ -100,6 +100,8 @@ const DreamTeam = ({ id_categoria, jornada }) => {
         closeCreateModal();
         setSearchTerm('');
         setFilteredJugadores([]);
+        setJugadoresDestacados([]);
+        setJdFiltrados([]);
     };
 
     // Función para obtener jugadores de la categoría
@@ -111,51 +113,71 @@ const DreamTeam = ({ id_categoria, jornada }) => {
         }
     };
 
-    // Filtrar jugadores según el término de búsqueda
+    // Normaliza el texto para la búsqueda
+    const normalizeText = (text) => {
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
+
+    // Filtrar y ordenar jugadores según el término de búsqueda
     useEffect(() => {
-        const filtered = jugadores.filter(jugador =>
-            `${jugador.nombre} ${jugador.apellido}`.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        const normalizedSearch = normalizeText(searchTerm);
+
+        const filtered = jugadores
+            .filter(jugador =>
+                normalizeText(`${jugador.nombre} ${jugador.apellido}`).includes(normalizedSearch)
+            )
+            .sort((a, b) => normalizeText(a.apellido).localeCompare(normalizeText(b.apellido)));
+
+        const jdFiltered = jugadoresDestacados
+            .filter(jugador =>
+                normalizeText(`${jugador.nombre} ${jugador.apellido}`).includes(normalizedSearch)
+            )
+            .sort((a, b) => normalizeText(a.apellido).localeCompare(normalizeText(b.apellido)));
+
+        setJdFiltrados(jdFiltered);
         setFilteredJugadores(filtered);
-    }, [searchTerm, jugadores]);
+    }, [searchTerm, jugadores, jugadoresDestacados]);
+
 
     const seleccionarJugador = async (jugador, posicion) => {
         try {
             const data = {
+                id_categoria: id_categoria,
                 id_partido: jugador.id_partido,
                 id_jugador: jugador.id_jugador,
                 id_equipo: jugador.id_equipo,
                 posicion: posicion,
                 jornada: jornada
             };
-    
+
             const loadingToastId = toast.loading('Agregando jugador...');
             const resultado = await actualizarJugadoresDestacados(data, token);
 
             if (resultado && resultado.status === 200) {
+
                 toast.success('Jugador agregado con éxito');
-    
+
                 // ACTUALIZAR ESTADO LOCAL PARA REFLEJAR EL CAMBIO INMEDIATAMENTE
                 setDreamTeam(prevTeam => [...prevTeam, { ...jugador, posicion }]);
-    
+
                 fetchJugadores();
                 fetchJugadoresDestacados();
             } else {
                 toast.error('Error al agregar el jugador');
             }
-    
+
             toast.dismiss(loadingToastId);
-            closeCreateModal();
+            closeModal();
         } catch (error) {
             console.error('Error al seleccionar el jugador', error);
             toast.error('Error al agregar el jugador');
             toast.dismiss(loadingToastId);
         }
     };
-    
-    const eliminarJugador = async (jugador) => { 
+
+    const eliminarJugador = async (jugador) => {
         if (!jugador) return toast.error('No se encontró el jugador');
-    
+
         const loadingToastId = toast.loading('Eliminando jugador...');
         try {
             const response = await eliminarJugadorDt(jugador, token);
@@ -173,7 +195,7 @@ const DreamTeam = ({ id_categoria, jornada }) => {
             toast.dismiss(loadingToastId);
         }
     };
-    
+
     const limpiarFormacion = async (event) => {
         event.preventDefault();
         const loadingToastId = toast.loading('Limpiando formación...');
@@ -334,7 +356,7 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                                                                         className='logo-jugador-admin'
                                                                         src={`${URLImages}/${fotosJugadores(0)}`}
                                                                         alt='Jugador'
-                                                                        />
+                                                                    />
                                                                     <span className='agregar-jugador' onClick={() => handleOpenCreateModal(posicionIndex)}>
                                                                         +
                                                                     </span>
@@ -423,8 +445,8 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                                         <Divider color="var(--gray-300)" />
                                         Jugadores destacados
                                         <JugadoresContainer>
-                                            {jugadoresDestacados.length > 0 && (
-                                                jugadoresDestacados.map(jugador => (
+                                            {jdFiltrados.length > 0 ? (
+                                                jdFiltrados.map(jugador => (
                                                     <JugadorContainer
                                                         key={jugador.id_jugador}
                                                         onClick={() => seleccionarJugador(jugador, selectedPosition)}
@@ -436,6 +458,8 @@ const DreamTeam = ({ id_categoria, jornada }) => {
                                                         </JugadorInfo>
                                                     </JugadorContainer>
                                                 ))
+                                            ) : (
+                                                <p>No se encontraron jugadores destacados para la fecha seleccionada</p>
                                             )}
                                         </JugadoresContainer>
                                         Jugadores de la ultima fecha

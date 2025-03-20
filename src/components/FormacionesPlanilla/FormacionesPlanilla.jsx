@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { FormacionesPlanillaHeader, FormacionesPlanillaTitle, FormacionesPlanillaWrapper, PlanillaButtons, PlayerEventContainer, TablePlanillaWrapper } from './FormacionesPlanillaStyles';
+import { useDispatch } from 'react-redux';
+import { FormacionesPlanillaHeader, FormacionesPlanillaTitle, FormacionesPlanillaWrapper, PlanillaButtons, PlayerEventContainer, StarIcon, StarOutlineIcon, TablePlanillaWrapper } from './FormacionesPlanillaStyles';
 import { AlignmentDivider } from '../Stats/Alignment/AlignmentStyles';
 import { HiMiniPencil, HiOutlineXCircle } from "react-icons/hi2";
 import { Toaster, toast, LoaderIcon } from 'react-hot-toast';
-import { IoIosStarOutline } from "react-icons/io";
-import { IoIosStar } from "react-icons/io";
 import { URLImages } from '../../utils/utils';
 import { useEquipos } from '../../hooks/useEquipos';
 import { setIdEquipo, setJugador, setModalType, toggleModal } from '../../redux/Planillero/planilleroSlice';
 import { eliminarJugadorDestacado, insertarJugadorDestacado } from '../../utils/dataFetchers';
 
-const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) => {
+const FormacionesPlanilla = ({ partido, formacionesPartido, setFormaciones, fetchJugadoresDestacados }) => {
     const dispatch = useDispatch();
-    // const id_equipo = useSelector((state) => state.planillero.id_equipo);
+    const [loadingPlayerId, setLoadingPlayerId] = useState(null);
     const token = localStorage.getItem('token');
+
     //custom hook
     const { nombresEquipos, escudosEquipos } = useEquipos()
 
     //navegacion entre equipos
     const [navActive, setNavActive] = useState(partido.id_equipoLocal);
-    const idEquipoSeleccionado = useSelector((state) => state.planillero.id_equipo);
 
     const handleNavActive = (id_equipo) => {
         dispatch(setIdEquipo(id_equipo));
@@ -44,7 +42,7 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
 
         if (player.sancionado === 'S') toast.error('Un jugador sancionado no puede realizar una acción')
         if (!player.dorsal) toast.error('Un jugador sin dorsal no puede realizar una acción, por favor, asignar un dorsal al jugador')
-        
+
         dispatch(setJugador(player));
         dispatch(toggleModal('ActionType'));
     };
@@ -60,18 +58,35 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
         if (partido.estado === 'F') return toast.error('No se puede editar con el partido cargado');
         if (partido.estado === 'P') return toast.error('Debes comenzar el partido para ejecutar esta acción');
 
+        setLoadingPlayerId(player.id_jugador);
+
+        // Actualizar el estado local de las formaciones
+        setFormaciones((prevFormaciones) => 
+            prevFormaciones.map((formacion) =>
+                formacion.id_jugador === player.id_jugador
+                    ? { ...formacion, destacado: player.destacado === 'S' ? 'N' : 'S' }
+                    : formacion
+            )
+        );
+
         try {
+            let mensaje
             if (player.destacado === 'S') {
-                const res = await eliminarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_jugador, token);
-                toast.success('Acción ejecutada con éxito');
-                return;
+                await eliminarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_jugador, token);
+                mensaje = 'Jugador destacado eliminado'
+            } else {
+                await insertarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_equipo, player.id_jugador, token);
+                mensaje = 'Jugador destacado agregado'
             }
-            const res = await insertarJugadorDestacado(partido.id_categoria, partido.id_partido, player.id_equipo, player.id_jugador, token);
-            toast.success('Acción ejecutada con éxito');
+            setLoadingPlayerId(null);
+            toast.success(mensaje);
+            await fetchJugadoresDestacados();
 
         } catch (error) {
             console.error(error);
             toast.error('Error al ejecutar la acción');
+        } finally {
+            setLoadingPlayerId(null);
         }
     }
 
@@ -84,7 +99,7 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
         dispatch(setModalType('deleteDorsal'));
     }
 
-    const handleModalEventual = () => { 
+    const handleModalEventual = () => {
         dispatch(toggleModal('jugadorEventual'))
     }
 
@@ -102,7 +117,7 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
                 >
                     {nombresEquipos(partido.id_equipoLocal)}
                 </PlanillaButtons>
-                
+
                 <PlanillaButtons
                     className={`visitante ${+navActive === +partido.id_equipoVisita ? 'active' : ''}`}
                     onClick={() => handleNavActive(partido.id_equipoVisita)}
@@ -114,61 +129,49 @@ const FormacionesPlanilla = ({ partido, formacionesPartido, socket_loading }) =>
             <TablePlanillaWrapper>
                 <thead>
                     <tr className='head'>
-                        <div className='info-player'>
-                            <th className='dorsal'>#</th>
-                            <th className='dni'>DNI</th>
-                            <th className='nombre'>Nombre</th>
-                        </div>
+                        <th className='dorsal'>#</th>
+                        <th className='dni'>DNI</th>
+                        <th className='nombre'>Nombre</th>
                         <th className='editar'>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                {formacionesPartido
-                    ?.filter(jugador => jugador.id_equipo === navActive)
-                    .map(player => {
-                        return (
-                            <tr 
-                                key={player.id_jugador} 
-                                className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}
-                            >
-                                <div className='info-player'>
-                                    <td
-                                        className={`dorsal ${(!player.dorsal || player.sancionado === 'S') && 'disabled'}`}
-                                        onClick={() => {handleNext(player)}}
-                                    >
-                                        {socket_loading[player.id_jugador] ? <LoaderIcon/> : player.dorsal || ''}
+                    {formacionesPartido
+                        ?.filter(jugador => jugador.id_equipo === navActive)
+                        .map(player => {
+                            return (
+                                <tr
+                                    key={player.id_jugador}
+                                    className={`${player.eventual === 'S' ? 'playerEventual' : ''} ${player.sancionado === 'S' ? 'expulsado' : ''}`}
+                                >
+                                    <td className={`dorsal ${(!player.dorsal || player.sancionado === 'S') && 'disabled'}`}
+                                        onClick={() => { handleNext(player) }}>
+                                        {!player.id_jugador ? <LoaderIcon /> : player.dorsal || ''}
                                     </td>
                                     <td className='text dni'>{player.dni}</td>
                                     <td className='text nombre'>{player.nombre} {player.apellido}</td>
-                                </div>
-                                <td className='tdActions'>
-                                    <HiMiniPencil
-                                        className='edit'
-                                        onClick={() => handleDorsal(player)}
-                                    />
-                                    {
-                                        player.destacado === 'N' ? (
-                                            <IoIosStarOutline 
+                                    <td className='tdActions'>
+                                        <HiMiniPencil className='edit' onClick={() => handleDorsal(player)} />
+                                        {player.destacado === 'N' ? (
+                                            <StarOutlineIcon
                                                 className={player.dorsal ? 'star' : 'disabled'}
-                                                onClick={() => handleStar(player)} 
+                                                $loading={loadingPlayerId === player.id_jugador}
+                                                onClick={() => handleStar(player)}
                                             />
                                         ) : (
-                                            <IoIosStar 
-                                            className={player.dorsal ? 'star' : 'disabled'}
-                                            onClick={() => handleStar(player)} 
-                                        />
-                                        )
-                                    }
-
-                                    <HiOutlineXCircle
-                                        className={`delete ${!player.dorsal ? 'disabled' : ''}`}
-                                        onClick={() => deleteDorsalAndActionsPlayer(player)}
-                                    />
-                                </td>
-                            </tr>
-                        );
-                    })}
+                                            <StarIcon
+                                                className={player.dorsal ? 'star' : 'disabled'}
+                                                $loading={loadingPlayerId === player.id_jugador}
+                                                onClick={() => handleStar(player)}
+                                            />
+                                        )}
+                                        <HiOutlineXCircle className={`delete ${!player.dorsal ? 'disabled' : ''}`} onClick={() => deleteDorsalAndActionsPlayer(player)} />
+                                    </td>
+                                </tr>
+                            );
+                        })}
                 </tbody>
+
             </TablePlanillaWrapper>
             <PlayerEventContainer>
                 <p onClick={handleModalEventual}>Añadir jugadores eventuales</p>

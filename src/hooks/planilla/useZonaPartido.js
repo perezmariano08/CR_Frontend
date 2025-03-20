@@ -1,16 +1,26 @@
 import { useEffect, useState } from "react";
-import { getZonas } from "../../utils/dataFetchers";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchZonas } from "../../redux/ServicesApi/zonasSlice";
 
 export const useZonaPartido = (id_zona) => {
+
+    const dispatch = useDispatch();
+    const zonas = useSelector((state) => state.zonas.data);
+
     const [zona, setZona] = useState([]);
-    
     useEffect(() => {
-        getZonas()
-            .then((data) => {
-                const zonaCorrecta = data.find(z => z.id_zona === id_zona); // Usamos find en vez de filter para obtener un objeto
-                setZona(zonaCorrecta || null); // Si no hay coincidencia, seteamos null
-            })
-            .catch((error) => console.error('Error fetching zonas:', error));
+        if (!id_zona) {
+            return;
+        }
+
+        if (zonas.length > 0) {
+            return;
+        }
+
+        dispatch(fetchZonas());
+        const zonaCorrecta = zonas.find(z => z.id_zona === id_zona);
+        setZona(zonaCorrecta || null);
+
     }, []);
 
     return { zona };

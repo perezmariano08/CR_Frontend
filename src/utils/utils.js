@@ -4,12 +4,13 @@ import { es } from "date-fns/locale";
 // https://api-cr-zeta.vercel.app
 // https://crbackend-production.up.railway.app
 // http://localhost:3001
+// api
 
 export const URLImages = "https://coparelampago.com";
 export const URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3001"
-    : "/api";
+    : "https://api-cr-zeta.vercel.app";
 
 export const formatTime = (time) => {
   if (!time) return "00:00";
@@ -29,3 +30,13 @@ export const formatedDate = (dateString) => {
   const date = new Date(dateString);
   return format(date, "d 'de' MMMM 'de' yyyy", { locale: es });
 };
+
+export const orderData = (data) => {
+  return [...data]
+      .sort((a, b) => {
+          if (a.eventual !== b.eventual) {
+              return a.eventual === "N" ? -1 : 1;
+          }
+          return a.nombre.localeCompare(b.nombre);
+      });
+}

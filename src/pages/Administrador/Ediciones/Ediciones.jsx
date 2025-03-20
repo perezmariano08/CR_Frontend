@@ -42,19 +42,19 @@ const Ediciones = () => {
             </>
         ),
         jugadores: (
-            <DataItemTemplate to={`/admin/jugadores`}>
+            <DataItemTemplate>
                 <TbShirtSport />
                 {edicion.jugadores}
             </DataItemTemplate>
         ),
         equipos: (
-            <DataItemTemplate to={`/admin/equipos`}>
+            <DataItemTemplate>
                 <IoShieldHalf />
                 {edicion.equipos}
             </DataItemTemplate>
         ),
         categorias: (
-            <DataItemTemplate to={`/admin/categorias`}>
+            <DataItemTemplate>
                 <CiViewList />
                 {edicion.categorias}
             </DataItemTemplate>

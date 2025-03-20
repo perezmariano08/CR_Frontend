@@ -9,15 +9,15 @@ import {
 } from './SelectStyles';
 
 const SelectVistaPartido = ({ vistaSeleccionada, setVistaSeleccionada, partidosDia }) => {
-  const [isOpen, setIsOpen] = useState(false); // Estado para abrir/cerrar el menú
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleVistaChange = (value) => {
     setVistaSeleccionada(value);
-    setIsOpen(false); // Cerrar el menú cuando se selecciona una opción
+    setIsOpen(false);
   };
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen); // Alternar el estado de apertura/cierre
+    setIsOpen(!isOpen);
   };
 
    return (
@@ -35,8 +35,7 @@ const SelectVistaPartido = ({ vistaSeleccionada, setVistaSeleccionada, partidosD
             </SelectVistaPartidoHeader>
             )}
 
-            {/* Mostrar las opciones solo si el menú está abierto */}
-            <SelectVistaPartidoOptions isOpen={isOpen}>
+         <SelectVistaPartidoOptions $isOpen={isOpen} >
             <SelectVistaPartidoOption
                className={vistaSeleccionada === "dia" ? "selected" : ""}
                onClick={() => handleVistaChange("dia")}

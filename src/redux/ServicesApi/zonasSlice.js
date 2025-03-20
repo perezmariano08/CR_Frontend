@@ -9,6 +9,13 @@ export const fetchZonas = createAsyncThunk('zonas/fetchZonas', async () => {
     return response.data;
 });
 
+export const fetchZonasByCategoria = createAsyncThunk('zonas/fetchZonasByCategoria', async (id_categoria) => {
+    const response = await Axios.get(`${URL}/user/get-zonas`, {
+        params: { id_categoria: id_categoria }
+    });
+    return response.data;
+});
+
 const zonasSlice = createSlice({
     name: 'zonas',
     initialState: {
@@ -34,6 +41,10 @@ const zonasSlice = createSlice({
             .addCase(fetchZonas.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
+            })
+            .addCase(fetchZonasByCategoria.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = action.payload;
             });
     }
 });

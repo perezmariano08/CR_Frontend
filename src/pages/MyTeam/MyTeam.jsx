@@ -32,19 +32,18 @@ import { SectionHome, SectionHomeTitle } from '../Home/HomeStyles.js';
 import { fetchPartidos } from '../../redux/ServicesApi/partidosSlice.js';
 import CardProximoPartido from '../../components/CardsPartidos/CardProximoPartido/CardProximoPartido.jsx';
 import CardUltimoPartido from '../../components/CardsPartidos/CardUltimoPartido/CardUltimoPartido.jsx';
+import { fetchZonas } from '../../redux/ServicesApi/zonasSlice.js';
 
 const MyTeam = () => {
     const { id_equipo } = useParams();
-    const location = useLocation();
     const dispatch = useDispatch();
 
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     const planteles = useSelector((state) => state.planteles.data);
-    
     const temporadas = useSelector((state) => state.temporadas.data);
-    const equipoIdFromParams = parseInt(id_equipo);
 
+    const equipoIdFromParams = parseInt(id_equipo);
     const equipoId = equipoIdFromParams || idMyTeam;
 
     const miEquipo = useMemo(() => equipos.find((equipo) => equipo.id_equipo === equipoId), [equipos, equipoId]);
@@ -61,7 +60,6 @@ const MyTeam = () => {
     const [posiciones, setPosiciones] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
     const temporadasEquipo = temporadas.filter(t => t.id_equipo === equipoId && t.tipo_zona === "todos-contra-todos");
             const ultimaTemporada = temporadasEquipo.length > 0 
                 ? temporadasEquipo[temporadasEquipo.length - 1] 
@@ -74,11 +72,8 @@ const MyTeam = () => {
     
     useEffect(() => {
         dispatch(fetchPlanteles({id_equipo: id_equipo, id_categoria: ultimaTemporada.id_categoria}));
-        if (equipos.length === 0) {
-            dispatch(fetchEquipos());
-            dispatch(fetchTemporadas());
-            dispatch(fetchPartidos());
-        }
+        if (equipos.length === 0) dispatch(fetchEquipos());
+        if (temporadas.length === 0) dispatch(fetchTemporadas());
     }, [dispatch, equipos.length]);
 
     const zonaFiltrada = useMemo(() => 
@@ -102,7 +97,9 @@ const MyTeam = () => {
             try {
                 const [jugadoresData, temporadasData, posicionesData] = await Promise.all([
                     getJugadoresEquipo(equipoId, ultimaTemporada.id_categoria),
-                    getZonas(),
+                    // if (zonas.length === 0) {
+                    //     dispatch(fetchZonas());
+                    // }
                     getPosicionesTemporada(id_zona)
                 ]);
                 
@@ -119,8 +116,6 @@ const MyTeam = () => {
             fetchData();
         }
     }, [equipoId, id_zona]);
-
-    const plantelEquipo = planteles.filter((p) => p.id_equipo == id_equipo && p.eventual === "N" && p.id_categoria == ultimaTemporada.id_categoria)
     
     // Encuentra el partido más reciente con estado distinto a "P"
     const ultimoPartidoMiEquipo = partidosMiEquipo.reduce((masReciente, partido) => {

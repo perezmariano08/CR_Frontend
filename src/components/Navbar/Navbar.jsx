@@ -12,10 +12,10 @@ export const Navbar = () => {
     const [isFooterInView, setIsFooterInView] = useState(false);
     const location = useLocation(); // Obtener la ubicación actual
 
-    useEffect(() => {
-        dispatch(fetchEquipos());
-        dispatch(fetchTemporadas());
-    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(fetchEquipos());
+    //     dispatch(fetchTemporadas());
+    // }, [dispatch]);
 
     // Detectar si el Footer está en vista usando IntersectionObserver
     useEffect(() => {

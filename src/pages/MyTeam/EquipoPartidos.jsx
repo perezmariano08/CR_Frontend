@@ -20,7 +20,6 @@ import CardProximoPartido from '../../components/CardsPartidos/CardProximoPartid
 const EquipoPartidos = () => {
     const { id_equipo } = { id_equipo: parseInt(useParams().id_equipo) };
     const { escudosEquipos, nombresEquipos } = useEquipos();
-    const { nombresJugadores } = useJugadores();
     const dispatch = useDispatch()
 
     const temporadas = useSelector((state) => state.temporadas.data);
@@ -37,21 +36,22 @@ const EquipoPartidos = () => {
     const {partidoAMostrar, proximoPartido} = useMatchesUser(id_equipo);
 
     useEffect(() => {
-        dispatch(fetchTemporadas())
+        if (temporadas.length === 0) {
+            dispatch(fetchTemporadas())
+        }
         // Función para obtener datos
         const fetchData = async () => {
             try {
                 const [estadisticasData] = await Promise.all([
                     getParticipacionesEquipo(id_equipo)
                 ]);
-                console.log(estadisticasData);
                 setEstadisticas(estadisticasData);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
         fetchData()
-    }, [dispatch]);
+    }, [dispatch, temporadas.length]);
     
     return (
         <>
@@ -80,17 +80,8 @@ const EquipoPartidos = () => {
                             </ContentMenuLink>
                         </ContentUserMenuTitulo>
                     </ContentUserTituloContainerStyled>
-                    <EquipoPartidosWrapper>                  
-                        <SectionHome style={{width: '100%'}}>
-                            <PartidosGenericosContainer>
-                                {partidosMiEquipo
-                                .sort((a, b) => new Date(b.dia) - new Date(a.dia))
-                                .map((p) => (
-                                    <CardPartidoGenerico key={p.id_partido} {...p} />
-                                ))}
-                            </PartidosGenericosContainer>
-                        </SectionHome>
-                        {
+                    <EquipoPartidosWrapper>
+                    {
                             proximoPartido && (
                                 <Section>
                                     <SectionHome>
@@ -104,10 +95,17 @@ const EquipoPartidos = () => {
                                     </SectionHome>
                                 </Section>
                             )
-                        }
+                        }                 
+                        <SectionHome style={{width: '100%'}}>
+                            <PartidosGenericosContainer>
+                                {partidosMiEquipo
+                                .sort((a, b) => new Date(b.dia) - new Date(a.dia))
+                                .map((p) => (
+                                    <CardPartidoGenerico key={p.id_partido} {...p} />
+                                ))}
+                            </PartidosGenericosContainer>
+                        </SectionHome>
                     </EquipoPartidosWrapper>
-
-                    
                 </ContentUserWrapper>
             </ContentUserContainer>
         </>

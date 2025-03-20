@@ -88,8 +88,6 @@ const UserCategoriasPosiciones = () => {
       const zonaFiltrada = zonas.find((z) => z.id_zona === id);
       return zonaFiltrada?.nombre_zona || '';
    }   
-
-   console.log(posicionesPorZona);
    
 
    return (
