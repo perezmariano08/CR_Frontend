@@ -58,7 +58,7 @@ export const fetchPartidosByEdiciones = createAsyncThunk(
     async (ediciones) => {
         try {
             const idsEdiciones = ediciones.map(ed => ed.id_edicion);
-            const response = await Axios.get(`${URL}/user/get-partidos`, {
+            const response = await Axios.get(`${URL}/user/get-partidos-edicion`, {
                 params: { idsEdiciones: idsEdiciones.join(',') }
             });
             return response.data;

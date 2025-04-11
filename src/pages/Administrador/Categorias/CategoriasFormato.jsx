@@ -49,7 +49,7 @@ const CategoriasFormato = () => {
     const fases = useSelector((state) => state.fases.data);
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-
+    
     // Manejo del form
     const [formState, handleFormChange, resetForm, setFormState] = useForm({
         id_categoria: id_categoria,
@@ -573,6 +573,7 @@ const CategoriasFormato = () => {
     useEffect(() => {
         // dispatch(fetchEdiciones());
         dispatch(fetchEquiposByCategoria(id_categoria));
+        dispatch(fetchEquipos());
         dispatch(fetchZonasByCategoria(id_categoria));
         dispatch(fetchTemporadasByCategorias([{ id_categoria }]));
 
