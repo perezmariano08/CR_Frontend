@@ -79,15 +79,13 @@ const EditDorsal = ({ id_partido, formaciones, id_edicion, setFormaciones }) => 
 
             //emitir el dorsal a la base
             const res = await firmaJugador(id_partido, jugador.id_jugador, dorsalValue, token);
+            
             if (res.status === 200) { 
                 const data = await getFormaciones(id_partido, token)
                 const orderedData = orderData(data);
                 setFormaciones(orderedData)
                 toast.success('Dorsal asignado correctamente');
             }
-            
-            //emitir websocket
-            // socket.emit('dorsalAsignado', { id_partido, id_jugador: jugador.id_jugador, dorsal: dorsalValue });
 
             handleCloseModal();
         } catch (error) {

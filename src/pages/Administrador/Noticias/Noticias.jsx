@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Content from '../../../components/Content/Content'
@@ -18,7 +18,7 @@ import { ModalFormInputContainer, ModalFormInputImg } from '../../../components/
 import Input from '../../../components/UI/Input/Input';
 import { CheckboxContainer, CheckboxLabel, ModalFormLeft, ModalFormRight, StyledCheckbox } from './ModalNoticiasStyles';
 import useFetch from '../../../hooks/useFetch';
-import { createNoticia, eliminarNoticia, getCategorias, getNoticias, updateNoticia, uploadFile } from '../../../utils/dataFetchers';
+import { createNoticia, deleteFile, eliminarNoticia, getCategorias, getNoticias, updateNoticia, uploadFile } from '../../../utils/dataFetchers';
 import { LoaderIcon, Toaster, toast } from 'react-hot-toast';
 import { formatDate, formatedDate, URLImages } from '../../../utils/utils';
 import { useNavigate } from 'react-router-dom';
@@ -62,14 +62,17 @@ const Noticias = () => {
 
     const [isDisabledButtonEdit, setIsDisabledButtonEdit] = useState(true);
 
-    const [limitNew, setLimitNew] = useState(1);
+    const [limitNew, setLimitNew] = useState(5);
+
+    const getAnoActual = () => new Date().getFullYear();
+    const categoriasActuales = categorias && categorias?.filter((categoria) => categoria.temporada == getAnoActual());
 
     const viewMore = () => {
-        setLimitNew(prev => prev + 1);
+        setLimitNew(prev => prev + 5);
     }
 
     const viewLess = () => {
-        setLimitNew(prev => Math.max(1, prev - 1));
+        setLimitNew(prev => Math.max(1, prev - 5));
     }
 
     const [sortOrder, setSortOrder] = useState(true);
@@ -84,10 +87,10 @@ const Noticias = () => {
             content !== originalContent ||
             previewImage !== originalOldImage ||
             JSON.stringify(categoriasSelected) !== JSON.stringify(originalCategoriasSelected);
-    
-            setIsDisabledButtonEdit(!hasChanges);
+
+        setIsDisabledButtonEdit(!hasChanges);
     }, [title, content, previewImage, categoriasSelected, originalTitle, originalContent, originalOldImage, originalCategoriasSelected]);
-    
+
 
     const openCreateModal = () => {
         setOpenModalCreate(true)
@@ -103,9 +106,10 @@ const Noticias = () => {
         setCategoriasSelected([]);
     }
 
-    const openDeleteModal = (id_noticia) => {
+    const openDeleteModal = (id_noticia, img) => {
         setOpenModalDelete(true)
         setIdNoticia(id_noticia)
+        setImg(img);
     }
 
     const closeDeleteModal = () => {
@@ -116,27 +120,27 @@ const Noticias = () => {
     const openEditModal = (id_noticia) => {
         setOpenModalEdit(true);
         setIdNoticia(id_noticia);
-    
+
         const noticia = noticias.find((noticia) => noticia.id_noticia === id_noticia);
-    
+
         const categorias = noticia.categorias.split(',').map((categoria) => {
             const [id] = categoria.split('_');
             return id.toString();
         });
-    
+
         setTitle(noticia.noticia_titulo);
         setContent(noticia.noticia_contenido);
         setCategoriasSelected(categorias);
         setPreviewImage(noticia.noticia_img);
         setOldImage(noticia.noticia_img);
-    
+
         // Guardar los valores originales
         setOriginalTitle(noticia.noticia_titulo);
         setOriginalContent(noticia.noticia_contenido);
         setOriginalCategoriasSelected(categorias);
         setOriginalOldImage(noticia.noticia_img);
     };
-    
+
     const closeEditModal = () => {
         setOpenModalEdit(false);
         setIdNoticia(null)
@@ -160,10 +164,10 @@ const Noticias = () => {
                     maxWidthOrHeight: 800, // Dimensiones máximas
                     useWebWorker: true, // Usar un worker para mejorar el rendimiento
                 };
-    
+
                 // Comprimir la imagen
                 const compressedFile = await imageCompression(file, options);
-    
+
                 // Tamaño comprimido en MB
                 const compressedSizeMB = (compressedFile.size / (1024 * 1024)).toFixed(2);
 
@@ -175,14 +179,14 @@ const Noticias = () => {
 
                 // Actualiza el estado con la imagen comprimida
                 setImg(compressedFile);
-    
+
                 // Generar vista previa de la imagen
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     setPreviewImage(reader.result);
                 };
                 reader.readAsDataURL(compressedFile);
-    
+
                 setError(false);
             } catch (error) {
                 console.error("Error al comprimir la imagen:", error);
@@ -191,7 +195,7 @@ const Noticias = () => {
             }
         }
     };
-    
+
     const onChangeTitle = (event) => {
         setTitle(event.target.value);
     };
@@ -205,7 +209,7 @@ const Noticias = () => {
         }
     };
 
-    const isDisabledButton = title.trim().length === 0 ||categoriasSelected.length === 0 ||previewImage.length === 0 || !content.replace(/<(.|\n)*?>/g, '').trim();
+    const isDisabledButton = title.trim().length === 0 || categoriasSelected.length === 0 || previewImage.length === 0 || !content.replace(/<(.|\n)*?>/g, '').trim();
 
     const handleSaveNew = async () => {
         try {
@@ -215,7 +219,7 @@ const Noticias = () => {
                 return;
             }
 
-            const uploadResponse = await uploadFile(img, 'Noticias');
+            const uploadResponse = await uploadFile(img, 'Noticias', token);
             if (!uploadResponse || !uploadResponse.path) {
                 toast.error("Error al subir la imagen. Intente nuevamente.");
                 return;
@@ -244,7 +248,7 @@ const Noticias = () => {
         }
     };
 
-    const deleteNoticia = async () => { 
+    const deleteNoticia = async () => {
         try {
             setLoading(true);
             const res = await eliminarNoticia(idNoticia, token);
@@ -255,14 +259,28 @@ const Noticias = () => {
             } else {
                 toast.success(res.mensaje);
             }
+
+            const resDeleteNoticia = await deleteFile(img, 'Noticias', token);
+
+            if (resDeleteNoticia.status === 200) {
+                toast.success(resDeleteNoticia.mensaje);
+            } else {
+                toast.error(resDeleteNoticia.error);
+            }
+
         } catch (error) {
             console.error("Error al eliminar la noticia:", error);
             toast.error("Ocurrió un error inesperado. Intente nuevamente más tarde.");
         } finally {
             closeDeleteModal();
+            setImg(null);
             setLoading(false);
         }
     }
+
+    const getFileName = (path) => {
+        return path?.split('/').pop(); // devuelve solo el nombre del archivo
+    };
 
     const editNoticia = async () => {
         try {
@@ -272,12 +290,15 @@ const Noticias = () => {
                 return;
             }
 
-            if (previewImage !== originalOldImage) {
-                const uploadResponse = await uploadFile(img, 'Noticias');
+            let imagePath = getFileName(previewImage);
+
+            if (previewImage !== originalOldImage && img) {
+                const uploadResponse = await uploadFile(img, 'Noticias', token);
                 if (!uploadResponse || !uploadResponse.path) {
                     toast.error("Error al subir la imagen. Intente nuevamente.");
                     return;
                 }
+                imagePath = getFileName(uploadResponse.path);
             }
 
             const data = {
@@ -285,8 +306,9 @@ const Noticias = () => {
                 title,
                 content,
                 categorias: categoriasSelected,
-                img: img ? `/uploads/Noticias/${img.name}` : `/uploads/Noticias/${img.previewImage}`
+                img: `/uploads/Noticias/${imagePath}`
             };
+
 
             const res = await updateNoticia(data, token);
             setRefresh(prev => !prev);
@@ -315,44 +337,67 @@ const Noticias = () => {
                 <ActionsCrud>
                     <ActionsCrudButtons>
                         <Button>
-                        <Skeleton width="10rem" height='2rem'></Skeleton>
+                            <Skeleton width="10rem" height='2rem'></Skeleton>
                         </Button>
 
                         <Button>
-                        <Skeleton width="5rem" height='2rem'></Skeleton>
+                            <Skeleton width="5rem" height='2rem'></Skeleton>
                         </Button>
                     </ActionsCrudButtons>
                 </ActionsCrud>
                 <NoticiasContainerStyled>
                     <NoticiasContainer>
-                    <NoticiaInfoContainer>
-                        <Skeleton size="7.5rem"></Skeleton>
-                        <NoticiasTextoContainer>
-                            <NoticiasFecha> <Skeleton width="5rem" height='1rem'></Skeleton> </NoticiasFecha>
-                            <NoticiaTitulo>  <Skeleton width="10rem" height='3rem'></Skeleton> </NoticiaTitulo>
-                            <NoticiasCategoriasContainer>
-                                <Skeleton width="5rem" height='1rem'></Skeleton>
-                                <Skeleton width="5rem" height='1rem'></Skeleton>
-                                <Skeleton width="5rem" height='1rem'></Skeleton>
-                            </NoticiasCategoriasContainer>
-                        </NoticiasTextoContainer>
-                    </NoticiaInfoContainer>
-                    <NoticiasActionsContainer>
-                        <Skeleton shape="circle" size="2rem" className="mr-2"></Skeleton>
-                        <Skeleton shape="circle" size="2rem" className="mr-2"></Skeleton>
-                        <Skeleton shape="circle" size="2rem" className="mr-2"></Skeleton>
-                    </NoticiasActionsContainer>
-                </NoticiasContainer>
+                        <NoticiaInfoContainer>
+                            <Skeleton size="7.5rem"></Skeleton>
+                            <NoticiasTextoContainer>
+                                <NoticiasFecha> <Skeleton width="5rem" height='1rem'></Skeleton> </NoticiasFecha>
+                                <NoticiaTitulo>  <Skeleton width="10rem" height='3rem'></Skeleton> </NoticiaTitulo>
+                                <NoticiasCategoriasContainer>
+                                    <Skeleton width="5rem" height='1rem'></Skeleton>
+                                    <Skeleton width="5rem" height='1rem'></Skeleton>
+                                    <Skeleton width="5rem" height='1rem'></Skeleton>
+                                </NoticiasCategoriasContainer>
+                            </NoticiasTextoContainer>
+                        </NoticiaInfoContainer>
+                        <NoticiasActionsContainer>
+                            <Skeleton shape="circle" size="2rem" className="mr-2"></Skeleton>
+                            <Skeleton shape="circle" size="2rem" className="mr-2"></Skeleton>
+                            <Skeleton shape="circle" size="2rem" className="mr-2"></Skeleton>
+                        </NoticiasActionsContainer>
+                    </NoticiasContainer>
                 </NoticiasContainerStyled>
             </Content>
         )
     }
 
-    const sortedNews = noticias.sort((a, b) => {
+    const sortedNews = [...(noticias || [])].sort((a, b) => {
         const timeA = new Date(a.noticia_fecha_creacion);
         const timeB = new Date(b.noticia_fecha_creacion);
         return sortOrder ? timeB - timeA : timeA - timeB;
     });
+
+
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'script': 'sub' }, { 'script': 'super' }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['blockquote'],
+            ['link'],
+            ['clean'] // limpiar formato
+        ]
+    };
+
+    const formats = [
+        'header', 'bold', 'italic', 'underline', 'strike',
+        'color', 'background', 'script',
+        'list', 'bullet', 'align',
+        'blockquote', 'code-block',
+        'link', 'image'
+    ];
 
     return (
         <Content>
@@ -383,48 +428,53 @@ const Noticias = () => {
                 }
                 {
                     sortedNews
-                    .slice(0, limitNew)
-                    .map((noticia) => (
-                        <NoticiasContainer key={noticia.id_noticia}>
-                            <NoticiaInfoContainer>
-                                <NoticiaImagen src={`${URLImages}${noticia.noticia_img}`} />
-                                <NoticiasTextoContainer>
-                                    <NoticiasFecha>{formatedDate(noticia.noticia_fecha_creacion)}</NoticiasFecha>
-                                    <NoticiaTitulo>{noticia.noticia_titulo}</NoticiaTitulo>
-                                    <NoticiasCategoriasContainer>
-                                        {
-                                            noticia.categorias.split(',').map((categoria) => {
-                                                const [id, nombre] = categoria.split('_');
-                                                return (
-                                                    <NoticiaTexto key={id}>{nombre}</NoticiaTexto>
-                                                );
-                                            })
-                                        }
-                                    </NoticiasCategoriasContainer>
-                                </NoticiasTextoContainer>
-                            </NoticiaInfoContainer>
-                            <NoticiasActionsContainer>
-                                <NoticiasActions className='eye'
-                                    onClick={() => goToNew(noticia.id_noticia)}
-                                > <FaEye /> </NoticiasActions>
-                                <NoticiasActions className='pencil' onClick={() => openEditModal(noticia.id_noticia)}> <FaPencilAlt /> </NoticiasActions>
-                                <NoticiasActions className='trash' onClick={() => openDeleteModal(noticia.id_noticia)}> <FaTrash /> </NoticiasActions>
-                            </NoticiasActionsContainer>
-                        </NoticiasContainer>
-                    ))
+                        .slice(0, limitNew)
+                        .map((noticia) => (
+                            <NoticiasContainer key={noticia.id_noticia}>
+                                <NoticiaInfoContainer>
+                                    <NoticiaImagen src={`${URLImages}${noticia.noticia_img}`} />
+                                    <NoticiasTextoContainer>
+                                        <NoticiasFecha>{formatedDate(noticia.noticia_fecha_creacion)}</NoticiasFecha>
+                                        <NoticiaTitulo>{noticia.noticia_titulo}</NoticiaTitulo>
+                                        <NoticiasCategoriasContainer>
+                                            {
+                                                noticia.categorias.split(',').map((categoria, index) => {
+                                                    const [id, nombre] = categoria.split('_');
+                                                    return (
+                                                        <NoticiaTexto key={`${id}_${index}`}>{nombre}</NoticiaTexto>
+                                                    );
+                                                })
+                                            }
+                                        </NoticiasCategoriasContainer>
+                                    </NoticiasTextoContainer>
+                                </NoticiaInfoContainer>
+                                <NoticiasActionsContainer>
+                                    <NoticiasActions className='eye'
+                                        onClick={() => goToNew(noticia.id_noticia)}
+                                    > <FaEye /> </NoticiasActions>
+                                    <NoticiasActions className='pencil' onClick={() => openEditModal(noticia.id_noticia)}> <FaPencilAlt /> </NoticiasActions>
+                                    <NoticiasActions className='trash' onClick={() => openDeleteModal(noticia.id_noticia, noticia.noticia_img)}> <FaTrash /> </NoticiasActions>
+                                </NoticiasActionsContainer>
+                            </NoticiasContainer>
+                        ))
                 }
-                <ButtonsContaier>
-                    {
-                        limitNew > 1 && (
-                            <ButtonStyled onClick={viewLess} className='less'>Ver menos</ButtonStyled>
-                        )
-                    }
-                    {
-                        noticias && noticias.length > limitNew && (
-                            <ButtonStyled onClick={viewMore} className='more'>Ver mas</ButtonStyled>
-                        )
-                    }
-                </ButtonsContaier>
+                {
+                    noticias.length > 0 && (
+                        <ButtonsContaier>
+                            {
+                                noticias && limitNew > 5 && limitNew <= noticias.length && (
+                                    <ButtonStyled onClick={viewLess} className='less'>Ver menos</ButtonStyled>
+                                )
+                            }
+
+                            {
+                                noticias && noticias.length > limitNew && (
+                                    <ButtonStyled onClick={viewMore} className='more'>Ver mas</ButtonStyled>
+                                )
+                            }
+                        </ButtonsContaier>
+                    )
+                }
             </NoticiasContainerStyled>
 
             {
@@ -433,7 +483,7 @@ const Noticias = () => {
                         animate={{ opacity: openModalCreate ? 1 : 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        title={`Crea una noticia`}
+                        title={`Editar noticia`}
                         closeModal={closeCreateModal}
                         buttons={
                             <>
@@ -490,7 +540,7 @@ const Noticias = () => {
                                     <ModalFormInputContainer className='categoria'>
                                         Seleccione la/las categoria/s
                                         {
-                                            categorias && categorias.map((categoria) => (
+                                            categoriasActuales && categoriasActuales.map((categoria) => (
                                                 <CheckboxContainer key={categoria.id_categoria}>
                                                     <StyledCheckbox
                                                         type="checkbox"
@@ -514,7 +564,10 @@ const Noticias = () => {
                                             value={content}
                                             onChange={setContent}
                                             placeholder="Escribe aquí el contenido de la noticia..."
-                                            style={{ height: '200px' }}
+                                            style={{ height: '100%', maxHeight: '100%', flex: 1 }}
+                                            className="quill-editor"
+                                            modules={modules}
+                                            formats={formats}
                                         />
                                     </ModalFormInputContainer>
                                 </ModalFormRight>
@@ -527,137 +580,138 @@ const Noticias = () => {
             }
             {
                 openModalDelete && <>
-                <ModalDelete initial={{ opacity: 0 }}
-                    animate={{ opacity: openModalDelete ? 1 : 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    text={`¿Estas seguro que deseas eliminar esta noticia?`}
-                    onClickClose={closeDeleteModal}
-                    buttons={
-                        <>
-                            <Button color={"danger"} onClick={closeDeleteModal}>
-                                <IoClose />
-                                No
-                            </Button>
-                            <Button color={"success"} onClick={deleteNoticia}>
-                                {
-                                    loading ? (
-                                        <>
-                                            <LoaderIcon size="small" color='green' />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IoCheckmark />
-                                            Si
-                                        </>
-                                    )
-                                }
-                            </Button>
-                        </>
-                    }
-                />
-                <Overlay onClick={closeDeleteModal} />
+                    <ModalDelete initial={{ opacity: 0 }}
+                        animate={{ opacity: openModalDelete ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        text={`¿Estas seguro que deseas eliminar esta noticia?`}
+                        onClickClose={closeDeleteModal}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeDeleteModal}>
+                                    <IoClose />
+                                    No
+                                </Button>
+                                <Button color={"success"} onClick={deleteNoticia}>
+                                    {
+                                        loading ? (
+                                            <>
+                                                <LoaderIcon size="small" color='green' />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <IoCheckmark />
+                                                Si
+                                            </>
+                                        )
+                                    }
+                                </Button>
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeDeleteModal} />
                 </>
             }
             {
                 openModalEdit && <>
-                <ModalNoticias initial={{ opacity: 0 }}
-                    animate={{ opacity: openModalEdit ? 1 : 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    title={`Crea una noticia`}
-                    closeModal={closeEditModal}
-                    buttons={
-                        <>
-                            <Button color={"danger"} onClick={closeEditModal}>
-                                <IoClose />
-                                Cancelar
-                            </Button>
-                            <Button color={"success"} disabled={isDisabledButton || isDisabledButtonEdit} onClick={editNoticia}>
-                                {loading ? (
-                                    <>
-                                        <LoaderIcon size="small" color='green' />
-                                        Actualizando
-                                    </>
-                                ) : (
-                                    <>
-                                        <IoCheckmark />
-                                        Actualizar
-                                    </>
-                                )}
-                            </Button>
-                        </>
-                    }
-                    form={
-                        <>
-                            <ModalFormLeft>
-                                <ModalFormInputContainer>
-                                    Seleccione una imagen
-                                    <ModalFormInputImg>
-                                        {img ? <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
-                                            : <img src={`${URLImages}${oldImage}`} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                    <ModalNoticias initial={{ opacity: 0 }}
+                        animate={{ opacity: openModalEdit ? 1 : 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        title={`Crea una noticia`}
+                        closeModal={closeEditModal}
+                        buttons={
+                            <>
+                                <Button color={"danger"} onClick={closeEditModal}>
+                                    <IoClose />
+                                    Cancelar
+                                </Button>
+                                <Button color={"success"} disabled={isDisabledButton || isDisabledButtonEdit} onClick={editNoticia}>
+                                    {loading ? (
+                                        <>
+                                            <LoaderIcon size="small" color='green' />
+                                            Actualizando
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IoCheckmark />
+                                            Actualizar
+                                        </>
+                                    )}
+                                </Button>
+                            </>
+                        }
+                        form={
+                            <>
+                                <ModalFormLeft>
+                                    <ModalFormInputContainer>
+                                        Seleccione una imagen
+                                        <ModalFormInputImg>
+                                            {img ? <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                                                : <img src={`${URLImages}${oldImage}`} alt="Vista previa" style={{ width: '80px', height: '80px' }} />
+                                            }
+                                            <Input
+                                                type='file'
+                                                accept="image/*"
+                                                onChange={(event) => handleImageUpload(event)}
+                                                icon={<MdOutlineImage className='icon-input' />}
+                                            />
+                                        </ModalFormInputImg>
+                                        {
+                                            error && (
+                                                <p className="error"> <CiWarning /> El tamaño de la imagen no debe superar los 5 MB.</p>
+                                            )
                                         }
+                                    </ModalFormInputContainer>
+                                    <ModalFormInputContainer>
+                                        Titulo
                                         <Input
-                                            type='file'
-                                            accept="image/*"
-                                            onChange={(event) => handleImageUpload(event)}
-                                            icon={<MdOutlineImage className='icon-input' />}
+                                            type='text'
+                                            placeholder="Escriba el titulo para la noticia"
+                                            value={title}
+                                            onChange={onChangeTitle}
+                                            icon={<FaRegNewspaper className='icon-input' />}
                                         />
-                                    </ModalFormInputImg>
-                                    {
-                                        error && (
-                                            <p className="error"> <CiWarning /> El tamaño de la imagen no debe superar los 5 MB.</p>
-                                        )
-                                    }
-                                </ModalFormInputContainer>
-                                <ModalFormInputContainer>
-                                    Titulo
-                                    <Input
-                                        type='text'
-                                        placeholder="Escriba el titulo para la noticia"
-                                        value={title}
-                                        onChange={onChangeTitle}
-                                        icon={<FaRegNewspaper className='icon-input' />}
-                                    />
-                                </ModalFormInputContainer>
+                                    </ModalFormInputContainer>
 
-                                <ModalFormInputContainer>
-                                    Seleccione la/las categoria/s
-                                    {
-                                        categorias && categorias.map((categoria) => (
-                                            <CheckboxContainer key={categoria.id_categoria}>
-                                                <StyledCheckbox
-                                                    type="checkbox"
-                                                    name={categoria.nombre}
-                                                    id={categoria.id_categoria}
-                                                    value={categoria.id_categoria}
-                                                    onChange={onChangeCategoria}
-                                                    checked={categoriasSelected.includes(categoria.id_categoria.toString())}
-                                                />
-                                                <CheckboxLabel>{categoria.nombre}-{categoria.genero}</CheckboxLabel>
-                                            </CheckboxContainer>
-                                        ))
-                                    }
-                                </ModalFormInputContainer>
-                            </ModalFormLeft>
+                                    <ModalFormInputContainer>
+                                        Seleccione la/las categoria/s
+                                        {
+                                            categoriasActuales && categoriasActuales.map((categoria) => (
+                                                <CheckboxContainer key={categoria.id_categoria}>
+                                                    <StyledCheckbox
+                                                        type="checkbox"
+                                                        name={categoria.nombre}
+                                                        id={categoria.id_categoria}
+                                                        value={categoria.id_categoria}
+                                                        onChange={onChangeCategoria}
+                                                        checked={categoriasSelected.includes(categoria.id_categoria.toString())}
+                                                    />
+                                                    <CheckboxLabel>{categoria.nombre}-{categoria.genero}</CheckboxLabel>
+                                                </CheckboxContainer>
+                                            ))
+                                        }
+                                    </ModalFormInputContainer>
+                                </ModalFormLeft>
 
-                            <ModalFormRight>
-                                <ModalFormInputContainer>
-                                    Contenido de la noticia
-                                    <ReactQuill
-                                        theme="snow"
-                                        value={content}
-                                        onChange={setContent}
-                                        placeholder="Escribe aquí el contenido de la noticia..."
-                                        style={{ height: '200px' }}
-                                    />
-                                </ModalFormInputContainer>
-                            </ModalFormRight>
+                                <ModalFormRight>
+                                    <ModalFormInputContainer>
+                                        Contenido de la noticia
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={content}
+                                            onChange={setContent}
+                                            placeholder="Escribe aquí el contenido de la noticia..."
+                                            style={{ height: '100%', maxHeight: '100%', flex: 1, color: 'white' }}
+                                            className="quill-editor"
+                                        />
+                                    </ModalFormInputContainer>
+                                </ModalFormRight>
 
-                        </>
-                    }
-                />
-                <Overlay onClick={closeEditModal} />
+                            </>
+                        }
+                    />
+                    <Overlay onClick={closeEditModal} />
                 </>
             }
             <Toaster />

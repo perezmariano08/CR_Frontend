@@ -13,20 +13,23 @@ const TablePosicionesRoutes = ({ small, data, dataColumns, id_categoria }) => {
 
     //SACAR
     const escudosEquipos = (idEquipo) => {
-        const equipo = equipos.find((equipo) => equipo.id_equipo === idEquipo);
+        const equipo = equipos.find((equipo) => equipo.id_equipo == idEquipo);
+        
         return equipo.img !== null ? equipo.img : '/uploads/Equipos/team-default.png';
     };
 
     //SACAR
-    const equipoBodyTemplate = (rowData, field) => (
-        <div className="team" style={{minWidth: '140px', cursor: 'pointer', height: '100%'}} 
-            onClick={() => verPaginaEquipo(rowData.id_equipo)}
-        >
-            <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.equipo}/>
-            <span>{rowData.equipo}</span>
-        </div>
-    );
-
+    const equipoBodyTemplate = (rowData, field) => {
+        return (
+            <div className="team" style={{minWidth: '140px', cursor: 'pointer', height: '100%'}} 
+                onClick={() => verPaginaEquipo(rowData.id_equipo)}
+            >
+                <img src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} alt={rowData.equipo}/>
+                <span>{rowData.equipo}</span>
+            </div>
+        );
+    };
+    
     const posicionTemplate = (rowData) => {    
         // Define la clase de color basada en la posición o categoría
         let colorClass = '';

@@ -61,6 +61,7 @@ export const ModalFormLeft = styled.div`
     width: 100%;
     flex-direction: column;
     gap: 10px;
+    height: 100%;
 `
 
 export const ModalFormRight = styled.div`

@@ -18,26 +18,15 @@ const Aside = ({className}) => {
     const dispatch = useDispatch()
     const location = useLocation();
     
-    const [showSubMenuTemporadas, setShowSubMenuTemporadas] = useState(false);
-    const [showSubMenuSanciones, setShowSubMenuSanciones] = useState(false);
     const isActiveTemporadas = location.pathname.includes("/admin/temporadas");
     const isActiveSanciones = location.pathname.includes("/admin/sanciones");
 
-    const toggleSubMenuTemporadas = () => {
-        setShowSubMenuTemporadas(!showSubMenuTemporadas);
-    };
-
-    const toggleSubMenuSanciones = () => {
-        setShowSubMenuSanciones(!showSubMenuSanciones);
-    };
-
     //Mensaje bienvenida
     const {userName, showWelcomeToast, setShowWelcomeToast, userId} = useAuth()
+
     useEffect(() => {
         dispatch(fetchUsuarios())
         dispatch(fetchJugadores())
-        setShowSubMenuTemporadas(isActiveTemporadas);
-        setShowSubMenuSanciones(isActiveSanciones);
     }, [userName, showWelcomeToast, setShowWelcomeToast, isActiveTemporadas]);
 
     const isOpen = useSelector((state) => state.aside.isOpen);

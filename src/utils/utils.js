@@ -4,7 +4,6 @@ import { es } from "date-fns/locale";
 // https://api-cr-zeta.vercel.app
 // https://crbackend-production.up.railway.app
 // http://localhost:3001
-// api
 
 export const URLImages = "https://coparelampago.com";
 export const URL =

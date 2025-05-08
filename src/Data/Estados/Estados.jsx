@@ -5,6 +5,7 @@ export const dataEstadosAI = [
 
 export const estadoPartidos = [
     { id_estado: 'P', nombre: "PROGRAMADO"},
+    { id_estado: 'C', nombre: "COMENZADO"},
     { id_estado: 'F', nombre: "FINALIZADO"},
     { id_estado: 'A', nombre: "APLAZADO"},
     { id_estado: 'S', nombre: "SUSPENDIDO"},

@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components"
+import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
     :root {
@@ -345,4 +345,10 @@ export const GlobalStyles = createGlobalStyle`
         color: var(--gray-200); /* Cambia este color al que prefieras */
         font-size: 14px;
     }
-`
+
+    .quill-editor .ql-editor,
+.quill-editor .ql-editor * {
+  color: white !important;
+}
+
+`;

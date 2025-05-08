@@ -33,6 +33,7 @@ import { fetchFases } from '../../../redux/ServicesApi/fasesSlice';
 import { checkEquipoPlantel, getEtapas, getIdPartidosZona, getPartidosCategoria, getPartidosZona, insertarFase } from '../../../utils/dataFetchers';
 import useFetchData from './useFetchData';
 import Switch from '../../../components/UI/Switch/Switch';
+import { useCategoriaFormato } from './CategoriasFormato/hooks/useCategoriaFormato';
 
 const CategoriasFormato = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
@@ -46,10 +47,20 @@ const CategoriasFormato = () => {
     const zonas = useSelector((state) => state.zonas.data);
     const temporadas = useSelector((state) => state.temporadas.data);
     const equiposTemporada = temporadas.filter((t) => t.id_categoria == id_categoria)
-    const fases = useSelector((state) => state.fases.data);
     const categoriaFiltrada = categoriasList.find(categoria => categoria.id_categoria == id_categoria);
     const edicionFiltrada = edicionesList.find(edicion => edicion.id_edicion == categoriaFiltrada.id_edicion);
-    
+
+    const {
+        fases,
+        faseEstado,
+        handleSetFaseEstado,
+        insertarNuevaFase,
+        contarVacantesOcupadas,
+        zonaExpandida,
+        toggleExpandido
+    } = useCategoriaFormato(id_categoria, zonas, temporadas, partidosCategoria);
+
+
     // Manejo del form
     const [formState, handleFormChange, resetForm, setFormState] = useForm({
         id_categoria: id_categoria,
@@ -82,13 +93,12 @@ const CategoriasFormato = () => {
     const [numeroVacante, setNumeroVacante] = useState('');
     const [id_zona, setIdZona] = useState('');
 
-    const [zonaExpandida, setZonaExpandida] = useState(null);
     const [crearEquipo, setCrearEquipo] = useState(false);
     // const [vacantePlayOff, setVacantePlayOff] = useState(false);
     const [faseActual, setFaseActual] = useState(null);
     const [partidosZona, setPartidosZona] = useState([]);
     const [triggerFetch, setTriggerFetch] = useState(false); // Variable de estado para controlar el fetch
-    const [faseEstado, setFaseEstado] = useState(null);
+
     const [isValid, setIsValid] = useState(false);
     const [initialZona, setInitialZona] = useState(null); // Store initial zone data
 
@@ -124,7 +134,7 @@ const CategoriasFormato = () => {
         () => getIdPartidosZona(formState.zonas_select),
         [formState.zonas_select]
     );
-    
+
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -171,8 +181,7 @@ const CategoriasFormato = () => {
     }
 
     const openModalVaciarVacante = (id_zona, vacante) => {
-        // console.log(verificarVacante(id_zona, vacante));
-        
+
         if (!verificarVacante(id_zona, vacante)) {
             toast.error('La vacante ya se encuentra vacía');
             return;
@@ -205,10 +214,6 @@ const CategoriasFormato = () => {
         openEquipoZona();
     };
 
-    const handleSetFaseEstado = (numero_fase) => {
-        setFaseEstado(numero_fase);
-        openCreateModal();
-    };
 
     //ACTUALIZAR
     const { actualizar, isUpdating } = useCrud(
@@ -259,40 +264,6 @@ const CategoriasFormato = () => {
     const handleFormChangeWithValidation = (e) => {
         handleFormChange(e); // Update formState with changes
     };
-
-    const contarVacantesOcupadas = (zonaId) => {
-        const zona = zonas.find(z => z.id_zona == zonaId);
-        if (!zona) return 0;
-    
-        const cantidadEquiposZona = zona.cantidad_equipos;
-        
-        // Contar equipos que ya tienen un id_equipo asignado en la temporada
-        const cantidadEquiposTemporada = temporadas.filter(t => t.id_zona == zonaId && t.id_equipo != null).length;
-    
-        // Contar posiciones de zona previa como vacantes ocupadas
-        const cantidadPosZonaPrevia = temporadas.filter(t => t.id_zona == zonaId && t.pos_zona_previa !== null).length;
-    
-        // Usamos un Set para evitar contar duplicados en partidos previos
-        const partidosContados = new Set();
-        const cantidadEquiposPartidos = partidosCategoria.reduce((count, partido) => {
-            if (partido.id_zona === zonaId) {
-                if (partido.id_partido_previo_local && !partidosContados.has(partido.id_partido_previo_local)) {
-                    partidosContados.add(partido.id_partido_previo_local);
-                    count += 1;
-                }
-                if (partido.id_partido_previo_visita && !partidosContados.has(partido.id_partido_previo_visita)) {
-                    partidosContados.add(partido.id_partido_previo_visita);
-                    count += 1;
-                }
-            }
-            return count;
-        }, 0);
-    
-        const vacantesOcupadas = cantidadEquiposTemporada + cantidadPosZonaPrevia + cantidadEquiposPartidos;
-    
-        return Math.min(vacantesOcupadas, cantidadEquiposZona);
-    };
-    
 
     const determinarTipoActualizacion = (cantidadNueva, idZona) => {
         const cantidadVieja = zonas.find((z) => z.id_zona == idZona).cantidad_equipos;
@@ -474,7 +445,7 @@ const CategoriasFormato = () => {
                 toast.error("El resultado no puede estar vacío.");
                 return;
             }
-            
+
             // Caso 2: Si `posicion_previa` no es true pero `id_partido_previo` es válido
             data = {
                 id_partido: partidosZona[0].id_partido,
@@ -635,40 +606,26 @@ const CategoriasFormato = () => {
         await checkTeamToAddPlantel(id_equipo, edicionFiltrada.id_edicion);
     };
 
-    // Función para manejar la expansión
-    const toggleExpandido = (id_zona) => {
-        // Si la zona seleccionada ya está expandida, la contraemos; si no, la expandimos.
-        setZonaExpandida(zonaExpandida === id_zona ? null : id_zona);
-    };
-
     const manejarCrearEquipo = () => {
         setCrearEquipo(true);
     };
 
-    const insertarNuevaFase = async () => {
-        const data = {
-            id_categoria: id_categoria,
-            numero_fase: fases.length + 1,
-        };
-        await insertarFase(data);
-        dispatch(fetchFases(id_categoria));
-    }
 
     const agregarVacantePlayOff = async (fase, vacante, id_zona) => {
         if (!vacante) return; // Verificar si vacante es válido antes de continuar
 
-        
+
         setNumeroVacante(vacante);
         setFaseActual(fase);
-        
+
         setFormState((prevState) => ({
             ...prevState,
             id_zona: id_zona,
         }))
-        
+
         const partidosZonaFetch = await getPartidosZona(id_zona, vacante);
         setPartidosZona(partidosZonaFetch);
-        
+
         openAsignarVacantePlayOff();
     };
 
@@ -890,7 +847,7 @@ const CategoriasFormato = () => {
                                             const equiposAsignados = temporadas.filter((t) => t.id_zona === z.id_zona && t.id_equipo);
                                             let completo = false;
                                             const vacantesOcupadas = contarVacantesOcupadas(z.id_zona);
-                                            
+
                                             completo = parseInt(vacantesOcupadas) === parseInt(z.cantidad_equipos);
                                             return (
                                                 <FormatoZonaContainer

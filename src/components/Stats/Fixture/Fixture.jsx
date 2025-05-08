@@ -23,7 +23,6 @@ const Fixture = ({ zona, categoria }) => {
         fetchData();
     }, [dispatch]);
 
-
     const { nombresEquipos, escudosEquipos } = useEquipos();
 
     // Filtra partidosTemporada y cantidadFechas después de haber cargado los datos

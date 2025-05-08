@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { 
-    MyTeamMatches, 
-    MyTeamMatchesItem, 
-    MyTeamMatchesDivisor, 
+import {
+    MyTeamMatches,
+    MyTeamMatchesItem,
+    MyTeamMatchesDivisor,
     MyTeamSectionTop,
     MyTeamSection
 } from './MyTeamStyles';
@@ -35,19 +35,22 @@ import CardUltimoPartido from '../../components/CardsPartidos/CardUltimoPartido/
 import { fetchZonas } from '../../redux/ServicesApi/zonasSlice.js';
 
 const MyTeam = () => {
-    const { id_equipo } = useParams();
     const dispatch = useDispatch();
+
+    const { escudosEquipos } = useEquipos();
+    const { id_equipo } = useParams();
 
     const idMyTeam = useSelector((state) => state.newUser.equipoSeleccionado)
     const equipos = useSelector((state) => state.equipos.data);
     const planteles = useSelector((state) => state.planteles.data);
     const temporadas = useSelector((state) => state.temporadas.data);
+    const zonasFiltradas = useSelector((state) => state.zonas.data);
 
     const equipoIdFromParams = parseInt(id_equipo);
     const equipoId = equipoIdFromParams || idMyTeam;
 
     const miEquipo = useMemo(() => equipos.find((equipo) => equipo.id_equipo === equipoId), [equipos, equipoId]);
-    
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [equipoId]);
@@ -60,28 +63,29 @@ const MyTeam = () => {
     const [posiciones, setPosiciones] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const temporadasEquipo = temporadas.filter(t => t.id_equipo === equipoId && t.tipo_zona === "todos-contra-todos");
-            const ultimaTemporada = temporadasEquipo.length > 0 
-                ? temporadasEquipo[temporadasEquipo.length - 1] 
-                : null;
+    const temporadasEquipo = temporadas
+        .filter(t => t.id_equipo === equipoId && t.tipo_zona === "todos-contra-todos")
+        .sort((a, b) => b.id_zona - a.id_zona); // Orden descendente
 
-            const id_zona_temporada = ultimaTemporada ? ultimaTemporada.id_zona : 1;
+    const ultimaTemporada = temporadasEquipo.length > 0
+        ? temporadasEquipo[0]
+        : null;
+
+    const id_zona_temporada = ultimaTemporada ? ultimaTemporada.id_zona : 1;
     const id_zona = id_zona_temporada;
 
-    const { escudosEquipos } = useEquipos();
-    
     useEffect(() => {
-        dispatch(fetchPlanteles({id_equipo: id_equipo, id_categoria: ultimaTemporada.id_categoria}));
+        dispatch(fetchPlanteles({ id_equipo: id_equipo, id_categoria: ultimaTemporada.id_categoria }));
         if (equipos.length === 0) dispatch(fetchEquipos());
         if (temporadas.length === 0) dispatch(fetchTemporadas());
     }, [dispatch, equipos.length]);
 
-    const zonaFiltrada = useMemo(() => 
-        zonas.find((z) => z.id_zona === id_zona), 
+    const zonaFiltrada = useMemo(() =>
+        zonasFiltradas.find((z) => z.id_zona == id_zona),
         [zonas, id_zona]
     );
 
-    const {partidoAMostrar, proximoPartido} = useMatchesUser(equipoId);
+    const { partidoAMostrar, proximoPartido } = useMatchesUser(equipoId);
 
     if (!miEquipo) {
         return (
@@ -102,7 +106,7 @@ const MyTeam = () => {
                     // }
                     getPosicionesTemporada(id_zona)
                 ]);
-                
+
                 setBdJugadores(jugadoresData);
                 setZonas(temporadasData);
                 setPosiciones(posicionesData);
@@ -116,7 +120,7 @@ const MyTeam = () => {
             fetchData();
         }
     }, [equipoId, id_zona]);
-    
+
     // Encuentra el partido más reciente con estado distinto a "P"
     const ultimoPartidoMiEquipo = partidosMiEquipo.reduce((masReciente, partido) => {
         // Solo considerar partidos cuyo estado no sea "P" ni "C"
@@ -138,24 +142,24 @@ const MyTeam = () => {
                     <ContentUserTituloContainerStyled>
                         <ContentUserTituloContainer>
                             <TituloContainer>
-                                <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`}/>
+                                <img src={`${URLImages}${escudosEquipos(miEquipo.id_equipo)}`} />
                                 <TituloText>
                                     <h1>{miEquipo?.nombre}</h1>
                                 </TituloText>
                             </TituloContainer>
                         </ContentUserTituloContainer>
                         <ContentUserMenuTitulo>
-                        <ContentMenuLink>
-                            <NavLink to={`/equipos/${id_equipo}`}>
-                                Resumen
-                            </NavLink>
-                            <NavLink to={`/equipos/${id_equipo}/partidos`}>
-                                Partidos
-                            </NavLink>
-                            <NavLink to={`/equipos/${id_equipo}/participaciones`}>
-                                Participaciones
-                            </NavLink>
-                            
+                            <ContentMenuLink>
+                                <NavLink to={`/equipos/${id_equipo}`}>
+                                    Resumen
+                                </NavLink>
+                                <NavLink to={`/equipos/${id_equipo}/partidos`}>
+                                    Partidos
+                                </NavLink>
+                                <NavLink to={`/equipos/${id_equipo}/participaciones`}>
+                                    Participaciones
+                                </NavLink>
+
                             </ContentMenuLink>
                         </ContentUserMenuTitulo>
                     </ContentUserTituloContainerStyled>
@@ -188,7 +192,7 @@ const MyTeam = () => {
                                 </Section>
                             )
                         }
-                        
+
 
                         {/* <MyTeamSection>
                             <MyTeamMatches>
@@ -217,7 +221,7 @@ const MyTeam = () => {
                     </MyTeamSectionTop>
 
                     <Section>
-                        <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns} id_equipo={equipoId}/>
+                        <TableTeam data={bdJugadores} zona={zonaFiltrada} dataColumns={dataPlantelColumns} id_equipo={equipoId} />
                     </Section>
                     {/* <Section>
                         <h2>Posiciones</h2>
@@ -234,10 +238,10 @@ const MyTeam = () => {
                         </SectionHomeTitle>
                         <PartidosGenericosContainer>
                             {partidosMiEquipo
-                            .sort((a, b) => new Date(b.dia) - new Date(a.dia))
-                            .map((p) => (
-                                <CardPartidoGenerico key={p.id_partido} {...p} />
-                            ))}
+                                .sort((a, b) => new Date(b.dia) - new Date(a.dia))
+                                .map((p) => (
+                                    <CardPartidoGenerico key={p.id_partido} {...p} />
+                                ))}
                         </PartidosGenericosContainer>
                     </SectionHome>
                     {/* <Section>

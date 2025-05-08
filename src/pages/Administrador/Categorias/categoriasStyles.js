@@ -277,7 +277,8 @@ export const FormatoZonaVacantes = styled.div`
     gap: 10px;
     /* Estilo aplicado cuando está expandido */
     &.expandido {
-        max-height: 1000px; /* Ajusta según el contenido que quieras expandir */
+        max-height: 1000px;
+        overflow: visible; /* 👈 esto permite que los menús floten sin ser recortados */
         transition: max-height 0.3s ease-in;
         padding-bottom: 20px;
         gap: 10px;
@@ -295,7 +296,8 @@ export const VacanteWrapper = styled.div`
     transition: all .2s ease-in;
     cursor: pointer;
     position: relative;
-    /* overflow: hidden; */
+    overflow: visible;
+    z-index: 1;
 
     &:hover {
         background-color: var(--gray-300);
@@ -372,7 +374,7 @@ export const VacanteWrapper = styled.div`
             top: 30px;
             background-color: var(--gray-200);
             width: 170px;
-            z-index: 2;
+            z-index: 9999;
 
             div {
                 padding: 10px;

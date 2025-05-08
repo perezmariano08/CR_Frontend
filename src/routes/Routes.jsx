@@ -159,6 +159,7 @@ const Routes = () => {
                                 </Layout>
                             }
                         />
+                        {/* <Route path='/reglamento' element={<LayoutPrivate> <Reglamento/> </LayoutPrivate>} /> */}
 
 
                         {/* <Route path='/news' element={<LayoutPrivate> <News/> </LayoutPrivate>} /> */}

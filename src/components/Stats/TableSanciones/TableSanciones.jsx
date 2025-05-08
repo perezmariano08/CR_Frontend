@@ -7,24 +7,10 @@ import { StatsNull } from '../../../pages/Stats/StatsStyles';
 import { useEquipos } from '../../../hooks/useEquipos';
 
 const TableSanciones = memo(({ data, dataColumns }) => {
-    const equipoIds = data?.map(row => row.id_equipo);
-    const { escudosEquipos } = useEquipos();
-    
+
     if (!data || data.length === 0) {
         return <StatsNull>No hay datos disponibles.</StatsNull>;
     }
-
-    const jugadorBodyTemplate = (rowData) => (
-        <JugadorSancionadoBodyTemplate>
-            <img 
-                src={`${URLImages}${escudosEquipos(rowData.id_equipo)}`} 
-                alt={rowData.nombre_completo} 
-            />
-            <span>{rowData.jugador}</span>
-        </JugadorSancionadoBodyTemplate>
-    );
-
-    const nombreTorneo = data[0]?.edicion;
 
     return (
         <TableContainerStyled>

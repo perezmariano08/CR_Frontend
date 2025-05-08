@@ -66,6 +66,7 @@ export const ModalFormInputContainer = styled.div`
     font-size: 12px;
     text-transform: uppercase;
     margin-bottom: 15px;
+    height: 100%;
 
     p {
         transition: all .2s ease-in-out;

@@ -257,6 +257,7 @@ const CategoriasFixture = () => {
         }
     
         try {
+        
             await actualizar(data);
             closeUpdateModal();
     

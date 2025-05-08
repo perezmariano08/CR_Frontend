@@ -17,6 +17,7 @@ const ModalSettingsUser = ({ closeModal }) => {
     };
 
     axios.defaults.withCredentials = true;
+
     const closeSesion = async () => {
         try {
             const response = await axios.post(`${URL}/auth/logout`, null, {
@@ -24,7 +25,8 @@ const ModalSettingsUser = ({ closeModal }) => {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-
+            console.log(response);
+            
             if (response.status === 200) {
 
                 localStorage.removeItem('token');

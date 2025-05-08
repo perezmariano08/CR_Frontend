@@ -32,6 +32,9 @@ import { fetchTemporadas } from '../../../redux/ServicesApi/temporadasSlice';
 import { fetchPlanteles } from '../../../redux/ServicesApi/plantelesSlice';
 import { useEquipos } from '../../../hooks/useEquipos';
 import Input from '../../../components/UI/Input/Input';
+import { fetchPartidos } from '../../../redux/ServicesApi/partidosSlice';
+
+//! OPTIMIZAR FETCH PARTIDOS
 
 const Expulsados = () => {
     //Hooks
@@ -124,9 +127,11 @@ const Expulsados = () => {
     };
 
     const abrirDescripcion = (expulsado) => {
+        console.log(expulsado);
+        
         const partidoExpulsion = (({ id_partido, id_equipoLocal, id_equipoVisita, dia, jornada, planillero, cancha }) => 
-            ({ id_partido, id_equipoLocal, id_equipoVisita, dia, jornada, planillero, cancha }))(partidos.find((p) => p.id_partido === expulsado.id_partido) || {});
-
+            ({ id_partido, id_equipoLocal, id_equipoVisita, dia, jornada, planillero, cancha }))(partidos.find((p) => p.id_partido == expulsado.id_partido) || {});
+        
         const fechaConvertida = formatedDate(partidoExpulsion.dia);
         const equipoLocal = nombresEquipos(partidoExpulsion.id_equipoLocal);
         const equipoVisita = nombresEquipos(partidoExpulsion.id_equipoVisita);
@@ -137,6 +142,7 @@ const Expulsados = () => {
             <p><strong>Jornada:</strong> ${partidoExpulsion.jornada || 'No disponible'}</p>
             <p><strong>Planillero:</strong> ${partidoExpulsion.planillero || 'No disponible'}</p>
             <p><strong>Cancha:</strong> ${partidoExpulsion.cancha || 'No disponible'}</p>
+            <p><strong>Motivo:</strong> ${expulsado.motivo || 'No disponible'}</p>
         `;
     
         setInfoPartidoExpulsion(descripcionHTML);
@@ -360,6 +366,7 @@ const Expulsados = () => {
         dispatch(fetchJugadores());
         dispatch(fetchCategorias());
         dispatch(fetchTemporadas());
+        dispatch(fetchPartidos());
     }, []);
 
     useEffect(() => {

@@ -17,7 +17,6 @@ export const NoticiasContainerStyled = styled.div`
     background-color: var(--gray-400);
     border-radius: 10px;
     gap: 1rem;
-
     &.user {
         background-color: transparent;
     }
@@ -313,6 +312,10 @@ export const NoticiaBody = styled.div`
     gap: 10px;
     padding: 10px 20px;
 
+    &.noticia-body,
+    &.noticia-body * {
+        color: var(--white) !important;
+    }
     &.noticia-body h1 {
     font-size: 2rem;
     font-weight: bold;

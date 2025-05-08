@@ -62,7 +62,7 @@ const Home = () => {
     const { escudosEquipos, nombresEquipos } = useEquipos();
 
     const currentYear = new Date().getFullYear();
-    
+
     const edicionesActuales = ediciones.filter(edicion => edicion.temporada === currentYear);
     const categoriasActuales = categorias.filter(categoria => categoria.id_edicion === edicionesActuales[0]?.id_edicion);
 
@@ -238,7 +238,11 @@ const Home = () => {
     // }, [dispatch]);
 
     const setSancionesActivas = (sanciones) => {
-        const sancionesActivas = sanciones.filter(s => s.id_categoria == categoriasActuales.find(c => c.id_categoria)?.id_categoria);
+        // const sancionesActivas = sanciones.filter(s => s.id_categoria == categoriasActuales.find(c => c.id_categoria)?.id_categoria);
+        // const sancionesActivas = sanciones.filter(s => s.id_categoria == 51)
+        const categoriaIds = categoriasActuales.map(c => c.id_categoria);
+        const sancionesActivas = sanciones.filter(s => categoriaIds.includes(s.id_categoria));
+        
         const sancionesFiltradas = sancionesActivas.filter(s => s.fechas_restantes > 0)
         setSanciones(sancionesFiltradas);
     }
@@ -272,6 +276,15 @@ const Home = () => {
                     <span>{rowData.fechas}</span>
                     <p>/</p>
                     <p>{rowData.fechas_restantes}</p>
+                </JugadorSancionadoNumeroFechas>
+            )
+        },
+        {
+            field: "multa",
+            header: "Multa",
+            body: (rowData) => (
+                <JugadorSancionadoNumeroFechas>
+                    <span>{rowData.multa}</span>
                 </JugadorSancionadoNumeroFechas>
             )
         },
@@ -446,13 +459,27 @@ const Home = () => {
     }, [categoriasActuales]);
 
 
+    const downloadReglamento = () => {
+        const link = document.createElement('a');
+        link.href = '/Reglamento-Apertura-2025.pdf'; // ruta relativa desde public
+        link.download = 'Reglamento-Apertura-2025.pdf'; // nombre con el que se descarga
+        link.target = '_blank'; // para abrirlo en una nueva pestaña
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <>
             <HomeContainerStyled>
                 <Hero />
                 <HomeWrapper>
                     <HomeLeftWrapper>
-                        <SelectNuevo options={equiposFiltrados} onChange={handleSelectChange} valueKey={'id_equipo'} />
+                        <SelectNuevo
+                            options={equiposFiltrados}
+                            onChange={handleSelectChange}
+                            valueKey={"id_equipo"}
+                        />
                         {loading ? (
                             <CategoriasListaLoader />
                         ) : (
@@ -470,7 +497,9 @@ const Home = () => {
                                 return (
                                     <CategoriasListaWrapper key={edicion.id_edicion}>
                                         <CategoriasListaTitulo>
-                                            <p>{edicion.nombre} {edicion.temporada}</p>
+                                            <p>
+                                                {edicion.nombre} {edicion.temporada}
+                                            </p>
                                         </CategoriasListaTitulo>
                                         <CategoriasItemsWrapper>
                                             {categoriasPublicadas.map((categoria) => (
@@ -486,102 +515,151 @@ const Home = () => {
                                 );
                             })
                         )}
+                        <CategoriasListaWrapper>
+                            <CategoriasListaTitulo>
+                                <p>Información </p>
+                            </CategoriasListaTitulo>
+                            <CategoriasItemsWrapper>
+                                <CategoriasItem onClick={downloadReglamento}>Reglamento</CategoriasItem>
+                            </CategoriasItemsWrapper>
+                        </CategoriasListaWrapper>
                     </HomeLeftWrapper>
                     <HomeMediumWrapper>
                         <SelectEquipoCelular>
-                            <SelectNuevo options={equiposFiltrados} onChange={handleSelectChange} valueKey={'id_equipo'} />
+                            <SelectNuevo
+                                options={equiposFiltrados}
+                                onChange={handleSelectChange}
+                                valueKey={"id_equipo"}
+                            />
                         </SelectEquipoCelular>
                         {/* Partido del dia de MI EQUIPO */}
-                        {partidosMiEquipoHoy ? <>
-                            {
-                                <SectionHome>
-                                    <SectionHomeTitle>
-                                        {
-                                            partidosMiEquipoHoy.estado === "P" ? (
+                        {partidosMiEquipoHoy ? (
+                            <>
+                                {
+                                    <SectionHome>
+                                        <SectionHomeTitle>
+                                            {partidosMiEquipoHoy.estado === "P" ? (
                                                 <>
-                                                    <span>Hoy juega tu equipo |</span><img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}
-
+                                                    <span>Hoy juega tu equipo |</span>
+                                                    <img
+                                                        src={`https://coparelampago.com/${escudosEquipos(
+                                                            miEquipo?.id_equipo
+                                                        )}`}
+                                                    />
+                                                    {nombresEquipos(miEquipo?.id_equipo)}
                                                 </>
-                                            ) : <>
-                                                <span>Partido del día |</span>
-                                                <img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}
-                                            </>
-                                        }
-                                    </SectionHomeTitle>
-                                    {
-                                        partidosMiEquipoHoy.estado === "P" ? (
-                                            <CardProximoPartido {...partidosMiEquipoHoy} miEquipo={miEquipo?.id_equipo} />
+                                            ) : (
+                                                <>
+                                                    <span>Partido del día |</span>
+                                                    <img
+                                                        src={`https://coparelampago.com/${escudosEquipos(
+                                                            miEquipo?.id_equipo
+                                                        )}`}
+                                                    />
+                                                    {nombresEquipos(miEquipo?.id_equipo)}
+                                                </>
+                                            )}
+                                        </SectionHomeTitle>
+                                        {partidosMiEquipoHoy.estado === "P" ? (
+                                            <CardProximoPartido
+                                                {...partidosMiEquipoHoy}
+                                                miEquipo={miEquipo?.id_equipo}
+                                            />
                                         ) : (
-                                            <CardUltimoPartido {...partidosMiEquipoHoy} miEquipo={miEquipo?.id_equipo} />
-                                        )
-                                    }
-                                </SectionHome>
-                            }
-                        </> : <> {/* Sino muestra proximo y ultimos partidos de MI EQUIPO */}
-                            {
-                                miEquipo && <>
-                                    {partidosMiEquipo.find((p) => {
-                                        // Validar si el partido tiene estado "P" y no es del día de hoy
-                                        const fechaPartido = new Date(p.dia);
-                                        // Comprobamos si la fecha es válida
-                                        if (isNaN(fechaPartido)) {
-                                            return false;  // Puedes decidir si quieres ignorar ese partido o manejarlo de otra manera
-                                        }
-                                        const esHoy = fechaPartido.toISOString().split('T')[0] === hoy;
-                                        return p.estado === "P" && !esHoy;
-                                    }) && (
+                                            <CardUltimoPartido
+                                                {...partidosMiEquipoHoy}
+                                                miEquipo={miEquipo?.id_equipo}
+                                            />
+                                        )}
+                                    </SectionHome>
+                                }
+                            </>
+                        ) : (
+                            <>
+                                {" "}
+                                {/* Sino muestra proximo y ultimos partidos de MI EQUIPO */}
+                                {miEquipo && (
+                                    <>
+                                        {partidosMiEquipo.find((p) => {
+                                            // Validar si el partido tiene estado "P" y no es del día de hoy
+                                            const fechaPartido = new Date(p.dia);
+                                            // Comprobamos si la fecha es válida
+                                            if (isNaN(fechaPartido)) {
+                                                return false; // Puedes decidir si quieres ignorar ese partido o manejarlo de otra manera
+                                            }
+                                            const esHoy =
+                                                fechaPartido.toISOString().split("T")[0] === hoy;
+                                            return p.estado === "P" && !esHoy;
+                                        }) && (
+                                                <SectionHome>
+                                                    <SectionHomeTitle>
+                                                        <img
+                                                            src={`https://coparelampago.com/${escudosEquipos(
+                                                                miEquipo?.id_equipo
+                                                            )}`}
+                                                        />
+                                                        {nombresEquipos(miEquipo?.id_equipo)}
+                                                        <span>| Proximo partido</span>
+                                                    </SectionHomeTitle>
+                                                    <CardProximoPartido
+                                                        {...partidosMiEquipo.find((p) => {
+                                                            const fechaPartido = new Date(p.dia);
+                                                            // Comprobamos si la fecha es válida
+                                                            if (isNaN(fechaPartido)) {
+                                                                return false; // Puedes decidir si quieres ignorar ese partido o manejarlo de otra manera
+                                                            }
+                                                            const esHoy =
+                                                                fechaPartido.toISOString().split("T")[0] ===
+                                                                hoy;
+                                                            return p.estado === "P" && !esHoy;
+                                                        })}
+                                                        miEquipo={miEquipo?.id_equipo}
+                                                    />
+                                                </SectionHome>
+                                            )}
+                                        {ultimoPartidoMiEquipo && (
                                             <SectionHome>
                                                 <SectionHomeTitle>
-                                                    <img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}<span>| Proximo partido</span>
+                                                    <img
+                                                        src={`https://coparelampago.com/${escudosEquipos(
+                                                            miEquipo?.id_equipo
+                                                        )}`}
+                                                    />
+                                                    {nombresEquipos(miEquipo?.id_equipo)}
+                                                    <span>| Ultimos partidos</span>
                                                 </SectionHomeTitle>
-                                                <CardProximoPartido
-                                                    {...partidosMiEquipo.find((p) => {
-                                                        const fechaPartido = new Date(p.dia);
-                                                        // Comprobamos si la fecha es válida
-                                                        if (isNaN(fechaPartido)) {
-                                                            return false;  // Puedes decidir si quieres ignorar ese partido o manejarlo de otra manera
-                                                        }
-                                                        const esHoy = fechaPartido.toISOString().split('T')[0] === hoy;
-                                                        return p.estado === "P" && !esHoy;
-                                                    })}
+                                                <CardUltimoPartido
+                                                    {...ultimoPartidoMiEquipo}
                                                     miEquipo={miEquipo?.id_equipo}
                                                 />
-                                            </SectionHome>
-                                        )
-                                    }
-                                    {
-                                        ultimoPartidoMiEquipo && (
-                                            <SectionHome>
-                                                <SectionHomeTitle>
-                                                    <img src={`https://coparelampago.com/${escudosEquipos(miEquipo?.id_equipo)}`} />{nombresEquipos(miEquipo?.id_equipo)}<span>| Ultimos partidos</span>
-                                                </SectionHomeTitle>
-                                                <CardUltimoPartido {...ultimoPartidoMiEquipo} miEquipo={miEquipo?.id_equipo} />
                                                 <PartidosGenericosContainer>
-                                                    {
-                                                        partidosMiEquipo
-                                                            .filter((p) => p.id_partido !== ultimoPartidoMiEquipo.id_partido && p.estado != "P")
-                                                            .sort((a, b) => new Date(b.dia) - new Date(a.dia))
-                                                            .map((p) => (
-                                                                <CardPartidoGenerico
-                                                                    mostrarDia
-                                                                    miEquipo={miEquipo.id_equipo}
-                                                                    key={p.id_partido}
-                                                                    {...p}
-                                                                />
-                                                            ))
-                                                    }
+                                                    {partidosMiEquipo
+                                                        .filter(
+                                                            (p) =>
+                                                                p.id_partido !==
+                                                                ultimoPartidoMiEquipo.id_partido &&
+                                                                p.estado != "P"
+                                                        )
+                                                        .sort((a, b) => new Date(b.dia) - new Date(a.dia))
+                                                        .map((p) => (
+                                                            <CardPartidoGenerico
+                                                                mostrarDia
+                                                                miEquipo={miEquipo.id_equipo}
+                                                                key={p.id_partido}
+                                                                {...p}
+                                                            />
+                                                        ))}
                                                 </PartidosGenericosContainer>
                                             </SectionHome>
-                                        )
-                                    }
-                                </>
-                            }
-                        </>
-                        }
+                                        )}
+                                    </>
+                                )}
+                            </>
+                        )}
                         {/* Mostrar partidos del dia y de la semana */}
-                        {
-                            partidosDia.length > 0 || partidosUltimaSemana.length > 0 ? (
-                                <><CardPartidosDia>
+                        {partidosDia.length > 0 || partidosUltimaSemana.length > 0 ? (
+                            <>
+                                <CardPartidosDia>
                                     <CardPartidosDiaTitle>
                                         <SelectVistaPartido
                                             vistaSeleccionada={vistaSeleccionada}
@@ -609,13 +687,17 @@ const Home = () => {
                                             <>
                                                 <PartidosDiaFiltro
                                                     onClick={() => setFiltroActivo("en_juego")}
-                                                    className={filtroActivo === "en_juego" ? "active" : ""}
+                                                    className={
+                                                        filtroActivo === "en_juego" ? "active" : ""
+                                                    }
                                                 >
                                                     En juego
                                                 </PartidosDiaFiltro>
                                                 <PartidosDiaFiltro
                                                     onClick={() => setFiltroActivo("por_horario")}
-                                                    className={filtroActivo === "por_horario" ? "active" : ""}
+                                                    className={
+                                                        filtroActivo === "por_horario" ? "active" : ""
+                                                    }
                                                 >
                                                     Por horario
                                                 </PartidosDiaFiltro>
@@ -624,98 +706,109 @@ const Home = () => {
                                     </PartidosDiaFiltrosWrapper>
                                 </CardPartidosDia>
 
-                                    {/* Renderizar partidos según la vista seleccionada */}
-                                    {vistaSeleccionada === "dia" && renderizarPartidos(partidosDia)}
-                                    {vistaSeleccionada === "semana" && renderizarPartidos(partidosUltimaSemana)}
-                                </>
-                            ) : ''
-                        }
+                                {/* Renderizar partidos según la vista seleccionada */}
+                                {vistaSeleccionada === "dia" &&
+                                    renderizarPartidos(partidosDia)}
+                                {vistaSeleccionada === "semana" &&
+                                    renderizarPartidos(partidosUltimaSemana)}
+                            </>
+                        ) : (
+                            ""
+                        )}
 
                         {/* En caso de haber partido del dia de MI EQUIPO mostrar
                         proximo y ultimos partidos de MI EQUIPO debajo de los partidos del día*/}
-                        {partidosMiEquipoHoy && <>
-                            {
-                                partidosMiEquipo.find((p) => {
+                        {partidosMiEquipoHoy && (
+                            <>
+                                {partidosMiEquipo.find((p) => {
                                     // Validar si el partido tiene estado "P" y no es del día de hoy
                                     const fechaPartido = new Date(p.dia);
-                                    const esHoy = fechaPartido.toISOString().split('T')[0] === hoy;
+                                    const esHoy =
+                                        fechaPartido.toISOString().split("T")[0] === hoy;
                                     return p.estado === "P" && !esHoy;
                                 }) && (
+                                        <SectionHome>
+                                            <SectionHomeTitle>
+                                                <span>Próximo partido |</span>
+                                                {nombresEquipos(miEquipo?.id_equipo)}
+                                            </SectionHomeTitle>
+                                            <CardProximoPartido
+                                                {...partidosMiEquipo.find((p) => {
+                                                    const fechaPartido = new Date(p.dia);
+                                                    const esHoy =
+                                                        fechaPartido.toISOString().split("T")[0] === hoy;
+                                                    return p.estado === "P" && !esHoy;
+                                                })}
+                                                miEquipo={miEquipo?.id_equipo}
+                                            />
+                                        </SectionHome>
+                                    )}
+                                {ultimoPartidoMiEquipo && (
                                     <SectionHome>
                                         <SectionHomeTitle>
-                                            <span>Próximo partido |</span>{nombresEquipos(miEquipo?.id_equipo)}
+                                            Ultimos partidos de{" "}
+                                            {nombresEquipos(miEquipo?.id_equipo)}
                                         </SectionHomeTitle>
-                                        <CardProximoPartido
-                                            {...partidosMiEquipo.find((p) => {
-                                                const fechaPartido = new Date(p.dia);
-                                                const esHoy = fechaPartido.toISOString().split('T')[0] === hoy;
-                                                return p.estado === "P" && !esHoy;
-                                            })}
+                                        <CardUltimoPartido
+                                            {...ultimoPartidoMiEquipo}
                                             miEquipo={miEquipo?.id_equipo}
                                         />
-                                    </SectionHome>
-                                )
-                            }
-                            {
-                                ultimoPartidoMiEquipo && (
-                                    <SectionHome>
-                                        <SectionHomeTitle>
-                                            Ultimos partidos de {nombresEquipos(miEquipo?.id_equipo)}
-                                        </SectionHomeTitle>
-                                        <CardUltimoPartido {...ultimoPartidoMiEquipo} miEquipo={miEquipo?.id_equipo} />
                                         <PartidosGenericosContainer>
-                                            {
-                                                partidosMiEquipo
-                                                    .filter((p) => p.id_partido !== ultimoPartidoMiEquipo.id_partido && p.estado != "P")
-                                                    .sort((a, b) => new Date(b.dia) - new Date(a.dia))
-                                                    .map((p) => (
-                                                        <CardPartidoGenerico
-                                                            mostrarDia
-                                                            miEquipo={miEquipo.id_equipo}
-                                                            key={p.id_partido}
-                                                            {...p}
-                                                        />
-                                                    ))
-                                            }
+                                            {partidosMiEquipo
+                                                .filter(
+                                                    (p) =>
+                                                        p.id_partido !==
+                                                        ultimoPartidoMiEquipo.id_partido &&
+                                                        p.estado != "P"
+                                                )
+                                                .sort((a, b) => new Date(b.dia) - new Date(a.dia))
+                                                .map((p) => (
+                                                    <CardPartidoGenerico
+                                                        mostrarDia
+                                                        miEquipo={miEquipo.id_equipo}
+                                                        key={p.id_partido}
+                                                        {...p}
+                                                    />
+                                                ))}
                                         </PartidosGenericosContainer>
                                     </SectionHome>
-                                )
-                            }
-                        </>
-                        }
+                                )}
+                            </>
+                        )}
                         {sanciones && sanciones.length > 0 && (
                             <SectionHome>
-                                <SectionHomeTitle>
-                                    Sanciones
-                                </SectionHomeTitle>
+                                <SectionHomeTitle>Sanciones</SectionHomeTitle>
                                 <TableSanciones
                                     data={sanciones}
                                     dataColumns={sancionadosColumns}
                                 />
                             </SectionHome>
                         )}
-
                     </HomeMediumWrapper>
                     <HomeRightWrapper>
                         <CategoriasListaWrapper>
                             <CategoriasListaTitulo>
                                 <p>Dream Team</p>
                             </CategoriasListaTitulo>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                padding: '16px 24px'
-                            }
-                            }>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    padding: "16px 24px",
+                                }}
+                            >
                                 <Select
                                     data={categoriasActuales}
                                     placeholder="Seleccione cat."
-                                    value={categoriaSeleccionada?.id_categoria || categoriasActuales[0]?.id_categoria}
+                                    value={
+                                        categoriaSeleccionada?.id_categoria ||
+                                        categoriasActuales[0]?.id_categoria
+                                    }
                                     column="nombre"
                                     id_="id_categoria"
                                     onChange={handleCategoriaChange}
-                                    icon={<HiOutlineTrophy className='icon-select' />}
-                                    width='100%'
+                                    icon={<HiOutlineTrophy className="icon-select" />}
+                                    width="100%"
                                 />
                             </div>
 
@@ -724,28 +817,47 @@ const Home = () => {
                                     <FaAngleLeft
                                         onClick={handleJornadaBackChange}
                                         style={{
-                                            opacity: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 1 : 0.1,
-                                            pointerEvents: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[0] ? 'auto' : 'none'
+                                            opacity:
+                                                jornadasCategoria.length > 1 &&
+                                                    jornadaSeleccionada !== jornadasCategoria[0]
+                                                    ? 1
+                                                    : 0.1,
+                                            pointerEvents:
+                                                jornadasCategoria.length > 1 &&
+                                                    jornadaSeleccionada !== jornadasCategoria[0]
+                                                    ? "auto"
+                                                    : "none",
                                         }}
                                     />
 
                                     <DreamTeamTorneo>
                                         <p>Fecha {jornadaSeleccionada}</p>
-
                                     </DreamTeamTorneo>
 
                                     <FaAngleRight
                                         onClick={handleJornadaNextChange}
                                         style={{
-                                            opacity: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[jornadasCategoria.length - 1] ? 1 : 0.5,
-                                            pointerEvents: jornadasCategoria.length > 1 && jornadaSeleccionada !== jornadasCategoria[jornadasCategoria.length - 1] ? 'auto' : 'none'
+                                            opacity:
+                                                jornadasCategoria.length > 1 &&
+                                                    jornadaSeleccionada !==
+                                                    jornadasCategoria[jornadasCategoria.length - 1]
+                                                    ? 1
+                                                    : 0.5,
+                                            pointerEvents:
+                                                jornadasCategoria.length > 1 &&
+                                                    jornadaSeleccionada !==
+                                                    jornadasCategoria[jornadasCategoria.length - 1]
+                                                    ? "auto"
+                                                    : "none",
                                         }}
                                     />
                                 </DreamTeamTitulo>
 
-                                <DreamTeamCard jornada={jornadaSeleccionada} id_categoria={categoriaSeleccionada?.id_categoria} />
+                                <DreamTeamCard
+                                    jornada={jornadaSeleccionada}
+                                    id_categoria={categoriaSeleccionada?.id_categoria}
+                                />
                             </div>
-
                         </CategoriasListaWrapper>
                         {posiciones && zonasActuales ? (
                             <Section>
@@ -753,12 +865,13 @@ const Home = () => {
                                     <CategoriasListaTitulo>
                                         <p>Tabla de Posiciones</p>
                                     </CategoriasListaTitulo>
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        padding: '16px 24px'
-                                    }
-                                    }>
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            padding: "16px 24px",
+                                        }}
+                                    >
                                         <Select
                                             value={idZonaActual}
                                             onChange={changeZonaPosiciones}
@@ -766,7 +879,7 @@ const Home = () => {
                                             column="nombre_completo"
                                             id_="id_zona"
                                             placeholder="Seleccione zona"
-                                            icon={<HiOutlineTrophy className='icon-select' />}
+                                            icon={<HiOutlineTrophy className="icon-select" />}
                                         />
                                     </div>
 
@@ -784,7 +897,7 @@ const Home = () => {
                                 <CategoriasListaWrapper>
                                     <CategoriasListaTitulo>
                                         <p>Tabla de Posiciones</p>
-                                        <Skeleton height='12px' width='80px' />
+                                        <Skeleton height="12px" width="80px" />
                                     </CategoriasListaTitulo>
                                     <TablePosicionesLoader />
                                 </CategoriasListaWrapper>
@@ -797,69 +910,88 @@ const Home = () => {
                                     <span>Enterate de las ultimas novedades de CR</span>
                                 </CategoriasListaTitulo>
                                 <NoticiasWrapper>
-                                    {
-                                        noticiasLoading ? (
-                                            Array.from({ length: 4 }).map((_, index) => (
-                                                <NoticiasContainer key={index} className='home'>
-                                                    <NoticiaInfoContainer className='home'>
-                                                        <Skeleton size="7.5rem"></Skeleton>
+                                    {noticiasLoading ? (
+                                        Array.from({ length: 4 }).map((_, index) => (
+                                            <NoticiasContainer key={index} className="home">
+                                                <NoticiaInfoContainer className="home">
+                                                    <Skeleton size="7.5rem"></Skeleton>
+                                                    <NoticiasTextoContainer>
+                                                        <NoticiasFecha>
+                                                            <Skeleton width="5rem" height="1rem"></Skeleton>
+                                                        </NoticiasFecha>
+                                                        <NoticiaTitulo className="home">
+                                                            <Skeleton
+                                                                width="10rem"
+                                                                height="2rem"
+                                                            ></Skeleton>
+                                                        </NoticiaTitulo>
+                                                        <NoticiasCategoriasContainer>
+                                                            <Skeleton width="5rem" height="1rem"></Skeleton>
+                                                        </NoticiasCategoriasContainer>
+                                                    </NoticiasTextoContainer>
+                                                </NoticiaInfoContainer>
+                                            </NoticiasContainer>
+                                        ))
+                                    ) : noticias && noticias.length > 0 ? (
+                                        noticias
+                                            .sort(
+                                                (a, b) =>
+                                                    new Date(b.noticia_fecha_creacion) -
+                                                    new Date(a.noticia_fecha_creacion)
+                                            )
+                                            .slice(0, 4)
+                                            .map((noticia) => (
+                                                <NoticiasContainer
+                                                    key={noticia.id_noticia}
+                                                    className="home"
+                                                    onClick={() => goToNew(noticia.id_noticia)}
+                                                >
+                                                    <NoticiaInfoContainer className="home">
+                                                        <NoticiaImagen
+                                                            src={`${URLImages}${noticia.noticia_img}`}
+                                                        />
                                                         <NoticiasTextoContainer>
                                                             <NoticiasFecha>
-                                                                <Skeleton width="5rem" height="1rem"></Skeleton>
+                                                                {formatedDate(noticia.noticia_fecha_creacion)}
                                                             </NoticiasFecha>
-                                                            <NoticiaTitulo className='home'>
-                                                                <Skeleton width="10rem" height="2rem"></Skeleton>
+                                                            <NoticiaTitulo className="home">
+                                                                {noticia.noticia_titulo}
                                                             </NoticiaTitulo>
                                                             <NoticiasCategoriasContainer>
-                                                                <Skeleton width="5rem" height="1rem"></Skeleton>
+                                                                {noticia.categorias
+                                                                    .split(",")
+                                                                    .map((categoria) => {
+                                                                        const [id, nombre] = categoria.split("_");
+                                                                        return (
+                                                                            <NoticiaTexto key={id} className="home">
+                                                                                {nombre}
+                                                                            </NoticiaTexto>
+                                                                        );
+                                                                    })}
                                                             </NoticiasCategoriasContainer>
                                                         </NoticiasTextoContainer>
                                                     </NoticiaInfoContainer>
                                                 </NoticiasContainer>
                                             ))
-                                        ) : noticias && noticias.length > 0 ? (
-                                            noticias
-                                                .sort((a, b) => new Date(b.noticia_fecha_creacion) - new Date(a.noticia_fecha_creacion))
-                                                .slice(0, 4)
-                                                .map((noticia) => (
-                                                    <NoticiasContainer key={noticia.id_noticia} className='home' onClick={() => goToNew(noticia.id_noticia)}>
-                                                        <NoticiaInfoContainer className='home'>
-                                                            <NoticiaImagen src={`${URLImages}${noticia.noticia_img}`} />
-                                                            <NoticiasTextoContainer>
-                                                                <NoticiasFecha>{formatedDate(noticia.noticia_fecha_creacion)}</NoticiasFecha>
-                                                                <NoticiaTitulo className='home'>{noticia.noticia_titulo}</NoticiaTitulo>
-                                                                <NoticiasCategoriasContainer>
-                                                                    {
-                                                                        noticia.categorias.split(',').map((categoria) => {
-                                                                            const [id, nombre] = categoria.split('_');
-                                                                            return (
-                                                                                <NoticiaTexto key={id} className='home'>{nombre}</NoticiaTexto>
-                                                                            );
-                                                                        })
-                                                                    }
-                                                                </NoticiasCategoriasContainer>
-                                                            </NoticiasTextoContainer>
+                                    ) : (
+                                        <NoticiasContainer className="home">
+                                            <NoticiaInfoContainer className="home">
+                                                <NoticiasTextoContainer>
+                                                    <NoticiaTitulo className="home">
+                                                        <NoticiaInfoContainer className="user">
+                                                            No hay noticias disponibles.
                                                         </NoticiaInfoContainer>
-                                                    </NoticiasContainer>
-                                                ))
-                                        ) : (
-                                            <NoticiasContainer className='home'>
-                                                <NoticiaInfoContainer className='home'>
-                                                    <NoticiasTextoContainer>
-                                                        <NoticiaTitulo className='home'>
-                                                            <NoticiaInfoContainer className='user'>
-                                                                No hay noticias disponibles.
-                                                            </NoticiaInfoContainer>
-                                                        </NoticiaTitulo>
-                                                    </NoticiasTextoContainer>
-                                                </NoticiaInfoContainer>
-                                            </NoticiasContainer>
-                                        )
-                                    }
+                                                    </NoticiaTitulo>
+                                                </NoticiasTextoContainer>
+                                            </NoticiaInfoContainer>
+                                        </NoticiasContainer>
+                                    )}
                                 </NoticiasWrapper>
-                                {
-                                    noticias && noticias.length > 0 && <ViewMoreNews href='/noticias'>Ver todas las noticias</ViewMoreNews>
-                                }
+                                {noticias && noticias.length > 0 && (
+                                    <ViewMoreNews href="/noticias">
+                                        Ver todas las noticias
+                                    </ViewMoreNews>
+                                )}
                             </CategoriasListaWrapper>
                         </Section>
                     </HomeRightWrapper>

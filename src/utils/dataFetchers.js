@@ -3,7 +3,7 @@ import { URL } from "./utils";
 
 Axios.defaults.withCredentials = true;
 
-export const getPosicionesTemporada = async (id_zona) => {  
+export const getPosicionesTemporada = async (id_zona) => {
   try {
     const res = await Axios.get(
       `${URL}/user/get-posiciones-zona?id_zona=${id_zona}`,
@@ -30,7 +30,7 @@ export const getZonas = async () => {
   }
 };
 
-export const getJugadoresEquipo = async (id_equipo, id_categoria) => {  
+export const getJugadoresEquipo = async (id_equipo, id_categoria) => {
   try {
     const res = await Axios.get(
       `${URL}/user/get-jugadores-equipo?id_equipo=${id_equipo}&id_categoria=${id_categoria}`,
@@ -44,7 +44,7 @@ export const getJugadoresEquipo = async (id_equipo, id_categoria) => {
   }
 };
 
-export const getParticipacionesEquipo = async (id_equipo) => {  
+export const getParticipacionesEquipo = async (id_equipo) => {
   try {
     const res = await Axios.get(
       `${URL}/user/get-estadisticas-equipo-categoria?id_equipo=${id_equipo}`,
@@ -170,12 +170,13 @@ export const actualizarJugadoresDestacados = async (data, token) => {
   try {
     const response = await Axios.put(
       `${URL}/admin/actualizar-jugadores-destacados`,
-      data
-    , {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
@@ -186,11 +187,12 @@ export const actualizarJugadoresDestacados = async (data, token) => {
 export const limpiarJugadoresDescatados = async (jornada, token) => {
   try {
     const response = await Axios.put(
-      `${URL}/admin/resetear-jugadores-destacados?jornada=${jornada}`, {
+      `${URL}/admin/resetear-jugadores-destacados?jornada=${jornada}`,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      } 
+      }
     );
     return response.data;
   } catch (error) {
@@ -618,24 +620,24 @@ export const traerJugadoresDestacados = async (id_partido, token) => {
   }
 };
 
-export const jugadoresDestacadosDream = async (id_categoria, jornada, token) => {
+export const jugadoresDestacadosDream = async (
+  id_categoria,
+  jornada,
+  token
+) => {
   try {
-    const response = await Axios.get(
-      `${URL}/admin/get-jugadores-dream`, 
-      {
-        params: { id_categoria, jornada },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await Axios.get(`${URL}/admin/get-jugadores-dream`, {
+      params: { id_categoria, jornada },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error en la petición", error);
     return false;
   }
 };
-
 
 export const getCategorias = async () => {
   try {
@@ -646,7 +648,7 @@ export const getCategorias = async () => {
   }
 };
 
-export const uploadFile = async (file, directory) => {
+export const uploadFile = async (file, directory, token) => {
   if (!file || !directory) {
     console.error("Archivo o nombre del directorio faltante");
     return;
@@ -658,17 +660,43 @@ export const uploadFile = async (file, directory) => {
 
   try {
     const response = await Axios.post(`${URL}/upload`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
     });
 
     if (!response.data) {
       throw new Error(`Error al subir archivo: ${response.statusText}`);
     }
-
-    console.log("Archivo subido exitosamente:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error al subir archivo:", error.message);
+  }
+};
+
+export const deleteFile = async (file, directory, token) => {
+  if (!file || !directory) {
+    console.error("Archivo o nombre del directorio faltante");
+    return;
+  }
+
+  // Extraer solo el nombre del archivo, en caso de que venga con ruta
+  const fileName = typeof file === "string" ? file.split("/").pop() : file.name;
+
+  try {
+    const response = await Axios.delete(`${URL}/upload`, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      data: {
+        directory,
+        fileName,
+      },
+    });
+
+    if (!response.data) {
+      throw new Error(`Error al eliminar archivo: ${response.statusText}`);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar archivo:", error.message);
   }
 };
 
@@ -734,31 +762,41 @@ export const updateNoticia = async (data, token) => {
   }
 };
 
-export const getDreamTeamFecha = async (id_categoria, jornada) => { 
+export const getDreamTeamFecha = async (id_categoria, jornada) => {
   try {
-    const response = await Axios.get(`${URL}/user/get-dreamteam-jornada?id_categoria=${id_categoria}&jornada=${jornada}`);
+    const response = await Axios.get(
+      `${URL}/user/get-dreamteam-jornada?id_categoria=${id_categoria}&jornada=${jornada}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
   }
-}
+};
 
 export const eliminarJugadorDt = async (jugador, token) => {
   try {
-    const response = await Axios.put(`${URL}/admin/eliminar-jugador-dt`, jugador, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await Axios.put(
+      `${URL}/admin/eliminar-jugador-dt`,
+      jugador,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error en la peticion", error);
   }
-}
+};
 
 export const enviarMensajeContacto = async (nombre, email, mensaje) => {
   try {
-    const response = await Axios.post(`${URL}/user/enviar-mensaje-contacto`, { nombre, email, mensaje });
+    const response = await Axios.post(`${URL}/user/enviar-mensaje-contacto`, {
+      nombre,
+      email,
+      mensaje,
+    });
     return response.data;
   } catch (error) {
     console.error("Error en la petición", error);

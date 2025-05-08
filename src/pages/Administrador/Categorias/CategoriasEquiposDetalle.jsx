@@ -108,6 +108,24 @@ const CategoriasEquiposDetalle = () => {
 
     const [id_jugadorSeleccionado, setId_jugadorSeleccionado] = useState(null);
 
+    const [imageFile, setImageFile] = useState(null);
+    const [img, setImg] = useState("");
+    const [previewImage, setPreviewImage] = useState("");
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImg(file)
+            // Crear una URL de vista previa para la imagen seleccionada
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+        }
+    };
+
     // Planteles Data
     const plantelesList = useSelector((state) => state.planteles.data);
 
@@ -262,10 +280,16 @@ const CategoriasEquiposDetalle = () => {
     );
 
     const manejarEditarEquipo = async () => {
+
         const nuevaImagen = img ? `/uploads/Equipos/${img.name}` : equipoFiltrado.img;
 
         if (img && img.name === equipoFiltrado.img) {
             toast.error("El archivo tiene el mismo nombre");
+            return;
+        }
+
+        if (img && img.size > 100 * 1024) {
+            toast.error("El archivo no debe pesar mas de 100KB");
             return;
         }
 
@@ -277,7 +301,7 @@ const CategoriasEquiposDetalle = () => {
 
         try {
             if (img) {
-                await uploadFile(img, 'Equipos');
+                await uploadFile(img, 'Equipos', token);
             }
             await actualizarEquipo(data);
             dispatch(fetchTemporadas());
@@ -289,7 +313,6 @@ const CategoriasEquiposDetalle = () => {
             closeEditarEquipo();
         }
     };
-
 
     const handleEditarEquipo = () => {
         manejarEditarEquipo();
@@ -521,21 +544,14 @@ const CategoriasEquiposDetalle = () => {
         id_categoria
     ]);
 
-    const [imageFile, setImageFile] = useState(null);
-    const [img, setImg] = useState("");
-    const [previewImage, setPreviewImage] = useState("");
+    const customHandleChange = (e) => {
+        const { name, value } = e.target;
 
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setImageFile(file);
-            setImg(file)
-            // Crear una URL de vista previa para la imagen seleccionada
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
-            reader.readAsDataURL(file); // Leer el archivo como una URL de datos
+        if (name === 'dni_jugador') {
+            const soloNumeros = value.replace(/\D/g, ''); // Elimina todo lo que no sea número
+            handleFormChange({ target: { name, value: soloNumeros } });
+        } else {
+            handleFormChange(e);
         }
     };
 
@@ -668,7 +684,8 @@ const CategoriasEquiposDetalle = () => {
                                         placeholder="Escriba el DNI..."
                                         icon={<PiIdentificationCardLight className='icon-input' />}
                                         value={formState.dni_jugador}
-                                        onChange={handleFormChange}
+                                        onChange={customHandleChange}
+                                        maxLength={9}
                                     />
                                 </ModalFormInputContainer>
                                 <ModalFormInputContainer>
@@ -1035,7 +1052,7 @@ const CategoriasEquiposDetalle = () => {
                             form={
                                 <>
                                     <ModalFormInputContainer>
-                                        Logo (Opcional)
+                                        Escudo (Opcional)
                                         <ModalFormInputImg>
                                             {previewImage ?
                                                 <img src={previewImage} alt="Vista previa" style={{ width: '80px', height: '80px' }} />

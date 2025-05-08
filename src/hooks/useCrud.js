@@ -59,7 +59,7 @@ export const useCrud = (url, fetchActions, successMessage, errorMessage) => {
         } finally {
             setIsUpdating(false);
         }
-    };
+    };   
 
     const importar = async (fileData, divisionesList) => {
         const datosExistentes = divisionesList.map(a => a.nombre);
